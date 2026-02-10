@@ -1,0 +1,33 @@
+{
+    "name": "piprapay/sdk",
+    "description": "PipraPay PHP SDK for centralized payment integration",
+    "type": "library",
+    "keywords": ["piprapay", "payment", "gateway", "api", "sdk"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "PipraPay Team",
+            "email": "[email protected]"
+        }
+    ],
+    "require": {
+        "php": ">=7.4",
+        "ext-curl": "*",
+        "ext-json": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "PipraPay\\": "src/PipraPay/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "PipraPay\\Tests\\": "tests/"
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
