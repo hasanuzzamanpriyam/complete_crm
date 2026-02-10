@@ -1,0 +1,33 @@
+.mb-mails .mb-mail-subject {
+    font-size: 15px !important;
+    font-weight: normal;
+}
+
+.mb-mails .mb-mail-from {
+    font-weight: normal;
+}
+
+.mb-mails .bold,
+.mb-mails .bold a,
+.mb-mails .bold .mb-mail-subject,
+.mb-mails .bold .mb-mail-from,
+.mb-mails .bold .mb-mail-preview {
+    font-weight: bold !important;
+    color: #000 !important;
+}
+
+.w-100 {
+    width: 100px !important;
+}
+
+.w-0 {
+    width: 0px !important;
+}
+
+.pointer {
+    cursor: pointer !important;
+}
+
+.cursor-auto {
+    cursor: auto !important;
+}
