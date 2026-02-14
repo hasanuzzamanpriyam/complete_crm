@@ -172,4 +172,59 @@ class PaymentRequest
             'metadata' => $this->metadata
         ];
     }
+
+    public function validate(): array
+    {
+        $errors = [];
+
+        if (empty($this->amount) || $this->amount <= 0) {
+            $errors[] = 'Amount must be greater than 0';
+        }
+
+        if (empty($this->currency)) {
+            $errors[] = 'Currency is required';
+        }
+
+        if (empty($this->invoiceId)) {
+            $errors[] = 'Invoice ID is required';
+        }
+
+        if (empty($this->gateway)) {
+            $errors[] = 'Gateway is required';
+        }
+
+        if (empty($this->callbackUrl)) {
+            $errors[] = 'Callback URL is required';
+        }
+
+        if (empty($this->successUrl)) {
+            $errors[] = 'Success URL is required';
+        }
+
+        if (!filter_var($this->callbackUrl, FILTER_VALIDATE_URL)) {
+            $errors[] = 'Callback URL is invalid';
+        }
+
+        if (!filter_var($this->successUrl, FILTER_VALIDATE_URL)) {
+            $errors[] = 'Success URL is invalid';
+        }
+
+        if (!empty($this->cancelUrl) && !filter_var($this->cancelUrl, FILTER_VALIDATE_URL)) {
+            $errors[] = 'Cancel URL is invalid';
+        }
+
+        if (!empty($this->customerEmail) && !filter_var($this->customerEmail, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = 'Customer email is invalid';
+        }
+
+        return [
+            'valid' => empty($errors),
+            'errors' => $errors
+        ];
+    }
+
+    public function isValid(): bool
+    {
+        return $this->validate()['valid'];
+    }
 }

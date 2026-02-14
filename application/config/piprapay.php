@@ -11,4 +11,8 @@ $config['piprapay_webhook_secret'] = '';
 $config['piprapay_test_mode'] = TRUE;
 $config['piprapay_timeout'] = 30;
 $config['piprapay_default_gateway'] = 'bkash';
-$config['piprapay_allowed_gateways'] = ['bkash', 'nagad', 'stripe'];
+
+$config['piprapay_gateway_cache_ttl'] = 3600;
+$config['piprapay_gateway_cache_enabled'] = TRUE;
+
+$config['piprapay_fallback_gateways'] = [];
