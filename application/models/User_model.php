@@ -32,6 +32,54 @@ class User_Model extends MY_Model
         return $result;
     }
 
+
+    public function get_social_media($user_id)
+    {
+        $this->db->select('facebook_url, instagram_url, x_url, linkedin_url, staff_position');
+        $this->db->where('user_id', $user_id);
+        $query = $this->db->get('tbl_users');
+        return $query->row_array();
+    }
+
+    public function update_social_media($user_id, $social_data)
+    {
+        $allowed_fields = ['facebook_url', 'instagram_url', 'x_url', 'linkedin_url', 'staff_position'];
+        $data = array();
+
+        foreach ($social_data as $key => $value) {
+            if (in_array($key, $allowed_fields)) {
+                $data[$key] = $value;
+            }
+        }
+
+        if (!empty($data)) {
+            // save method requires primary key relative to the model's table
+            // user_model extends MY_Model which has save()
+            // we need to set table name and primary key for this operation if they differ from default
+            // defaults in User_model:
+            // public $_table_name;
+            // public $_order_by;
+            // public $_primary_key;
+
+            // To be safe and ensure it affects tbl_users:
+            $original_table = $this->_table_name;
+            $original_pk = $this->_primary_key;
+
+            $this->_table_name = 'tbl_users';
+            $this->_primary_key = 'user_id';
+
+            $id = $this->save($data, $user_id);
+
+            // Restore original values (though model is likely re-instantiated or these public props are set by controller usually)
+            $this->_table_name = $original_table;
+            $this->_primary_key = $original_pk;
+
+            return $id;
+        }
+
+        return false;
+    }
+
     public function get_new_user()
     {
         $post = new stdClass();
@@ -50,7 +98,8 @@ class User_Model extends MY_Model
         $all_users = array_reverse($this->get_permission('tbl_users'));
         if (empty($filterBy)) {
             return $all_users;
-        } else {
+        }
+        else {
             foreach ($all_users as $v_users) {
                 if ($filterBy == 'admin' && $v_users->role_id == 1) {
                     array_push($users, $v_users);

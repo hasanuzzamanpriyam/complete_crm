@@ -84,6 +84,36 @@ $locales = $this->db->order_by('name')->get('tbl_locales')->result();
                             <input type="text" class="form-control" name="phone" value="<?= $profile_info->phone ?>">
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label class="col-lg-4 control-label"><strong>Facebook URL</strong></label>
+                        <div class="col-lg-8">
+                            <input type="text" class="form-control" name="facebook_url" value="<?= $user_info->facebook_url ?>">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-4 control-label"><strong>Instagram URL</strong></label>
+                        <div class="col-lg-8">
+                            <input type="text" class="form-control" name="instagram_url" value="<?= $user_info->instagram_url ?>">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-4 control-label"><strong>X URL</strong></label>
+                        <div class="col-lg-8">
+                            <input type="text" class="form-control" name="x_url" value="<?= $user_info->x_url ?>">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-4 control-label"><strong>Linkedin URL</strong></label>
+                        <div class="col-lg-8">
+                            <input type="text" class="form-control" name="linkedin_url" value="<?= $user_info->linkedin_url ?>">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-4 control-label"><strong>Staff Position</strong></label>
+                        <div class="col-lg-8">
+                            <input type="text" class="form-control" name="staff_position" value="<?= $user_info->staff_position ?>">
+                        </div>
+                    </div>
 
                     <div class="form-group">
                         <label class="col-lg-4 control-label"><strong><?= lang('language') ?></strong></label>
