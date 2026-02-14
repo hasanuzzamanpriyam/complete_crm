@@ -31,7 +31,9 @@ class Piprapay extends MY_Controller
         $data['invoice_info'] = $invoice_info;
         $data['invoice_id'] = $invoice_id;
         $data['invoice_due'] = $invoice_due;
-        $data['allowed_gateways'] = $this->piprapay_gateway->getSupportedGateways();
+
+        $currency = $invoice_info->currency ?? 'BDT';
+        $data['allowed_gateways'] = $this->piprapay_gateway->getGatewayOptions($currency);
 
         if ($this->input->post()) {
             $data['post'] = true;

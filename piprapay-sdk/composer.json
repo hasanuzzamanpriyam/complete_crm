@@ -21,7 +21,8 @@
     "autoload": {
         "psr-4": {
             "PipraPay\\": "src/PipraPay/"
-        }
+        },
+        "files": []
     },
     "autoload-dev": {
         "psr-4": {

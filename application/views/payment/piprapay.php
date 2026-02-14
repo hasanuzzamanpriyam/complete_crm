@@ -46,9 +46,17 @@ $cur = $this->invoice_model->check_by(array('code' => $invoice_info->currency), 
                     <option value=""><?= lang('select_gateway') ?></option>
                     <?php if (!empty($allowed_gateways)) { ?>
                         <?php foreach ($allowed_gateways as $gateway) { ?>
-                            <?php if (in_array($gateway['code'], array('bkash', 'nagad', 'stripe'))) { ?>
-                                <option value="<?= $gateway['code'] ?>" <?= isset($selected_gateway) && $selected_gateway == $gateway['code'] ? 'selected' : '' ?>>
+                            <?php if (isset($gateway['code']) && isset($gateway['name']) && $gateway['active']) { ?>
+                                <option value="<?= $gateway['code'] ?>"
+                                        data-icon="<?= $gateway['icon'] ?? '' ?>"
+                                        data-currencies="<?= isset($gateway['currencies']) ? implode(',', $gateway['currencies']) : '' ?>"
+                                        data-min-amount="<?= $gateway['min_amount'] ?? 0 ?>"
+                                        data-max-amount="<?= $gateway['max_amount'] ?? PHP_FLOAT_MAX ?>"
+                                        <?= isset($selected_gateway) && $selected_gateway == $gateway['code'] ? 'selected' : '' ?>>
                                     <?= $gateway['name'] ?>
+                                    <?php if (isset($gateway['region']) && $gateway['region'] != 'global') { ?>
+                                        <small class="text-muted">(<?= ucfirst($gateway['region']) ?>)</small>
+                                    <?php } ?>
                                 </option>
                             <?php } ?>
                         <?php } ?>

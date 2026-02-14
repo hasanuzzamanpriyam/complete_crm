@@ -135,14 +135,43 @@ class Piprapay_gateway extends App_gateway
     public function getSupportedGateways()
     {
         $this->ci->load->library('piprapay_core');
-        
-        $response = $this->ci->piprapay_core->getSupportedGateways();
 
-        if ($response['success']) {
-            return $response['data'];
+        $response = $this->ci->piprapay_core->getGateways();
+
+        if ($response['success'] && isset($response['gateways'])) {
+            $collection = $response['gateways'];
+
+            if ($collection instanceof \PipraPay\GatewayCollection) {
+                return $collection->toArray();
+            }
+
+            return $response['data'] ?? [];
         }
 
-        return array();
+        return [];
+    }
+
+    public function getGatewayOptions(string $currency = null): array
+    {
+        $this->ci->load->library('piprapay_core');
+
+        if ($currency) {
+            $response = $this->ci->piprapay_core->getGatewaysForCurrency($currency);
+        } else {
+            $response = $this->ci->piprapay_core->getGateways();
+        }
+
+        if ($response['success'] && isset($response['gateways'])) {
+            $collection = $response['gateways'];
+
+            if ($collection instanceof \PipraPay\GatewayCollection) {
+                return $collection->toArray();
+            }
+
+            return $response['data'] ?? [];
+        }
+
+        return [];
     }
 
     public function refundTransaction($transaction_id, $amount = null)

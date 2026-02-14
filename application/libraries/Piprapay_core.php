@@ -2,9 +2,19 @@
 
 defined('BASEPATH') or exit('No direct script access allowed');
 
+require_once APPPATH . '../piprapay-sdk/src/PipraPay/Gateway.php';
+require_once APPPATH . '../piprapay-sdk/src/PipraPay/GatewayCollection.php';
+require_once APPPATH . '../piprapay-sdk/src/PipraPay/GatewayCache.php';
+
+use PipraPay\PipraPayClient;
+use PipraPay\PaymentRequest;
+use PipraPay\Gateway;
+use PipraPay\GatewayCollection;
+
 class Piprapay_core
 {
     protected $ci;
+    protected $client;
     protected $api_url;
     protected $api_key;
     protected $api_secret;
@@ -13,20 +23,50 @@ class Piprapay_core
     protected $timeout;
     protected $last_error;
     protected $last_response;
+    protected $gateway_cache_ttl;
 
     public function __construct()
     {
         $this->ci =& get_instance();
         $this->ci->load->config('piprapay', TRUE);
-        
+
         $piprapay_config = $this->ci->config->item('piprapay');
-        
+
         $this->api_url = $piprapay_config['api_url'];
         $this->api_key = $piprapay_config['api_key'];
         $this->api_secret = $piprapay_config['api_secret'];
         $this->merchant_id = $piprapay_config['merchant_id'];
         $this->test_mode = $piprapay_config['test_mode'];
         $this->timeout = $piprapay_config['timeout'];
+        $this->gateway_cache_ttl = $piprapay_config['gateway_cache_ttl'] ?? 3600;
+
+        $this->initializeClient();
+    }
+
+    protected function initializeClient()
+    {
+        $piprapay_config = $this->ci->config->item('piprapay');
+        $cacheFile = APPPATH . 'cache/piprapay_gateways.json';
+
+        $config = [
+            'api_url' => $this->api_url,
+            'api_key' => $this->api_key,
+            'api_secret' => $this->api_secret,
+            'merchant_id' => $this->merchant_id,
+            'webhook_secret' => $piprapay_config['webhook_secret'] ?? '',
+            'test_mode' => $this->test_mode,
+            'timeout' => $this->timeout,
+            'gateway_cache_file' => $cacheFile,
+            'gateway_cache_ttl' => $this->gateway_cache_ttl,
+            'gateway_cache_enabled' => true
+        ];
+
+        $this->client = new PipraPayClient($config);
+    }
+
+    public function getClient(): PipraPayClient
+    {
+        return $this->client;
     }
 
     public function initiatePayment($payment_data)
@@ -81,8 +121,43 @@ class Piprapay_core
     public function getSupportedGateways()
     {
         $endpoint = $this->api_url . '/gateways';
-        
+
         return $this->makeRequest('GET', $endpoint);
+    }
+
+    public function getGateways(bool $useCache = true, bool $activeOnly = true): array
+    {
+        return $this->client->getGateways($useCache, $activeOnly);
+    }
+
+    public function getGatewayCollection(bool $useCache = true, bool $activeOnly = true): GatewayCollection
+    {
+        return $this->client->getGatewayCollection($useCache, $activeOnly);
+    }
+
+    public function getGatewaysForCurrency(string $currency, bool $useCache = true): array
+    {
+        return $this->client->getGatewaysForCurrency($currency, $useCache);
+    }
+
+    public function isGatewayAvailable(string $code): bool
+    {
+        return $this->client->isGatewayAvailable($code);
+    }
+
+    public function validateGatewayConfig(string $code, array $config = []): array
+    {
+        return $this->client->validateGatewayConfig($code, $config);
+    }
+
+    public function refreshGateways(): array
+    {
+        return $this->client->refreshGateways();
+    }
+
+    public function clearGatewayCache(): bool
+    {
+        return $this->client->clearGatewayCache();
     }
 
     public function verifyWebhook($payload, $signature)

@@ -5,12 +5,17 @@ A standalone PHP SDK for integrating PipraPay centralized payment system into yo
 ## Features
 
 - Easy integration with PipraPay payment platform
-- Support for multiple payment gateways (bKash, Nagad, Stripe, etc.)
+- **Dynamic gateway discovery** - Automatically fetches available gateways from API
+- **Unlimited payment gateway support** - Add new gateways without code changes
+- **Smart gateway caching** - Improve performance with built-in caching
+- **Advanced gateway filtering** - Filter by currency, region, features, etc.
+- **Configuration validation** - Validate settings before making API calls
 - Payment initiation and verification
 - Transaction management
 - Webhook verification
 - PSR-4 autoloading
 - Framework agnostic
+- Comprehensive helper functions (CodeIgniter)
 
 ## Installation
 
@@ -119,14 +124,96 @@ if ($response['success']) {
 ### Get Available Gateways
 
 ```php
+// Get all active gateways (with caching)
 $response = $client->getGateways();
 
 if ($response['success']) {
-    $gateways = $response['data'];
+    $gateways = $response['gateways'];  // GatewayCollection object
+
     foreach ($gateways as $gateway) {
-        echo $gateway['name'] . ' (' . $gateway['code'] . ")\n";
+        echo $gateway->getName() . ' (' . $gateway->getCode() . ")\n";
     }
 }
+
+// Get all gateways including inactive
+$response = $client->getGateways($useCache = false, $activeOnly = false);
+
+// Get gateways for specific currency
+$response = $client->getGatewaysForCurrency('BDT');
+
+if ($response['success']) {
+    $bdtGateways = $response['gateways'];
+
+    foreach ($bdtGateways as $gateway) {
+        echo $gateway->getName() . " (Supports BDT)\n";
+    }
+}
+```
+
+### Gateway Filtering
+
+```php
+$collection = $client->getGatewayCollection();
+
+// Get active gateways only
+$activeGateways = $collection->getActive();
+
+// Get gateways for specific currency
+$bdtGateways = $collection->getByCurrency('BDT');
+
+// Get gateways with specific feature
+$refundableGateways = $collection->withFeature('refund');
+
+// Chain multiple filters
+$result = $collection
+    ->getActive()
+    ->getByCurrency('BDT')
+    ->withFeature('refund')
+    ->sortBy('name', 'asc');
+
+foreach ($result as $gateway) {
+    echo $gateway->getName() . "\n";
+}
+```
+
+### Gateway Validation
+
+```php
+// Validate gateway configuration
+$validation = $client->validateGatewayConfig('bkash', [
+    'amount' => 1000,
+    'currency' => 'BDT'
+]);
+
+if ($validation['success']) {
+    echo "Gateway configuration is valid";
+} else {
+    echo "Error: " . $validation['message'];
+}
+
+// Check if gateway is available
+if ($client->isGatewayAvailable('bkash')) {
+    echo "bKash is available";
+}
+```
+
+### Gateway Caching
+
+```php
+// Enable caching
+$config = [
+    'gateway_cache_enabled' => true,
+    'gateway_cache_ttl' => 3600,        // Cache for 1 hour
+    'gateway_cache_file' => '/path/to/cache.json'
+];
+
+$client = new PipraPayClient($config);
+
+// Refresh cache manually
+$client->refreshGateways();
+
+// Clear cache
+$client->clearGatewayCache();
 ```
 
 ### Handle Webhooks
