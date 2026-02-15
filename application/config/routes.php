@@ -112,6 +112,8 @@ foreach ($modules as $module) {
     }
 }
 
+$route['api/staff-users'] = 'api/staff_users';
+$route['api/clients'] = 'api/clients';
 
 
 
