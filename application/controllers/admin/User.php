@@ -94,15 +94,20 @@ class User extends Admin_Controller
             $where = null;
             if ($filterBy == 'admin') {
                 $where = array('tbl_users.role_id' => 1);
-            } else if ($filterBy == 'client') {
+            }
+            else if ($filterBy == 'client') {
                 $where = array('tbl_users.role_id' => 2);
-            } elseif ($filterBy == 'staff') {
+            }
+            elseif ($filterBy == 'staff') {
                 $where = array('tbl_users.role_id' => 3);
-            } elseif ($filterBy == 'active') {
+            }
+            elseif ($filterBy == 'active') {
                 $where = array('tbl_users.activated' => 1);
-            } elseif ($filterBy == 'deactive') {
+            }
+            elseif ($filterBy == 'deactive') {
                 $where = array('tbl_users.activated' => 0);
-            } elseif ($filterBy == 'banned') {
+            }
+            elseif ($filterBy == 'banned') {
                 $where = array('tbl_users.banned' => 1);
             }
             // get all invoice
@@ -120,24 +125,30 @@ class User extends Admin_Controller
                     $can_delete = $this->user_model->can_action('tbl_users', 'delete', array('user_id' => $v_user->user_id));
 
                     $sub_array = array();
-                    $sub_array[] = '<img style="width: 36px;margin-right: 10px;" src="' . base_url() . staffImage($v_user->user_id) . '" class="img-circle">';;
-                    $sub_array[] = '<a class="text-info" href="' . base_url() . 'admin/user/user_details/' . $v_user->user_id . '">' . $v_user->fullname . '</a>';;
+                    $sub_array[] = '<img style="width: 36px;margin-right: 10px;" src="' . base_url() . staffImage($v_user->user_id) . '" class="img-circle">';
+                    ;
+                    $sub_array[] = '<a class="text-info" href="' . base_url() . 'admin/user/user_details/' . $v_user->user_id . '">' . $v_user->fullname . '</a>';
+                    ;
                     $sub_array[] = $account_info->username;
                     $active = null;
                     if ($v_user->user_id != $this->session->userdata('user_id')) {
                         if (!empty($can_edit) && !empty($edited)) {
                             $active .= '<div class="change_user_status"><input data-id="' . $v_user->user_id . '" data-toggle="toggle" name="active" value="1" ' . ((!empty($account_info->activated) && $account_info->activated == '1') ? 'checked' : '') . ' data-on="' . lang('yes') . '" data-off="' . lang('no') . '" data-onstyle="success btn-xs" data-offstyle="danger btn-xs" type="checkbox"></div>';
-                        } else {
+                        }
+                        else {
                             if ($account_info->activated == 1) {
                                 $active .= '<span class="label label-success">' . lang('active') . '</span>';
-                            } else {
+                            }
+                            else {
                                 $active .= '<span class="label label-danger">' . lang('deactive') . '</span>';
                             }
                         }
-                    } else {
+                    }
+                    else {
                         if ($account_info->activated == 1) {
                             $active .= '<span class="label label-success">' . lang('active') . '</span>';
-                        } else {
+                        }
+                        else {
                             $active .= '<span class="label label-danger">' . lang('deactive') . '</span>';
                         }
                     }
@@ -148,9 +159,11 @@ class User extends Admin_Controller
                     $sub_array[] = $active;
                     if ($account_info->role_id == 1) {
                         $role = lang('admin');
-                    } elseif ($account_info->role_id == 3) {
+                    }
+                    elseif ($account_info->role_id == 3) {
                         $role = lang('staff');
-                    } else {
+                    }
+                    else {
                         $role = lang('client');
                     }
                     $sub_array[] = $role;
@@ -165,7 +178,8 @@ class User extends Admin_Controller
                         if (!empty($can_edit) && !empty($edited)) {
                             if ($account_info->banned == 1) {
                                 $action .= '<a data-toggle="tooltip" data-placement="top" class="btn btn-success btn-xs" title="Click to ' . lang("unbanned") . ' " href="' . base_url() . 'admin/user/set_banned/0/' . $v_user->user_id . '"><span class="fa fa-check"></span></a>' . ' ';
-                            } else {
+                            }
+                            else {
                                 $action .= '<span data-toggle="tooltip" data-placement="top" title="Click to ' . lang('banned') . ' ">' . btn_banned_modal('admin/user/change_banned/' . $v_user->user_id) . '</span>' . ' ';
                             }
                         }
@@ -182,7 +196,8 @@ class User extends Admin_Controller
                 }
             }
             render_table($data, $where);
-        } else {
+        }
+        else {
             redirect('admin/dashboard');
         }
     }
@@ -194,13 +209,15 @@ class User extends Admin_Controller
             $data['id'] = $id;
             if (!empty($active)) {
                 $data['active'] = $active;
-            } else {
+            }
+            else {
                 $data['active'] = 'user_details';
             }
             $date = $this->input->post('date', true);
             if (!empty($date)) {
                 $data['date'] = $date;
-            } else {
+            }
+            else {
                 $data['date'] = date('Y-m');
             }
             $data['attendace_info'] = $this->get_report($id, $data['date']);
@@ -208,7 +225,8 @@ class User extends Admin_Controller
             //
             if ($this->input->post('year', TRUE)) { // if input year
                 $data['year'] = $this->input->post('year', TRUE);
-            } else { // else current year
+            }
+            else { // else current year
                 $data['year'] = date('Y'); // get current year
             }
             // get all expense list by year and month
@@ -216,7 +234,8 @@ class User extends Admin_Controller
 
             if ($this->input->post('overtime_year', TRUE)) { // if input year
                 $data['overtime_year'] = $this->input->post('overtime_year', TRUE);
-            } else { // else current year
+            }
+            else { // else current year
                 $data['overtime_year'] = date('Y'); // get current year
             }
             // get all expense list by year and month
@@ -226,7 +245,8 @@ class User extends Admin_Controller
             $total_attendance = $this->total_attendace_in_month($id);
             if (count(array($total_attendance)) > 0) {
                 $total_attendance = count(array($total_attendance));
-            } else {
+            }
+            else {
                 $total_attendance = 0;
             }
             $data['total_attendance'] = $total_attendance;
@@ -234,7 +254,8 @@ class User extends Admin_Controller
             $total_absent = $this->total_attendace_in_month($id, 'absent');
             if (count(array($total_absent)) > 0) {
                 $total_absent = count(array($total_absent));
-            } else {
+            }
+            else {
                 $total_absent = 0;
             }
             $data['total_absent'] = $total_absent;
@@ -242,7 +263,8 @@ class User extends Admin_Controller
             $total_leave = $this->total_attendace_in_month($id, 'leave');
             if (count(array($total_leave)) > 0) {
                 $total_leave = count(array($total_leave));
-            } else {
+            }
+            else {
                 $total_leave = 0;
             }
             $data['total_leave'] = $total_leave;
@@ -250,7 +272,8 @@ class User extends Admin_Controller
             $total_award = $this->db->where('user_id', $id)->get('tbl_employee_award')->result();
             if (count(array($total_award)) > 0) {
                 $total_award = count(array($total_award));
-            } else {
+            }
+            else {
                 $total_award = 0;
             }
             $data['total_award'] = $total_award;
@@ -274,7 +297,8 @@ class User extends Admin_Controller
             $total_attendace_in_month = $this->total_attendace_in_month($id, TRUE);
             if (!empty($total_attendace_in_month)) {
                 $public_holiday = count(array($this->total_attendace_in_month($id, TRUE)));
-            } else {
+            }
+            else {
                 $public_holiday = 0;
             }
 
@@ -293,7 +317,8 @@ class User extends Admin_Controller
 
             $data['subview'] = $this->load->view('admin/user/user_details', $data, TRUE);
             $this->load->view('admin/_layout_main', $data);
-        } else {
+        }
+        else {
             set_message('error', lang('there_in_no_value'));
             redirect('admin/dashboard');
         }
@@ -309,20 +334,23 @@ class User extends Admin_Controller
                 }
                 return $aresult;
             }
-        } else {
+        }
+        else {
 
             $month = date('n');
             $year = date('Y');
             if ($month >= 1 && $month <= 9) {
                 $yymm = $year . '-' . '0' . $month;
-            } else {
+            }
+            else {
                 $yymm = $year . '-' . $month;
             }
             $num = cal_days_in_month(CAL_GREGORIAN, $month, $year);
             for ($i = 1; $i <= $num; $i++) {
                 if ($i >= 1 && $i <= 9) {
                     $sdate = $yymm . '-' . '0' . $i;
-                } else {
+                }
+                else {
                     $sdate = $yymm . '-' . $i;
                 }
                 $get_total_attendance = $this->common_model->get_total_attendace_by_date($sdate, $sdate, $user_id); // get all attendace by start date and in date
@@ -353,7 +381,8 @@ class User extends Admin_Controller
                 foreach ($get_public_holiday as $v_holiday) {
                     if ($v_holiday->start_date == $v_holiday->end_date) { // if start date and end date is equal return one data
                         $total_holiday[] = $v_holiday->start_date;
-                    } else { // if start date and end date not equan return all date
+                    }
+                    else { // if start date and end date not equan return all date
                         for ($j = $v_holiday->start_date; $j <= $v_holiday->end_date; $j++) {
                             $total_holiday[] = $j;
                         }
@@ -361,10 +390,12 @@ class User extends Admin_Controller
                 }
                 return $total_holiday;
             }
-        } elseif (!empty($flag)) { // if flag is not empty that means get pulic holiday
+        }
+        elseif (!empty($flag)) { // if flag is not empty that means get pulic holiday
             $get_total_absent = $this->common_model->get_total_attendace_by_date($start_date, $end_date, $user_id, $flag); // get all attendace by start date and in date
             return $get_total_absent;
-        } else {
+        }
+        else {
             $get_total_attendance = $this->common_model->get_total_attendace_by_date($start_date, $end_date, $user_id); // get all attendace by start date and in date
             return $get_total_attendance;
         }
@@ -401,7 +432,8 @@ class User extends Admin_Controller
             if ($i >= 1 && $i <= 9) { // if i<=9 concate with Mysql.becuase on Mysql query fast in two digit like 01.
                 $start_date = $year . "-" . '0' . $i;
                 $end_date = $year . "-" . '0' . $i;
-            } else {
+            }
+            else {
                 $start_date = $year . "-" . $i;
                 $end_date = $year . "-" . $i;
             }
@@ -446,7 +478,8 @@ class User extends Admin_Controller
 
         if ($month >= 1 && $month <= 9) {
             $yymm = $year . '-' . '0' . $month;
-        } else {
+        }
+        else {
             $yymm = $year . '-' . $month;
         }
 
@@ -465,7 +498,8 @@ class User extends Admin_Controller
 
             if ($i >= 1 && $i <= 9) {
                 $sdate = $yymm . '-' . '0' . $i;
-            } else {
+            }
+            else {
                 $sdate = $yymm . '-' . $i;
             }
             $day_name = date('l', strtotime("+$x days", strtotime($year . '-' . $month . '-' . $key)));
@@ -489,7 +523,8 @@ class User extends Admin_Controller
             }
             if (!empty($flag)) {
                 $attendace_info[date('W', strtotime($sdate))][$sdate] = $this->attendance_model->attendance_report_by_empid($user_id, $sdate, $flag);
-            } else {
+            }
+            else {
                 $attendace_info[date('W', strtotime($sdate))][$sdate] = $this->attendance_model->attendance_report_by_empid($user_id, $sdate);
             }
             $key++;
@@ -654,7 +689,8 @@ class User extends Admin_Controller
             $document_id = $this->input->post('document_id', TRUE);
             if (!empty($document_id)) {
                 $this->user_model->save($document_data, $document_id);
-            } else {
+            }
+            else {
                 $this->user_model->save($document_data);
             }
 
@@ -674,7 +710,8 @@ class User extends Admin_Controller
             $type = 'success';
             set_message($type, $message);
             redirect('admin/user/user_details/' . $profile_info->user_id . '/' . 'document_details'); //redirect page
-        } else {
+        }
+        else {
             redirect('admin/user/user_list');
         }
     }
@@ -732,7 +769,8 @@ class User extends Admin_Controller
                 $activity = 'activity_update_user_bank';
                 $msg = lang('update_bank_info');
                 $this->user_model->save($bank_data, $bank_id);
-            } else {
+            }
+            else {
                 $activity = 'activity_new_user_bank';
                 $msg = lang('save_bank_info');
                 $bank_id = $this->user_model->save($bank_data);
@@ -753,7 +791,8 @@ class User extends Admin_Controller
             $type = 'success';
             set_message($type, $msg);
             redirect('admin/user/user_details/' . $profile_info->user_id . '/' . 'bank'); //redirect page
-        } else {
+        }
+        else {
             redirect('admin/user/user_list');
         }
     }
@@ -807,7 +846,8 @@ class User extends Admin_Controller
             // duplicate value check in DB
             if (!empty($user_id)) { // if id exist in db update data
                 $check_id = array('user_id !=' => $user_id);
-            } else { // if id is not exist then set id as null
+            }
+            else { // if id is not exist then set id as null
                 $check_id = null;
             }
 
@@ -817,7 +857,8 @@ class User extends Admin_Controller
             if (!empty($check_user) || !empty($check_email)) { // if input data already exist show error alert
                 if (!empty($check_user)) {
                     $error = $login_data['username'];
-                } else {
+                }
+                else {
                     $error = $login_data['email'];
                 }
 
@@ -831,7 +872,8 @@ class User extends Admin_Controller
                     $type = 'error';
                     $message = lang('password_does_not_match');
                 }
-            } else { // save and update query
+            }
+            else { // save and update query
                 $login_data['last_ip'] = $this->input->ip_address();
 
                 if (empty($user_id)) {
@@ -842,7 +884,8 @@ class User extends Admin_Controller
                 if (!empty($permission)) {
                     if ($permission == 'everyone') {
                         $assigned = 'all';
-                    } else {
+                    }
+                    else {
                         $assigned_to = $this->user_model->array_from_post(array('assigned_to'));
                         if (!empty($assigned_to['assigned_to'])) {
                             foreach ($assigned_to['assigned_to'] as $assign_user) {
@@ -854,15 +897,18 @@ class User extends Admin_Controller
                         if ($assigned != 'all') {
                             $assigned = json_encode($assigned);
                         }
-                    } else {
+                    }
+                    else {
                         $assigned = 'all';
                     }
                     $login_data['permission'] = $assigned;
-                } else {
+                }
+                else {
                     set_message('error', lang('assigned_to') . ' Field is required');
                     if (empty($_SERVER['HTTP_REFERER'])) {
                         redirect('admin/user/user_list');
-                    } else {
+                    }
+                    else {
                         redirect($_SERVER['HTTP_REFERER']);
                     }
                 }
@@ -870,7 +916,8 @@ class User extends Admin_Controller
                 $this->user_model->_primary_key = 'user_id'; // $id
                 if (!empty($user_id)) {
                     $id = $this->user_model->save($login_data, $user_id);
-                } else {
+                }
+                else {
                     $login_data['activated'] = '1';
                     $id = $this->user_model->save($login_data);
                 }
@@ -898,7 +945,8 @@ class User extends Admin_Controller
                 $this->user_model->_primary_key = 'account_details_id'; // $id
                 if (!empty($account_details_id)) {
                     $this->user_model->save($profile_data, $account_details_id);
-                } else {
+                }
+                else {
                     $this->user_model->save($profile_data);
                 }
                 if (!empty($profile_data['designations_id'])) {
@@ -906,7 +954,8 @@ class User extends Admin_Controller
                     $department_head_id = $this->input->post('department_head_id', true);
                     if (!empty($department_head_id)) {
                         $head['department_head_id'] = $id;
-                    } else {
+                    }
+                    else {
                         $dep_head = $this->user_model->check_by(array('departments_id' => $desig->departments_id), 'tbl_departments');
 
                         if (empty($dep_head->department_head_id)) {
@@ -948,7 +997,8 @@ class User extends Admin_Controller
 
                 if (!empty($user_id)) {
                     $message = lang('update_user_info');
-                } else {
+                }
+                else {
                     $message = lang('save_user_info');
                 }
                 $type = 'success';
@@ -1002,7 +1052,8 @@ class User extends Admin_Controller
                     $message = 'Sorry You can not delete your own account!';
                     set_message($type, $message);
                     redirect('admin/user/user_list'); //redirect page
-                } else {
+                }
+                else {
                     $sbtn = $this->input->post('submit', true);
 
                     if (!empty($sbtn)) {
@@ -1052,21 +1103,24 @@ class User extends Admin_Controller
                             //redirect successful msg
                             $type = 'success';
                             $message = 'User Delete Successfully!';
-                        } else {
+                        }
+                        else {
                             //redirect error msg
                             $type = 'error';
                             $message = 'Sorry this user not find in database!';
                         }
                         set_message($type, $message);
                         redirect('admin/user/user_list'); //redirect page
-                    } else {
+                    }
+                    else {
                         $data['title'] = "Delete Users"; //Page title
                         $data['user_info'] = $this->db->where('user_id', $id)->get('tbl_account_details')->row();
                         $data['subview'] = $this->load->view('admin/user/delete_user', $data, TRUE);
                         $this->load->view('admin/_layout_main', $data); //page load
                     }
                 }
-            } else {
+            }
+            else {
                 redirect('admin/user/user_list'); //redirect page
             }
         }
@@ -1081,7 +1135,8 @@ class User extends Admin_Controller
             // if flag == 1 it is active user else deactive user
             if ($flag == 1) {
                 $msg = 'Active';
-            } else {
+            }
+            else {
                 $msg = 'Deactive';
             }
             $where = array('user_id' => $id);
@@ -1102,7 +1157,8 @@ class User extends Admin_Controller
 
             $type = "success";
             $message = "User " . $msg . " Successfully!";
-        } else {
+        }
+        else {
             $type = 'error';
             $message = lang('there_in_no_value');
         }
@@ -1118,7 +1174,8 @@ class User extends Admin_Controller
             if ($flag == 1) {
                 $msg = lang('banned');
                 $action = array('activated' => 0, 'banned' => $flag, 'ban_reason' => $this->input->post('ban_reason', TRUE));
-            } else {
+            }
+            else {
                 $msg = lang('unbanned');
                 $action = array('activated' => 1, 'banned' => $flag);
             }
@@ -1140,7 +1197,8 @@ class User extends Admin_Controller
 
             $type = "success";
             $message = "User " . $msg . " Successfully!";
-        } else {
+        }
+        else {
             $type = 'error';
             $message = lang('there_in_no_value');
         }
@@ -1267,7 +1325,8 @@ class User extends Admin_Controller
                     $this->db->where('todo_id', $swap_id);
                     $this->db->update('tbl_todo', $data);
                 }
-            } else
+            }
+            else
                 $counter++;
         }
     }
@@ -1324,20 +1383,23 @@ class User extends Admin_Controller
 
                     $type = "success";
                     $message = lang('message_new_password_sent');
-                } else {
+                }
+                else {
                     $type = "error";
                     $message = lang('password_does_not_match');
                 }
                 set_message($type, $message);
                 redirect('admin/user/user_details/' . $id); //redirect page
 
-            } else {
+            }
+            else {
                 $data['title'] = lang('see_password');
                 $data['user_info'] = $this->db->where('user_id', $id)->get('tbl_users')->row();
                 $data['subview'] = $this->load->view('admin/settings/reset_password', $data, FALSE);
                 $this->load->view('admin/_layout_modal', $data);
             }
-        } else {
+        }
+        else {
             $type = 'error';
             $message = lang('there_in_no_value');
             set_message($type, $message);
@@ -1365,47 +1427,93 @@ class User extends Admin_Controller
     public function userawardpointslist($user_id)
     {
         if ($this->input->is_ajax_request()) {
-        $this->load->model('datatables');
+            $this->load->model('datatables');
 
-        $this->datatables->table = 'tbl_award_points';
-        $this->datatables->join_table = array('tbl_client', 'tbl_invoices');
-        $this->datatables->join_where = array('tbl_client.client_id=tbl_award_points.client_id', 'tbl_invoices.invoices_id=tbl_award_points.invoices_id');
-        $this->datatables->select = "tbl_award_points.*, tbl_client.name, tbl_invoices.reference_no";
-        $action_array = array('award_points_id');
-        $main_column = array('tbl_client.name', 'client_award_point');
-        $result = array_merge($main_column, $action_array);
-        $this->datatables->column_order = $result;
-        $this->datatables->column_search = $result;
-        $this->datatables->groupBy = 'tbl_award_points.client_id';
-        $this->datatables->order = array('award_points_id' => 'desc');
+            $this->datatables->table = 'tbl_award_points';
+            $this->datatables->join_table = array('tbl_client', 'tbl_invoices');
+            $this->datatables->join_where = array('tbl_client.client_id=tbl_award_points.client_id', 'tbl_invoices.invoices_id=tbl_award_points.invoices_id');
+            $this->datatables->select = "tbl_award_points.*, tbl_client.name, tbl_invoices.reference_no";
+            $action_array = array('award_points_id');
+            $main_column = array('tbl_client.name', 'client_award_point');
+            $result = array_merge($main_column, $action_array);
+            $this->datatables->column_order = $result;
+            $this->datatables->column_search = $result;
+            $this->datatables->groupBy = 'tbl_award_points.client_id';
+            $this->datatables->order = array('award_points_id' => 'desc');
 
-        $where = array("tbl_award_points.user_id" => $user_id);
-        $fetch_data = $this->datatables->get_datatable_permission($where);
+            $where = array("tbl_award_points.user_id" => $user_id);
+            $fetch_data = $this->datatables->get_datatable_permission($where);
 
 
-        $data = array();
-        foreach ($fetch_data as $_key => $v_rule) {
+            $data = array();
+            foreach ($fetch_data as $_key => $v_rule) {
 
-            if (!empty($v_rule->name)) {
-                $clientname = $v_rule->name;
-            } else {
-                $clientname = '-';
+                if (!empty($v_rule->name)) {
+                    $clientname = $v_rule->name;
+                }
+                else {
+                    $clientname = '-';
+                }
+
+                $action = null;
+                $sub_array = array();
+                $sub_array[] = $clientname;
+                $sub_array[] = "<a href='" . base_url('admin/invoice/manage_invoice/invoice_details/' . $v_rule->invoices_id) . "' >" . $v_rule->reference_no . "</a>";
+                ;
+                $sub_array[] = strftime(config_item('date_format'), strtotime($v_rule->date));
+                $sub_array[] = display_money($v_rule->user_award_point);
+
+
+                $data[] = $sub_array;
             }
 
-            $action = null;
-            $sub_array = array();
-            $sub_array[] = $clientname;
-            $sub_array[] = "<a href='" . base_url('admin/invoice/manage_invoice/invoice_details/' . $v_rule->invoices_id) . "' >" . $v_rule->reference_no . "</a>";;
-            $sub_array[] = strftime(config_item('date_format'), strtotime($v_rule->date));
-            $sub_array[] = display_money($v_rule->user_award_point);
-
-
-            $data[] = $sub_array;
+            render_table($data);
         }
-
-        render_table($data);
-        } else {
+        else {
             redirect('admin/dashboard');
+        }
+    }
+    public function social_media_form($user_id)
+    {
+        $data['title'] = lang('update_social_profile');
+        // If lang key doesn't exist, it might return the key itself or empty. 
+        // usage of direct string might be safer if lang not editable: $data['title'] = 'Update Social Profile';
+        // But adhering to pattern:
+        $data['user_id'] = $user_id;
+        $data['social_media'] = $this->user_model->get_social_media($user_id);
+        $data['modal_subview'] = $this->load->view('admin/user/social_media_form', $data, FALSE);
+        $this->load->view('admin/_layout_modal', $data);
+    }
+
+    public function update_social_media($user_id)
+    {
+        $can_edit = can_action('24', 'edited');
+        if (!empty($can_edit)) {
+            $social_data = $this->input->post(NULL, TRUE);
+
+            $this->user_model->update_social_media($user_id, $social_data);
+
+            $profile_info = $this->db->where('user_id', $user_id)->get('tbl_account_details')->row();
+            $activities = array(
+                'user' => $this->session->userdata('user_id'),
+                'module' => 'user',
+                'module_field_id' => $user_id,
+                'activity' => 'activity_update_user', // Reusing existing activity key
+                'icon' => 'fa-user',
+                'value1' => $profile_info->fullname . ' (Social Media)'
+            );
+            $this->user_model->_table_name = 'tbl_activities';
+            $this->user_model->_primary_key = "activities_id";
+            $this->user_model->save($activities);
+
+            $type = 'success';
+            $message = lang('update_user_info');
+            set_message($type, $message);
+            redirect('admin/user/user_details/' . $user_id);
+        }
+        else {
+            set_message('error', lang('there_in_no_value'));
+            redirect('admin/user/user_list');
         }
     }
 }

@@ -44,7 +44,7 @@ class Settings extends Client_Controller
     public function update_settings($id)
     {
         $data = $this->client_model->array_from_post(array('name', 'email', 'short_note', 'website', 'phone', 'mobile', 'fax', 'address', 'city', 'zipcode', 'currency',
-            'skype_id', 'linkedin', 'facebook', 'twitter', 'language', 'country', 'vat', 'hosting_company', 'hostname', 'port', 'password', 'username', 'client_status', 'latitude', 'longitude'));
+            'skype_id', 'linkedin', 'facebook', 'twitter', 'language', 'country', 'vat', 'hosting_company', 'hostname', 'port', 'password', 'username', 'latitude', 'longitude'));
 
         if (!empty($_FILES['profile_photo']['name'])) {
             $val = $this->client_model->uploadImage('profile_photo');
@@ -57,7 +57,8 @@ class Settings extends Client_Controller
         $return_id = $this->client_model->save($data, $id);
         if (!empty($id)) {
             $id = $id;
-        } else {
+        }
+        else {
             $id = $return_id;
         }
 
@@ -103,6 +104,12 @@ class Settings extends Client_Controller
         $this->settings_model->_primary_key = 'user_id';
         $this->settings_model->save($profile_data, $user_id);
 
+        // Update social media fields in tbl_users
+        $social_data = $this->settings_model->array_from_post(array('facebook_url', 'instagram_url', 'x_url', 'linkedin_url', 'staff_position'));
+        $this->settings_model->_table_name = 'tbl_users';
+        $this->settings_model->_primary_key = 'user_id';
+        $this->settings_model->save($social_data, $user_id);
+
         $client_id = $this->input->post('client_id', TRUE);
         if (!empty($client_id)) {
             $client_data = $this->settings_model->array_from_post(array('name', 'email', 'address'));
@@ -112,8 +119,12 @@ class Settings extends Client_Controller
         }
         $type = "success";
         $message = lang('profile_updated');
-        set_message($type, $message);
-        redirect('client/settings/update_profile'); //redirect page
+//        set_message($type, $message);
+//        redirect('client/settings/update_profile'); //redirect page
+        $data['breadcrumbs'] = lang('settings');
+        $data['title'] = lang('update_profile');
+        $data['subview'] = $this->load->view('client/update_profile', $data, TRUE);
+        $this->load->view('client/_layout_main', $data);
     }
 
     public function set_password()
@@ -128,7 +139,8 @@ class Settings extends Client_Controller
             $this->settings_model->save($data, $user_id);
             $type = "success";
             $message = lang('password_updated');
-        } else {
+        }
+        else {
             $type = "error";
             $message = lang('password_error');
         }
@@ -146,7 +158,8 @@ class Settings extends Client_Controller
             if ($check_old_pass->email == $new_email) {
                 $type = 'error';
                 $message = lang('current_email');
-            } elseif ($this->is_email_available($new_email)) {
+            }
+            elseif ($this->is_email_available($new_email)) {
                 $data = array(
                     'new_email' => $new_email,
                     'new_email_key' => md5(rand() . microtime()),
@@ -158,11 +171,13 @@ class Settings extends Client_Controller
                 $this->send_email_change_email($new_email, $data);
                 $type = "success";
                 $message = lang('succesffuly_change_email');
-            } else {
+            }
+            else {
                 $type = "error";
                 $message = lang('duplicate_email');
             }
-        } else {
+        }
+        else {
             $type = "error";
             $message = lang('password_error');
         }
@@ -220,7 +235,8 @@ class Settings extends Client_Controller
             $this->settings_model->save($data, $user_id);
             $type = "success";
             $message = lang('username_updated');
-        } else {
+        }
+        else {
             $type = "error";
             $message = lang('password_error');
         }
