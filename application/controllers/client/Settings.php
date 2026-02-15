@@ -119,8 +119,12 @@ class Settings extends Client_Controller
         }
         $type = "success";
         $message = lang('profile_updated');
-        set_message($type, $message);
-        redirect('client/settings/update_profile'); //redirect page
+//        set_message($type, $message);
+//        redirect('client/settings/update_profile'); //redirect page
+        $data['breadcrumbs'] = lang('settings');
+        $data['title'] = lang('update_profile');
+        $data['subview'] = $this->load->view('client/update_profile', $data, TRUE);
+        $this->load->view('client/_layout_main', $data);
     }
 
     public function set_password()
