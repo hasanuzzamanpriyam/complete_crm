@@ -112,10 +112,17 @@ foreach ($modules as $module) {
     }
 }
 
+
+
+
+/*
+------------------------------------------
+api routes
+------------------------------------------
+*/
+
 $route['api/staff-users'] = 'api/staff_users';
 $route['api/clients'] = 'api/clients';
 
 
 
-/* End of file routes.php */
-/* Location: ./application/config/routes.php */
