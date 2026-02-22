@@ -4,6 +4,7 @@ $route['default_controller'] = 'login';
 $route['404'] = "login/not_found";
 $route['career'] = "frontend";
 $route['admin/mark_attendance'] = "admin/dashboard/mark_attendance";
+$route['admin/api-routes'] = "admin/api_routes/index";
 $route['knowledgebase'] = "frontend/knowledgebase";
 $route['available_modules'] = "admin/my_module/available_modules";
 $route['404_override'] = '';
