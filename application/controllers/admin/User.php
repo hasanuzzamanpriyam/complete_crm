@@ -34,7 +34,6 @@ class User extends Admin_Controller
 
     public function user_list($action = NULL, $id = NULL)
     {
-
         $user_id = $id;
         $data['active'] = 1;
         $data['title'] = 'User List';
@@ -81,7 +80,6 @@ class User extends Admin_Controller
             $this->datatables->table = 'tbl_users';
             $this->datatables->join_table = array('tbl_account_details');
             $this->datatables->join_where = array('tbl_account_details.user_id=tbl_users.user_id');
-
             $custom_field = custom_form_table_search(13);
             $action_array = array('tbl_users.user_id');
             $main_column = array('tbl_users.username', 'tbl_account_details.fullname', 'tbl_account_details.employment_id', 'tbl_account_details.language', 'tbl_account_details.phone', 'tbl_account_details.mobile', 'tbl_account_details.skype');
@@ -125,8 +123,10 @@ class User extends Admin_Controller
                     $can_delete = $this->user_model->can_action('tbl_users', 'delete', array('user_id' => $v_user->user_id));
 
                     $sub_array = array();
-                    $sub_array[] = '<img style="width: 36px;margin-right: 10px;" src="' . base_url() . staffImage($v_user->user_id) . '" class="img-circle">';
-                    ;
+                    $sub_array[] = '<img 
+                        src="' . base_url() . staffImage($v_user->user_id) . '" 
+                        style="width:36px;height:36px;border-radius:50%;object-fit:cover;margin-right:10px;"
+                    >';                    ;
                     $sub_array[] = '<a class="text-info" href="' . base_url() . 'admin/user/user_details/' . $v_user->user_id . '">' . $v_user->fullname . '</a>';
                     ;
                     $sub_array[] = $account_info->username;

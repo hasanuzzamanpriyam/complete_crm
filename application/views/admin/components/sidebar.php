@@ -80,6 +80,12 @@
                             <span>API Routes</span>
                         </a>
                     </li>
+                    <li>
+                        <a title="API Documentation" href="<?= base_url('admin/api-doc') ?>">
+                            <em class="fa fa-book"></em>
+                            <span>API Documentation</span>
+                        </a>
+                    </li>
                 </ul>
             <?php }
 

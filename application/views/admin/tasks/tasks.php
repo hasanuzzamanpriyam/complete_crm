@@ -70,7 +70,6 @@ if ($tasks == 'kanban') {
                 <ul class="dropdown-menu group animated zoomIn" style="width:300px;">
                     <li class="filter_by all_filter"><a href="#"><?php echo lang('all'); ?></a></li>
                     <li class="divider"></li>
-                    
                     <li class="t_status" id="billable"><a href="#"><?php echo lang('billable'); ?></a></li>
                     <li class="t_status" id="not_billable"><a href="#"><?php echo lang('not_billable'); ?></a></li>
                     <li class="t_status" id="assigned_to_me"><a href="#"><?php echo lang('assigned_to_me'); ?></a>
