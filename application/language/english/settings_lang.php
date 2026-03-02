@@ -878,6 +878,7 @@ $lang['upload_module'] = 'Upload Module';
 $lang['modules'] = 'Modules';
 $lang['my_modules'] = 'My Modules';
 $lang['available_modules'] = 'Available Modules';
+$lang['api_routes'] = 'API Routes';
 $lang['all_module'] = 'All Modules';
 $lang['uninstall'] = 'Uninstall';
 $lang['module_version'] = 'Version %s';

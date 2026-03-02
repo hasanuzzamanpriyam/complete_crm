@@ -72,6 +72,16 @@
 
             <?php
             echo $this->menu->dynamicMenu();
+            if ($this->session->userdata('user_type') == 1) { ?>
+                <ul class="nav">
+                    <li>
+                        <a title="API Routes" href="<?= base_url('admin/api-routes') ?>">
+                            <em class="fa fa-list-alt"></em>
+                            <span>API Routes</span>
+                        </a>
+                    </li>
+                </ul>
+            <?php }
 
             //if (!empty($pinned_details)) { ?>
                 <ul class="nav pinned" id="nav_pinned_cont">

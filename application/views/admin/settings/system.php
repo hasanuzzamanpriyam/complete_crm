@@ -7,6 +7,9 @@
             <section class="panel panel-custom">
                 <header class="panel-heading  "><?= lang('system_settings') ?>
                     <div class="pull-right">
+                        <a href="<?= base_url() ?>admin/api-routes" class="btn btn-sm btn-info" style="margin-top: -5px; margin-right: 5px;">
+                            <i class="fa fa-list"></i> <?= lang('api_routes') ?: 'API Routes' ?>
+                        </a>
                         <button type="submit" class="btn btn-sm btn-primary"
                                 style="margin-top: -5px;"><?= lang('save_changes') ?></button>
                     </div>
