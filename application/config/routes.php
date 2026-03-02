@@ -22,8 +22,7 @@ foreach ($modules as $module) {
         $routes_path = $modules_path . $module . '/config/routes.php';
         if (file_exists($routes_path)) {
             require($routes_path);
-        }
-        else {
+        } else {
             continue;
         }
     }
