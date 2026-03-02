@@ -5,6 +5,7 @@ $route['404'] = "login/not_found";
 $route['career'] = "frontend";
 $route['admin/mark_attendance'] = "admin/dashboard/mark_attendance";
 $route['admin/api-routes'] = "admin/api_routes/index";
+$route['admin/api-doc'] = "admin/api_doc/index";
 $route['knowledgebase'] = "frontend/knowledgebase";
 $route['available_modules'] = "admin/my_module/available_modules";
 $route['404_override'] = '';
@@ -21,8 +22,7 @@ foreach ($modules as $module) {
         $routes_path = $modules_path . $module . '/config/routes.php';
         if (file_exists($routes_path)) {
             require($routes_path);
-        }
-        else {
+        } else {
             continue;
         }
     }

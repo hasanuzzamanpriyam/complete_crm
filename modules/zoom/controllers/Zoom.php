@@ -127,8 +127,9 @@ class Zoom extends MY_Controller
   }
 
   public
-  function save_meeting($id = null)
-  {
+    function save_meeting(
+    $id = null
+  ) {
     $created = can_action_by_label('zoom', 'created');
     $edited = can_action_by_label('zoom', 'edited');
     if (!empty($created) || !empty($edited) && !empty($id)) {

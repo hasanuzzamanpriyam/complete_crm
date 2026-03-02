@@ -28,8 +28,7 @@ class Api extends CI_Controller
         foreach ($users as $user) {
             if (!empty($user->avatar) && file_exists($user->avatar)) {
                 $user->image = base_url() . $user->avatar;
-            }
-            else {
+            } else {
                 $user->image = base_url() . 'assets/img/user/default_avatar.jpg';
             }
         }
@@ -55,8 +54,7 @@ class Api extends CI_Controller
         foreach ($clients as $client) {
             if (!empty($client->avatar) && file_exists($client->avatar)) {
                 $client->image = base_url() . $client->avatar;
-            }
-            else {
+            } else {
                 $client->image = base_url() . 'assets/img/user/default_avatar.jpg';
             }
         }

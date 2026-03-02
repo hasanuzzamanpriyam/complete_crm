@@ -62,21 +62,33 @@ function btn_delete($uri, $text = null, $icon = null)
         $title = '';
     }
     return anchor($uri, $icons . ' ' . $title, array(
-        'class' => "btn $btn-danger btn-xs deleteBtn", 'title' => $text, 'data-toggle' => 'tooltip', 'data-placement' => 'top', 'onclick' => "return confirm('" . lang('delete_alert') . "');"
+        'class' => "btn $btn-danger btn-xs deleteBtn",
+        'title' => $text,
+        'data-toggle' => 'tooltip',
+        'data-placement' => 'top',
+        'onclick' => "return confirm('" . lang('delete_alert') . "');"
     ));
 }
 
 function btn_delete_disable($uri)
 {
     return anchor($uri, '<i class="fa fa-trash-o"></i>', array(
-        'class' => "btn btn-danger btn-xs disabled", 'title' => 'Delete', 'data-toggle' => 'tooltip', 'data-placement' => 'top', 'onclick' => "return confirm('You are about to delete a record. This cannot be undone. Are you sure?');"
+        'class' => "btn btn-danger btn-xs disabled",
+        'title' => 'Delete',
+        'data-toggle' => 'tooltip',
+        'data-placement' => 'top',
+        'onclick' => "return confirm('You are about to delete a record. This cannot be undone. Are you sure?');"
     ));
 }
 
 function btn_active($uri)
 {
     return anchor($uri, '<i class="fa fa-check"></i>', array(
-        'class' => "btn btn-success btn-xs", 'title' => 'Active', 'data-toggle' => 'tooltip', 'data-placement' => 'top', 'onclick' => "return confirm('You are about to active new sesion . This cannot be undone. Are you sure?');"
+        'class' => "btn btn-success btn-xs",
+        'title' => 'Active',
+        'data-toggle' => 'tooltip',
+        'data-placement' => 'top',
+        'onclick' => "return confirm('You are about to active new sesion . This cannot be undone. Are you sure?');"
     ));
 }
 
@@ -128,28 +140,44 @@ function btn_add()
 function btn_publish($uri)
 {
     return anchor($uri, '<i class="fa fa-check"></i>', array(
-        'class' => "btn btn-success btn-xs", 'title' => lang('click_to_published'), 'data-toggle' => 'tooltip', 'data-placement' => 'top', 'onclick' => "return confirm('You are about to unpublish this data. Are you sure?');"
+        'class' => "btn btn-success btn-xs",
+        'title' => lang('click_to_published'),
+        'data-toggle' => 'tooltip',
+        'data-placement' => 'top',
+        'onclick' => "return confirm('You are about to unpublish this data. Are you sure?');"
     ));
 }
 
 function btn_unpublish($uri)
 {
     return anchor($uri, '<i class="fa fa-times"></i>', array(
-        'class' => "btn btn-danger btn-xs", 'title' => lang('click_to_unpublished'), 'data-toggle' => 'tooltip', 'data-placement' => 'top', 'onclick' => "return confirm('You are about to publish this data. Are you sure?');"
+        'class' => "btn btn-danger btn-xs",
+        'title' => lang('click_to_unpublished'),
+        'data-toggle' => 'tooltip',
+        'data-placement' => 'top',
+        'onclick' => "return confirm('You are about to publish this data. Are you sure?');"
     ));
 }
 
 function btn_approve($uri)
 {
     return anchor($uri, '<i class="fa fa-times"></i>', array(
-        'class' => "btn btn-danger btn-xs", 'title' => 'Click to Reject', 'data-toggle' => 'tooltip', 'data-placement' => 'top', 'onclick' => "return confirm('You are about to unpublish this data. Are you sure?');"
+        'class' => "btn btn-danger btn-xs",
+        'title' => 'Click to Reject',
+        'data-toggle' => 'tooltip',
+        'data-placement' => 'top',
+        'onclick' => "return confirm('You are about to unpublish this data. Are you sure?');"
     ));
 }
 
 function btn_reject($uri)
 {
     return anchor($uri, '<i class="fa fa-check"></i>', array(
-        'class' => "btn btn-success btn-xs", 'title' => 'Click to Approve', 'data-toggle' => 'tooltip', 'data-placement' => 'top', 'onclick' => "return confirm('You are about to publish this data. Are you sure?');"
+        'class' => "btn btn-success btn-xs",
+        'title' => 'Click to Approve',
+        'data-toggle' => 'tooltip',
+        'data-placement' => 'top',
+        'onclick' => "return confirm('You are about to publish this data. Are you sure?');"
     ));
 }
 
@@ -182,7 +210,7 @@ if (!function_exists('mb_strtolower')) {
 function slug_it($str, $options = array())
 {
     // Make sure string is in UTF-8 and strip invalid UTF-8 characters
-    $str = mb_convert_encoding((string)$str, 'UTF-8', mb_list_encodings());
+    $str = mb_convert_encoding((string) $str, 'UTF-8', mb_list_encodings());
     $defaults = array(
         'delimiter' => '_',
         'limit' => null,
@@ -1001,7 +1029,8 @@ function get_permission($colL, $col, $permission_user, $permissionL = null, $tex
                     if ($uid == $v_user->user_id) {
                         if (in_array('edit', $v_permission)) {
                             $html .= 'checked';
-                        };
+                        }
+                        ;
                     }
                 }
             } elseif (!empty($allow_permission) && empty($permissionL)) {
@@ -1016,7 +1045,8 @@ function get_permission($colL, $col, $permission_user, $permissionL = null, $tex
                     if ($uid == $v_user->user_id) {
                         if (in_array('delete', $v_permission)) {
                             $html .= 'checked';
-                        };
+                        }
+                        ;
                     }
                 }
             } elseif (!empty($allow_permission) && empty($permissionL)) {
@@ -1093,7 +1123,7 @@ function get_permission_modal($colL, $col, $permission_user, $permissionL = null
                     $html .= 'checked';
                 }
             }
-            $html .= ' ><span class="fa fa-check"></span>' . $v_user->username . ' ' . $role . ' </label></div>
+            $html .= ' ><span class="fa fa-check"></span><img src="' . base_url(staffImage($v_user->user_id)) . '" style="width: 20px;height: 20px;border-radius: 50%;margin-right: 5px;" alt="">' . $v_user->username . ' ' . $role . ' </label></div>
             <div class="action_modal p ';
             if (!empty($permissionL) && $permissionL != 'all') {
                 if (array_key_exists($v_user->user_id, $user_id)) {
@@ -1111,7 +1141,8 @@ function get_permission_modal($colL, $col, $permission_user, $permissionL = null
                     if ($uid == $v_user->user_id) {
                         if (in_array('edit', $v_permission)) {
                             $html .= 'checked';
-                        };
+                        }
+                        ;
                     }
                 }
             } elseif (!empty($allow_permission) && empty($permissionL)) {
@@ -1126,7 +1157,8 @@ function get_permission_modal($colL, $col, $permission_user, $permissionL = null
                     if ($uid == $v_user->user_id) {
                         if (in_array('delete', $v_permission)) {
                             $html .= 'checked';
-                        };
+                        }
+                        ;
                     }
                 }
             } elseif (!empty($allow_permission) && empty($permissionL)) {
@@ -1837,7 +1869,7 @@ if (!function_exists('array_pluck')) {
  */
 function time_ago($time_ago)
 {
-    if (is_numeric($time_ago) && (int)$time_ago == $time_ago) {
+    if (is_numeric($time_ago) && (int) $time_ago == $time_ago) {
         $time_ago = $time_ago;
     } else {
         $time_ago = strtotime($time_ago);
@@ -2262,7 +2294,7 @@ if (!function_exists('js_anchor')) {
 
     function js_anchor($title = '', $attributes = '')
     {
-        $title = (string)$title;
+        $title = (string) $title;
 
         $html_attributes = "";
         if (is_array($attributes)) {
@@ -2648,9 +2680,9 @@ function iPINRange($ip, $range)
 
         if (strpos($range, '-') !== false) { // A-B format
             list($lower, $upper) = explode('-', $range, 2);
-            $lower_dec = (float)sprintf("%u", ip2long($lower));
-            $upper_dec = (float)sprintf("%u", ip2long($upper));
-            $ip_dec = (float)sprintf("%u", ip2long($ip));
+            $lower_dec = (float) sprintf("%u", ip2long($lower));
+            $upper_dec = (float) sprintf("%u", ip2long($upper));
+            $ip_dec = (float) sprintf("%u", ip2long($ip));
 
             return (($ip_dec >= $lower_dec) && ($ip_dec <= $upper_dec));
         }
@@ -2990,7 +3022,8 @@ function twilio_send_sms($number, $message)
     }
 
     if (!$token) {
-        $token = config_item('twilio_auth_token');;
+        $token = config_item('twilio_auth_token');
+        ;
     }
 
     if (!$mobile) {
@@ -3005,7 +3038,7 @@ function twilio_send_sms($number, $message)
 
     try {
         $client->messages->create(
-        // The number to send the SMS
+            // The number to send the SMS
             $number,
             [
                 // A Twilio phone number you purchased at twilio.com/console
@@ -3032,10 +3065,10 @@ function clickatell_send_sms($number, $message)
     }
     // No from number, in clickatell from is used only in 2 way messaging
     $url = 'https://platform.clickatell.com/messages/http/send?' . http_build_query([
-            'apiKey' => $api_key,
-            'to' => $number,
-            'content' => $message,
-        ]);
+        'apiKey' => $api_key,
+        'to' => $number,
+        'content' => $message,
+    ]);
 
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
@@ -3625,7 +3658,8 @@ function module_languagesFiles($module, $languages = [])
             $CI->lang->load($module . '/' . $language, 'english');
         }
         //        }
-    };
+    }
+    ;
 }
 
 
@@ -3636,7 +3670,7 @@ function leave_days_hours($days)
     $hours = $days * $office_hours;
     $hours_r = $hours % $office_hours;
     if ($hours_r > 0) {
-        $days = (int)($hours / $office_hours);
+        $days = (int) ($hours / $office_hours);
         $days = $days . ' d ' . $hours_r . ' h ';
     }
     return $days;

@@ -203,15 +203,15 @@ class ZoomAPI
     {
         $createAMeetingArray = array();
         $createAMeetingArray['topic'] = $data['topic'];
-        $createAMeetingArray['type']       = !empty($data['type']) ? $data['type'] : 2; //Scheduled
+        $createAMeetingArray['type'] = !empty($data['type']) ? $data['type'] : 2; //Scheduled
 
         $createAMeetingArray['start_time'] = str_replace(' ', 'T', $data['meeting_time']);
-        $createAMeetingArray['duration']   = !empty($data['duration']) ? $data['duration'] : 60;
+        $createAMeetingArray['duration'] = !empty($data['duration']) ? $data['duration'] : 60;
         $createAMeetingArray['agneda'] = $data['notes'];
-        
+
         $settings = json_decode($data['additional']);
 
-        $createAMeetingArray['settings']   = array(
+        $createAMeetingArray['settings'] = array(
             'host_video' => in_array('allow_host_video', $settings) ? true : false,
             'join_before_host' => in_array('allow_join_before_host', $settings) ? true : false,
             'participant_video' => in_array('allow_participant_vedio', $settings) ? true : false,
