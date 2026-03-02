@@ -1,4 +1,5 @@
-<?php if (!defined('BASEPATH')) exit('No direct script access allowed');
+<?php if (!defined('BASEPATH'))
+    exit('No direct script access allowed');
 
 spl_autoload_register(function ($classname) {
     if (strpos($classname, 'CI_') !== 0) {
