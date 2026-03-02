@@ -3,7 +3,7 @@
         <div class="panel-title">
             <strong><?= lang('add_time_manually') ?></strong>
             <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
-                    class="sr-only">Close</span></button>
+                class="sr-only">Close</span></button>
         </div>
     </div>
     <div class="panel-body">
