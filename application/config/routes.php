@@ -41,6 +41,16 @@ $route['api/staff-users'] = 'api/staff_users';
 $route['api/clients'] = 'api/clients';
 $route['api/jobs-posted-list'] = 'api/jobs_postedList';
 
+/*
+------------------------------------------
+Payment Hub API routes (v1)
+------------------------------------------
+*/
+$route['api/v1/payments/initiate']          = 'api/v1/payments/initiate';
+$route['api/v1/payments/callback/(:num)']   = 'api/v1/payments/callback/$1';
+$route['api/v1/payments/status/(:num)']     = 'api/v1/payments/status/$1';
+$route['api/v1/payments/gateways']          = 'api/v1/payments/gateways';
+
 
 
 

@@ -11,7 +11,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 | and disable it back when you're done.
 |
 */
-$config['migration_enabled'] = false;
+$config['migration_enabled'] = true;
 
 /*
 |--------------------------------------------------------------------------
@@ -67,7 +67,7 @@ $config['migration_auto_latest'] = FALSE;
 | be upgraded / downgraded to.
 |
 */
-$config['migration_version'] = 607; // 6.0.7
+$config['migration_version'] = 614;
 /*
 |--------------------------------------------------------------------------
 | Migrations Path
