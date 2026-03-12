@@ -130,7 +130,7 @@ endif;
                         <img src="<?php echo base_url() . $profile_info->avatar; ?>"
                              class="img-thumbnail img-circle thumb128 ">
                     <?php else : ?>
-                        <img src="<?php echo base_url() ?>assets/img/user/02.jpg" alt="Employee_Image"
+                        <img src="<?php echo base_url() ?>assets/img/user/default_avatar.jpg" alt="Employee_Image"
                              class="img-thumbnail img-circle thumb128">
                         ;
                     <?php endif; ?>

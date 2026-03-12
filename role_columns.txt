@@ -1,0 +1,8 @@
+﻿Field	Type	Null	Key	Default	Extra
+user_role_id	int	NO	PRI	NULL	auto_increment
+designations_id	int	YES		NULL	
+menu_id	int	NO		NULL	
+view	int	YES		0	
+created	int	YES		0	
+edited	int	YES		0	
+deleted	int	YES		0	

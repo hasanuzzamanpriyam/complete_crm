@@ -7,11 +7,11 @@ class Migration_Version_613 extends CI_Migration
     public function up()
     {
         // 1. Rename existing tables for better semantics
-        if ($this->db->table_exists('tbl_payment_projects')) {
+        if ($this->db->table_exists('tbl_payment_projects') && !$this->db->table_exists('tbl_api_clients')) {
             $this->dbforge->rename_table('tbl_payment_projects', 'tbl_api_clients');
         }
 
-        if ($this->db->table_exists('tbl_external_transactions')) {
+        if ($this->db->table_exists('tbl_external_transactions') && !$this->db->table_exists('tbl_payments')) {
             $this->dbforge->rename_table('tbl_external_transactions', 'tbl_payments');
         }
 
@@ -37,10 +37,16 @@ class Migration_Version_613 extends CI_Migration
                     'after' => 'created_at'
                 ]
             ];
-            $this->dbforge->add_column('tbl_api_clients', $fields);
+            foreach ($fields as $field_name => $field_data) {
+                if (!$this->db->field_exists($field_name, 'tbl_api_clients')) {
+                    $this->dbforge->add_column('tbl_api_clients', [$field_name => $field_data]);
+                }
+            }
 
             // Copy old keys to new if they exist and new are empty
-            $this->db->query("UPDATE tbl_api_clients SET client_id = api_key, client_secret = api_secret WHERE client_id IS NULL");
+            if ($this->db->field_exists('client_id', 'tbl_api_clients') && $this->db->field_exists('api_key', 'tbl_api_clients')) {
+                $this->db->query("UPDATE tbl_api_clients SET client_id = api_key, client_secret = api_secret WHERE client_id IS NULL");
+            }
         }
 
         // 3. Create tbl_payment_gateways
@@ -78,14 +84,17 @@ class Migration_Version_613 extends CI_Migration
             'updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'
         ]);
         $this->dbforge->add_key('id', TRUE);
-        $this->dbforge->create_table('tbl_payment_gateways');
+        $this->dbforge->create_table('tbl_payment_gateways', TRUE);
 
         // Seed with Piprapay
-        $this->db->insert('tbl_payment_gateways', [
-            'name' => 'PipraPay',
-            'gateway_slug' => 'piprapay',
-            'is_default' => 1
-        ]);
+        $gateway_exists = $this->db->where('gateway_slug', 'piprapay')->get('tbl_payment_gateways')->row();
+        if (!$gateway_exists) {
+            $this->db->insert('tbl_payment_gateways', [
+                'name' => 'PipraPay',
+                'gateway_slug' => 'piprapay',
+                'is_default' => 1
+            ]);
+        }
 
         // 4. Update tbl_payments (formerly tbl_external_transactions)
         if ($this->db->table_exists('tbl_payments')) {
@@ -108,7 +117,11 @@ class Migration_Version_613 extends CI_Migration
                     'after' => 'created_at'
                 ]
             ];
-            $this->dbforge->add_column('tbl_payments', $fields);
+            foreach ($fields as $field_name => $field_data) {
+                if (!$this->db->field_exists($field_name, 'tbl_payments')) {
+                    $this->dbforge->add_column('tbl_payments', [$field_name => $field_data]);
+                }
+            }
         }
 
         // 5. Create tbl_payment_transactions
@@ -145,7 +158,7 @@ class Migration_Version_613 extends CI_Migration
         ]);
         $this->dbforge->add_key('id', TRUE);
         $this->dbforge->add_key('payment_id');
-        $this->dbforge->create_table('tbl_payment_transactions');
+        $this->dbforge->create_table('tbl_payment_transactions', TRUE);
 
         // 6. Create tbl_payment_logs
         $this->dbforge->add_field([
@@ -175,7 +188,7 @@ class Migration_Version_613 extends CI_Migration
             'created_at DATETIME DEFAULT CURRENT_TIMESTAMP'
         ]);
         $this->dbforge->add_key('id', TRUE);
-        $this->dbforge->create_table('tbl_payment_logs');
+        $this->dbforge->create_table('tbl_payment_logs', TRUE);
 
         // 7. Create tbl_webhook_logs
         $this->dbforge->add_field([
@@ -220,7 +233,7 @@ class Migration_Version_613 extends CI_Migration
             'created_at DATETIME DEFAULT CURRENT_TIMESTAMP'
         ]);
         $this->dbforge->add_key('id', TRUE);
-        $this->dbforge->create_table('tbl_webhook_logs');
+        $this->dbforge->create_table('tbl_webhook_logs', TRUE);
 
         // 8. Create tbl_refunds
         $this->dbforge->add_field([
@@ -254,7 +267,7 @@ class Migration_Version_613 extends CI_Migration
             'created_at DATETIME DEFAULT CURRENT_TIMESTAMP'
         ]);
         $this->dbforge->add_key('id', TRUE);
-        $this->dbforge->create_table('tbl_refunds');
+        $this->dbforge->create_table('tbl_refunds', TRUE);
 
         // 9. Update tbl_api_tokens foreign key if needed
         // (CI doesn't handle FKs well in dbforge, so we do it via SQL if required, 

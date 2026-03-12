@@ -11,7 +11,7 @@ $user_info = $this->db->where('user_id', $profile_info->user_id)->get('tbl_users
                     <?php if ($profile_info->avatar) : ?>
                         <img src="<?php echo base_url() . $profile_info->avatar; ?>" class="img-thumbnail img-circle thumb128 ">
                     <?php else : ?>
-                        <img src="<?php echo base_url() ?>assets/img/user/02.jpg" alt="Employee_Image" class="img-thumbnail img-circle thumb128">
+                        <img src="<?php echo base_url() ?>assets/img/user/default_avatar.jpg" alt="Employee_Image" class="img-thumbnail img-circle thumb128">
                         ;
                     <?php endif; ?>
                 </div>

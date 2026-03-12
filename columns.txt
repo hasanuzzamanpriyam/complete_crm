@@ -1,0 +1,40 @@
+﻿Field	Type	Null	Key	Default	Extra
+user_id	int	NO	PRI	NULL	auto_increment
+username	varchar(50)	NO	UNI	NULL	
+password	varchar(255)	NO		NULL	
+email	varchar(100)	NO		NULL	
+role_id	int	NO		2	
+activated	tinyint(1)	NO		0	
+banned	tinyint	NO		0	
+ban_reason	varchar(255)	YES		NULL	
+new_password_key	varchar(50)	YES		NULL	
+new_password_requested	datetime	YES		NULL	
+new_email	varchar(100)	YES		NULL	
+new_email_key	varchar(50)	YES		NULL	
+last_ip	varchar(40)	YES		NULL	
+last_login	datetime	YES		NULL	
+created	datetime	YES		NULL	
+modified	timestamp	NO		CURRENT_TIMESTAMP	DEFAULT_GENERATED on update CURRENT_TIMESTAMP
+online_time	int	NO		0	
+permission	text	YES		NULL	
+active_email	varchar(100)	YES		NULL	
+smtp_email_type	varchar(50)	YES		NULL	
+smtp_encription	varchar(50)	YES		NULL	
+smtp_action	varchar(50)	YES		NULL	
+smtp_host_name	varchar(100)	YES		NULL	
+smtp_username	varchar(100)	YES		NULL	
+smtp_password	varchar(100)	YES		NULL	
+smtp_port	varchar(10)	YES		NULL	
+smtp_additional_flag	varchar(100)	YES		NULL	
+last_postmaster_run	varchar(200)	YES		NULL	
+media_path_slug	text	YES		NULL	
+smtp_unread_email	tinyint(1)	NO		0	
+smtp_delete_mail_after_import	tinyint(1)	NO		0	
+smtp_syn_time	int	YES		NULL	
+mail_host	varchar(100)	YES		NULL	
+smtp_menu	varchar(512)	YES			
+facebook_url	varchar(255)	YES		NULL	
+linkedin_url	varchar(255)	YES		NULL	
+instagram_url	varchar(255)	YES		NULL	
+x_url	varchar(255)	YES		NULL	
+staff_position	varchar(255)	YES		NULL	

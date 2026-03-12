@@ -245,18 +245,18 @@ if (!empty($created) || !empty($edited)) {
                             if (!empty($admin)) {
                                 ?>
                                 <option <?php
-                                if (!empty($login_info)) {
+                                if (isset($login_info->role_id)) {
                                     echo $login_info->role_id == 1 ? 'selected' : '';
                                 }
                                 ?> value="1"><?= lang('admin') ?></option>
                             <?php } ?>
                             <option <?php
-                            if (!empty($login_info)) {
+                            if (isset($login_info->role_id)) {
                                 echo $login_info->role_id == 3 ? 'selected' : '';
                             }
                             ?> value="3"><?= lang('staff') ?></option>
                             <option <?php
-                            if (!empty($login_info)) {
+                            if (isset($login_info->role_id)) {
                                 echo $login_info->role_id == 2 ? 'selected' : '';
                             }
                             ?> value="2"><?= lang('client') ?></option>
@@ -295,7 +295,7 @@ if (!empty($created) || !empty($edited)) {
                     </div>
                 </div>
                 <div class="col-sm-12" <?php
-                if (!empty($login_info) && $login_info->role_id == 2) {
+                if (isset($login_info->role_id) && $login_info->role_id == 2) {
                     echo 'style="display:block"';
                 }
                 ?>>
@@ -379,7 +379,7 @@ if (!empty($created) || !empty($edited)) {
 
 
                 <div class="form-group" id="department" <?php
-                if (!empty($login_info) && $login_info->role_id != 2) {
+                if (isset($login_info->role_id) && $login_info->role_id != 2) {
                     echo 'style="display:block"';
                 }
                 ?>>
@@ -516,7 +516,7 @@ if (!empty($created) || !empty($edited)) {
     <?php } ?>
 </script>
 <?php
-if (!empty($login_info) && $login_info->role_id != 2) { ?>
+if (isset($login_info->role_id) && $login_info->role_id != 2) { ?>
     <script>
         $(document).ready(function () {
             $('#department').show();
@@ -527,7 +527,7 @@ if (!empty($login_info) && $login_info->role_id != 2) { ?>
     </script>
 <?php }
 ?><?php
-if (!empty($login_info) && $login_info->role_id == 2) { ?>
+if (isset($login_info->role_id) && $login_info->role_id == 2) { ?>
     <script>
         $(document).ready(function () {
             $('#client_permission').show();

@@ -31,9 +31,15 @@
                                     <td><?= $i++ ?></td>
                                     <td><code><?= htmlspecialchars($r['uri']) ?></code></td>
                                     <td>
-                                        <a href="<?= htmlspecialchars($full_url) ?>" target="_blank" rel="noopener">
-                                            <?= htmlspecialchars($full_url) ?>
-                                        </a>
+                                        <?php if (strpos($full_url, '(') === false): ?>
+                                            <a href="<?= htmlspecialchars($full_url) ?>" target="_blank" rel="noopener">
+                                                <?= htmlspecialchars($full_url) ?>
+                                            </a>
+                                        <?php else: ?>
+                                            <span class="text-muted" title="This route requires parameters. Replace placeholders with actual values.">
+                                                <?= htmlspecialchars($full_url) ?>
+                                            </span>
+                                        <?php endif; ?>
                                     </td>
                                     <td><code><?= htmlspecialchars($r['destination']) ?></code></td>
                                     <td><?= htmlspecialchars($r['source']) ?></td>

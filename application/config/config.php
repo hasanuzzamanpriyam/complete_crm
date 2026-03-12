@@ -10,13 +10,15 @@ spl_autoload_register(function ($classname) {
     }
 });
 
-function guess_base_url()
-{
-    $base_url = isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on' ? 'https' : 'http';
-    $base_url .= '://' . $_SERVER['HTTP_HOST'];
-    $base_url .= str_replace(basename($_SERVER['SCRIPT_NAME']), '', $_SERVER['SCRIPT_NAME']);
-    $base_url = preg_replace('/install.*/', '', $base_url);
-    return $base_url;
+if (!function_exists('guess_base_url')) {
+    function guess_base_url()
+    {
+        $base_url = isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on' ? 'https' : 'http';
+        $base_url .= '://' . $_SERVER['HTTP_HOST'];
+        $base_url .= str_replace(basename($_SERVER['SCRIPT_NAME']), '', $_SERVER['SCRIPT_NAME']);
+        $base_url = preg_replace('/install.*/', '', $base_url);
+        return $base_url;
+    }
 }
 
 if (file_exists(APPPATH . 'config/install.php')) {

@@ -297,7 +297,7 @@ if (!empty($direction) && $direction == 'rtl') {
 <?php } ?>
 
 <script>
-    document.addEventListener("load", ins_data, false);
+
 
     function ins_data(url, datastring = '') {
         $.ajax({

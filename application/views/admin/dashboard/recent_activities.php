@@ -14,17 +14,18 @@
                     <article id="comment-id-1" class="comment-item" style="font-size: 11px;">
                         <div class="pull-left recect_task  ">
                             <a class="pull-left recect_task  ">
-                                <img style="width: 30px;margin-left: 18px;
-    height: 29px;
-    border: 1px solid #aaa;"
-                                     src="<?= base_url() . $v_activities->avatar ?>"
+                                <?php
+                                $user_avatar = (!empty($v_activities->avatar) && file_exists(FCPATH . $v_activities->avatar)) ? $v_activities->avatar : 'assets/img/user/default_avatar.jpg';
+                                ?>
+                                <img style="width: 30px;margin-left: 18px;height: 29px;border: 1px solid #aaa;"
+                                     src="<?= base_url() . $user_avatar ?>"
                                      class="img-circle">
                             </a>
                         </div>
                         <section class="comment-body m-b-lg">
                             <header class=" ">
                                 <strong>
-                                    <?= $v_activities->fullname ?></strong>
+                                    <?= !empty($v_activities->fullname) ? $v_activities->fullname : lang('unknown') ?></strong>
                                 <span data-toggle="tooltip" data-placement="top"
                                       title="<?= display_datetime($v_activities->activity_date) ?>"
                                       class="text-muted text-xs"> <?php

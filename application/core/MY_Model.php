@@ -1223,6 +1223,9 @@
 
     function my_spent_time($user_id)
     {
+        if (empty($user_id)) {
+            return 0;
+        }
         $where = 'project_id IS NULL';
 
         $total_time = "SELECT start_time,end_time,end_time - start_time time_spent

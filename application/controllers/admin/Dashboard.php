@@ -147,14 +147,11 @@ class Dashboard extends Admin_Controller
                 $completed_tasks = 0;
             }
 
-            $total_estimate_amount = $this->db->query("SELECT  tbl_estimates.estimates_id, sum(tbl_estimate_items.total_cost) as cost
+            $total_estimate_result = $this->db->query("SELECT sum(tbl_estimate_items.total_cost) as cost
         FROM tbl_estimates
         LEFT JOIN tbl_estimate_items ON tbl_estimates.estimates_id = tbl_estimate_items.estimates_id
-        WHERE tbl_estimates.status NOT IN ('draft', 'cancelled')")->row()->cost;
-
-            if (empty($total_estimate_amount)) {
-                $total_estimate_amount = 0;
-            }
+        WHERE tbl_estimates.status NOT IN ('draft', 'cancelled')")->row();
+            $total_estimate_amount = (!empty($total_estimate_result) ? $total_estimate_result->cost : 0);
 
 
             $total_resolved_bugs = $this->admin_model->get_permission('tbl_bug', array('tbl_bug.bug_status' => 'resolved'), null, true);

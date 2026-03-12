@@ -53,31 +53,34 @@ class MY_Controller extends CI_Controller
                 $this->lang->load($shortfile, 'english');
             }
         }
-        $uri = null;
-        for ($i = 1; $i <= $this->uri->total_segments(); $i++) {
-            $uri .= $this->uri->segment($i) . '/';
-        }
-        $uriSegment = rtrim($uri, '/');
-        $menu_uri['menu_active_id'] = $this->admin_model->select_menu_by_uri($uriSegment);
-        $menu_uri['menu_active_id'] == false || $this->session->set_userdata($menu_uri);
         $timezone = config_item('timezone');
         if (empty($timezone)) {
             $timezone = 'Australia/Sydney';
         }
-        
-        $unread_notifications = $this->db->where(array('to_user_id' => $this->session->userdata('user_id'), 'read' => 0))->get('tbl_notifications')->result();
-        if (count($unread_notifications) > 0) {
-            $unread_notifications = count($unread_notifications);
-        } else {
-            $unread_notifications = 0;
+
+        if (!$this->input->is_cli_request()) {
+            $uri = null;
+            for ($i = 1; $i <= $this->uri->total_segments(); $i++) {
+                $uri .= $this->uri->segment($i) . '/';
+            }
+            $uriSegment = rtrim($uri, '/');
+            $menu_uri['menu_active_id'] = $this->admin_model->select_menu_by_uri($uriSegment);
+            $menu_uri['menu_active_id'] == false || $this->session->set_userdata($menu_uri);
+
+            $unread_notifications = $this->db->where(array('to_user_id' => $this->session->userdata('user_id'), 'read' => 0))->get('tbl_notifications')->result();
+            if (count($unread_notifications) > 0) {
+                $unread_notifications = count($unread_notifications);
+            } else {
+                $unread_notifications = 0;
+            }
+
+            $auto_loaded_vars = array(
+                'unread_notifications' => $unread_notifications,
+                'd_currency' => $this->db->where('code', config_item('default_currency'))->get('tbl_currencies')->row()->symbol,
+            );
+            $this->load->vars($auto_loaded_vars);
         }
 
-        $auto_loaded_vars = array(
-            'unread_notifications' => $unread_notifications,
-            'd_currency' => $this->db->where('code', config_item('default_currency'))->get('tbl_currencies')->row()->symbol,
-        );
-        $this->load->vars($auto_loaded_vars);
-        
         date_default_timezone_set($timezone);
         set_mysql_timezone($timezone);
         check_installation();

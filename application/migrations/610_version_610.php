@@ -10,10 +10,15 @@ class Migration_Version_610 extends CI_Migration
 
     public function up()
     {
-        $this->db->query("INSERT INTO `tbl_online_payment` (`online_payment_id`, `gateway_name`, `icon`, `field_1`, `field_2`, `field_3`, `field_4`, `field_5`, `link`, `modal`) VALUES 
-        (NULL, 'PipraPay', 'piprapay.png', 'piprapay_api_url', 'piprapay_api_key', 'piprapay_api_secret', 'piprapay_merchant_id', '', 'payment/piprapay', 'Yes');");
+        $gateway_exists = $this->db->where('gateway_name', 'PipraPay')->get('tbl_online_payment')->row();
+        if (!$gateway_exists) {
+            $this->db->query("INSERT INTO `tbl_online_payment` (`online_payment_id`, `gateway_name`, `icon`, `field_1`, `field_2`, `field_3`, `field_4`, `field_5`, `link`, `modal`) VALUES 
+            (NULL, 'PipraPay', 'piprapay.png', 'piprapay_api_url', 'piprapay_api_key', 'piprapay_api_secret', 'piprapay_merchant_id', '', 'payment/piprapay', 'Yes');");
+        }
 
-        $this->db->query("ALTER TABLE `tbl_invoices` ADD `allow_piprapay` ENUM('Yes','No') NULL DEFAULT 'Yes' AFTER `allow_tappayment`;");
+        if (!$this->db->field_exists('allow_piprapay', 'tbl_invoices')) {
+            $this->db->query("ALTER TABLE `tbl_invoices` ADD `allow_piprapay` ENUM('Yes','No') NULL DEFAULT 'Yes' AFTER `allow_tappayment`;");
+        }
 
         $config_items = array(
             array(
@@ -83,8 +88,17 @@ class Migration_Version_610 extends CI_Migration
         );
 
         foreach ($config_items as $item) {
-            $this->db->query("INSERT INTO `tbl_config` (`config_key`, `value`, `label`, `type`, `options`, `description`) VALUES 
-            ('" . $item['config_key'] . "', '" . $item['value'] . "', '" . $item['label'] . "', '" . $item['type'] . "', '" . $item['options'] . "', '" . $item['description'] . "');");
+            $config_exists = $this->db->where('config_key', $item['config_key'])->get('tbl_config')->row();
+            if (!$config_exists) {
+                // Check if label column exists to determine which query to run
+                if ($this->db->field_exists('label', 'tbl_config')) {
+                    $this->db->query("INSERT INTO `tbl_config` (`config_key`, `value`, `label`, `type`, `options`, `description`) VALUES 
+                    ('" . $item['config_key'] . "', '" . $item['value'] . "', '" . $item['label'] . "', '" . $item['type'] . "', '" . $item['options'] . "', '" . $item['description'] . "');");
+                } else {
+                    $this->db->query("INSERT INTO `tbl_config` (`config_key`, `value`) VALUES 
+                    ('" . $item['config_key'] . "', '" . $item['value'] . "');");
+                }
+            }
         }
 
         $this->db->query("UPDATE `tbl_config` SET `value` = '6.1.0' WHERE `tbl_config`.`config_key` = 'version';");
@@ -109,7 +123,9 @@ class Migration_Version_610 extends CI_Migration
             $this->db->query("DELETE FROM `tbl_config` WHERE `config_key` = '" . $key . "';");
         }
 
-        $this->db->query("ALTER TABLE `tbl_invoices` DROP COLUMN `allow_piprapay`;");
+        if ($this->db->field_exists('allow_piprapay', 'tbl_invoices')) {
+            $this->db->query("ALTER TABLE `tbl_invoices` DROP COLUMN `allow_piprapay`;");
+        }
 
         $this->db->query("UPDATE `tbl_config` SET `value` = '6.0.7' WHERE `tbl_config`.`config_key` = 'version';");
     }

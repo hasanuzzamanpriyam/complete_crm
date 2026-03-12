@@ -1,7 +1,17 @@
+<?php
+defined('BASEPATH') or exit('No direct script access allowed');
+
 require_once APPPATH . 'core/PH_Api_Controller.php';
 
 /**
  * Payment Hub REST API — v1
+ * 
+ * @property Payment_hub_auth $payment_hub_auth
+ * @property Payment_service $payment_service
+ * @property Api_clients_model $api_clients_model
+ * @property Payment_gateways_model $payment_gateways_model
+ * @property Gateway_factory $gateway_factory
+ * @property Payments_model $payments_model
  */
 class Payments extends PH_Api_Controller
 {
@@ -41,6 +51,9 @@ class Payments extends PH_Api_Controller
      * GET/POST api/v1/payments/callback/{gateway_slug}
      * Handle incoming gateway callbacks/webhooks.
      */
+    public function callback($gateway_slug)
+    {
+        try {
             // 1. Get Driver
             $this->load->model('payment_gateways_model');
             $this->load->library('gateway_factory');
@@ -102,6 +115,22 @@ class Payments extends PH_Api_Controller
                 'status' => $payment->status,
                 'created_at' => $payment->created_at
             ]);
+
+        } catch (Exception $e) {
+            return $this->_handle_exception($e);
+        }
+    }
+
+    /**
+     * GET api/v1/payments/gateways
+     */
+    public function gateways()
+    {
+        try {
+            $this->load->model('payment_gateways_model');
+            $gateways = $this->payment_gateways_model->get_active();
+
+            return $this->_send_success($gateways, "Gateways retrieved successfully");
 
         } catch (Exception $e) {
             return $this->_handle_exception($e);

@@ -46,6 +46,10 @@ class User extends Admin_Controller
 
         $user_id = $id;
 
+        // Initialize to null so the view always has these variables defined
+        $data['login_info'] = null;
+        $data['warehouse_id'] = null;
+
         if ($action == 'edit_user' && $id != my_id()) {
 
             $can_edit = $this->user_model->can_action('tbl_users', 'edit', array('user_id' => $id));
@@ -54,6 +58,10 @@ class User extends Admin_Controller
                 $data['login_info'] = $this->db->where('user_id', $user_id)->get('tbl_users')->row();
                 $data['warehouse_id'] = $this->db->where('user_id', $user_id)->get('tbl_account_details')->row();
             }
+        } elseif ($action == 'edit_user' && $id == my_id()) {
+            // Editing own account — always load own data
+            $data['login_info'] = $this->db->where('user_id', $user_id)->get('tbl_users')->row();
+            $data['warehouse_id'] = $this->db->where('user_id', $user_id)->get('tbl_account_details')->row();
         }
         $data['active'] = 2;
         $data['title'] = 'Create User ';

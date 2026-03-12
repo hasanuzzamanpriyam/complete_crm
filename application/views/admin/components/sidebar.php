@@ -47,7 +47,10 @@
                                 <!-- User picture-->
                                 <div class="user-block-picture">
                                     <div class="user-block-status">
-                                        <img src="<?= base_url() . $profile_info->avatar ?>" alt="Avatar" width="60"
+                                        <?php
+                                        $user_avatar = (!empty($profile_info->avatar) && file_exists(FCPATH . $profile_info->avatar)) ? $profile_info->avatar : 'assets/img/user/default_avatar.jpg';
+                                        ?>
+                                        <img src="<?= base_url() . $user_avatar ?>" alt="Avatar" width="60"
                                              height="60"
                                              class="img-thumbnail img-circle">
                                         <div class="circle circle-success circle-lg"></div>
@@ -55,7 +58,7 @@
                                 </div>
                                 <!-- Name and Job-->
                                 <div class="user-block-info">
-                                    <span class="user-block-name"><?= $profile_info->fullname ?></span>
+                                    <span class="user-block-name"><?= !empty($profile_info->fullname) ? $profile_info->fullname : (!empty($user_info->username) ? $user_info->username : lang('unknown')) ?></span>
                                     <span class="user-block-role"></i> <?= lang('online') ?></span>
                                 </div>
                             </div>

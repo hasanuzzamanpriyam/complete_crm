@@ -1,0 +1,43 @@
+﻿designations_id	departments_id	designations	permission
+2	2	Digital marketing specialist	NULL
+3	3	Graphic Designer	NULL
+4	4	Software Developer	NULL
+5	4	Sr Web Devloper	NULL
+6	5	Support Manager	NULL
+7	2	Sales Support Specialist	NULL
+9	12	Head of HR Admin	NULL
+12	14	HR Assistant	NULL
+13	4	Mobile App Developer	NULL
+14	4	Cloud Engineer	NULL
+15	3	UI/UX Designer	NULL
+16	5	Cybersecurity Analyst	NULL
+18	12	Managing Director	NULL
+19	12	Director	NULL
+20	14	Cleaner	NULL
+21	14	Office Assistant	NULL
+22	14	Night Guard	NULL
+23	14	Peon	NULL
+24	2	Business Development Officer	NULL
+25	12	General Manager	NULL
+28	4	Lead Developer	NULL
+29	12	Office Manager	NULL
+30	2	Social Media Marketer	NULL
+31	2	Content Writer	NULL
+32	14	Front Desk Executive	NULL
+33	14	Phone Call Representative	NULL
+34	2	Marketing Manager	NULL
+35	3	Advertising Specialist	NULL
+36	2	Lead Generation Specialist	NULL
+37	5	Technical Support Engineer	NULL
+38	5	Customer Support Specialist	NULL
+39	12	Advisor	NULL
+40	12	Facilities Manager	NULL
+41	12	Office Coordinator	NULL
+42	12	Personal Assistant	NULL
+43	12	Receptionist	NULL
+44	2	Sales Manager	NULL
+45	2	Customer Success Manager	NULL
+46	3	Content Strategist	NULL
+47	5	Helpdesk Technician	NULL
+48	4	Front End Developer	NULL
+49	2	Digital Marketer (Intern)	NULL
