@@ -40,8 +40,6 @@ class ZoomAPI
         return str_replace('=', '', strtr(base64_encode($string), '+/', '-_'));
     }
 
-
-
     function sendRequest($calledFunction, $data, $type = null)
     {
         /*Creates the endpoint URL*/

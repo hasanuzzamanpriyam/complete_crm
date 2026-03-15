@@ -108,6 +108,30 @@ $locales = $this->db->order_by('name')->get('tbl_locales')->result();
                         </div>
                     </div>
                     <div class="form-group">
+                        <label class="col-lg-4 control-label"><strong>Facebook URL</strong></label>
+                        <div class="col-lg-8">
+                            <input type="text" class="form-control" name="facebook_url" value="<?= $user_info->facebook_url ?>">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-4 control-label"><strong>Instagram URL</strong></label>
+                        <div class="col-lg-8">
+                            <input type="text" class="form-control" name="instagram_url" value="<?= $user_info->instagram_url ?>">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-4 control-label"><strong>X URL</strong></label>
+                        <div class="col-lg-8">
+                            <input type="text" class="form-control" name="x_url" value="<?= $user_info->x_url ?>">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-4 control-label"><strong>LinkedIn URL</strong></label>
+                        <div class="col-lg-8">
+                            <input type="text" class="form-control" name="linkedin_url" value="<?= $user_info->linkedin_url ?>">
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label class="col-lg-4 control-label"><strong><?= lang('profile_photo') ?></strong></label>
                         <div class="col-lg-7">
                             <div class="fileinput fileinput-new" data-provides="fileinput">
