@@ -10,8 +10,8 @@ class Migration_Version_610 extends CI_Migration
 
     public function up()
     {
-        $gateway_exists = $this->db->where('gateway_name', 'PipraPay')->get('tbl_online_payment')->row();
-        if (!$gateway_exists) {
+        $piprapay_payment = $this->db->get_where('tbl_online_payment', array('gateway_name' => 'PipraPay'))->row();
+        if (empty($piprapay_payment)) {
             $this->db->query("INSERT INTO `tbl_online_payment` (`online_payment_id`, `gateway_name`, `icon`, `field_1`, `field_2`, `field_3`, `field_4`, `field_5`, `link`, `modal`) VALUES 
             (NULL, 'PipraPay', 'piprapay.png', 'piprapay_api_url', 'piprapay_api_key', 'piprapay_api_secret', 'piprapay_merchant_id', '', 'payment/piprapay', 'Yes');");
         }
@@ -88,16 +88,10 @@ class Migration_Version_610 extends CI_Migration
         );
 
         foreach ($config_items as $item) {
-            $config_exists = $this->db->where('config_key', $item['config_key'])->get('tbl_config')->row();
-            if (!$config_exists) {
-                // Check if label column exists to determine which query to run
-                if ($this->db->field_exists('label', 'tbl_config')) {
-                    $this->db->query("INSERT INTO `tbl_config` (`config_key`, `value`, `label`, `type`, `options`, `description`) VALUES 
-                    ('" . $item['config_key'] . "', '" . $item['value'] . "', '" . $item['label'] . "', '" . $item['type'] . "', '" . $item['options'] . "', '" . $item['description'] . "');");
-                } else {
-                    $this->db->query("INSERT INTO `tbl_config` (`config_key`, `value`) VALUES 
-                    ('" . $item['config_key'] . "', '" . $item['value'] . "');");
-                }
+            $check_config = $this->db->get_where('tbl_config', array('config_key' => $item['config_key']))->row();
+            if (empty($check_config)) {
+                $this->db->query("INSERT INTO `tbl_config` (`config_key`, `value`, `label`, `type`, `options`, `description`) VALUES 
+                ('" . $item['config_key'] . "', '" . $item['value'] . "', '" . $item['label'] . "', '" . $item['type'] . "', '" . $item['options'] . "', '" . $item['description'] . "');");
             }
         }
 

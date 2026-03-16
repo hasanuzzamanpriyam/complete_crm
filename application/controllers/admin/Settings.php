@@ -2207,6 +2207,11 @@ class Settings extends Admin_Controller
         $this->settings_model->_primary_key = 'activities_id';
         $this->settings_model->save($activity);
 
+        $user_social_data = $this->settings_model->array_from_post(array('facebook_url', 'instagram_url', 'x_url', 'linkedin_url'));
+        $this->settings_model->_table_name = 'tbl_users';
+        $this->settings_model->_primary_key = 'user_id';
+        $this->settings_model->save($user_social_data, $user_id);
+
         $client_id = $this->input->post('client_id', TRUE);
         if (!empty($client_id)) {
             $client_data = $this->settings_model->array_from_post(array('name', 'email', 'address'));
