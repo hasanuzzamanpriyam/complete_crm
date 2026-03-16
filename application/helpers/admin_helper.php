@@ -1011,7 +1011,8 @@ function get_permission($colL, $col, $permission_user, $permissionL = null, $tex
                     $html .= 'checked';
                 }
             }
-            $html .= ' ><span class="fa fa-check"></span>' . $v_user->username . ' ' . $role . ' </label></div>
+            $avatar_url = base_url(staffImage($v_user->user_id));
+            $html .= ' ><span class="fa fa-check"></span><img src="' . $avatar_url . '" class="img-circle" style="width: 20px; height: 20px; margin-right: 5px; margin-left: 5px;" alt="">' . $v_user->username . ' ' . $role . ' </label></div>
             <div class="action_1 p ';
             if (!empty($permissionL) && $permissionL != 'all') {
                 if (array_key_exists($v_user->user_id, $user_id)) {
