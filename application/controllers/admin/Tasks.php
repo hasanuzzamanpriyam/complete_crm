@@ -683,7 +683,7 @@ class Tasks extends Admin_Controller
         foreach ($users as $v_user) {
             $login_info = $this->tasks_model->check_by(array('user_id' => $v_user), 'tbl_users');
             $params['recipient'] = $login_info->email;
-            $this->tasks_model->send_email($params);
+            send_later($params);
             if ($v_user != $this->session->userdata('user_id')) {
                 add_notification(array(
                     'to_user_id' => $v_user,
