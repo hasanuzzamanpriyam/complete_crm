@@ -247,9 +247,7 @@ class Cronjob extends MY_Controller
                 );
                 $this->invoice_model->send_email($params);
                 // We have sent an alert email
-                $this->db->where('id', $em->id)->update('tbl_outgoing_emails', array('delivered' => '1'));
-                // Clean outgoing emails table
-                $this->db->truncate('tbl_outgoing_emails');
+                $this->db->where('id', $em->id)->delete('tbl_outgoing_emails');
             }
             return array('success' => TRUE, 'result' => count(array($email_lists)) . ' outgoing emails sent');
         } else {
