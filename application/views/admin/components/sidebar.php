@@ -75,6 +75,12 @@
             if ($this->session->userdata('user_type') == 1) { ?>
                 <ul class="nav">
                     <li>
+                        <a title="Expense Schedules" href="<?= base_url('admin/expenses') ?>">
+                            <em class="fa fa-list-ul"></em>
+                            <span>Expense Schedules</span>
+                        </a>
+                    </li>
+                    <li>
                         <a title="Payment Hub" href="<?= base_url('admin/payment_hub') ?>">
                             <em class="fa fa-credit-card"></em>
                             <span>Payment Hub</span>

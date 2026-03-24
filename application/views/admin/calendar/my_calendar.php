@@ -392,6 +392,55 @@ $gcal_id = config_item('gcal_id');
                                     } ?>
                         ],
                     },
+                    {
+                        events: [<?php
+                                    $expense_info = $this->db->get('expenses')->result();
+                                    if (!empty($expense_info)) {
+                                        if (empty($searchType) || $searchType == 'all' || $searchType == 'expenses') {
+                                            $year_end = strtotime('+1 year');
+                                            foreach ($expense_info as $v_expense) {
+                                                $base_date = new DateTime($v_expense->last_payment_date);
+                                                $original_day = (int) $base_date->format('d');
+                                                $current = clone $base_date;
+                                                
+                                                // Performance limit: Only project daily expenses 60 days into the future
+                                                $expense_end_limit = $year_end;
+                                                if ($v_expense->payment_type === 'daily') {
+                                                    $expense_end_limit = strtotime('+60 days');
+                                                }
+                                                
+                                                while ($current->getTimestamp() <= $expense_end_limit) {
+                                                    $event_date_str = $current->format('Y-m-d');
+                                                    ?> {
+                                                        title: "<?= clear_textarea_breaks($v_expense->task_name . ' ($' . number_format($v_expense->amount, 2) . ')') ?>",
+                                                        start: '<?= $event_date_str ?>',
+                                                        end: '<?= $event_date_str ?>',
+                                                        color: '#fb6b5b', // A distinct reddish-orange
+                                                        url: '<?= base_url('admin/expenses') ?>'
+                                                    },
+                                                    <?php
+                                                    // Increment for the next plotted visual loop natively
+                                                    if ($v_expense->payment_type === 'daily') {
+                                                        $current->modify('+1 day');
+                                                    } elseif ($v_expense->payment_type === 'yearly') {
+                                                        $current->modify('+1 year');
+                                                    } elseif ($v_expense->payment_type === 'monthly') {
+                                                        $current->modify('first day of next month'); 
+                                                        $yr = $current->format('Y');
+                                                        $mo = $current->format('m');
+                                                        $days_in_next_month = (int) $current->format('t');
+                                                        $target_day = min($original_day, $days_in_next_month);
+                                                        $current = new DateTime(sprintf('%s-%s-%02d', $yr, $mo, $target_day));
+                                                    } else {
+                                                        break; // Safety break
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    ?>
+                        ],
+                    },
                     <?php if (!empty($gcal_id)) { ?> {
                             googleCalendarId: '<?= $gcal_id ?>'
                         }
