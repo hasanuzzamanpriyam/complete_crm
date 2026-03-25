@@ -113,9 +113,11 @@ $leave_info = $this->db->where('attendance_status', '3')->get('tbl_attendance')-
             <a href="<?= base_url() ?>admin/calendar/index/search/on_leave"><?= lang('on_leave') ?></a>
         </li>
     <?php } ?>
+    <?php if (config_item('expense_schedule_on_calendar') == 'on') { ?>
         <li>
             <a href="<?= base_url() ?>admin/calendar/index/search/expenses"><?= lang('expense_schedules') ?: 'Expense Schedules' ?></a>
         </li>
+    <?php } ?>
 </ul>
 </div>
 </div>

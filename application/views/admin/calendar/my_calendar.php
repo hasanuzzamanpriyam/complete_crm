@@ -1,4 +1,5 @@
 <link href="<?php echo base_url() ?>assets/plugins/fullcalendar/fullcalendar.min.css" rel="stylesheet" type="text/css">
+<link href="<?php echo base_url() ?>assets/css/calendar_modern.css" rel="stylesheet" type="text/css">
 <?php
 $curency = $this->admin_model->check_by(array('code' => config_item('default_currency')), 'tbl_currencies');
 $gcal_api_key = config_item('gcal_api_key');
@@ -394,10 +395,11 @@ $gcal_id = config_item('gcal_id');
                     },
                     {
                         events: [<?php
-                                    $expense_info = $this->db->get('expenses')->result();
-                                    if (!empty($expense_info)) {
-                                        if (empty($searchType) || $searchType == 'all' || $searchType == 'expenses') {
-                                            $year_end = strtotime('+1 year');
+                                    if (config_item('expense_schedule_on_calendar') == 'on') {
+                                        $expense_info = $this->db->get('expenses')->result();
+                                        if (!empty($expense_info)) {
+                                            if (empty($searchType) || $searchType == 'all' || $searchType == 'expenses') {
+                                                $year_end = strtotime('+1 year');
                                             foreach ($expense_info as $v_expense) {
                                                 $base_date = new DateTime($v_expense->last_payment_date);
                                                 $original_day = (int) $base_date->format('d');
@@ -415,7 +417,7 @@ $gcal_id = config_item('gcal_id');
                                                         title: "<?= clear_textarea_breaks($v_expense->task_name . ' ($' . number_format($v_expense->amount, 2) . ')') ?>",
                                                         start: '<?= $event_date_str ?>',
                                                         end: '<?= $event_date_str ?>',
-                                                        color: '#fb6b5b', // A distinct reddish-orange
+                                                        color: '<?= config_item('expense_schedule_color') ?: '#fb6b5b' ?>',
                                                         url: '<?= base_url('admin/expenses') ?>'
                                                     },
                                                     <?php
@@ -437,6 +439,7 @@ $gcal_id = config_item('gcal_id');
                                                 }
                                             }
                                         }
+                                    }
                                     }
                                     ?>
                         ],

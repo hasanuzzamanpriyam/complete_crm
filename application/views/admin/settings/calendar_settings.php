@@ -296,6 +296,26 @@
                         <span class="input-group-addon"><i></i></span>
                     </div>
                 </div>
+                <label class="col-lg-3 control-label"><?= lang('expense_schedules') ?: 'Expense Schedules' ?></label>
+                <div class="col-lg-1">
+                    <div class="checkbox c-checkbox">
+                        <label class="needsclick">
+                            <input type="checkbox" <?php
+                            if (config_item('expense_schedule_on_calendar') == 'on') {
+                                echo "checked=\"checked\"";
+                            }
+                            ?> name="expense_schedule_on_calendar">
+                            <span class="fa fa-check"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="col-sm-1">
+                    <div id="cp2" class="input-group colorpicker-component">
+                        <input type="hidden" value="<?= config_item('expense_schedule_color') ?: '#fb6b5b' ?>"
+                               name="expense_schedule_color" class="form-control"/>
+                        <span class="input-group-addon"><i></i></span>
+                    </div>
+                </div>
             </div>
             
             <script>
