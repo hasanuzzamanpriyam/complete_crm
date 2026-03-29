@@ -1553,4 +1553,46 @@ class Attendance extends Admin_Controller
             exit();
         }
     }
+
+    public function biometric_mapping()
+    {
+        $data['title'] = "Biometric Employee Mapping";
+        $data['all_employee'] = $this->attendance_model->get_all_employee();
+        $data['mappings'] = $this->db->select('m.*, d.fullname, d.employment_id')
+                                     ->from('biometric_employee_mapping m')
+                                     ->join('tbl_account_details d', 'm.user_id = d.user_id')
+                                     ->get()->result();
+
+        $data['subview'] = $this->load->view('admin/attendance/biometric_mapping', $data, TRUE);
+        $this->load->view('admin/_layout_main', $data);
+    }
+
+    public function save_biometric_mapping()
+    {
+        $device_user_id = $this->input->post('device_user_id', TRUE);
+        $user_id = $this->input->post('user_id', TRUE);
+        
+        $exists = $this->db->get_where('biometric_employee_mapping', ['device_user_id' => $device_user_id])->row();
+        
+        if ($exists) {
+            $this->db->where('device_user_id', $device_user_id);
+            $this->db->update('biometric_employee_mapping', ['user_id' => $user_id]);
+        } else {
+            $this->db->insert('biometric_employee_mapping', [
+                'device_user_id' => $device_user_id,
+                'user_id' => $user_id
+            ]);
+        }
+        
+        set_message('success', "Mapping updated successfully");
+        redirect('admin/attendance/biometric_mapping');
+    }
+
+    public function delete_biometric_mapping($id)
+    {
+        $this->db->where('id', $id);
+        $this->db->delete('biometric_employee_mapping');
+        set_message('success', "Mapping deleted successfully");
+        redirect('admin/attendance/biometric_mapping');
+    }
 }

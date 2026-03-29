@@ -659,5 +659,4 @@ $lang['tls'] = 'TLS';
 $lang['unread_email'] = 'Only Unread Emails';
 $lang['access_denied'] = 'Access denied';
 $lang['message'] = 'Message';
-
-
+$lang['biometric_mapping'] = 'Biometric Mapping';

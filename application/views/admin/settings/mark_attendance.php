@@ -89,7 +89,10 @@
                                         $total_hh = 0;
                                         $total_mm = 0;
                                         if (!empty($v_attendace_info)) {
-                                            foreach ($v_attendace_info as $v_mytime) {
+                                            foreach ($v_attendace_info as $mkey => $v_mytime) {
+                                                if ($mkey === 'total_overtime') continue;
+                                                if (!is_object($v_mytime)) continue;
+
                                                 if ($v_mytime->attendance_status == 1) {
                                                     if (!empty($v_mytime->clockout_time)) {
                                                         // calculate the start timestamp

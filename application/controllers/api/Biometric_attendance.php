@@ -1,0 +1,141 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+class Biometric_attendance extends CI_Controller {
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->load->model('attendance_model');
+    }
+
+    /**
+     * Endpoint to receive biometric logs from Node.js middleware
+     */
+    public function sync()
+    {
+        // Simple token check (You can improve this)
+        $token = $this->input->get_request_header('X-API-TOKEN');
+        $valid_token = config_item('biometric_api_token') ?: 'zkteco_sync_token_123';
+        
+        if ($token !== $valid_token) {
+            return $this->output
+                ->set_content_type('application/json')
+                ->set_status_header(401)
+                ->set_output(json_encode(['status' => 'error', 'message' => 'Unauthorized']));
+        }
+
+        $input = json_decode(file_get_contents("php://input"), true);
+
+        if (!isset($input['logs']) || !is_array($input['logs'])) {
+            return $this->output
+                ->set_content_type('application/json')
+                ->set_status_header(400)
+                ->set_output(json_encode(['status' => 'error', 'message' => 'Invalid input']));
+        }
+
+        $processed_count = 0;
+        $ignored_count = 0;
+
+        foreach ($input['logs'] as $log) {
+            $device_user_id = $log['deviceUserId'];
+            $timestamp = $log['recordTime'];
+            $status = isset($log['state']) ? $log['state'] : 0;
+
+            // 1. Save to raw logs table (duplicate check via UNIQUE key)
+            $this->db->db_debug = FALSE; // Disable debug to handle duplicate errors gracefully
+            $log_data = [
+                'device_user_id' => $device_user_id,
+                'timestamp'      => $timestamp,
+                'status'         => $status
+            ];
+            
+            if ($this->db->insert('biometric_attendance_logs', $log_data)) {
+                // 2. Map device_user_id to ZiscoERP user_id
+                $mapping = $this->db->get_where('biometric_employee_mapping', ['device_user_id' => $device_user_id])->row();
+                
+                if ($mapping) {
+                    $this->process_attendance($mapping->user_id, $timestamp);
+                    $processed_count++;
+                    
+                    // Mark as processed in raw logs
+                    $this->db->where('id', $this->db->insert_id());
+                    $this->db->update('biometric_attendance_logs', ['processed' => 1]);
+                } else {
+                    $ignored_count++;
+                }
+            } else {
+                $ignored_count++;
+            }
+        }
+
+        return $this->output
+            ->set_content_type('application/json')
+            ->set_status_header(200)
+            ->set_output(json_encode([
+                'status' => 'success', 
+                'processed' => $processed_count, 
+                'ignored_or_duplicate' => $ignored_count
+            ]));
+    }
+
+    /**
+     * Logic to update tbl_attendance and tbl_clock
+     */
+    private function process_attendance($user_id, $timestamp)
+    {
+        $date_in = date('Y-m-d', strtotime($timestamp));
+        $time_in = date('H:i:s', strtotime($timestamp));
+
+        // Check if attendance record exists for this day
+        $check_attendance = $this->db->get_where('tbl_attendance', [
+            'user_id' => $user_id, 
+            'date_in' => $date_in
+        ])->row();
+
+        if (!$check_attendance) {
+            // Create new attendance record
+            $adata = [
+                'user_id' => $user_id,
+                'date_in' => $date_in,
+                'attendance_status' => 1,
+                'clocking_status' => 0 // 0 means clocked out, we will update it
+            ];
+            $this->db->insert('tbl_attendance', $adata);
+            $attendance_id = $this->db->insert_id();
+        } else {
+            $attendance_id = $check_attendance->attendance_id;
+        }
+
+        // Check last clocking status for this attendance
+        $last_clock = $this->db->order_by('clock_id', 'DESC')
+                               ->get_where('tbl_clock', ['attendance_id' => $attendance_id])
+                               ->row();
+
+        if (!$last_clock || $last_clock->clocking_status == 0) {
+            // This is a Clock In
+            $clock_data = [
+                'attendance_id' => $attendance_id,
+                'clockin_time' => $time_in,
+                'clocking_status' => 1,
+                'ip_address' => 'biometric'
+            ];
+            $this->db->insert('tbl_clock', $clock_data);
+            
+            // Update attendance record status
+            $this->db->where('attendance_id', $attendance_id);
+            $this->db->update('tbl_attendance', ['clocking_status' => 1]);
+        } else {
+            // This is a Clock Out
+            $this->db->where('clock_id', $last_clock->clock_id);
+            $this->db->update('tbl_clock', [
+                'clockout_time' => $time_in,
+                'clocking_status' => 0
+            ]);
+            
+            // Update attendance record status
+            $this->db->where('attendance_id', $attendance_id);
+            $this->db->update('tbl_attendance', ['clocking_status' => 0, 'date_out' => $date_in]);
+        }
+    }
+}
