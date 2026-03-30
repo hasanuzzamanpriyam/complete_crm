@@ -117,9 +117,3 @@ pm2 startup
 1. Have an employee (who is mapped in Step 3) punch in on the device.
 2. Check the Node.js console logs (`pm2 logs zkteco-sync`). You should see it fetch the log and send it to the ERP.
 3. Check **Attendance > Time History** in ZiscoERP. The punch should appear as a standard Clock In/Out.
-
-
-
-
-
-
