@@ -163,19 +163,76 @@ $gcal_id = config_item('gcal_id');
                     {
                         events: [<?php
                                     if (config_item('tasks_on_calendar') == 'on') {
-                                        if (!empty($searchType) && $searchType == 'tasks' || !empty($searchType) && $searchType == 'all') {
+                                        if (!empty($searchType) && ($searchType == 'tasks' || $searchType == 'all')) {
                                             $task_info = $this->admin_model->get_permission('tbl_task');
                                         }
                                         if (!empty($task_info)) {
                                             foreach ($task_info as $v_task) :
-                                    ?> {
-                                            title: "<?php echo clear_textarea_breaks($v_task->task_name) ?>",
-                                            start: '<?= date('Y-m-d', strtotime($v_task->due_date)) ?>',
-                                            end: '<?= date('Y-m-d', strtotime($v_task->due_date)) ?>',
-                                            color: '<?= config_item('tasks_color') ?>',
-                                            url: '<?= base_url() ?>admin/tasks/details/<?= $v_task->task_id ?>'
-                                        },
-                            <?php endforeach;
+                                                if (!empty($v_task->payment_type) && $v_task->payment_type != 'none') {
+                                                    // Recurring logic similar to expense_schedule
+                                                    $year_end = strtotime('+5 years');
+                                                    $base_date = new DateTime($v_task->due_date);
+                                                    $original_day = (int) $base_date->format('d');
+                                                    $current = clone $base_date;
+                                                    
+                                                    // Performance limit for daily recurring tasks
+                                                    $task_end_limit = $year_end;
+                                                    if ($v_task->payment_type === 'daily') {
+                                                        $task_end_limit = strtotime('+60 days');
+                                                    }
+                                                    
+                                                    while ($current->getTimestamp() <= $task_end_limit) {
+                                                        $event_date_str = $current->format('Y-m-d');
+                                                        ?> {
+                                                            title: "<?php echo clear_textarea_breaks($v_task->task_name) ?>",
+                                                            start: '<?= $event_date_str ?>',
+                                                            end: '<?= $event_date_str ?>',
+                                                            color: '<?= config_item('tasks_color') ?>',
+                                                            url: '<?= base_url() ?>admin/tasks/details/<?= $v_task->task_id ?>'
+                                                        },
+                                                        <?php
+                                                        if ($v_task->payment_type === 'daily') {
+                                                            $current->modify('+1 day');
+                                                        } elseif ($v_task->payment_type === 'yearly') {
+                                                            $current->modify('+1 year');
+                                                        } elseif ($v_task->payment_type === 'monthly') {
+                                                            $current->modify('first day of next month'); 
+                                                            $yr = $current->format('Y');
+                                                            $mo = $current->format('m');
+                                                            $days_in_next_month = (int) $current->format('t');
+                                                            $target_day = min($original_day, $days_in_next_month);
+                                                            $current = new DateTime(sprintf('%s-%s-%02d', $yr, $mo, $target_day));
+                                                        } elseif ($v_task->payment_type === 'bi-monthly') {
+                                                            $current->modify('first day of next month');
+                                                            $current->modify('+1 month');
+                                                            $yr = $current->format('Y');
+                                                            $mo = $current->format('m');
+                                                            $days_in_next_month = (int) $current->format('t');
+                                                            $target_day = min($original_day, $days_in_next_month);
+                                                            $current = new DateTime(sprintf('%s-%s-%02d', $yr, $mo, $target_day));
+                                                        } elseif ($v_task->payment_type === 'quarterly') {
+                                                            $current->modify('first day of next month');
+                                                            $current->modify('+2 months');
+                                                            $yr = $current->format('Y');
+                                                            $mo = $current->format('m');
+                                                            $days_in_next_month = (int) $current->format('t');
+                                                            $target_day = min($original_day, $days_in_next_month);
+                                                            $current = new DateTime(sprintf('%s-%s-%02d', $yr, $mo, $target_day));
+                                                        } else {
+                                                            break;
+                                                        }
+                                                    }
+                                                } else {
+                                                    // Standard non-recurring task
+                                                    ?> {
+                                                        title: "<?php echo clear_textarea_breaks($v_task->task_name) ?>",
+                                                        start: '<?= date('Y-m-d', strtotime($v_task->due_date)) ?>',
+                                                        end: '<?= date('Y-m-d', strtotime($v_task->due_date)) ?>',
+                                                        color: '<?= config_item('tasks_color') ?>',
+                                                        url: '<?= base_url() ?>admin/tasks/details/<?= $v_task->task_id ?>'
+                                                    },
+                                            <?php }
+                                            endforeach;
                                         }
                                     } ?>
                         ],
@@ -399,7 +456,7 @@ $gcal_id = config_item('gcal_id');
                                         $expense_info = $this->db->get('expenses')->result();
                                         if (!empty($expense_info)) {
                                             if (empty($searchType) || $searchType == 'all' || $searchType == 'expenses') {
-                                                $year_end = strtotime('+1 year');
+                                                $year_end = strtotime('+5 years');
                                             foreach ($expense_info as $v_expense) {
                                                 $base_date = new DateTime($v_expense->last_payment_date);
                                                 $original_day = (int) $base_date->format('d');
@@ -428,6 +485,24 @@ $gcal_id = config_item('gcal_id');
                                                         $current->modify('+1 year');
                                                     } elseif ($v_expense->payment_type === 'monthly') {
                                                         $current->modify('first day of next month'); 
+                                                        $yr = $current->format('Y');
+                                                        $mo = $current->format('m');
+                                                        $days_in_next_month = (int) $current->format('t');
+                                                        $target_day = min($original_day, $days_in_next_month);
+                                                        $current = new DateTime(sprintf('%s-%s-%02d', $yr, $mo, $target_day));
+                                                    } elseif ($v_expense->payment_type === 'bi-monthly') {
+                                                        // Advance by 2 months and clamp day-of-month when necessary.
+                                                        $current->modify('first day of next month');
+                                                        $current->modify('+1 month');
+                                                        $yr = $current->format('Y');
+                                                        $mo = $current->format('m');
+                                                        $days_in_next_month = (int) $current->format('t');
+                                                        $target_day = min($original_day, $days_in_next_month);
+                                                        $current = new DateTime(sprintf('%s-%s-%02d', $yr, $mo, $target_day));
+                                                    } elseif ($v_expense->payment_type === 'quarterly') {
+                                                        // Advance by 3 months and clamp day-of-month when necessary.
+                                                        $current->modify('first day of next month');
+                                                        $current->modify('+2 months');
                                                         $yr = $current->format('Y');
                                                         $mo = $current->format('m');
                                                         $days_in_next_month = (int) $current->format('t');

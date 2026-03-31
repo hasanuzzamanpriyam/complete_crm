@@ -195,6 +195,52 @@ if ($tasks == 'kanban') {
                                     <div class="form-group" id="related_to">
 
                                     </div>
+                                    <?php $payment_type = (!empty($task_info->payment_type) ? $task_info->payment_type : 'none'); ?>
+                                    <div class="form-group" id="payment_type_group" style="display:none;">
+                                        <label class="col-sm-4 control-label"><?= lang('Repeatation') ?><span
+                                                    class="required">*</span></label>
+                                        <div class="col-sm-8">
+                                            <select name="payment_type" class="form-control">
+                                                <option value="none" <?= $payment_type == 'none' ? 'selected' : '' ?>><?= lang('none') ?></option>
+                                                <option value="daily" <?= $payment_type == 'daily' ? 'selected' : '' ?>>Daily</option>
+                                                <option value="monthly" <?= $payment_type == 'monthly' ? 'selected' : '' ?>>Monthly</option>
+                                                <option value="bi-monthly" <?= $payment_type == 'bi-monthly' ? 'selected' : '' ?>>Bi-monthly</option>
+                                                <option value="quarterly" <?= $payment_type == 'quarterly' ? 'selected' : '' ?>>Quarterly</option>
+                                                <option value="yearly" <?= $payment_type == 'yearly' ? 'selected' : '' ?>>Yearly</option>
+                                            </select>
+                                            <div class="task-recurring-info" id="recurring_info" style="display:none;">
+                                                <i class="fa fa-info-circle"></i>
+                                                <span id="recurring_message"><?= lang('task_will_recur_based_on_payment_type') ?></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <script>
+                                        function togglePaymentTypeField() {
+                                            var relVal = $('#check_related').val();
+                                            var showPaymentType = relVal === 'expenses';
+                                            var $group = $('#payment_type_group');
+                                            if (showPaymentType) {
+                                                $group.show();
+                                                $group.find('select[name="payment_type"]').prop('required', true);
+                                            } else {
+                                                $group.hide();
+                                                $group.find('select[name="payment_type"]').prop('required', false);
+                                            }
+                                        }
+
+                                        $(document).ready(function () {
+                                            togglePaymentTypeField();
+                                            $('#check_related').on('change', function () {
+                                                togglePaymentTypeField();
+                                            });
+                                            
+                                            // Initialize payment_type behavior if already selected
+                                            var paymentType = $('select[name="payment_type"]').val();
+                                            if (paymentType && paymentType !== '') {
+                                                $('select[name="payment_type"]').trigger('change');
+                                            }
+                                        });
+                                    </script>
                                     <?php if (empty($project_id)) { ?>
                                         <div class="form-group company" id="milestone_show">
                                             <label for="field-1"

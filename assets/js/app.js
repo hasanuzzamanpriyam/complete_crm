@@ -1504,6 +1504,196 @@ $("body").on("change", '[name="repeat_every"], [name="recurring"]', function () 
     }
 });
 
+// Handle payment_type changes for task recurring behavior
+$("body").on("change", 'select[name="payment_type"]', function () {
+    var paymentType = $(this).val();
+    var $dueDateField = $('input[name="due_date"]'); // Target by name instead of class
+    
+    if (paymentType && paymentType !== '') {
+        // Payment type selected - enable recurring mode
+        enableRecurringMode(paymentType, $dueDateField);
+    } else {
+        // No payment type - single date mode
+        disableRecurringMode($dueDateField);
+    }
+});
+
+function enableRecurringMode(paymentType, $dateField) {
+    // Remove existing recurring indicators
+    $dateField.removeClass('single-date-mode').addClass('recurring-mode');
+    
+    // Add visual indicator for recurring mode
+    if (!$dateField.next('.recurring-indicator').length) {
+        $dateField.after('<span class="recurring-indicator text-info small"><i class="fa fa-repeat"></i> Recurring task</span>');
+    }
+    
+    // Show recurring info message
+    $('#recurring_info').show();
+    
+    // Configure datepicker for recurring mode (without multidate)
+    if ($dateField.data('datepicker')) {
+        $dateField.datepicker('destroy');
+    }
+    
+    $dateField.datepicker({
+        autoclose: true,
+        format: 'yyyy-mm-dd',
+        todayBtn: "linked",
+        beforeShowDay: function(date) {
+            // Highlight recurring dates based on payment type
+            return highlightRecurringDates(date, paymentType);
+        }
+    });
+    
+    // Store selected recurring dates
+    $dateField.data('recurring-dates', []);
+    $dateField.data('payment-type', paymentType);
+    
+    // Override date selection to handle multiple dates
+    $dateField.off('changeDate').on('changeDate', function(e) {
+        handleRecurringDateSelection(e, paymentType, $dateField);
+    });
+    
+    // Refresh datepicker to ensure proper initialization
+    $dateField.datepicker('update');
+}
+
+function disableRecurringMode($dateField) {
+    // Remove recurring indicators
+    $dateField.removeClass('recurring-mode').addClass('single-date-mode');
+    $dateField.next('.recurring-indicator').remove();
+    
+    // Hide recurring info message
+    $('#recurring_info').hide();
+    
+    // Configure datepicker for single date mode
+    if ($dateField.data('datepicker')) {
+        $dateField.datepicker('destroy');
+    }
+    
+    $dateField.datepicker({
+        autoclose: true,
+        format: 'yyyy-mm-dd',
+        todayBtn: "linked",
+        multidate: false
+    });
+    
+    // Refresh the datepicker to ensure proper initialization
+    $dateField.datepicker('update');
+}
+
+function handleRecurringDateSelection(e, paymentType, $dateField) {
+    var selectedDate = new Date(e.date);
+    var recurringDates = $dateField.data('recurring-dates') || [];
+    
+    // Clear existing recurring dates and start fresh
+    recurringDates = [];
+    
+    // Calculate recurring dates for the next 12 periods
+    var maxPeriods = 12;
+    
+    for (var i = 0; i < maxPeriods; i++) {
+        var nextDate = calculateNextRecurringDate(selectedDate, paymentType, i);
+        if (nextDate) {
+            recurringDates.push(formatDate(nextDate));
+        }
+    }
+    
+    // Store recurring dates
+    $dateField.data('recurring-dates', recurringDates);
+    
+    // Show recurring dates info to user
+    showRecurringDatesInfo(recurringDates, paymentType);
+}
+
+function calculateNextRecurringDate(startDate, paymentType, period) {
+    var date = new Date(startDate);
+    
+    switch (paymentType) {
+        case 'daily':
+            date.setDate(date.getDate() + period);
+            break;
+        case 'monthly':
+            date.setMonth(date.getMonth() + period);
+            break;
+        case 'bi-monthly':
+            date.setMonth(date.getMonth() + (period * 2));
+            break;
+        case 'quarterly':
+            date.setMonth(date.getMonth() + (period * 3));
+            break;
+        case 'yearly':
+            date.setFullYear(date.getFullYear() + period);
+            break;
+        default:
+            return null;
+    }
+    
+    return date;
+}
+
+function formatDate(date) {
+    var year = date.getFullYear();
+    var month = String(date.getMonth() + 1).padStart(2, '0');
+    var day = String(date.getDate()).padStart(2, '0');
+    return year + '-' + month + '-' + day;
+}
+
+function showRecurringDatesInfo(recurringDates, paymentType) {
+    var message = 'Task will recur on: ' + recurringDates.slice(0, 5).join(', ');
+    if (recurringDates.length > 5) {
+        message += ' ... and ' + (recurringDates.length - 5) + ' more dates';
+    }
+    
+    // Update or create recurring dates display
+    var $infoDiv = $('#recurring_dates_display');
+    if ($infoDiv.length === 0) {
+        $('#recurring_info').after('<div id="recurring_dates_display" class="alert alert-info" style="margin-top: 10px; font-size: 12px;"></div>');
+        $infoDiv = $('#recurring_dates_display');
+    }
+    
+    $infoDiv.html('<strong><i class="fa fa-calendar"></i> Upcoming Recurring Dates:</strong><br>' + message);
+}
+
+function highlightRecurringDates(date, paymentType) {
+    var $dueDateField = $('input[name="due_date"]');
+    var dueDateValue = $dueDateField.val();
+    
+    if (!dueDateValue) return {};
+    
+    var startDate = new Date(dueDateValue);
+    var currentDate = new Date(date);
+    
+    // Calculate if current date matches recurring pattern
+    var matchesPattern = false;
+    
+    switch (paymentType) {
+        case 'daily':
+            matchesPattern = currentDate >= startDate; // Every day after start date
+            break;
+        case 'monthly':
+            matchesPattern = currentDate.getDate() === startDate.getDate() && currentDate >= startDate;
+            break;
+        case 'bi-monthly':
+            var monthDiff = (currentDate.getMonth() - startDate.getMonth() + 12) % 12;
+            matchesPattern = currentDate.getDate() === startDate.getDate() && 
+                          (monthDiff % 2 === 0) && currentDate >= startDate;
+            break;
+        case 'quarterly':
+            var monthDiff = (currentDate.getMonth() - startDate.getMonth() + 12) % 12;
+            matchesPattern = currentDate.getDate() === startDate.getDate() && 
+                          (monthDiff % 3 === 0) && currentDate >= startDate;
+            break;
+        case 'yearly':
+            matchesPattern = currentDate.getDate() === startDate.getDate() && 
+                          currentDate.getMonth() === startDate.getMonth() && 
+                          currentDate >= startDate;
+            break;
+    }
+    
+    return matchesPattern ? {classes: 'recurring-date-highlight'} : {};
+}
+
 $("body").on("change blur", ".apply_credit_invoices .amount-credit-field", function () {
     var $creditApply = $("#credit_apply");
     var $amountInputs = $creditApply.find("input.amount-credit-field");

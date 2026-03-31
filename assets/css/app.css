@@ -8137,3 +8137,50 @@ li[type="datetime"] .value-wrap {
     visibility: hidden;
   }
 }
+
+/* Task Payment Type Recurring Styles */
+.recurring-indicator {
+  margin-left: 10px;
+  color: #3c8dbc;
+  font-weight: 500;
+}
+
+.recurring-mode .input-group-addon {
+  background-color: #3c8dbc;
+  color: #fff;
+}
+
+.single-date-mode .input-group-addon {
+  background-color: #f5f5f5;
+  color: #666;
+}
+
+.datepicker .recurring-date-highlight {
+  background-color: #d4edda !important;
+  border: 1px solid #c3e6cb !important;
+  border-radius: 4px;
+}
+
+.datepicker .recurring-date-highlight:hover {
+  background-color: #b8daff !important;
+  border-color: #8fc3ff !important;
+}
+
+/* Task form specific styles */
+#payment_type_group .recurring-indicator {
+  display: inline-block;
+  margin-top: 5px;
+}
+
+.task-recurring-info {
+  background-color: #e7f3ff;
+  border: 1px solid #b3d9ff;
+  border-radius: 4px;
+  padding: 10px;
+  margin-top: 10px;
+  font-size: 12px;
+}
+
+.task-recurring-info .fa {
+  margin-right: 5px;
+}

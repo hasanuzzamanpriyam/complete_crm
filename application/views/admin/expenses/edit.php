@@ -26,6 +26,8 @@
                     <select name="payment_type" class="form-control" required>
                         <option value="daily" <?= $expense['payment_type'] == 'daily' ? 'selected' : '' ?>>Daily</option>
                         <option value="monthly" <?= $expense['payment_type'] == 'monthly' ? 'selected' : '' ?>>Monthly</option>
+                        <option value="bi-monthly" <?= $expense['payment_type'] == 'bi-monthly' ? 'selected' : '' ?>>Bi-monthly</option>
+                        <option value="quarterly" <?= $expense['payment_type'] == 'quarterly' ? 'selected' : '' ?>>Quarterly</option>
                         <option value="yearly" <?= $expense['payment_type'] == 'yearly' ? 'selected' : '' ?>>Yearly</option>
                     </select>
                 </div>

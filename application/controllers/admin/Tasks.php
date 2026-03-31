@@ -421,6 +421,7 @@ class Tasks extends Admin_Controller
         if (!empty($created) || !empty($edited) && !empty($id)) {
             $data = $this->tasks_model->array_from_post(array(
                 'task_name',
+                'payment_type',
                 'category_id',
                 'task_description',
                 'task_start_date',
@@ -458,6 +459,9 @@ class Tasks extends Admin_Controller
             }
             if (empty($data['billable'])) {
                 $data['billable'] = 'No';
+            }
+            if (empty($data['payment_type'])) {
+                $data['payment_type'] = NULL;
             }
             if (empty($data['hourly_rate'])) {
                 $data['hourly_rate'] = '0';

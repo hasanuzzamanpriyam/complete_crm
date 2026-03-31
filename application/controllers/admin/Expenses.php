@@ -71,7 +71,7 @@ class Expenses extends Admin_Controller
 
         $this->load->library('form_validation');
         $this->form_validation->set_rules('task_name', 'Task Name', 'trim|required');
-        $this->form_validation->set_rules('payment_type', 'Payment Type', 'trim|required|in_list[daily,monthly,yearly]');
+        $this->form_validation->set_rules('payment_type', 'Payment Type', "trim|required|in_list[daily,monthly,'bi-monthly',quarterly,yearly]");
         $this->form_validation->set_rules('last_payment_date', 'Date', 'trim|required|callback_valid_date');
         $this->form_validation->set_rules('amount', 'Amount', 'trim|required|numeric|greater_than[0]');
 
@@ -114,7 +114,7 @@ class Expenses extends Admin_Controller
         $this->load->library('form_validation');
 
         $this->form_validation->set_rules('task_name', 'Task Name', 'trim|required');
-        $this->form_validation->set_rules('payment_type', 'Payment Type', 'trim|required|in_list[daily,monthly,yearly]');
+        $this->form_validation->set_rules('payment_type', 'Payment Type', "trim|required|in_list[daily,monthly,'bi-monthly',quarterly,yearly]");
         $this->form_validation->set_rules('last_payment_date', 'Last Payment Date', 'trim|required|callback_valid_date');
         $this->form_validation->set_rules('amount', 'Amount', 'trim|required|numeric|greater_than[0]');
         $this->form_validation->set_rules('description', 'Description', 'trim');

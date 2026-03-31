@@ -77,6 +77,38 @@ class Expense_cron extends CI_Controller
             return $new_date->format('Y-m-d');
         }
 
+        if ($payment_type === 'bi-monthly') {
+            // Move to first day of month (+2 months from current anchor),
+            // then clamp the original day-of-month within that month length.
+            $next_month = clone $date;
+            $next_month->modify('first day of next month');
+            $next_month->modify('+1 month');
+
+            $year = $next_month->format('Y');
+            $month = $next_month->format('m');
+            $days_in_next_month = (int) $next_month->format('t');
+            $target_day = min($original_day, $days_in_next_month);
+            $new_date = new DateTime(sprintf('%s-%s-%02d', $year, $month, $target_day));
+
+            return $new_date->format('Y-m-d');
+        }
+
+        if ($payment_type === 'quarterly') {
+            // Move to first day of month (+3 months from current anchor),
+            // then clamp the original day-of-month within that month length.
+            $next_month = clone $date;
+            $next_month->modify('first day of next month');
+            $next_month->modify('+2 months');
+
+            $year = $next_month->format('Y');
+            $month = $next_month->format('m');
+            $days_in_next_month = (int) $next_month->format('t');
+            $target_day = min($original_day, $days_in_next_month);
+            $new_date = new DateTime(sprintf('%s-%s-%02d', $year, $month, $target_day));
+
+            return $new_date->format('Y-m-d');
+        }
+
         return $current_date_string; 
     }
 }

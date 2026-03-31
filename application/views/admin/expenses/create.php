@@ -26,6 +26,8 @@
                     <select name="payment_type" class="form-control" required>
                         <option value="daily">Daily</option>
                         <option value="monthly" selected>Monthly</option>
+                        <option value="bi-monthly">Bi-monthly</option>
+                        <option value="quarterly">Quarterly</option>
                         <option value="yearly">Yearly</option>
                     </select>
                 </div>
