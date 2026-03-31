@@ -14,6 +14,9 @@ class Biometric_attendance extends CI_Controller {
      */
     public function sync()
     {
+        // 0. Auto clock out users who forgot to sign out (after 8 hours)
+        $this->auto_clock_out();
+
         // Simple token check (You can improve this)
         $token = $this->input->get_request_header('X-API-TOKEN');
         $valid_token = config_item('biometric_api_token') ?: 'zkteco_sync_token_123';
@@ -136,6 +139,44 @@ class Biometric_attendance extends CI_Controller {
             // Update attendance record status
             $this->db->where('attendance_id', $attendance_id);
             $this->db->update('tbl_attendance', ['clocking_status' => 0, 'date_out' => $date_in]);
+        }
+    }
+    /**
+     * Automatically clock out users who have been clocked in for more than 8 hours
+     */
+    private function auto_clock_out()
+    {
+        // Find all active clock-ins
+        $this->db->select('tbl_clock.*, tbl_attendance.date_in, tbl_attendance.user_id');
+        $this->db->from('tbl_clock');
+        $this->db->join('tbl_attendance', 'tbl_attendance.attendance_id = tbl_clock.attendance_id');
+        $this->db->where('tbl_clock.clocking_status', 1);
+        $query = $this->db->get();
+        $active_clocks = $query->result();
+
+        foreach ($active_clocks as $clock) {
+            $clock_in_time = strtotime($clock->date_in . ' ' . $clock->clockin_time);
+            $current_time = time();
+            $diff_hours = ($current_time - $clock_in_time) / 3600;
+
+            // If clocked in for more than 8 hours, auto clock out
+            if ($diff_hours >= 8) {
+                $auto_clock_out_time = date('H:i:s', $clock_in_time + (8 * 3600));
+                
+                // Update tbl_clock
+                $this->db->where('clock_id', $clock->clock_id);
+                $this->db->update('tbl_clock', [
+                    'clockout_time' => $auto_clock_out_time,
+                    'clocking_status' => 0
+                ]);
+
+                // Update tbl_attendance
+                $this->db->where('attendance_id', $clock->attendance_id);
+                $this->db->update('tbl_attendance', [
+                    'clocking_status' => 0,
+                    'date_out' => $clock->date_in // Assuming they sign out same day
+                ]);
+            }
         }
     }
 }
