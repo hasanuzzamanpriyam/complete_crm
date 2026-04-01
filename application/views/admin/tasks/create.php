@@ -214,26 +214,56 @@ if ($tasks == 'kanban') {
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="form-group" id="advance_payment_group" style="display:none;">
+                                        <label class="col-sm-4 control-label">Payment Count (number)</label>
+                                        <div class="col-sm-8">
+                                            <input type="number" name="advance_payment" min="0" class="form-control" value="" placeholder="Add more recurrences to skip..."/>
+                                            <span class="help-block">
+                                                
+                                                <h6>
+                                                    Enter number of recurrences to skip from the calendar.
+                                                </h6>
+                                            </span>
+                                        </div>
+                                    </div>
                                     <script>
+                                        // PHP passes existing payment_type for edit mode
+                                        var existingPaymentType = '<?php echo isset($task_info->payment_type) ? $task_info->payment_type : ""; ?>';
+                                        var existingAdvancePayment = <?php echo (!empty($task_info->advance_payment) ? (int)$task_info->advance_payment : 0); ?>;
+
                                         function togglePaymentTypeField() {
                                             var relVal = $('#check_related').val();
                                             var showPaymentType = relVal === 'expenses';
                                             var $group = $('#payment_type_group');
+                                            var $advanceGroup = $('#advance_payment_group');
                                             if (showPaymentType) {
                                                 $group.show();
+                                                $advanceGroup.show();
                                                 $group.find('select[name="payment_type"]').prop('required', true);
                                             } else {
                                                 $group.hide();
+                                                $advanceGroup.hide();
                                                 $group.find('select[name="payment_type"]').prop('required', false);
                                             }
                                         }
 
                                         $(document).ready(function () {
-                                            togglePaymentTypeField();
+                                            // If editing a task that already has payment_type or advance_payment set,
+                                            // show the fields automatically regardless of related_to value
+                                            if (existingPaymentType && existingPaymentType !== 'none' && existingPaymentType !== '') {
+                                                $('#payment_type_group').show();
+                                                $('#advance_payment_group').show();
+                                            } else if (existingAdvancePayment > 0) {
+                                                $('#payment_type_group').show();
+                                                $('#advance_payment_group').show();
+                                            } else {
+                                                togglePaymentTypeField();
+                                            }
+
                                             $('#check_related').on('change', function () {
                                                 togglePaymentTypeField();
                                             });
-                                            
+
                                             // Initialize payment_type behavior if already selected
                                             var paymentType = $('select[name="payment_type"]').val();
                                             if (paymentType && paymentType !== '') {

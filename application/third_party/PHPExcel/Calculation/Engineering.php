@@ -733,10 +733,11 @@ class PHPExcel_Calculation_Engineering {
 			}
 		}
 
-		return array( 'real'		=> $realNumber,
-					  'imaginary'	=> $imaginary,
-					  'suffix'		=> $suffix
-					);
+		return array( 
+			'real'      => $realNumber,
+			'imaginary' => $imaginary,
+			'suffix'    => $suffix
+		);
 	}	//	function _parseComplex()
 
 

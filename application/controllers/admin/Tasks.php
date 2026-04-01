@@ -422,6 +422,7 @@ class Tasks extends Admin_Controller
             $data = $this->tasks_model->array_from_post(array(
                 'task_name',
                 'payment_type',
+                'advance_payment',
                 'category_id',
                 'task_description',
                 'task_start_date',
@@ -465,6 +466,15 @@ class Tasks extends Admin_Controller
             }
             if (empty($data['hourly_rate'])) {
                 $data['hourly_rate'] = '0';
+            }
+            // When editing an existing task, sum the new advance_payment with the existing value
+            if (!empty($id)) {
+                $new_advance_payment = (int) $data['advance_payment'];
+                if ($new_advance_payment > 0) {
+                    $existing_task = $this->db->where('task_id', $id)->get('tbl_task')->row();
+                    $existing_advance = !empty($existing_task->advance_payment) ? (int) $existing_task->advance_payment : 0;
+                    $data['advance_payment'] = $existing_advance + $new_advance_payment;
+                }
             }
             $result = 0;
             $related_to = $this->input->post('related_to', true);

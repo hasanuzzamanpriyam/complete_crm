@@ -181,8 +181,12 @@ $gcal_id = config_item('gcal_id');
                                                         $task_end_limit = strtotime('+60 days');
                                                     }
                                                     
+                                                    $skip_count = (!empty($v_task->advance_payment) ? intval($v_task->advance_payment) : 0);
+                                                    $iteration = 0;
+
                                                     while ($current->getTimestamp() <= $task_end_limit) {
                                                         $event_date_str = $current->format('Y-m-d');
+                                                        if ($iteration >= $skip_count) {
                                                         ?> {
                                                             title: "<?php echo clear_textarea_breaks($v_task->task_name) ?>",
                                                             start: '<?= $event_date_str ?>',
@@ -191,6 +195,8 @@ $gcal_id = config_item('gcal_id');
                                                             url: '<?= base_url() ?>admin/tasks/details/<?= $v_task->task_id ?>'
                                                         },
                                                         <?php
+                                                        }
+                                                        $iteration++;
                                                         if ($v_task->payment_type === 'daily') {
                                                             $current->modify('+1 day');
                                                         } elseif ($v_task->payment_type === 'yearly') {
