@@ -1554,9 +1554,26 @@ class Attendance extends Admin_Controller
         }
     }
 
-    public function biometric_mapping()
+    public function biometric_mapping($device_user_id = null)
     {
         $data['title'] = "Biometric Employee Mapping";
+        $data['device_user_id'] = $device_user_id;
+        $data['selected_user_id'] = null;
+
+        if ($device_user_id) {
+            // Check if already mapped
+            $existing = $this->db->get_where('biometric_employee_mapping', ['device_user_id' => $device_user_id])->row();
+            if ($existing) {
+                $data['selected_user_id'] = $existing->user_id;
+            } else {
+                // Smart Match: find employee with matching employment_id
+                $employee = $this->db->get_where('tbl_account_details', ['employment_id' => $device_user_id])->row();
+                if ($employee) {
+                    $data['selected_user_id'] = $employee->user_id;
+                }
+            }
+        }
+
         $data['all_employee'] = $this->attendance_model->get_all_employee();
         $data['mappings'] = $this->db->select('m.*, d.fullname, d.employment_id')
                                      ->from('biometric_employee_mapping m')
@@ -1594,5 +1611,57 @@ class Attendance extends Admin_Controller
         $this->db->delete('biometric_employee_mapping');
         set_message('success', "Mapping deleted successfully");
         redirect('admin/attendance/biometric_mapping');
+    }
+
+    public function daily_attendance()
+    {
+        $data['title'] = "Daily Attendance";
+        $data['date'] = $this->input->post('date', TRUE);
+        if (empty($data['date'])) {
+            $data['date'] = date('Y-m-d');
+        }
+
+        // Get all active employees
+        $this->db->select('tbl_account_details.fullname, tbl_account_details.user_id, tbl_designations.designations, tbl_account_details.employment_id');
+        $this->db->from('tbl_account_details');
+        $this->db->join('tbl_users', 'tbl_users.user_id = tbl_account_details.user_id');
+        $this->db->join('tbl_designations', 'tbl_designations.designations_id = tbl_account_details.designations_id', 'left');
+        $this->db->where('tbl_users.activated', 1);
+        $data['all_employees'] = $this->db->get()->result();
+
+        foreach ($data['all_employees'] as $employee) {
+            // Get attendance for the selected date
+            $this->db->where('user_id', $employee->user_id);
+            $this->db->where('date_in', $data['date']);
+            $attendance = $this->db->get('tbl_attendance')->row();
+
+            $employee->attendance = $attendance;
+            $employee->clocks = [];
+
+            if ($attendance) {
+                // Get all clocking logs for this attendance session
+                $this->db->where('attendance_id', $attendance->attendance_id);
+                $this->db->order_by('clock_id', 'ASC');
+                $employee->clocks = $this->db->get('tbl_clock')->result();
+            }
+        }
+
+        $data['subview'] = $this->load->view('admin/attendance/daily_attendance', $data, TRUE);
+        $this->load->view('admin/_layout_main', $data);
+    }
+    public function biometric_device_logs()
+    {
+        $data['title'] = "Biometric Device Logs";
+
+        $this->db->select('biometric_attendance_logs.*, tbl_account_details.fullname');
+        $this->db->from('biometric_attendance_logs');
+        $this->db->join('biometric_employee_mapping', 'biometric_employee_mapping.device_user_id = biometric_attendance_logs.device_user_id', 'left');
+        $this->db->join('tbl_account_details', 'tbl_account_details.user_id = biometric_employee_mapping.user_id', 'left');
+        $this->db->order_by('biometric_attendance_logs.id', 'DESC');
+        $this->db->limit(500);
+        $data['all_logs'] = $this->db->get()->result();
+
+        $data['subview'] = $this->load->view('admin/attendance/biometric_device_logs', $data, TRUE);
+        $this->load->view('admin/_layout_main', $data);
     }
 }

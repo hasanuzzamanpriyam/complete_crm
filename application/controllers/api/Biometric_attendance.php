@@ -45,6 +45,12 @@ class Biometric_attendance extends CI_Controller {
             $timestamp = $log['recordTime'];
             $status = isset($log['state']) ? $log['state'] : 0;
 
+            // Skip invalid or empty timestamps (e.g., 0000-00-00 from device)
+            if (empty($timestamp) || strpos($timestamp, '0000-00-00') !== false) {
+                $ignored_count++;
+                continue;
+            }
+
             // 1. Save to raw logs table (duplicate check via UNIQUE key)
             $this->db->db_debug = FALSE; // Disable debug to handle duplicate errors gracefully
             $log_data = [

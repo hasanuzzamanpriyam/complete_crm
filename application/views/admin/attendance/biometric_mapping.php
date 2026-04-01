@@ -9,7 +9,7 @@
                     <div class="form-group">
                         <label class="col-sm-4 control-label">Device User ID</label>
                         <div class="col-sm-8">
-                            <input type="text" name="device_user_id" class="form-control" required placeholder="e.g. 101">
+                            <input type="text" name="device_user_id" value="<?= !empty($device_user_id) ? $device_user_id : '' ?>" class="form-control" required placeholder="e.g. 101">
                         </div>
                     </div>
                     <div class="form-group">
@@ -20,7 +20,10 @@
                                 <?php foreach($all_employee as $dept_name => $employees): ?>
                                     <optgroup label="<?= $dept_name ?>">
                                         <?php foreach($employees as $employee): ?>
-                                            <option value="<?= $employee->user_id ?>"><?= $employee->fullname ?> (<?= $employee->employment_id ?>)</option>
+                                            <option value="<?= $employee->user_id ?>" 
+                                                <?= (!empty($selected_user_id) && $selected_user_id == $employee->user_id) ? 'selected' : '' ?>>
+                                                <?= $employee->fullname ?> (<?= $employee->employment_id ?>)
+                                            </option>
                                         <?php endforeach; ?>
                                     </optgroup>
                                 <?php endforeach; ?>
@@ -42,9 +45,9 @@
                 <div class="panel-title"><strong>Current Mappings</strong></div>
             </header>
             <div class="panel-body">
-                <div class="table-responsive">
-                    <table class="table table-striped DataTables">
-                        <thead>
+                <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                    <table class="table table-striped DataTables " style="margin-bottom: 0px;">
+                        <thead style="position: sticky; top: 0; background: white; z-index: 10; box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4);">
                             <tr>
                                 <th>Device User ID</th>
                                 <th>Employee Name</th>
