@@ -8,8 +8,8 @@
                 <div class="panel-title" style="display: flex; justify-content: space-between; align-items: center;">
                     <strong>Biometric Device Logs (Last 500 Taps)</strong>
 
-                    <!-- Export Monthly Logs Form -->
-                    <form action="<?= base_url('admin/attendance/export_monthly_raw_logs') ?>" method="post" class="form-inline" style="margin: 0;">
+                    <!-- View Monthly Logs Form -->
+                    <form action="<?= base_url('admin/attendance/view_monthly_raw_logs') ?>" method="post" class="form-inline" style="margin: 0;">
                         <input type="month" name="month" class="form-control input-sm" required style="width: auto;" value="<?= date('Y-m') ?>">
                         <select name="user_id" class="form-control select_box input-sm" style="width: auto;" required>
                             <option value="">Select User for Export</option>
@@ -21,8 +21,8 @@
                                 </optgroup>
                             <?php endforeach; endif; ?>
                         </select>
-                        <button type="submit" class="btn btn-sm btn-info" title="Export Raw Monthly Punch Logs (CSV)">
-                            <i class="fa fa-download"></i> Export CSV
+                        <button type="submit" class="btn btn-sm btn-info" title="View Monthly Report">
+                            <i class="fa fa-eye"></i> View Report
                         </button>
                     </form>
                 </div>

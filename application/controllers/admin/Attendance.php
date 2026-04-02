@@ -1682,10 +1682,92 @@ class Attendance extends Admin_Controller
         $this->load->view('admin/_layout_main', $data);
     }
 
-    public function export_monthly_raw_logs()
+    public function view_monthly_raw_logs()
     {
         $user_id = $this->input->post('user_id', TRUE);
-        $month_year = $this->input->post('month', TRUE); // e.g. '2026-04'
+        $month_year = $this->input->post('month', TRUE);
+
+        if(empty($user_id) || empty($month_year)) {
+            set_message('error', 'User and Month are required to view report.');
+            redirect('admin/attendance/biometric_device_logs');
+        }
+
+        $dateParts = explode('-', $month_year);
+        $year = (int)$dateParts[0];
+        $month = (int)$dateParts[1];
+
+        // Fetch User and Details (Name, id, department)
+        $this->db->select('tbl_account_details.fullname, tbl_account_details.employment_id, tbl_departments.deptname, tbl_designations.designations');
+        $this->db->from('tbl_account_details');
+        $this->db->join('tbl_designations', 'tbl_designations.designations_id = tbl_account_details.designations_id', 'left');
+        $this->db->join('tbl_departments', 'tbl_departments.departments_id = tbl_designations.departments_id', 'left');
+        $this->db->where('tbl_account_details.user_id', $user_id);
+        $data['user_details'] = $this->db->get()->row();
+
+        // Build full month array
+        $days_in_month = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+        $full_logs = [];
+        for ($i = 1; $i <= $days_in_month; $i++) {
+            $current_date = date('Y-m-d', strtotime("$year-$month-$i"));
+            $full_logs[$current_date] = [
+                'log_date' => $current_date,
+                'clock_in_time' => null,
+                'clock_out_time' => null
+            ];
+        }
+
+        // Fetch mapping
+        $mapping = $this->db->get_where('biometric_employee_mapping', ['user_id' => $user_id])->row();
+        
+        if($mapping && !empty($mapping->device_user_id)) {
+            $this->db->select('
+                DATE(created_at) as log_date,
+                MIN(created_at) as clock_in_time,
+                MAX(created_at) as clock_out_time
+            ');
+            $this->db->where('device_user_id', $mapping->device_user_id);
+            $this->db->where('MONTH(created_at)', $month);
+            $this->db->where('YEAR(created_at)', $year);
+            $this->db->group_by('DATE(created_at)');
+            $this->db->order_by('log_date', 'ASC');
+            $logs = $this->db->get('biometric_attendance_logs')->result_array();
+
+            foreach ($logs as $log) {
+                if (isset($full_logs[$log['log_date']])) {
+                    $full_logs[$log['log_date']]['clock_in_time'] = $log['clock_in_time'];
+                    $full_logs[$log['log_date']]['clock_out_time'] = $log['clock_out_time'];
+                }
+            }
+        }
+
+        $logs_array = array_values($full_logs);
+        
+        // Sort to place 'Present' days at the top and 'Absent' days below for robust details
+        usort($logs_array, function($a, $b) {
+            $a_present = !empty($a['clock_in_time']);
+            $b_present = !empty($b['clock_in_time']);
+            
+            if ($a_present && !$b_present) return -1;
+            if (!$a_present && $b_present) return 1;
+            
+            return strcmp($a['log_date'], $b['log_date']); // Keep dates in chronological order within groups
+        });
+
+        $data['logs'] = $logs_array;
+        $data['user_id'] = $user_id;
+        $data['month_year'] = $month_year;
+        $data['year'] = $year;
+        $data['month_name'] = date('F', mktime(0, 0, 0, $month, 10));
+        
+        $data['title'] = "View Monthly Report";
+        $data['subview'] = $this->load->view('admin/attendance/view_monthly_raw_logs', $data, TRUE);
+        $this->load->view('admin/_layout_main', $data);
+    }
+
+    public function export_monthly_raw_logs($user_id = null, $month_year = null)
+    {
+        if($user_id == null) $user_id = $this->input->post('user_id', TRUE);
+        if($month_year == null) $month_year = $this->input->post('month', TRUE); // e.g. '2026-04'
 
         if(empty($user_id) || empty($month_year)) {
             set_message('error', 'User and Month are required for export.');
@@ -1696,9 +1778,30 @@ class Attendance extends Admin_Controller
         $year = (int)$dateParts[0];
         $month = (int)$dateParts[1];
 
-        // Fetch user data
-        $user = $this->db->where('user_id', $user_id)->get('tbl_account_details')->row();
-        $fullname = $user ? $user->fullname : 'UnknownUser';
+        // Fetch User and Details (Name, id, department)
+        $this->db->select('tbl_account_details.fullname, tbl_account_details.employment_id, tbl_departments.deptname, tbl_designations.designations');
+        $this->db->from('tbl_account_details');
+        $this->db->join('tbl_designations', 'tbl_designations.designations_id = tbl_account_details.designations_id', 'left');
+        $this->db->join('tbl_departments', 'tbl_departments.departments_id = tbl_designations.departments_id', 'left');
+        $this->db->where('tbl_account_details.user_id', $user_id);
+        $user_details = $this->db->get()->row();
+        
+        $fullname = $user_details ? $user_details->fullname : 'UnknownUser';
+        $emp_id = $user_details ? $user_details->employment_id : 'N/A';
+        $dept = $user_details ? $user_details->deptname : 'N/A';
+        $desig = $user_details ? $user_details->designations : 'N/A';
+
+        // Build full month array
+        $days_in_month = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+        $full_logs = [];
+        for ($i = 1; $i <= $days_in_month; $i++) {
+            $current_date = date('Y-m-d', strtotime("$year-$month-$i"));
+            $full_logs[$current_date] = [
+                'log_date' => $current_date,
+                'clock_in_time' => null,
+                'clock_out_time' => null
+            ];
+        }
 
         // Fetch mapping
         $mapping = $this->db->get_where('biometric_employee_mapping', ['user_id' => $user_id])->row();
@@ -1707,12 +1810,26 @@ class Attendance extends Admin_Controller
             redirect('admin/attendance/biometric_device_logs');
         }
 
-        // Fetch logs
+        // Fetch grouped logs
+        $this->db->select('
+            DATE(created_at) as log_date,
+            MIN(created_at) as clock_in_time,
+            MAX(created_at) as clock_out_time
+        ');
         $this->db->where('device_user_id', $mapping->device_user_id);
-        $this->db->where('MONTH(timestamp)', $month);
-        $this->db->where('YEAR(timestamp)', $year);
-        $this->db->order_by('timestamp', 'ASC');
+        $this->db->where('MONTH(created_at)', $month);
+        $this->db->where('YEAR(created_at)', $year);
+        $this->db->group_by('DATE(created_at)');
+        $this->db->order_by('log_date', 'ASC');
         $logs = $this->db->get('biometric_attendance_logs')->result_array();
+
+        foreach ($logs as $log) {
+            if (isset($full_logs[$log['log_date']])) {
+                $full_logs[$log['log_date']]['clock_in_time'] = $log['clock_in_time'];
+                $full_logs[$log['log_date']]['clock_out_time'] = $log['clock_out_time'];
+            }
+        }
+        $logs = array_values($full_logs);
 
         $filename = "Biometric_Log_{$fullname}_{$year}_{$month}.csv";
         
@@ -1722,18 +1839,36 @@ class Attendance extends Admin_Controller
         
         $file = fopen('php://output', 'w');
         
-        $header = array("Log ID", "Device User ID", "Punch Time", "Direction / State", "Server Receive Time");
+        // Write User Details Header
+        fputcsv($file, array("Monthly Biometric Report"));
+        fputcsv($file, array("Employee Name:", $fullname));
+        fputcsv($file, array("Employment ID:", $emp_id));
+        fputcsv($file, array("Department:", $dept));
+        fputcsv($file, array("Designation:", $desig));
+        fputcsv($file, array("Report Month:", date('F Y', mktime(0, 0, 0, $month, 10, $year))));
+        fputcsv($file, array("")); // Empty line separator
+        
+        // Write Data Table Header
+        $header = array("Date", "Clock In Time", "Clock Out Time", "Status");
         fputcsv($file, $header);
         
         if (!empty($logs)) {
             foreach ($logs as $log) {
-                fputcsv($file, array(
-                    $log['id'], 
-                    $log['device_user_id'], 
-                    $log['timestamp'], 
-                    $log['status'] == 1 ? 'Check-Out' : ($log['status'] == 0 ? 'Check-In' : $log['status']), 
-                    $log['created_at']
-                ));
+                if(empty($log['clock_in_time'])) {
+                    fputcsv($file, array(
+                        date('d M, Y', strtotime($log['log_date'])),
+                        '-',
+                        '-',
+                        'Absent / No Log'
+                    ));
+                } else {
+                    fputcsv($file, array(
+                        date('d M, Y', strtotime($log['log_date'])),
+                        date('h:i:s A', strtotime($log['clock_in_time'])),
+                        $log['clock_in_time'] === $log['clock_out_time'] ? '-' : date('h:i:s A', strtotime($log['clock_out_time'])),
+                        'Present'
+                    ));
+                }
             }
         }
         
