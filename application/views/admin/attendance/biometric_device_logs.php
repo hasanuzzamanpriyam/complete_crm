@@ -5,8 +5,26 @@
     <div class="col-sm-12">
         <div class="panel panel-custom">
             <div class="panel-heading">
-                <div class="panel-title">
+                <div class="panel-title" style="display: flex; justify-content: space-between; align-items: center;">
                     <strong>Biometric Device Logs (Last 500 Taps)</strong>
+
+                    <!-- Export Monthly Logs Form -->
+                    <form action="<?= base_url('admin/attendance/export_monthly_raw_logs') ?>" method="post" class="form-inline" style="margin: 0;">
+                        <input type="month" name="month" class="form-control input-sm" required style="width: auto;" value="<?= date('Y-m') ?>">
+                        <select name="user_id" class="form-control select_box input-sm" style="width: auto;" required>
+                            <option value="">Select User for Export</option>
+                            <?php if (!empty($all_employee)): foreach ($all_employee as $dept_name => $v_all_employee) : ?>
+                                <optgroup label="<?php echo $dept_name; ?>">
+                                    <?php if (!empty($v_all_employee)): foreach ($v_all_employee as $v_employee) : ?>
+                                        <option value="<?php echo $v_employee->user_id; ?>"><?php echo $v_employee->fullname . ' (' . $v_employee->employment_id . ')'; ?></option>
+                                    <?php endforeach; endif; ?>
+                                </optgroup>
+                            <?php endforeach; endif; ?>
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-info" title="Export Raw Monthly Punch Logs (CSV)">
+                            <i class="fa fa-download"></i> Export CSV
+                        </button>
+                    </form>
                 </div>
             </div>
             <div class="panel-body">

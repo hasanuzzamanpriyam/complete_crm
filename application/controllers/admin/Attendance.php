@@ -1661,7 +1661,69 @@ class Attendance extends Admin_Controller
         $this->db->limit(500);
         $data['all_logs'] = $this->db->get()->result();
 
+        // Get employees for the export dropdown
+        $data['all_employee'] = $this->attendance_model->get_all_employee();
+
         $data['subview'] = $this->load->view('admin/attendance/biometric_device_logs', $data, TRUE);
         $this->load->view('admin/_layout_main', $data);
+    }
+
+    public function export_monthly_raw_logs()
+    {
+        $user_id = $this->input->post('user_id', TRUE);
+        $month_year = $this->input->post('month', TRUE); // e.g. '2026-04'
+
+        if(empty($user_id) || empty($month_year)) {
+            set_message('error', 'User and Month are required for export.');
+            redirect('admin/attendance/biometric_device_logs');
+        }
+
+        $dateParts = explode('-', $month_year);
+        $year = (int)$dateParts[0];
+        $month = (int)$dateParts[1];
+
+        // Fetch user data
+        $user = $this->db->where('user_id', $user_id)->get('tbl_account_details')->row();
+        $fullname = $user ? $user->fullname : 'UnknownUser';
+
+        // Fetch mapping
+        $mapping = $this->db->get_where('biometric_employee_mapping', ['user_id' => $user_id])->row();
+        if(!$mapping || empty($mapping->device_user_id)) {
+            set_message('error', 'The selected user is not mapped to any biometric device ID.');
+            redirect('admin/attendance/biometric_device_logs');
+        }
+
+        // Fetch logs
+        $this->db->where('device_user_id', $mapping->device_user_id);
+        $this->db->where('MONTH(timestamp)', $month);
+        $this->db->where('YEAR(timestamp)', $year);
+        $this->db->order_by('timestamp', 'ASC');
+        $logs = $this->db->get('biometric_attendance_logs')->result_array();
+
+        $filename = "Biometric_Log_{$fullname}_{$year}_{$month}.csv";
+        
+        header("Content-Description: File Transfer");
+        header("Content-Disposition: attachment; filename=$filename");
+        header("Content-Type: text/csv; charset=UTF-8");
+        
+        $file = fopen('php://output', 'w');
+        
+        $header = array("Log ID", "Device User ID", "Punch Time", "Direction / State", "Server Receive Time");
+        fputcsv($file, $header);
+        
+        if (!empty($logs)) {
+            foreach ($logs as $log) {
+                fputcsv($file, array(
+                    $log['id'], 
+                    $log['device_user_id'], 
+                    $log['timestamp'], 
+                    $log['status'] == 1 ? 'Check-Out' : ($log['status'] == 0 ? 'Check-In' : $log['status']), 
+                    $log['created_at']
+                ));
+            }
+        }
+        
+        fclose($file);
+        exit;
     }
 }
