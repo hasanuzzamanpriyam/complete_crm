@@ -1653,12 +1653,26 @@ class Attendance extends Admin_Controller
     {
         $data['title'] = "Biometric Device Logs";
 
-        $this->db->select('biometric_attendance_logs.*, tbl_account_details.fullname');
+        // Group by user and date to show one row per day
+        $this->db->select('
+            biometric_attendance_logs.device_user_id,
+            DATE(biometric_attendance_logs.created_at) as log_date,
+            MIN(biometric_attendance_logs.created_at) as clock_in_time,
+            MAX(biometric_attendance_logs.created_at) as clock_out_time,
+            MAX(biometric_attendance_logs.id) as max_id,
+            tbl_account_details.fullname
+        ');
         $this->db->from('biometric_attendance_logs');
         $this->db->join('biometric_employee_mapping', 'biometric_employee_mapping.device_user_id = biometric_attendance_logs.device_user_id', 'left');
         $this->db->join('tbl_account_details', 'tbl_account_details.user_id = biometric_employee_mapping.user_id', 'left');
-        $this->db->order_by('biometric_attendance_logs.id', 'DESC');
+        
+        // Grouping ensures one row per user per day
+        $this->db->group_by(array('biometric_attendance_logs.device_user_id', 'DATE(biometric_attendance_logs.created_at)'));
+        
+        $this->db->order_by('log_date', 'DESC');
+        $this->db->order_by('max_id', 'DESC');
         $this->db->limit(500);
+        
         $data['all_logs'] = $this->db->get()->result();
 
         // Get employees for the export dropdown
