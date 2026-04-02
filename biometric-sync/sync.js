@@ -8,7 +8,7 @@ const config = {
     DEVICE_PORT: 4370,
     API_URL: 'http://localhost/tic_crm/api/biometric_attendance/sync',
     API_TOKEN: 'zkteco_sync_token_123',
-    SYNC_INTERVAL: '*/10 * * * * *' // Every 10 seconds
+    SYNC_INTERVAL: '*/30 * * * * *' // Every 30 seconds (reduces DB load)
 };
 
 async function syncLogs() {

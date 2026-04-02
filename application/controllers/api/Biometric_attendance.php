@@ -1,7 +1,8 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class Biometric_attendance extends CI_Controller {
+class Biometric_attendance extends CI_Controller
+{
 
     public function __construct()
     {
@@ -20,7 +21,7 @@ class Biometric_attendance extends CI_Controller {
         // Simple token check (You can improve this)
         $token = $this->input->get_request_header('X-API-TOKEN');
         $valid_token = config_item('biometric_api_token') ?: 'zkteco_sync_token_123';
-        
+
         if ($token !== $valid_token) {
             return $this->output
                 ->set_content_type('application/json')
@@ -42,13 +43,24 @@ class Biometric_attendance extends CI_Controller {
 
         foreach ($input['logs'] as $log) {
             $device_user_id = $log['deviceUserId'];
-            $timestamp = $log['recordTime'];
+            $timestamp = isset($log['recordTime']) ? $log['recordTime'] : null;
             $status = isset($log['state']) ? $log['state'] : 0;
 
-            // Skip invalid or empty timestamps (e.g., 0000-00-00 from device)
-            if (empty($timestamp) || strpos($timestamp, '0000-00-00') !== false) {
-                $ignored_count++;
-                continue;
+            // Log what we're receiving from the device (for debugging)
+            if (empty($timestamp)) {
+                error_log("[BIOMETRIC_DEBUG] Empty timestamp from device for user_id: $device_user_id - Full log: " . json_encode($log));
+            }
+
+            // Validate timestamp robustly:
+            // 1. Check if empty or contains obvious invalid values
+            // 2. Check if strtotime() can parse it (returns false if invalid)
+            // 3. Check if the parsed date is reasonable (after year 2000)
+            $parsed_time = strtotime($timestamp);
+
+            if (empty($timestamp) || strpos($timestamp, '0000-00-00') !== false || $parsed_time === false || $parsed_time < strtotime('2000-01-01')) {
+                error_log("[BIOMETRIC_DEBUG] Invalid or missing device timestamp for user_id: $device_user_id - timestamp: " . var_export($timestamp, true) . "; fallback to server time.");
+                $timestamp = date('Y-m-d H:i:s');
+                $parsed_time = strtotime($timestamp);
             }
 
             // 1. Save to raw logs table (duplicate check via UNIQUE key)
@@ -58,15 +70,15 @@ class Biometric_attendance extends CI_Controller {
                 'timestamp'      => $timestamp,
                 'status'         => $status
             ];
-            
+
             if ($this->db->insert('biometric_attendance_logs', $log_data)) {
                 // 2. Map device_user_id to ZiscoERP user_id
                 $mapping = $this->db->get_where('biometric_employee_mapping', ['device_user_id' => $device_user_id])->row();
-                
+
                 if ($mapping) {
                     $this->process_attendance($mapping->user_id, $timestamp);
                     $processed_count++;
-                    
+
                     // Mark as processed in raw logs
                     $this->db->where('id', $this->db->insert_id());
                     $this->db->update('biometric_attendance_logs', ['processed' => 1]);
@@ -82,8 +94,8 @@ class Biometric_attendance extends CI_Controller {
             ->set_content_type('application/json')
             ->set_status_header(200)
             ->set_output(json_encode([
-                'status' => 'success', 
-                'processed' => $processed_count, 
+                'status' => 'success',
+                'processed' => $processed_count,
                 'ignored_or_duplicate' => $ignored_count
             ]));
     }
@@ -98,7 +110,7 @@ class Biometric_attendance extends CI_Controller {
 
         // Check if attendance record exists for this day
         $check_attendance = $this->db->get_where('tbl_attendance', [
-            'user_id' => $user_id, 
+            'user_id' => $user_id,
             'date_in' => $date_in
         ])->row();
 
@@ -118,8 +130,8 @@ class Biometric_attendance extends CI_Controller {
 
         // Check last clocking status for this attendance
         $last_clock = $this->db->order_by('clock_id', 'DESC')
-                               ->get_where('tbl_clock', ['attendance_id' => $attendance_id])
-                               ->row();
+            ->get_where('tbl_clock', ['attendance_id' => $attendance_id])
+            ->row();
 
         if (!$last_clock || $last_clock->clocking_status == 0) {
             // This is a Clock In
@@ -130,7 +142,7 @@ class Biometric_attendance extends CI_Controller {
                 'ip_address' => 'biometric'
             ];
             $this->db->insert('tbl_clock', $clock_data);
-            
+
             // Update attendance record status
             $this->db->where('attendance_id', $attendance_id);
             $this->db->update('tbl_attendance', ['clocking_status' => 1]);
@@ -141,12 +153,60 @@ class Biometric_attendance extends CI_Controller {
                 'clockout_time' => $time_in,
                 'clocking_status' => 0
             ]);
-            
+
             // Update attendance record status
             $this->db->where('attendance_id', $attendance_id);
             $this->db->update('tbl_attendance', ['clocking_status' => 0, 'date_out' => $date_in]);
         }
     }
+    /**
+     * Cleanup endpoint to remove invalid biometric logs
+     * Call with: /api/biometric_attendance/cleanup_invalid_logs?token=YOUR_TOKEN
+     */
+    public function cleanup_invalid_logs()
+    {
+        // Token check for security
+        $token = $this->input->get('token');
+        $valid_token = config_item('biometric_api_token') ?: 'zkteco_sync_token_123';
+
+        if ($token !== $valid_token) {
+            return $this->output
+                ->set_content_type('application/json')
+                ->set_status_header(401)
+                ->set_output(json_encode(['status' => 'error', 'message' => 'Unauthorized']));
+        }
+
+        // Disable strict datetime validation in this session so zero dates can be removed safely
+        $this->db->query("SET SESSION sql_mode = ''");
+
+        // Delete rows with invalid timestamps
+        $this->db->where('timestamp', '0000-00-00 00:00:00');
+        $count_zeros = $this->db->delete('biometric_attendance_logs');
+
+        $this->db->where('timestamp <', '2000-01-01');
+        $this->db->where('timestamp !=', '0000-00-00 00:00:00');
+        $count_old = $this->db->delete('biometric_attendance_logs');
+
+        $this->db->where('timestamp IS NULL');
+        $count_null = $this->db->delete('biometric_attendance_logs');
+
+        $total_deleted = $count_zeros + $count_old + $count_null;
+
+        return $this->output
+            ->set_content_type('application/json')
+            ->set_status_header(200)
+            ->set_output(json_encode([
+                'status' => 'success',
+                'message' => 'Cleanup completed',
+                'deleted_count' => $total_deleted,
+                'details' => [
+                    'zero_timestamps' => $count_zeros,
+                    'old_dates_before_2000' => $count_old,
+                    'null_timestamps' => $count_null
+                ]
+            ]));
+    }
+
     /**
      * Automatically clock out users who have been clocked in for more than 8 hours
      */
@@ -168,7 +228,7 @@ class Biometric_attendance extends CI_Controller {
             // If clocked in for more than 8 hours, auto clock out
             if ($diff_hours >= 8) {
                 $auto_clock_out_time = date('H:i:s', $clock_in_time + (8 * 3600));
-                
+
                 // Update tbl_clock
                 $this->db->where('clock_id', $clock->clock_id);
                 $this->db->update('tbl_clock', [
@@ -184,5 +244,31 @@ class Biometric_attendance extends CI_Controller {
                 ]);
             }
         }
+    }
+
+    /**
+     * Get latest biometric logs since a given ID (for real-time display updates)
+     */
+    public function get_latest_logs()
+    {
+        $after_id = $this->input->get('after_id') ? intval($this->input->get('after_id')) : 0;
+
+        $this->db->select('biometric_attendance_logs.id, biometric_attendance_logs.device_user_id, biometric_attendance_logs.timestamp, biometric_attendance_logs.status, biometric_attendance_logs.processed, biometric_attendance_logs.created_at, tbl_account_details.fullname');
+        $this->db->from('biometric_attendance_logs');
+        $this->db->join('biometric_employee_mapping', 'biometric_employee_mapping.device_user_id = biometric_attendance_logs.device_user_id', 'left');
+        $this->db->join('tbl_account_details', 'tbl_account_details.user_id = biometric_employee_mapping.user_id', 'left');
+        $this->db->where('biometric_attendance_logs.id >', $after_id);
+        $this->db->order_by('biometric_attendance_logs.id', 'DESC');
+        $this->db->limit(50);
+
+        $logs = $this->db->get()->result();
+
+        return $this->output
+            ->set_content_type('application/json')
+            ->set_status_header(200)
+            ->set_output(json_encode([
+                'status' => 'success',
+                'logs' => $logs
+            ]));
     }
 }
