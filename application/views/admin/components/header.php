@@ -195,16 +195,22 @@ $languages = $this->db->where('active', 1)->order_by('name', 'ASC')->get('tbl_la
                 <li class="dropdown user user-menu">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
 
-                        <img src="<?= base_url() . $profile_info->avatar ?>" class="img-xs user-image"
+                        <?php
+                        $user_avatar = (!empty($profile_info->avatar) && file_exists(FCPATH . $profile_info->avatar)) ? $profile_info->avatar : 'assets/img/user/default_avatar.jpg';
+                        ?>
+                        <img src="<?= base_url() . $user_avatar ?>" class="img-xs user-image"
                             alt="User Image" />
-                        <span class="hidden-xs"><?= $profile_info->fullname ?></span>
+                        <span class="hidden-xs"><?= !empty($profile_info->fullname) ? $profile_info->fullname : (!empty($user_info->username) ? $user_info->username : lang('unknown'))  ?></span>
                     </a>
                     <ul class="dropdown-menu animated zoomIn">
                         <!-- User image -->
                         <li class="user-header">
-                            <img src="<?= base_url() . $profile_info->avatar ?>" class="img-circle" alt="User Image" />
+                            <?php
+                            $user_avatar = (!empty($profile_info->avatar) && file_exists(FCPATH . $profile_info->avatar)) ? $profile_info->avatar : 'assets/img/user/default_avatar.jpg';
+                            ?>
+                            <img src="<?= base_url() . $user_avatar ?>" class="img-circle" alt="User Image" />
                             <p>
-                                <?= $profile_info->fullname ?>
+                                <?= !empty($profile_info->fullname) ? $profile_info->fullname : (!empty($user_info->username) ? $user_info->username : lang('unknown')) ?>
                                 <small><?= lang('last_login') . ':' ?>
                                     <?php
                                     if ($user_info->last_login == '0000-00-00 00:00:00' || empty($user_info->last_login)) {

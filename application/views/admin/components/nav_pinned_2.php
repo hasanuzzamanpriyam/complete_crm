@@ -23,12 +23,15 @@
     if (!empty($project_timers)):
         ?>
         <li class="nav-heading"><?= lang('project') . ' ' . lang('start') ?> </li>
-    <?php foreach ($project_timers as $p_timer) : if ($role->role_id == 1 || ($role->role_id == 2 && $user_id == $p_timer['user_id'])) : ?>
+    <?php foreach ($project_timers as $p_timer) : if (!empty($role) && ($role->role_id == 1 || ($role->role_id == 2 && $user_id == $p_timer['user_id']))) : ?>
         <li class="active mb-sm" start="<?php echo $p_timer['timer_status']; ?>">
             <a title="<?php echo $p_timer['project_name'] . " (" . $p_timer['username'] . ")"; ?>"
                data-placement="top" data-toggle="tooltip"
                href="<?= base_url() ?>admin/projects/project_details/<?= $p_timer['project_id'] ?>">
-                <img src="<?= base_url() . $p_timer['avatar'] ?>" width="30" height="30"
+                <?php
+                $user_avatar = (!empty($p_timer['avatar']) && file_exists(FCPATH . $p_timer['avatar'])) ? $p_timer['avatar'] : 'assets/img/user/default_avatar.jpg';
+                ?>
+                <img src="<?= base_url() . $user_avatar ?>" width="30" height="30"
                      class="img-thumbnail img-circle">
                 <span id="project_hour_timer_<?= $p_timer['project_id'] ?>"> 0 </span>
                 <!-- SEPARATOR -->
@@ -101,13 +104,16 @@
         <li class="nav-heading"><?= lang('tasks') . ' ' . lang('start') ?> </li>
     <?php
     foreach ($task_timers as $v_task_timer):
-    if ($role->role_id == 1 || ($role->role_id == 2 && $user_id == $v_task_timer['user_id'])) :
+    if (!empty($role) && ($role->role_id == 1 || ($role->role_id == 2 && $user_id == $v_task_timer['user_id']))) :
     ?>
         <li class="mb-sm active" start="<?php echo $v_task_timer['timer_status']; ?>">
             <a title="<?php echo $v_task_timer['task_name'] . " (" . $v_task_timer['username'] . ")"; ?>"
                data-placement="top" data-toggle="tooltip"
                href="<?= base_url() ?>admin/tasks/details/<?= $v_task_timer['task_id'] ?>">
-                <img src="<?= base_url() . $v_task_timer['avatar'] ?>" width="30" height="30"
+                <?php
+                $user_avatar = (!empty($v_task_timer['avatar']) && file_exists(FCPATH . $v_task_timer['avatar'])) ? $v_task_timer['avatar'] : 'assets/img/user/default_avatar.jpg';
+                ?>
+                <img src="<?= base_url() . $user_avatar ?>" width="30" height="30"
                      class="img-thumbnail img-circle">
                 <span id="tasks_hour_timer_<?= $v_task_timer['task_id'] ?>"> 0 </span>
                 <!-- SEPARATOR -->

@@ -1,42 +1,20 @@
 <?php
-$host = 'localhost';
-$user = 'root';
-$pass = '';
-$db   = 'tic_crm';
+define('BASEPATH', '1');
+require 'application/config/database.php';
+$db_info = $db['default'];
+$conn = new mysqli($db_info['hostname'], $db_info['username'], $db_info['password'], $db_info['database']);
+if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
 
-try {
-    $dsn = "mysql:host=$host;dbname=$db;charset=utf8";
-    $pdo = new PDO($dsn, $user, $pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
-    
-    $tables = [
-        'tbl_api_clients',
-        'tbl_api_tokens',
-        'tbl_payment_gateways',
-        'tbl_payments',
-        'tbl_payment_transactions',
-        'tbl_payment_logs',
-        'tbl_webhook_logs',
-        'tbl_refunds'
-    ];
-
-    echo "Checking Payment Hub Tables:\n";
-    foreach ($tables as $table) {
-        $stmt = $pdo->query("SHOW TABLES LIKE '$table'");
-        if ($stmt->rowCount() > 0) {
-            echo "[OK] $table exists.\n";
-            // Check specific columns added in later migrations
-            if ($table === 'tbl_webhook_logs') {
-                $cols = $pdo->query("SHOW COLUMNS FROM `$table` LIKE 'retry_count'")->rowCount();
-                echo "     - retry_count: " . ($cols > 0 ? "YES" : "NO") . "\n";
-            }
-            if ($table === 'tbl_payment_logs') {
-                $cols = $pdo->query("SHOW COLUMNS FROM `$table` LIKE 'ip_address'")->rowCount();
-                echo "     - ip_address: " . ($cols > 0 ? "YES" : "NO") . "\n";
-            }
-        } else {
-            echo "[MISSING] $table\n";
-        }
-    }
-} catch (PDOException $e) {
-    echo "DB Error: " . $e->getMessage() . "\n";
+echo "--- EMPLOYEE MAPPING ---\n";
+$res = $conn->query("SELECT * FROM biometric_employee_mapping");
+while($row = $res->fetch_assoc()) {
+    print_r($row);
 }
+
+echo "\n--- LATEST 5 RAW LOGS ---\n";
+$res = $conn->query("SELECT * FROM biometric_attendance_logs ORDER BY id DESC LIMIT 5");
+while($row = $res->fetch_assoc()) {
+    print_r($row);
+}
+
+$conn->close();

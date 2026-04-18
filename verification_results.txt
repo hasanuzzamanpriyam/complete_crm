@@ -1,0 +1,4 @@
+﻿account_details_id	user_id	fullname	employment_id	warehouse_id	company	city	country	locale	address	phone	mobile	skype	language	designations_id	avatar	joining_date	present_address	date_of_birth	gender	maratial_status	father_name	mother_name	passport	direction
+94	94	TIC	TIC001	NULL	NULL	NULL	NULL	en_US	-	-			english	0	uploads/default_avatar.jpg	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+user_id	username	role_id	permission
+94	tic	1	all

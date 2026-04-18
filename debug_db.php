@@ -1,27 +1,29 @@
 <?php
-$host = 'localhost';
-$user = 'root';
-$pass = '';
-$db   = 'tic_crm';
-
-try {
-    $dsn = "mysql:host=$host;dbname=$db;charset=utf8";
-    $pdo = new PDO($dsn, $user, $pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
-    
-    $check = ['tbl_payments', 'tbl_external_transactions', 'tbl_phub_payments', 'tbl_api_clients'];
-    
-    foreach ($check as $table) {
-        $stmt = $pdo->query("SHOW TABLES LIKE '$table'");
-        if ($stmt->rowCount() > 0) {
-            echo "[YES] $table exists. Columns:\n";
-            $cols = $pdo->query("DESCRIBE `$table`")->fetchAll(PDO::FETCH_ASSOC);
-            foreach ($cols as $c) {
-                echo "  - {$c['Field']} ({$c['Type']})\n";
-            }
-        } else {
-            echo "[NO] $table does not exist.\n";
-        }
-    }
-} catch (PDOException $e) {
-    echo "DB Error: " . $e->getMessage() . "\n";
+$mysqli = new mysqli("localhost", "root", "", "tic_crm");
+if ($mysqli->connect_error) {
+    die("Connection failed: " . $mysqli->connect_error);
 }
+
+$output = "";
+
+$result = $mysqli->query("DESCRIBE tbl_users");
+$columns = [];
+while ($row = $result->fetch_assoc()) {
+    $columns[] = $row['Field'];
+}
+$output .= "Columns: " . implode(", ", $columns) . "\n\n";
+
+$result = $mysqli->query("SELECT * FROM tbl_users WHERE username='tic'");
+if ($row = $result->fetch_assoc()) {
+    $output .= "User 'tic' details:\n";
+    foreach ($row as $key => $value) {
+        if ($key == 'password') continue;
+        $output .= "$key: $value\n";
+    }
+} else {
+    $output .= "User 'tic' not found.\n";
+}
+
+file_put_contents("debug_output.txt", $output);
+$mysqli->close();
+?>

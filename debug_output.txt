@@ -1,0 +1,41 @@
+Columns: user_id, username, password, email, role_id, activated, banned, ban_reason, new_password_key, new_password_requested, new_email, new_email_key, last_ip, last_login, created, modified, online_time, permission, active_email, smtp_email_type, smtp_encription, smtp_action, smtp_host_name, smtp_username, smtp_password, smtp_port, smtp_additional_flag, last_postmaster_run, media_path_slug, smtp_unread_email, smtp_delete_mail_after_import, smtp_syn_time, mail_host, smtp_menu, facebook_url, linkedin_url, instagram_url, x_url, staff_position
+
+User 'tic' details:
+user_id: 94
+username: tic
+email: tic@gmail.com
+role_id: 1
+activated: 1
+banned: 0
+ban_reason: 
+new_password_key: 
+new_password_requested: 
+new_email: 
+new_email_key: 
+last_ip: 203.31.169.228
+last_login: 2026-03-12 23:56:56
+created: 
+modified: 2026-03-12 23:56:56
+online_time: 1773203287
+permission: all
+active_email: 
+smtp_email_type: 
+smtp_encription: 
+smtp_action: 
+smtp_host_name: 
+smtp_username: 
+smtp_password: 
+smtp_port: 
+smtp_additional_flag: 
+last_postmaster_run: 
+media_path_slug: tic
+smtp_unread_email: 0
+smtp_delete_mail_after_import: 0
+smtp_syn_time: 
+mail_host: 
+smtp_menu: 
+facebook_url: 
+linkedin_url: 
+instagram_url: 
+x_url: 
+staff_position: 

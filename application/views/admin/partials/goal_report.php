@@ -1,4 +1,5 @@
 <?php
+$where = array();
 if ($this->session->userdata('user_type') == 1) {
     $where = array('status' => 1);
 } else {

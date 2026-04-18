@@ -99,9 +99,8 @@
         $end_date =  $end_date . " 23:59:59";
 
         $res = $this->db->query("
-        SELECT tbl_goal_tracking.goal_tracking_id, tbl_goal_type.goal_type_id, tbl_goal_type.type_name,
-tbl_goal_tracking.account_id, COALESCE(SUM(tbl_goal_tracking.achievement), 0) AS target,
-
+        SELECT MAX(tbl_goal_tracking.goal_tracking_id) as goal_tracking_id, tbl_goal_type.goal_type_id, tbl_goal_type.type_name,
+MAX(tbl_goal_tracking.account_id) as account_id, COALESCE(SUM(tbl_goal_tracking.achievement), 0) AS target,
 CASE
 
 WHEN tbl_goal_type.type_name='achive_total_income' THEN
@@ -109,14 +108,14 @@ WHEN tbl_goal_type.type_name='achive_total_income' THEN
 
 WHEN tbl_goal_type.type_name='achive_total_income_by_bank'  THEN
 (SELECT coalesce(SUM(tbl_transactions.amount), 0) FROM tbl_transactions
-WHERE  tbl_transactions.account_id = tbl_goal_tracking.account_id
+WHERE  tbl_transactions.account_id = MAX(tbl_goal_tracking.account_id)
 AND tbl_transactions.type='Income'  AND tbl_transactions.date >= '$start_date' AND tbl_transactions.date <= '$end_date')
 
 WHEN tbl_goal_type.type_name='achieve_total_expense' THEN
 (SELECT COALESCE(SUM(tbl_transactions.amount), 0) FROM tbl_transactions  WHERE tbl_transactions.type='Expense'  AND tbl_transactions.date >= '$start_date' AND tbl_transactions.date <= '$end_date')
 
 WHEN tbl_goal_type.type_name='achive_total_expense_by_bank' THEN
-(SELECT COALESCE(SUM(tbl_transactions.amount), 0) FROM tbl_transactions  WHERE tbl_transactions.account_id = tbl_goal_tracking.account_id AND tbl_transactions.type='Expense' AND tbl_transactions.date >= '$start_date' AND tbl_transactions.date <= '$end_date')
+(SELECT COALESCE(SUM(tbl_transactions.amount), 0) FROM tbl_transactions  WHERE tbl_transactions.account_id = MAX(tbl_goal_tracking.account_id) AND tbl_transactions.type='Expense' AND tbl_transactions.date >= '$start_date' AND tbl_transactions.date <= '$end_date')
 
 
 WHEN tbl_goal_type.type_name='make_invoice' THEN
@@ -153,10 +152,7 @@ FROM `tbl_goal_type`
 
 LEFT JOIN  tbl_goal_tracking ON tbl_goal_tracking.goal_type_id = tbl_goal_type.goal_type_id AND tbl_goal_tracking.end_date >= '$start_date' AND tbl_goal_tracking.end_date <= '$end_date'
 
-LEFT JOIN  tbl_transactions ON tbl_goal_tracking.account_id = tbl_transactions.account_id
-
-
-GROUP BY tbl_goal_type.goal_type_id
+GROUP BY tbl_goal_type.goal_type_id, tbl_goal_type.type_name
   ")->result();
 
         return $res;
@@ -189,9 +185,7 @@ GROUP BY tbl_goal_type.goal_type_id
                 }
             }
         }
-        if (!empty($goal_achieve)) {
-            $goal_achieve = $goal_achieve;
-        } else {
+        if (empty($goal_achieve)) {
             $goal_achieve = array();
         }
         return $goal_achieve;
@@ -399,9 +393,10 @@ GROUP BY tbl_goal_type.goal_type_id
             } else {
                 $tax_array = explode('|', $taxname);
                 if (isset($tax_array[0]) && isset($tax_array[1])) {
-                    $tax = get_tax_by_name($tax_array[0]);
+                    // Look up the tax by name directly from the DB
+                    $tax = $this->db->where('tax_rate_name', $tax_array[0])->get('tbl_tax_rates')->row();
                     if ($tax) {
-                        $taxname = $tax->name . '|' . $tax->taxrate;
+                        $taxname = $tax->tax_rate_name . '|' . $tax->tax_rate_percent;
                     }
                 }
             }

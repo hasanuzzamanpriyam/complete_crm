@@ -26,7 +26,11 @@ class Migration_Version_614 extends CI_Migration
                     'after' => 'next_retry_at'
                 ]
             ];
-            $this->dbforge->add_column('tbl_webhook_logs', $webhook_fields);
+            foreach ($webhook_fields as $field_name => $field_data) {
+                if (!$this->db->field_exists($field_name, 'tbl_webhook_logs')) {
+                    $this->dbforge->add_column('tbl_webhook_logs', [$field_name => $field_data]);
+                }
+            }
         }
 
         // 2. Add audit columns to tbl_payment_logs
@@ -45,7 +49,11 @@ class Migration_Version_614 extends CI_Migration
                     'after' => 'ip_address'
                 ]
             ];
-            $this->dbforge->add_column('tbl_payment_logs', $log_fields);
+            foreach ($log_fields as $field_name => $field_data) {
+                if (!$this->db->field_exists($field_name, 'tbl_payment_logs')) {
+                    $this->dbforge->add_column('tbl_payment_logs', [$field_name => $field_data]);
+                }
+            }
         }
     }
 

@@ -514,3 +514,7 @@ $config['modules_locations'] = array(
 $config['default_controller'] = 'frontcms/home';
 /* End of file config.php */
 /* Location: ./application/config/config.php */
+
+
+
+$config['biometric_api_token'] = 'zkteco_sync_token_123';
