@@ -10,7 +10,7 @@ const config = {
     DEVICE_PORT: 4370,
     API_URL: 'http://localhost/tic_crm/api/biometric_attendance/sync',
     API_TOKEN: 'zkteco_sync_token_123',
-    SYNC_INTERVAL: '*/30 * * * * *', // Every 30 seconds
+    SYNC_INTERVAL: '*/10 * * * * *', // Every 10 seconds
     STATE_FILE: path.join(__dirname, 'sync_state.json')
 };
 
@@ -30,7 +30,14 @@ function updateLastSyncTime(time) {
     fs.writeFileSync(config.STATE_FILE, JSON.stringify({ lastSyncTime: time.toISOString() }));
 }
 
+let syncing = false;
+
 async function syncLogs() {
+    if (syncing) {
+        console.log("Sync already in progress, skipping...");
+        return;
+    }
+    syncing = true;
     let zk = new ZKLib(config.DEVICE_IP, config.DEVICE_PORT, 10000, 4000);
     
     try {
@@ -90,6 +97,8 @@ async function syncLogs() {
         if (zk) {
             try { await zk.disconnect(); } catch (e) {}
         }
+    } finally {
+        syncing = false;
     }
 }
 

@@ -993,30 +993,137 @@ class Dashboard extends Admin_Controller
         }
     }
 
-    public function all_todo($id = null)
+    public function get_live_attendance_status()
     {
-        $data['title'] = lang('all') . ' ' . lang('to_do') . ' ' . lang('list');
-        $user_id = $this->input->post('user_id', true);
-        if ($id == 'kanban') {
-            $k_session['todo_kanban'] = $id;
-            $this->session->set_userdata($k_session);
-        } elseif ($id == 'list') {
-            $data['active'] = 1;
-            $this->session->unset_userdata('todo_kanban');
-        }
-        if (!empty($user_id)) {
-            $data['user_id'] = $user_id;
-            if ($user_id != $this->session->userdata('user_id')) {
-                $data['where'] = array('assigned' => $this->session->userdata('user_id'));
-            } else {
-                $data['where'] = null;
-            }
-        } else {
-            $data['user_id'] = $this->session->userdata('user_id');
-            $data['where'] = null;
+        if (!$this->input->is_ajax_request()) {
+            redirect('admin/dashboard');
         }
 
-        $data['subview'] = $this->load->view('admin/settings/all_todo', $data, TRUE);
-        $this->load->view('admin/_layout_main', $data); //page load
+        $this->load->model('common_model');
+        $this->load->model('attendance_model');
+
+        $date = $this->input->post('date', TRUE);
+        if (empty($date)) {
+            $date = date('Y-m-d');
+        }
+
+        $month = date('n', strtotime($date));
+        $year = date('Y', strtotime($date));
+        $day = date('d', strtotime($date));
+
+        $users = get_staff_details();
+        $holidays = $this->common_model->get_holidays();
+
+        if ($month >= 1 && $month <= 9) {
+            $yymm = $year . '-' . '0' . $month;
+        } else {
+            $yymm = $year . '-' . $month;
+        }
+
+        $public_holiday = $this->common_model->get_public_holidays($yymm);
+        $p_hday = [];
+        if (!empty($public_holiday)) {
+            foreach ($public_holiday as $p_holiday) {
+                $p_hday = array_merge($p_hday, $this->common_model->GetDays($p_holiday->start_date, $p_holiday->end_date));
+            }
+        }
+
+        // Optimization: Fetch all attendance and clocking data for the selected date in one query
+        $this->db->select('tbl_attendance.*, tbl_clock.*');
+        $this->db->from('tbl_attendance');
+        $this->db->join('tbl_clock', 'tbl_attendance.attendance_id = tbl_clock.attendance_id', 'left');
+        $this->db->where('tbl_attendance.date_in', $date);
+        $all_attendance_query = $this->db->get()->result();
+
+        // Group attendance by user_id
+        $attendance_by_user = [];
+        foreach ($all_attendance_query as $row) {
+            $attendance_by_user[$row->user_id][] = $row;
+        }
+
+        $response = [];
+
+        foreach ($users as $v_employee) {
+            $x = 1;
+            if ($day >= 1 && $day <= 9) {
+                $sdate = $yymm . '-' . '0' . $day;
+            } else {
+                $sdate = $yymm . '-' . $day;
+            }
+            $day_name = date('l', strtotime("+$x days", strtotime($year . '-' . $month . '-' . $day)));
+
+            $flag = '';
+            if (!empty($holidays)) {
+                foreach ($holidays as $v_holiday) {
+                    if ($v_holiday->day == $day_name) {
+                        $flag = 'H';
+                    }
+                }
+            }
+            if (in_array($sdate, $p_hday)) {
+                $flag = 'H';
+            }
+
+            $user_attendance = isset($attendance_by_user[$v_employee->user_id]) ? $attendance_by_user[$v_employee->user_id] : [];
+
+            $total_mm = 0;
+            $total_hh = 0;
+            $status_label = '';
+            $is_clocked_in = false;
+            $clock_in_timestamp = 0;
+
+            if (!empty($user_attendance)) {
+                foreach ($user_attendance as $v_mytime) {
+                    if ($v_mytime->attendance_status == 1) {
+                        if (!empty($v_mytime->clockout_time)) {
+                            $startdatetime = strtotime($v_mytime->date_in . " " . $v_mytime->clockin_time);
+                            $enddatetime = strtotime($v_mytime->date_out . " " . $v_mytime->clockout_time);
+                            $difference = $enddatetime - $startdatetime;
+
+                            $hours = abs(floor($difference / 3600));
+                            $mins = abs(floor(($difference - ($hours * 3600)) / 60));
+                            
+                            $total_mm += $mins;
+                            $total_hh += $hours;
+                        } else {
+                            $is_clocked_in = true;
+                            $status_label = '<span style="padding:5px 75px; font-size: 12px;" class="label label-purple std_p">' . lang('currently_clock_in') . '</span>';
+                            $clock_in_timestamp = strtotime($v_mytime->date_in . " " . $v_mytime->clockin_time) * 1000;
+                        }
+                    }
+                }
+            }
+
+            // If not clocked in, show holiday/leave status if applicable
+            if (!$is_clocked_in) {
+                if ($flag == 'H') {
+                    $status_label = '<span style="padding:5px 109px; font-size: 12px;" class="label label-info std_p">' . lang('holiday') . '</span>';
+                } else {
+                    // Check for other statuses (leave, absent) - keeping it simple for now as per original logic
+                    // If no attendance records at all, it's either absent or a working day with no punches
+                    if (empty($user_attendance)) {
+                         $status_label = '<span style="padding:5px 109px; font-size: 12px;" class="label label-danger std_p">' . lang('absent') . '</span>';
+                    }
+                }
+            }
+
+            if ($total_mm > 59) {
+                $total_hh += intval($total_mm / 60);
+                $total_mm = intval($total_mm % 60);
+            }
+
+            $response[] = [
+                'user_id' => $v_employee->user_id,
+                'total_time_formatted' => ($total_hh > 0 || $total_mm > 0) ? $total_hh . " : " . $total_mm . " m" : "",
+                'total_hh' => $total_hh,
+                'total_mm' => $total_mm,
+                'is_clocked_in' => $is_clocked_in,
+                'clock_in_timestamp' => $clock_in_timestamp,
+                'status_label' => $status_label
+            ];
+        }
+
+        echo json_encode(['status' => 'success', 'data' => $response]);
+        exit();
     }
 }
