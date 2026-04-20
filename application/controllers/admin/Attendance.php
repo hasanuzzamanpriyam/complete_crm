@@ -1721,7 +1721,8 @@ class Attendance extends Admin_Controller
                 'log_date' => $current_date,
                 'clock_in_time' => null,
                 'clock_out_time' => null,
-                'total_time_seconds' => 0
+                'total_time_seconds' => 0,
+                'total_punches' => 0
             ];
         }
 
@@ -1732,7 +1733,8 @@ class Attendance extends Admin_Controller
             $this->db->select('
                 DATE(created_at) as log_date,
                 MIN(created_at) as clock_in_time,
-                MAX(created_at) as clock_out_time
+                MAX(created_at) as clock_out_time,
+                COUNT(id) as total_punches
             ');
             $this->db->where('device_user_id', $mapping->device_user_id);
             $this->db->where('MONTH(created_at)', $month);
@@ -1742,10 +1744,12 @@ class Attendance extends Admin_Controller
             $logs = $this->db->get('biometric_attendance_logs')->result_array();
 
             $total_seconds_month = 0;
+            $total_punches_month = 0;
             foreach ($logs as $log) {
                 if (isset($full_logs[$log['log_date']])) {
                     $full_logs[$log['log_date']]['clock_in_time'] = $log['clock_in_time'];
                     $full_logs[$log['log_date']]['clock_out_time'] = $log['clock_out_time'];
+                    $full_logs[$log['log_date']]['total_punches'] = $log['total_punches'];
 
                     $total_time_seconds = 0;
                     if (!empty($log['clock_in_time']) && !empty($log['clock_out_time']) && $log['clock_in_time'] !== $log['clock_out_time']) {
@@ -1753,11 +1757,14 @@ class Attendance extends Admin_Controller
                     }
                     $full_logs[$log['log_date']]['total_time_seconds'] = $total_time_seconds;
                     $total_seconds_month += $total_time_seconds;
+                    $total_punches_month += $log['total_punches'];
                 }
             }
             $data['total_seconds_month'] = $total_seconds_month;
+            $data['total_punches_month'] = $total_punches_month;
         } else {
             $data['total_seconds_month'] = 0;
+            $data['total_punches_month'] = 0;
         }
 
         $logs_array = array_values($full_logs);
