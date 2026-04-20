@@ -55,10 +55,11 @@
                     <table class="table table-striped table-bordered" id="monthly_log_table" width="100%">
                         <thead>
                             <tr>
-                                <th style="width: 20%;">Date</th>
-                                <th style="width: 30%;">Clock In Time</th>
-                                <th style="width: 30%;">Clock Out Time</th>
-                                <th style="width: 20%;">Status</th>
+                                <th style="width: 15%;">Date</th>
+                                <th style="width: 25%;">Clock In Time</th>
+                                <th style="width: 25%;">Clock Out Time</th>
+                                <th style="width: 20%;">Total Time</th>
+                                <th style="width: 15%;">Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -66,6 +67,7 @@
                             <tr class="<?= !empty($log['clock_in_time']) ? 'success' : '' ?>">
                                 <td><strong><?= date('d M, Y', strtotime($log['log_date'])) ?></strong></td>
                                 <?php if(empty($log['clock_in_time'])): ?>
+                                    <td class="text-center">-</td>
                                     <td class="text-center">-</td>
                                     <td class="text-center">-</td>
                                     <td><span class="label label-danger">Absent / No Log</span></td>
@@ -78,10 +80,36 @@
                                             <span class="text-warning"><?= date('h:i:s A', strtotime($log['clock_out_time'])) ?></span>
                                         <?php endif; ?>
                                     </td>
+                                    <td>
+                                        <?php 
+                                            if ($log['total_time_seconds'] > 0) {
+                                                $hours = floor($log['total_time_seconds'] / 3600);
+                                                $minutes = floor(($log['total_time_seconds'] % 3600) / 60);
+                                                echo "<span class='text-info'><strong>{$hours}h {$minutes}m</strong></span>";
+                                            } else {
+                                                echo "<span class='text-muted'>-</span>";
+                                            }
+                                        ?>
+                                    </td>
                                     <td><span class="label label-success">Present</span></td>
                                 <?php endif; ?>
                             </tr>
-                            <?php endforeach; else: ?>
+                            <?php endforeach; ?>
+                            <!-- Total Row -->
+                            <tr class="info" style="font-size: 16px;">
+                                <td colspan="3" class="text-right"><strong>MONTHLY TOTAL WORKED TIME:</strong></td>
+                                <td>
+                                    <strong>
+                                        <?php 
+                                            $m_hours = floor($total_seconds_month / 3600);
+                                            $m_minutes = floor(($total_seconds_month % 3600) / 60);
+                                            echo "{$m_hours}h {$m_minutes}m";
+                                        ?>
+                                    </strong>
+                                </td>
+                                <td></td>
+                            </tr>
+                            <?php else: ?>
                             <tr>
                                 <td colspan="4" class="text-center">No attendance logs found for this month.</td>
                             </tr>
