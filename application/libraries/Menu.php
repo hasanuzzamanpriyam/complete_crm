@@ -50,7 +50,50 @@ class Menu
                     'time' => date('Y-m-d h:i:s'),
                 ],
             ];
-            $module_menu = json_decode(json_encode($module));
+            $server_management = [
+                [
+                    'menu_id' => '111122222223',
+                    'label' => 'server_management',
+                    'link' => '',
+                    'icon' => 'fa fa-server',
+                    'parent' => '0',
+                    'sort' => '1001',
+                    'time' => date('Y-m-d h:i:s'),
+                ], [
+                    'menu_id' => '1111222222231',
+                    'label' => 'server_dashboard',
+                    'link' => 'admin/server_management',
+                    'icon' => 'fa fa-dashboard',
+                    'parent' => '111122222223',
+                    'sort' => '1',
+                    'time' => date('Y-m-d h:i:s'),
+                ], [
+                    'menu_id' => '1111222222232',
+                    'label' => 'hosting_management',
+                    'link' => 'admin/server_management/hosting',
+                    'icon' => 'fa fa-globe',
+                    'parent' => '111122222223',
+                    'sort' => '2',
+                    'time' => date('Y-m-d h:i:s'),
+                ], [
+                    'menu_id' => '1111222222233',
+                    'label' => 'domain_management',
+                    'link' => 'admin/server_management/domain',
+                    'icon' => 'fa fa-domain',
+                    'parent' => '111122222223',
+                    'sort' => '3',
+                    'time' => date('Y-m-d h:i:s'),
+                ], [
+                    'menu_id' => '1111222222234',
+                    'label' => 'provider_management',
+                    'link' => 'admin/server_management/provider',
+                    'icon' => 'fa fa-handshake-o',
+                    'parent' => '111122222223',
+                    'sort' => '4',
+                    'time' => date('Y-m-d h:i:s'),
+                ],
+            ];
+            $module_menu = json_decode(json_encode(array_merge($module, $server_management)));
             $user_menu = array_merge($user_menu, $module_menu);
         }
         $user_menu = apply_filters('sidebar_menu', $user_menu);
