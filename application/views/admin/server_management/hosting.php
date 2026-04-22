@@ -78,7 +78,7 @@
                 <!-- Action Buttons Row -->
                 <div class="row mb-3">
                     <div class="col-md-12">
-                        <button class="btn btn-danger"><i class="fa fa-plus"></i> Add Hosting</button>
+                        <a href="<?= base_url('admin/server_management/add_hosting') ?>" class="btn btn-danger"><i class="fa fa-plus"></i> Add Hosting</a>
                         <button class="btn btn-outline-secondary ml-2"><i class="fa fa-file-export"></i> Export</button>
                     </div>
                 </div>
