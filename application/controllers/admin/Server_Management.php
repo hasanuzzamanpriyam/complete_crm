@@ -8,6 +8,7 @@ class Server_Management extends Admin_Controller
     public function __construct()
     {
         parent::__construct();
+        $this->load->model('provider_model');
     }
 
     public function index()
@@ -191,52 +192,6 @@ class Server_Management extends Admin_Controller
         $this->load->view('admin/_layout_main', $data);
     }
 
-    public function provider()
-    {
-        $data['title'] = lang('provider_management');
-
-        $data['providers'] = [
-            [
-                'id' => 1,
-                'provider_name' => 'Tencent Cloud',
-                'provider_url' => 'https://cloud.tencent.com',
-                'provider_type' => 'Hosting',
-                'status' => 'Active'
-            ],
-            [
-                'id' => 2,
-                'provider_name' => 'Alibaba Cloud',
-                'provider_url' => 'https://aliyun.com',
-                'provider_type' => 'Hosting',
-                'status' => 'Active'
-            ],
-            [
-                'id' => 3,
-                'provider_name' => 'Oracle Cloud',
-                'provider_url' => 'https://cloud.oracle.com',
-                'provider_type' => 'Hosting',
-                'status' => 'Active'
-            ],
-            [
-                'id' => 4,
-                'provider_name' => 'IBM Cloud',
-                'provider_url' => 'https://cloud.ibm.com',
-                'provider_type' => 'Hosting',
-                'status' => 'Active'
-            ],
-            [
-                'id' => 5,
-                'provider_name' => 'Supabase',
-                'provider_url' => 'https://supabase.com',
-                'provider_type' => 'Hosting',
-                'status' => 'Active'
-            ]
-        ];
-
-        $data['subview'] = $this->load->view('admin/server_management/provider', $data, TRUE);
-        $this->load->view('admin/_layout_main', $data);
-    }
-
     public function add_hosting()
     {
         $data['title'] = lang('add_hosting');
@@ -251,10 +206,112 @@ class Server_Management extends Admin_Controller
         $this->load->view('admin/_layout_main', $data);
     }
 
-    public function add_provider()
+    public function add_provider($id = NULL)
     {
         $data['title'] = lang('add_provider');
-        $data['subview'] = $this->load->view('admin/server_management/add_provider', $data, TRUE);
+        if ($this->input->post()) {
+            $id = $this->input->post('provider_id', TRUE);
+            $this->form_validation->set_rules('provider_name', 'Provider Name', 'required|trim');
+            $this->form_validation->set_rules('provider_url', 'Provider URL', 'required|trim|callback_valid_url');
+            $this->form_validation->set_rules('provider_type', 'Provider Type', 'required|trim');
+            $this->form_validation->set_rules('status', 'Status', 'required|trim');
+
+            if ($this->form_validation->run() === FALSE) {
+                if ($id) {
+                    $data['provider_info'] = $this->provider_model->get_provider_by_id($id);
+                }
+                $data['subview'] = $this->load->view('admin/server_management/add_provider', $data, TRUE);
+                $this->load->view('admin/_layout_main', $data);
+            } else {
+                $data_save = array(
+                    'provider_name' => $this->input->post('provider_name', TRUE),
+                    'provider_url'  => $this->input->post('provider_url', TRUE),
+                    'provider_type' => $this->input->post('provider_type', TRUE),
+                    'status'        => $this->input->post('status', TRUE),
+                    'description'  => $this->input->post('description', TRUE)
+                );
+
+                if ($id) {
+                    $this->provider_model->update_provider($id, $data_save);
+                    set_message('success', 'Provider updated successfully!');
+                } else {
+                    $data_save['created_at'] = date('Y-m-d H:i:s');
+                    $this->provider_model->insert_provider($data_save);
+                    set_message('success', 'Provider added successfully!');
+                }
+                redirect('admin/server_management/provider');
+            }
+        } else {
+            if ($id) {
+                $data['provider_info'] = $this->provider_model->get_provider_by_id($id);
+                if (empty($data['provider_info'])) {
+                    set_message('error', 'Provider not found!');
+                    redirect('admin/server_management/provider');
+                }
+            }
+            $data['subview'] = $this->load->view('admin/server_management/add_provider', $data, TRUE);
+            $this->load->view('admin/_layout_main', $data);
+        }
+    }
+
+    public function valid_url($url)
+    {
+        if (!filter_var($url, FILTER_VALIDATE_URL) || !preg_match('/^https?:\/\//', $url)) {
+            $this->form_validation->set_message('valid_url', 'The {field} field must be a valid URL (e.g., https://example.com)');
+            return FALSE;
+        }
+
+        $valid_tlds = ['com', 'org', 'net', 'io', 'dev', 'tech', 'co', 'info', 'biz', 'edu', 'gov', 'app', 'cloud', 'ai', 'io', 'me', 'us', 'uk', 'ca', 'au'];
+        $parsed = parse_url($url, PHP_URL_HOST);
+        $parts = preg_split('/\./', $parsed);
+        $tld = strtolower(end($parts));
+
+        if (!in_array($tld, $valid_tlds)) {
+            $this->form_validation->set_message('valid_url', 'The {field} must have a valid domain extension (.com, .org, .net, etc.)');
+            return FALSE;
+        }
+
+        return TRUE;
+    }
+
+    public function provider($offset = 0)
+    {
+        $data['title'] = lang('provider_management');
+
+        $filters = array(
+            'status'        => $this->input->get('status', TRUE) ?: 'All',
+            'provider_type'=> $this->input->get('provider_type', TRUE) ?: 'All',
+            'search'       => $this->input->get('search', TRUE),
+            'start_date'   => $this->input->get('start_date', TRUE),
+            'end_date'     => $this->input->get('end_date', TRUE)
+        );
+
+        $limit = 1000;
+        $total_rows = $this->provider_model->get_providers_count($filters);
+
+        $data['providers'] = $this->provider_model->get_providers($limit, 0, $filters);
+        $data['filters'] = $filters;
+        $data['total_rows'] = $total_rows;
+
+        $data['dataTables'] = TRUE;
+        $data['subview'] = $this->load->view('admin/server_management/provider', $data, TRUE);
         $this->load->view('admin/_layout_main', $data);
+    }
+
+    public function delete_provider($id = NULL)
+    {
+        $ids = $this->input->post('ids', TRUE);
+        if (!empty($ids)) {
+            // Bulk delete
+            $this->provider_model->delete_provider($ids);
+            set_message('success', 'Selected providers deleted successfully!');
+        } elseif ($id) {
+            // Single delete
+            $this->provider_model->delete_provider($id);
+            set_message('success', 'Provider deleted successfully!');
+        } else {
+            set_message('error', 'Nothing to delete!');
+        }
+        redirect('admin/server_management/provider');
     }
 }
