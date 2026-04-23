@@ -1,0 +1,37 @@
+-- Domains Table Schema for TIC CRM
+-- Run this SQL in your database
+
+CREATE TABLE IF NOT EXISTS `tbldomains` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `domain_name` VARCHAR(255) NOT NULL,
+  `provider_id` INT(11) DEFAULT NULL,
+  `provider_url` VARCHAR(500) DEFAULT NULL,
+  `domain_type` VARCHAR(50) DEFAULT NULL,
+  `hosting_id` INT(11) DEFAULT NULL,
+  `username` VARCHAR(255) DEFAULT NULL,
+  `password` VARCHAR(255) DEFAULT NULL,
+  `status` VARCHAR(50) DEFAULT 'Pending',
+  `purchase_date` DATE DEFAULT NULL,
+  `expiry_date` DATE DEFAULT NULL,
+  `price` DECIMAL(10,2) DEFAULT NULL,
+  `plan` VARCHAR(100) DEFAULT NULL,
+  `registrar_url` VARCHAR(500) DEFAULT NULL,
+  `registrar_username` VARCHAR(255) DEFAULT NULL,
+  `registrar_password` VARCHAR(255) DEFAULT NULL,
+  `registrar_status` VARCHAR(50) DEFAULT NULL,
+  `project_id` INT(11) DEFAULT NULL,
+  `client_id` INT(11) DEFAULT NULL,
+  `auto_renewal` TINYINT(1) DEFAULT 1,
+  `whois_protection` TINYINT(1) DEFAULT 1,
+  `expiry_notification` TINYINT(1) DEFAULT 1,
+  `notification_days` INT(11) DEFAULT 7,
+  `notification_time_unit` VARCHAR(20) DEFAULT 'Days',
+  `description` TEXT,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `provider_id` (`provider_id`),
+  KEY `hosting_id` (`hosting_id`),
+  KEY `status` (`status`),
+  KEY `expiry_date` (`expiry_date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

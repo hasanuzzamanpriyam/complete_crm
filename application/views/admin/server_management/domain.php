@@ -1,26 +1,131 @@
 <?php echo message_box('success'); ?>
 <?php echo message_box('error'); ?>
 
+<script src="<?= base_url() ?>assets/plugins/dataTables/js/jquery.dataTables.min.js"></script>
+<script src="<?= base_url() ?>assets/plugins/dataTables/js/dataTables.responsive.min.js"></script>
+<script src="<?= base_url() ?>assets/plugins/dataTables/js/dataTables.bootstrap.min.js"></script>
+
 <style>
+    /* Design & UI Fixes */
+    .card {
+        border: none;
+        border-radius: 8px;
+    }
+
+    .table thead th {
+        background-color: #f8f9fa;
+        color: #6c757d;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 11px;
+        letter-spacing: 0.5px;
+        border-bottom: 1px solid #dee2e6;
+        vertical-align: middle;
+    }
+
+    .table td {
+        vertical-align: middle;
+        color: #495057;
+        font-size: 13px;
+    }
+
+    /* Badges */
+    .badge {
+        padding: 5px 10px;
+        font-weight: 500;
+        border-radius: 4px;
+        font-size: 11px;
+    }
+
     .badge-expired {
         background-color: #dc3545;
         color: #fff;
     }
+
     .badge-pending {
-        background-color: #6c757d;
-        color: #fff;
+        background-color: #ffc107;
+        color: #212529;
     }
+
     .badge-transferring {
         background-color: #6c757d;
         color: #fff;
     }
+
     .badge-active {
         background-color: #28a745;
         color: #fff;
     }
+
     .badge-domain-type {
         background-color: #17a2b8;
         color: #fff;
+    }
+
+    /* Action Button Styles */
+    .btn-action {
+        border: 1px solid #dee2e6;
+        background: #fff;
+        color: #6c757d;
+        padding: 4px 8px;
+        border-radius: 4px;
+        transition: all 0.2s;
+        display: inline-block;
+    }
+
+    .btn-action:hover {
+        background: #f8f9fa;
+        color: #333;
+    }
+
+    /* DataTables Overrides to match UI */
+    .dataTables_wrapper .dataTables_filter {
+        display: none;
+    }
+
+    .dataTables_wrapper .dataTables_length {
+        display: none;
+    }
+
+    .dataTables_wrapper .dataTables_info {
+        color: #6c757d;
+        font-size: 13px;
+        padding-top: 15px;
+    }
+
+    .pagination .page-link {
+        color: #6c757d;
+        border: 1px solid #dee2e6;
+        padding: 5px 12px;
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #f44336;
+        border-color: #f44336;
+        color: #fff;
+    }
+
+    /* Sorting Icons */
+    table.dataTable thead .sorting:after,
+    table.dataTable thead .sorting_asc:after,
+    table.dataTable thead .sorting_desc:after {
+        font-family: 'FontAwesome';
+        float: right;
+        opacity: 0.5;
+    }
+
+    table.dataTable thead .sorting:after {
+        content: "\f0dc";
+    }
+
+    table.dataTable thead .sorting_asc:after {
+        content: "\f0de";
+        opacity: 1;
+    }
+
+    table.dataTable thead .sorting_desc:after {
+        content: "\f0dd";
+        opacity: 1;
     }
 </style>
 
@@ -28,19 +133,19 @@
     <div class="col-md-12">
         <div class="card shadow-sm">
             <div class="card-body">
-                <!-- Top Filter Bar -->
-                <div class="row mb-3 align-items-end">
-                    <div class="col-md-2">
-                        <label class="text-muted small">Duration</label>
+
+                <div class="row mb-4 align-items-end">
+                    <div class="col-md-3">
+                        <label class="text-muted small mb-1">Purchase Duration</label>
                         <div class="input-group">
-                            <input type="text" class="form-control" placeholder="Start Date">
-                            <span class="input-group-addon"><i class="fa fa-minus"></i></span>
-                            <input type="text" class="form-control" placeholder="End Date">
+                            <input type="date" id="start_date" class="form-control form-control-sm">
+                            <span class="input-group-addon" style="padding: 4px 8px; background: #eee; border: 1px solid #ccc; border-left: none; border-right: none;"><i class="fa fa-minus text-muted" style="font-size:10px;"></i></span>
+                            <input type="date" id="end_date" class="form-control form-control-sm">
                         </div>
                     </div>
                     <div class="col-md-2">
-                        <label class="text-muted small">Status</label>
-                        <select class="form-control">
+                        <label class="text-muted small mb-1">Status</label>
+                        <select id="filter_status" class="form-control form-control-sm">
                             <option value="">All</option>
                             <option value="Active">Active</option>
                             <option value="Pending">Pending</option>
@@ -49,61 +154,59 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="text-muted small">Provider</label>
-                        <select class="form-control">
+                        <label class="text-muted small mb-1">Provider</label>
+                        <select id="filter_provider" class="form-control form-control-sm">
                             <option value="">All</option>
-                            <option value="Google Workspace">Google Workspace</option>
-                            <option value="GoDaddy">GoDaddy</option>
-                            <option value="Namecheap">Namecheap</option>
-                            <option value="Cloudflare">Cloudflare</option>
-                            <option value="AWS">AWS</option>
-                            <option value="MongoDB Atlas">MongoDB Atlas</option>
+                            <?php if (!empty($providers)): ?>
+                                <?php foreach ($providers as $provider): ?>
+                                    <option value="<?= htmlspecialchars($provider['provider_name']) ?>">
+                                        <?= htmlspecialchars($provider['provider_name']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </select>
                     </div>
-                    <div class="col-md-4">
-                        <label class="text-muted small">&nbsp;</label>
+                    <div class="col-md-5">
+                        <label class="text-muted small mb-1">&nbsp;</label>
                         <div class="input-group">
-                            <input type="text" class="form-control" placeholder="Start typing to search">
-                            <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                            <input type="text" id="customSearch" class="form-control form-control-sm" placeholder="Start typing to search domains...">
+                            <span class="input-group-addon" style="padding: 4px 10px; background: #fff;"><i class="fa fa-search text-muted"></i></span>
                         </div>
                     </div>
-                    <div class="col-md-2 text-right">
-                        <button class="btn btn-default"><i class="fa fa-filter"></i> Filters</button>
+                </div>
+                
+                <div class="row mb-3 align-items-center">
+                    <div class="col-md-6">
+                        <button id="bulkDeleteBtn" class="btn btn-sm btn-outline-danger" style="display: none;"><i class="fa fa-trash"></i> Delete Selected</button>
+                    </div>
+                    <div class="col-md-6 text-right">
+                        <a href="<?= base_url('admin/server_management/add_domain') ?>" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add Domain</a>
                     </div>
                 </div>
 
-                <!-- Action Buttons Row -->
-                <div class="row mb-3">
-                    <div class="col-md-12">
-                        <a href="<?= base_url('admin/server_management/add_domain') ?>" class="btn btn-primary"><i class="fa fa-plus"></i> Add Domain</a>
-                        <button class="btn btn-outline-secondary ml-2"><i class="fa fa-file-export"></i> Export</button>
-                    </div>
-                </div>
-
-                <!-- Data Table -->
                 <div class="table-responsive">
-                    <table class="table table-hover table-bordered">
+                    <table id="domainDataTable" class="table table-hover">
                         <thead>
                             <tr>
-                                <th><input type="checkbox"></th>
-                                <th>Domain Name <i class="fa fa-sort-up"></i><i class="fa fa-sort-down"></i></th>
-                                <th>Provider <i class="fa fa-sort-up"></i><i class="fa fa-sort-down"></i></th>
-                                <th>Domain Type <i class="fa fa-sort-up"></i><i class="fa fa-sort-down"></i></th>
-                                <th>Status <i class="fa fa-sort-up"></i><i class="fa fa-sort-down"></i></th>
-                                <th>Purchase Date <i class="fa fa-sort-up"></i><i class="fa fa-sort-down"></i></th>
-                                <th>Expiry Date <i class="fa fa-sort-up"></i><i class="fa fa-sort-down"></i></th>
-                                <th>Hosting <i class="fa fa-sort-up"></i><i class="fa fa-sort-down"></i></th>
-                                <th>Action</th>
+                                <th style="width: 30px;"><input type="checkbox" id="selectAll"></th>
+                                <th>Domain Name</th>
+                                <th>Provider</th>
+                                <th>Domain Type</th>
+                                <th>Status</th>
+                                <th>Purchase Date</th>
+                                <th>Expiry Date</th>
+                                <th>Hosting</th>
+                                <th class="text-center" style="width: 80px;">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php if (!empty($domains)): ?>
                                 <?php foreach ($domains as $domain): ?>
                                     <tr>
-                                        <td><input type="checkbox"></td>
-                                        <td><?= $domain['domain_name'] ?></td>
-                                        <td><?= $domain['provider'] ?></td>
-                                        <td><span class="badge badge-pill badge-domain-type"><?= $domain['domain_type'] ?></span></td>
+                                        <td><input type="checkbox" class="row-checkbox" value="<?= $domain['id'] ?>"></td>
+                                        <td><span class="font-weight-bold"><?= htmlspecialchars($domain['domain_name']) ?></span></td>
+                                        <td><?= !empty($domain['provider_name']) ? htmlspecialchars($domain['provider_name']) : '-' ?></td>
+                                        <td><span class="badge badge-domain-type"><?= htmlspecialchars($domain['domain_type']) ?></span></td>
                                         <td>
                                             <?php
                                             $badge_class = '';
@@ -122,57 +225,192 @@
                                                     break;
                                             }
                                             ?>
-                                            <span class="badge badge-pill <?= $badge_class ?>"><?= $domain['status'] ?></span>
+                                            <span class="badge <?= $badge_class ?>"><?= htmlspecialchars($domain['status']) ?></span>
                                         </td>
                                         <td><?= $domain['purchase_date'] ?></td>
                                         <td><?= $domain['expiry_date'] ?></td>
-                                        <td><?= $domain['hosting'] ?></td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <button class="btn btn-sm btn-link" data-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></button>
-                                                <div class="dropdown-menu dropdown-menu-right">
-                                                    <a class="dropdown-item" href="#">View</a>
-                                                    <a class="dropdown-item" href="#">Edit</a>
-                                                    <a class="dropdown-item" href="#">Delete</a>
-                                                </div>
-                                            </div>
+                                        <td><?= !empty($domain['hosting_name']) ? htmlspecialchars($domain['hosting_name']) : '-' ?></td>
+                                        <td class="text-center">
+                                            <a href="<?= base_url('admin/server_management/add_domain/' . $domain['id']) ?>" class="btn-action" title="Edit"><i class="fa fa-pencil-square-o"></i></a>
+                                            <a href="<?= base_url('admin/server_management/delete_domain/' . $domain['id']) ?>" class="btn-action text-danger" title="Delete" onclick="return confirm('Are you sure you want to delete this domain?')"><i class="fa fa-trash-o"></i></a>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
-                            <?php else: ?>
-                                <tr>
-                                    <td colspan="9" class="text-center text-muted">No data available</td>
-                                </tr>
                             <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
 
-                <!-- Footer / Pagination -->
-                <div class="row mt-3">
-                    <div class="col-md-6">
-                        <span class="text-muted">Show 
-                            <select class="form-control form-control-sm d-inline-block" style="width: auto;">
-                                <option>10</option>
-                                <option>25</option>
-                                <option>50</option>
-                            </select> 
-                            entries
-                        </span>
+                <div class="row mt-4 align-items-center">
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center">
+                            <select id="changeRowLimit" class="form-control form-control-sm" style="width: 60px;">
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="col-md-6 text-right">
-                        <span class="text-muted mr-2">Showing 1 to 10 of 20 entries</span>
-                        <nav class="d-inline-block">
-                            <ul class="pagination pagination-sm mb-0">
-                                <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
-                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                <li class="page-item"><a class="page-link" href="#">Next</a></li>
-                            </ul>
-                        </nav>
+                    <div class="col-md-8 text-right" id="paginationContainer">
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+
+        // Custom Date Range Filter Logic for DataTables
+        $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+            var min = $('#start_date').val();
+            var max = $('#end_date').val();
+            var rowDate = new Date(data[5]); // Index 5 is Purchase Date
+
+            if (!min && !max) {
+                return true;
+            }
+
+            var minDate = min ? new Date(min) : null;
+            var maxDate = max ? new Date(max) : null;
+
+            if (
+                (minDate === null && maxDate === null) ||
+                (minDate === null && rowDate <= maxDate) ||
+                (minDate <= rowDate && maxDate === null) ||
+                (minDate <= rowDate && rowDate <= maxDate)
+            ) {
+                return true;
+            }
+            return false;
+        });
+
+        // Initialize DataTables
+        var table = $('#domainDataTable').DataTable({
+            "dom": "itp",
+            "pageLength": 10,
+            "order": [
+                [1, "asc"]
+            ], // Sort by Domain Name by default
+            "columnDefs": [{
+                    "orderable": false,
+                    "targets": [0, 8]
+                } // Disable sorting for checkbox and action columns
+            ],
+            "language": {
+                "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                "paginate": {
+                    "previous": "Previous",
+                    "next": "Next"
+                }
+            },
+            "drawCallback": function() {
+                var $paginate = $('.dataTables_paginate').detach();
+                var $info = $('.dataTables_info').detach();
+
+                $('#paginationContainer').empty().append($info).append($paginate);
+
+                $('#paginationContainer .pagination').addClass('pagination-sm mb-0 justify-content-end');
+                $info.css({
+                    'display': 'inline-block',
+                    'margin-right': '20px',
+                    'padding-top': '0'
+                });
+            }
+        });
+
+        // Search & Filters
+        $('#customSearch').on('keyup', function() {
+            table.search(this.value).draw();
+        });
+
+        $('#filter_status').on('change', function() {
+            table.column(4).search(this.value).draw(); // Index 4 is Status
+        });
+
+        $('#filter_provider').on('change', function() {
+            table.column(2).search(this.value).draw(); // Index 2 is Provider
+        });
+
+        $('#start_date, #end_date').on('change', function() {
+            table.draw();
+        });
+
+        $('#changeRowLimit').on('change', function() {
+            table.page.len(this.value).draw();
+        });
+
+        // ----------------------------------------------------
+        // Bulk Delete Selection Logic (DataTables API)
+        // ----------------------------------------------------
+        var $selectAll = $('#selectAll');
+        var $bulkDeleteBtn = $('#bulkDeleteBtn');
+
+        function updateBulkBtn() {
+            var checkedCount = table.$('.row-checkbox:checked').length;
+            var totalCount = table.rows({
+                search: 'applied'
+            }).count();
+
+            if (checkedCount > 0) {
+                $bulkDeleteBtn.fadeIn(200);
+                if (checkedCount === totalCount) {
+                    $bulkDeleteBtn.html('<i class="fa fa-trash"></i> Delete All (' + checkedCount + ')');
+                } else {
+                    $bulkDeleteBtn.html('<i class="fa fa-trash"></i> Delete Selected (' + checkedCount + ')');
+                }
+            } else {
+                $bulkDeleteBtn.fadeOut(200);
+            }
+        }
+
+        $selectAll.on('click', function() {
+            var rows = table.rows({
+                search: 'applied'
+            }).nodes();
+            $('.row-checkbox', rows).prop('checked', this.checked);
+            updateBulkBtn();
+        });
+
+        $('#domainDataTable tbody').on('change', '.row-checkbox', function() {
+            var checkedCount = table.$('.row-checkbox:checked').length;
+            var totalCount = table.rows({
+                search: 'applied'
+            }).count();
+
+            if (checkedCount === totalCount && totalCount > 0) {
+                $selectAll.prop('checked', true);
+            } else {
+                $selectAll.prop('checked', false);
+            }
+            updateBulkBtn();
+        });
+
+        $bulkDeleteBtn.on('click', function() {
+            var selectedIds = [];
+            table.$('.row-checkbox:checked').each(function() {
+                selectedIds.push($(this).val());
+            });
+
+            if (selectedIds.length > 0 && confirm('Are you sure you want to delete the selected ' + selectedIds.length + ' domains?')) {
+                var form = $('<form>', {
+                    'action': '<?= base_url('admin/server_management/delete_domain') ?>',
+                    'method': 'POST'
+                });
+
+                $.each(selectedIds, function(i, id) {
+                    form.append($('<input>', {
+                        'type': 'hidden',
+                        'name': 'ids[]',
+                        'value': id
+                    }));
+                });
+
+                $('body').append(form);
+                form.submit();
+            }
+        });
+    });
+</script>
