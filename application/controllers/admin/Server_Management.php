@@ -22,40 +22,123 @@ class Server_Management extends Admin_Controller
     {
         $data['title'] = lang('server_dashboard');
 
+        $domain_stats = $this->domain_model->get_stats();
+        $hosting_stats = $this->hosting_model->get_stats();
+
         $data['stats'] = [
-            'total_hostings' => 20,
-            'active_hostings' => 6,
-            'total_domains' => 20,
-            'active_domains' => 3,
-            'expiring_hostings' => 0,
-            'expiring_domains' => 0
+            'total_hostings' => $hosting_stats['total'],
+            'active_hostings' => $hosting_stats['active'],
+            'pending_hostings' => $hosting_stats['pending'],
+            'suspended_hostings' => $hosting_stats['suspended'],
+            'total_domains' => $domain_stats['total'],
+            'active_domains' => $domain_stats['active'],
+            'pending_domains' => $domain_stats['pending'],
+            'expiring_hostings' => $hosting_stats['expiring'],
+            'expiring_domains' => $domain_stats['expiring']
         ];
 
-        $data['recent_activities'] = [
-            [
-                'user' => 'Lura Gleason',
-                'action' => 'Hosting "API Server" was created',
-                'time' => '2 hours ago'
-            ],
-            [
-                'user' => 'Admin',
-                'action' => 'Domain "example.com" renewed',
-                'time' => '5 hours ago'
-            ],
-            [
-                'user' => 'John Doe',
-                'action' => 'Hosting "Main Server" suspended',
-                'time' => '1 day ago'
-            ],
-            [
-                'user' => 'Jane Smith',
-                'action' => 'Provider "AWS" was added',
-                'time' => '2 days ago'
-            ]
-        ];
+        $data['recent_activities'] = $this->get_recent_activities();
+        $data['expiring_items'] = $this->get_expiring_items();
 
         $data['subview'] = $this->load->view('admin/server_management/dashboard', $data, TRUE);
         $this->load->view('admin/_layout_main', $data);
+    }
+
+    private function get_recent_activities()
+    {
+        $this->db->select('a.*, u.username');
+        $this->db->from('tbl_activities a');
+        $this->db->join('tbl_users u', 'a.user = u.user_id', 'left');
+        $this->db->where('a.module', 'server_management');
+        $this->db->order_by('a.activities_id', 'DESC');
+        $this->db->limit(10);
+        $query = $this->db->get();
+        $activities = $query->result_array();
+
+        $formatted = [];
+        foreach ($activities as $activity) {
+            $formatted[] = [
+                'user' => !empty($activity['username']) ? $activity['username'] : 'System',
+                'action' => $activity['activity'],
+                'time' => $this->time_ago($activity['activity_date']),
+                'icon' => $activity['icon'],
+                'link' => $activity['link']
+            ];
+        }
+
+        return $formatted;
+    }
+
+    private function time_ago($datetime)
+    {
+        $timestamp = strtotime($datetime);
+        $diff = time() - $timestamp;
+
+        if ($diff < 60) {
+            return $diff . ' seconds ago';
+        } elseif ($diff < 3600) {
+            return floor($diff / 60) . ' minutes ago';
+        } elseif ($diff < 86400) {
+            return floor($diff / 3600) . ' hours ago';
+        } elseif ($diff < 2592000) {
+            return floor($diff / 86400) . ' days ago';
+        } else {
+            return date('M j, Y', $timestamp);
+        }
+    }
+
+    private function log_activity($module, $activity, $icon = 'fa-server', $link = null, $value1 = null, $value2 = null)
+    {
+        $user_id = $this->session->userdata('user_id');
+        
+        $activity_data = [
+            'user' => $user_id ? $user_id : 0,
+            'module' => $module,
+            'activity' => $activity,
+            'icon' => $icon,
+            'link' => $link,
+            'value1' => $value1,
+            'value2' => $value2,
+            'activity_date' => date('Y-m-d H:i:s')
+        ];
+        
+        $this->db->insert('tbl_activities', $activity_data);
+    }
+
+    private function get_expiring_items($days = 30)
+    {
+        $items = [];
+        $end_date = date('Y-m-d', strtotime("+{$days} days"));
+        $today = date('Y-m-d');
+        
+        $this->db->select('id, domain_name as name, expiry_date, "domain" as type');
+        $this->db->from('tbldomains');
+        $this->db->where('expiry_date >=', $today);
+        $this->db->where('expiry_date <=', $end_date);
+        $this->db->where('status', 'Active');
+        $domains = $this->db->get()->result_array();
+        
+        $this->db->select('id, title as name, expiry_date, "hosting" as type');
+        $this->db->from('tblserver_hostings');
+        $this->db->where('expiry_date >=', $today);
+        $this->db->where('expiry_date <=', $end_date);
+        $this->db->where('status', 'Active');
+        $hostings = $this->db->get()->result_array();
+        
+        $items = array_merge($domains, $hostings);
+        
+        usort($items, function($a, $b) {
+            return strtotime($a['expiry_date']) - strtotime($b['expiry_date']);
+        });
+        
+        foreach ($items as &$item) {
+            $item['days_left'] = (int)ceil((strtotime($item['expiry_date']) - strtotime($today)) / (60 * 60 * 24));
+            $item['link'] = $item['type'] === 'domain' 
+                ? 'admin/server_management/add_domain/' . $item['id'] 
+                : 'admin/server_management/add_hosting/' . $item['id'];
+        }
+        
+        return $items;
     }
 
     public function hosting()
@@ -117,9 +200,14 @@ class Server_Management extends Admin_Controller
         $ids = $this->input->post('ids', TRUE);
         if (!empty($ids)) {
             $this->hosting_model->delete_hosting($ids);
+            $this->log_activity('server_management', 'Deleted ' . count($ids) . ' hosting(s)', 'fa-trash');
             set_message('success', 'Selected hostings deleted successfully!');
         } elseif ($id) {
+            $hosting = $this->hosting_model->get_hosting_by_id($id);
             $this->hosting_model->delete_hosting($id);
+            if ($hosting) {
+                $this->log_activity('server_management', 'Deleted hosting "' . $hosting->title . '"', 'fa-trash');
+            }
             set_message('success', 'Hosting deleted successfully!');
         } else {
             set_message('error', 'Nothing to delete!');
@@ -187,9 +275,14 @@ class Server_Management extends Admin_Controller
         $ids = $this->input->post('ids', TRUE);
         if (!empty($ids)) {
             $this->domain_model->delete_domain($ids);
+            $this->log_activity('server_management', 'Deleted ' . count($ids) . ' domain(s)', 'fa-trash');
             set_message('success', 'Selected domains deleted successfully!');
         } elseif ($id) {
+            $domain = $this->domain_model->get_domain_by_id($id);
             $this->domain_model->delete_domain($id);
+            if ($domain) {
+                $this->log_activity('server_management', 'Deleted domain "' . $domain->domain_name . '"', 'fa-trash');
+            }
             set_message('success', 'Domain deleted successfully!');
         } else {
             set_message('error', 'Nothing to delete!');
@@ -251,9 +344,11 @@ class Server_Management extends Admin_Controller
 
                 if ($id) {
                     $this->hosting_model->update_hosting($id, $data_save);
+                    $this->log_activity('server_management', 'Updated hosting "' . $data_save['title'] . '"', 'fa-pencil', 'admin/server_management/add_hosting/' . $id, $data_save['status']);
                     set_message('success', 'Hosting updated successfully!');
                 } else {
-                    $this->hosting_model->insert_hosting($data_save);
+                    $new_id = $this->hosting_model->insert_hosting($data_save);
+                    $this->log_activity('server_management', 'Added new hosting "' . $data_save['title'] . '"', 'fa-plus', 'admin/server_management/add_hosting/' . $new_id, $data_save['status']);
                     set_message('success', 'Hosting added successfully!');
                 }
                 redirect('admin/server_management/hosting');
@@ -336,9 +431,11 @@ $data['providers'] = $this->domain_model->get_all_providers();
 
                 if ($id) {
                     $this->domain_model->update_domain($id, $data_save);
+                    $this->log_activity('server_management', 'Updated domain "' . $data_save['domain_name'] . '"', 'fa-pencil', 'admin/server_management/add_domain/' . $id, $data_save['status']);
                     set_message('success', 'Domain updated successfully!');
                 } else {
-                    $this->domain_model->insert_domain($data_save);
+                    $new_id = $this->domain_model->insert_domain($data_save);
+                    $this->log_activity('server_management', 'Added new domain "' . $data_save['domain_name'] . '"', 'fa-plus', 'admin/server_management/add_domain/' . $new_id, $data_save['status']);
                     set_message('success', 'Domain added successfully!');
                 }
                 redirect('admin/server_management/domain');

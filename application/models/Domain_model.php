@@ -143,6 +143,27 @@ class Domain_model extends CI_Model {
         return $this->db->delete('tbldomains');
     }
 
+    public function get_stats() {
+        $stats = [];
+        $stats['total'] = $this->db->count_all('tbldomains');
+        
+        $this->db->where('status', 'Active');
+        $stats['active'] = $this->db->count_all_results('tbldomains');
+        
+        $this->db->where('status', 'Pending');
+        $stats['pending'] = $this->db->count_all_results('tbldomains');
+        
+        $this->db->where('status', 'Expired');
+        $stats['expired'] = $this->db->count_all_results('tbldomains');
+        
+        $this->db->where('expiry_date >=', date('Y-m-d'));
+        $this->db->where('expiry_date <=', date('Y-m-d', strtotime('+30 days')));
+        $this->db->where('status', 'Active');
+        $stats['expiring'] = $this->db->count_all_results('tbldomains');
+        
+        return $stats;
+    }
+
     public function get_all_hostings() {
         $this->db->select('id, hosting_name');
         $this->db->from('tblhostings');

@@ -128,6 +128,30 @@ class Hosting_model extends CI_Model {
         return $query->row();
     }
 
+    public function get_stats() {
+        $stats = [];
+        $stats['total'] = $this->db->count_all('tblserver_hostings');
+        
+        $this->db->where('status', 'Active');
+        $stats['active'] = $this->db->count_all_results('tblserver_hostings');
+        
+        $this->db->where('status', 'Pending');
+        $stats['pending'] = $this->db->count_all_results('tblserver_hostings');
+        
+        $this->db->where('status', 'Suspended');
+        $stats['suspended'] = $this->db->count_all_results('tblserver_hostings');
+        
+        $this->db->where('status', 'Cancelled');
+        $stats['cancelled'] = $this->db->count_all_results('tblserver_hostings');
+        
+        $this->db->where('expiry_date >=', date('Y-m-d'));
+        $this->db->where('expiry_date <=', date('Y-m-d', strtotime('+30 days')));
+        $this->db->where('status', 'Active');
+        $stats['expiring'] = $this->db->count_all_results('tblserver_hostings');
+        
+        return $stats;
+    }
+
     public function update_hosting($id, $data) {
         $this->db->where('id', $id);
         return $this->db->update('tblserver_hostings', $data);
