@@ -10,6 +10,7 @@ class Server_Management extends Admin_Controller
         parent::__construct();
         $this->load->model('provider_model');
         $this->load->model('domain_model');
+        $this->load->model('hosting_model');
     }
 
     public function index()
@@ -61,65 +62,69 @@ class Server_Management extends Admin_Controller
     {
         $data['title'] = lang('hosting_management');
 
-        $data['hostings'] = [
-            [
-                'id' => 1,
-                'title' => 'API Server',
-                'provider_name' => 'Akamai',
-                'server_type' => 'VPS',
-                'status' => 'Active',
-                'purchase_date' => '2024-01-15',
-                'expiry_date' => '2025-01-15'
-            ],
-            [
-                'id' => 2,
-                'title' => 'Production Web Server',
-                'provider_name' => 'Vercel',
-                'server_type' => 'Cloud',
-                'status' => 'Active',
-                'purchase_date' => '2024-02-20',
-                'expiry_date' => '2025-02-20'
-            ],
-            [
-                'id' => 3,
-                'title' => 'Development Server',
-                'provider_name' => 'HostGator',
-                'server_type' => 'Shared',
-                'status' => 'Suspended',
-                'purchase_date' => '2024-03-10',
-                'expiry_date' => '2025-03-10'
-            ],
-            [
-                'id' => 4,
-                'title' => 'Database Server',
-                'provider_name' => 'AWS',
-                'server_type' => 'Dedicated',
-                'status' => 'Pending',
-                'purchase_date' => '2024-04-05',
-                'expiry_date' => '2025-04-05'
-            ],
-            [
-                'id' => 5,
-                'title' => 'Backup Server',
-                'provider_name' => 'DigitalOcean',
-                'server_type' => 'VPS',
-                'status' => 'Cancelled',
-                'purchase_date' => '2023-06-01',
-                'expiry_date' => '2024-06-01'
-            ],
-            [
-                'id' => 6,
-                'title' => 'Testing Server',
-                'provider_name' => 'Vercel',
-                'server_type' => 'Cloud',
-                'status' => 'Active',
-                'purchase_date' => '2024-05-12',
-                'expiry_date' => '2025-05-12'
-            ]
-        ];
+        $filters = array(
+            'start_date'  => $this->input->get('start_date', TRUE),
+            'end_date'   => $this->input->get('end_date', TRUE),
+            'status'    => $this->input->get('status', TRUE) ?: 'All',
+            'provider_id' => $this->input->get('provider_id', TRUE) ?: 'All',
+            'search'    => $this->input->get('search', TRUE)
+        );
+
+        $limit = 10;
+        $total_rows = $this->hosting_model->get_hostings_count($filters);
+        $offset = $this->uri->segment(4) ? $this->uri->segment(4) : 0;
+
+        $data['hostings'] = $this->hosting_model->get_hostings($limit, $offset, $filters);
+        $data['providers'] = $this->hosting_model->get_all_providers();
+        $data['filters'] = $filters;
+        $data['total_rows'] = $total_rows;
+        $data['offset'] = $offset;
+
+        $this->load->library('pagination');
+        $config['base_url'] = base_url('admin/server_management/hosting');
+        $config['total_rows'] = $total_rows;
+        $config['per_page'] = $limit;
+        $config['reuse_query_string'] = TRUE;
+        $config['full_tag_open'] = '<ul class="pagination pagination-sm mb-0">';
+        $config['full_tag_close'] = '</ul>';
+        $config['first_link'] = 'First';
+        $config['last_link'] = 'Last';
+        $config['first_tag_open'] = '<li class="page-item">';
+        $config['first_tag_close'] = '</li>';
+        $config['prev_link'] = '&laquo;';
+        $config['prev_tag_open'] = '<li class="page-item">';
+        $config['prev_tag_close'] = '</li>';
+        $config['next_link'] = '&raquo;';
+        $config['next_tag_open'] = '<li class="page-item">';
+        $config['next_tag_close'] = '</li>';
+        $config['last_tag_open'] = '<li class="page-item">';
+        $config['last_tag_close'] = '</li>';
+        $config['cur_tag_open'] = '<li class="page-item active"><a class="page-link" href="#">';
+        $config['cur_tag_close'] = '</a></li>';
+        $config['num_tag_open'] = '<li class="page-item">';
+        $config['num_tag_close'] = '</li>';
+        $config['attributes'] = array('class' => 'page-link');
+
+        $this->pagination->initialize($config);
+        $data['pagination'] = $this->pagination->create_links();
 
         $data['subview'] = $this->load->view('admin/server_management/hosting', $data, TRUE);
         $this->load->view('admin/_layout_main', $data);
+    }
+
+    public function delete_hosting($id = NULL)
+    {
+        $ids = $this->input->post('ids', TRUE);
+        if (!empty($ids)) {
+            $this->hosting_model->delete_hosting($ids);
+            set_message('success', 'Selected hostings deleted successfully!');
+        } elseif ($id) {
+            $this->hosting_model->delete_hosting($id);
+            set_message('success', 'Hosting deleted successfully!');
+        } else {
+            set_message('error', 'Nothing to delete!');
+        }
+        redirect('admin/server_management/hosting');
     }
 
     public function domain()
@@ -192,11 +197,90 @@ class Server_Management extends Admin_Controller
         redirect('admin/server_management/domain');
     }
 
-    public function add_hosting()
+    public function add_hosting($id = NULL)
     {
         $data['title'] = lang('add_hosting');
-        $data['subview'] = $this->load->view('admin/server_management/add_hosting', $data, TRUE);
-        $this->load->view('admin/_layout_main', $data);
+        
+        if ($this->input->post()) {
+            $this->form_validation->set_rules('title', 'Title', 'required|trim');
+            $this->form_validation->set_rules('provider_id', 'Provider', 'required|trim');
+            $this->form_validation->set_rules('server_type', 'Server Type', 'required|trim');
+            $this->form_validation->set_rules('purchase_date', 'Purchase Date', 'required|trim');
+            $this->form_validation->set_rules('expiry_date', 'Expiry Date', 'required|trim');
+            $this->form_validation->set_rules('plan', 'Plan', 'required|trim');
+            $this->form_validation->set_rules('status', 'Status', 'required|trim');
+
+            if ($this->form_validation->run() === FALSE) {
+                if ($id) {
+                    $data['hosting_info'] = $this->hosting_model->get_hosting_by_id($id);
+                }
+                $data['providers'] = $this->hosting_model->get_all_providers();
+                $data['clients'] = $this->hosting_model->get_all_clients();
+                $data['projects'] = $this->hosting_model->get_all_projects();
+                $data['subview'] = $this->load->view('admin/server_management/add_hosting', $data, TRUE);
+                $this->load->view('admin/_layout_main', $data);
+            } else {
+                $data_save = array(
+                    'title' => $this->input->post('title', TRUE),
+                    'provider_id' => $this->input->post('provider_id', TRUE),
+                    'provider_url' => $this->input->post('provider_url', TRUE),
+                    'server_type' => $this->input->post('server_type', TRUE),
+                    'server_location' => $this->input->post('server_location', TRUE),
+                    'ip_address' => $this->input->post('ip_address', TRUE),
+                    'cpanel_url' => $this->input->post('cpanel_url', TRUE),
+                    'username' => $this->input->post('username', TRUE),
+                    'password' => $this->input->post('password', TRUE),
+                    'purchase_date' => $this->input->post('purchase_date', TRUE),
+                    'expiry_date' => $this->input->post('expiry_date', TRUE),
+                    'plan' => $this->input->post('plan', TRUE),
+                    'price' => $this->input->post('price', TRUE),
+                    'project_id' => $this->input->post('project_id', TRUE),
+                    'client_id' => $this->input->post('client_id', TRUE),
+                    'status' => $this->input->post('status', TRUE),
+                    'ftp_username' => $this->input->post('ftp_username', TRUE),
+                    'ftp_password' => $this->input->post('ftp_password', TRUE),
+                    'ssl_certificate' => $this->input->post('ssl_certificate') ? 1 : 0,
+                    'ssl_expiry_date' => $this->input->post('ssl_expiry_date', TRUE),
+                    'ssl_type' => $this->input->post('ssl_type', TRUE),
+                    'ssl_info' => $this->input->post('ssl_info', TRUE),
+                    'expiry_notification' => $this->input->post('expiry_notification') ? 1 : 0,
+                    'notification_days' => $this->input->post('expiry_notification') ? $this->input->post('notification_days', TRUE) : NULL,
+                    'notification_time_unit' => $this->input->post('expiry_notification') ? $this->input->post('notification_time_unit', TRUE) : NULL,
+                    'description' => $this->input->post('description', TRUE)
+                );
+
+                if ($id) {
+                    $this->hosting_model->update_hosting($id, $data_save);
+                    set_message('success', 'Hosting updated successfully!');
+                } else {
+                    $this->hosting_model->insert_hosting($data_save);
+                    set_message('success', 'Hosting added successfully!');
+                }
+                redirect('admin/server_management/hosting');
+            }
+        } else {
+            if ($id) {
+                $data['hosting_info'] = $this->hosting_model->get_hosting_by_id($id);
+            }
+            $data['providers'] = $this->hosting_model->get_all_providers();
+            $data['clients'] = $this->hosting_model->get_all_clients();
+            $data['projects'] = $this->hosting_model->get_all_projects();
+            $data['subview'] = $this->load->view('admin/server_management/add_hosting', $data, TRUE);
+            $this->load->view('admin/_layout_main', $data);
+        }
+    }
+
+    public function fetch_hosting_provider_url()
+    {
+        $provider_id = $this->input->post('provider_id');
+        
+        if ($provider_id) {
+            $url = $this->hosting_model->get_provider_url($provider_id);
+            echo json_encode(array('status' => 'success', 'provider_url' => $url));
+        } else {
+            echo json_encode(array('status' => 'error', 'message' => 'Invalid provider'));
+        }
+        exit;
     }
 
     public function add_domain($id = NULL)
