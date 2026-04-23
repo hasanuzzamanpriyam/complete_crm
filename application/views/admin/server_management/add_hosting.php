@@ -272,7 +272,7 @@
 
                     <!-- Footer -->
                     <div class="row mt-4">
-                        <div class="col-md-12 text-right">
+                        <div class="col-md-12 text-left">
                             <button type="submit" class="btn btn-success"><i class="fa fa-save"></i> Save</button>
                         </div>
                     </div>

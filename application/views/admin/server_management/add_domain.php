@@ -219,7 +219,7 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <div class="custom-control custom-checkbox mt-2">
-                                    <input type="checkbox" name="auto_renewal" class="custom-control-input" id="auto_renewal" value="1" <?= !empty($domain_info) && $domain_info->auto_renewal == 1 ? 'checked' : (!empty($domain_info) ? '' : 'checked') ?>>
+                                    <input type="checkbox" name="auto_renewal" class="custom-control-input" id="auto_renewal" value="1" <?= !empty($domain_info) && $domain_info->auto_renewal == 1 ? 'checked' : '' ?>>
                                     <label class="custom-control-label" for="auto_renewal">Auto Renewal</label>
                                 </div>
                             </div>
@@ -227,7 +227,7 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <div class="custom-control custom-checkbox mt-2">
-                                    <input type="checkbox" name="whois_protection" class="custom-control-input" id="whois_protection" value="1" <?= !empty($domain_info) && $domain_info->whois_protection == 1 ? 'checked' : (!empty($domain_info) ? '' : 'checked') ?>>
+                                    <input type="checkbox" name="whois_protection" class="custom-control-input" id="whois_protection" value="1" <?= !empty($domain_info) && $domain_info->whois_protection == 1 ? 'checked' : '' ?>>
                                     <label class="custom-control-label" for="whois_protection">WHOIS Protection</label>
                                 </div>
                             </div>
@@ -239,18 +239,18 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <div class="custom-control custom-checkbox mt-2">
-                                    <input type="checkbox" name="expiry_notification" class="custom-control-input" id="expiry_notification" value="1" <?= !empty($domain_info) && $domain_info->expiry_notification == 1 ? 'checked' : (!empty($domain_info) ? '' : 'checked') ?>>
+                                    <input type="checkbox" name="expiry_notification" class="custom-control-input" id="expiry_notification" value="1" <?= !empty($domain_info) && $domain_info->expiry_notification == 1 ? 'checked' : '' ?>>
                                     <label class="custom-control-label" for="expiry_notification">Expiry Notification</label>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-4" id="notification_days_wrapper">
                             <div class="form-group">
                                 <label>Notification Days Before</label>
                                 <input type="number" name="notification_days" class="form-control" value="<?= !empty($domain_info) ? $domain_info->notification_days : 7 ?>">
                             </div>
                         </div>
-                        <div class="col-md-5">
+                        <div class="col-md-5" id="notification_unit_wrapper">
                             <div class="form-group">
                                 <label>Notification Time Unit</label>
                                 <select name="notification_time_unit" class="form-control">
@@ -272,11 +272,31 @@
                         </div>
                     </div>
 
-                    <script>
-                        $(document).ready(function() {
-                            var csrfToken = '<?= $this->security->get_csrf_hash() ?>';
-
-                            $('#provider_id').change(function() {
+<script>
+$(document).ready(function() {
+    var csrfToken = '<?= $this->security->get_csrf_hash() ?>';
+    
+    // Toggle notification fields based on expiry_notification checkbox
+    function toggleNotificationFields() {
+        if ($('#expiry_notification').is(':checked')) {
+            $('#notification_days_wrapper').show();
+            $('#notification_unit_wrapper').show();
+        } else {
+            $('#notification_days_wrapper').hide();
+            $('#notification_unit_wrapper').hide();
+        }
+    }
+    
+    // Run on page load
+    toggleNotificationFields();
+    
+    // Toggle on change
+    $('#expiry_notification').change(function() {
+        toggleNotificationFields();
+    });
+    
+    // Provider change handler
+    $('#provider_id').change(function() {
                                 var provider_id = $(this).val();
                                 if (provider_id) {
                                     $.ajax({

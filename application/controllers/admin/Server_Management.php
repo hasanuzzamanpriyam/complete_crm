@@ -245,8 +245,8 @@ $data['providers'] = $this->domain_model->get_all_providers();
                     'auto_renewal'         => $this->input->post('auto_renewal') ? 1 : 0,
                     'whois_protection'     => $this->input->post('whois_protection') ? 1 : 0,
                     'expiry_notification' => $this->input->post('expiry_notification') ? 1 : 0,
-                    'notification_days'   => $this->input->post('notification_days', TRUE),
-                    'notification_time_unit' => $this->input->post('notification_time_unit', TRUE),
+                    'notification_days'   => $this->input->post('expiry_notification') ? $this->input->post('notification_days', TRUE) : NULL,
+                    'notification_time_unit' => $this->input->post('expiry_notification') ? $this->input->post('notification_time_unit', TRUE) : NULL,
                     'description'        => $this->input->post('description', TRUE)
                 );
 
