@@ -38,6 +38,7 @@
                                 <th>Employee Name</th>
                                 <th>Clock In</th>
                                 <th>Clock Out</th>
+                                <th>Total Time</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -64,6 +65,17 @@
                                             <?php else: ?>
                                                 <span class="text-warning"><strong>[<?= date('h:i:s A', strtotime($log->clock_out_time)) ?>]</strong></span>
                                             <?php endif; ?>
+                                        </td>
+                                        <td>
+                                            <?php 
+                                                if ($log->total_time_seconds > 0) {
+                                                    $hours = floor($log->total_time_seconds / 3600);
+                                                    $minutes = floor(($log->total_time_seconds % 3600) / 60);
+                                                    echo "<span class='text-info'><strong>{$hours}h {$minutes}m</strong></span>";
+                                                } else {
+                                                    echo "-";
+                                                }
+                                            ?>
                                         </td>
                                         <td>
                                             <?php if (empty($log->fullname)): ?>

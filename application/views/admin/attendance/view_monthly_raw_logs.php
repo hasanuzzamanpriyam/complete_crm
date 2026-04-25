@@ -44,7 +44,34 @@
                 </table>
             </div>
             <div class="col-sm-6">
-                <!-- Add any other specific boxes or leave empty for layout balance -->
+                <!-- Monthly Summary Box -->
+                <div class="panel panel-info" style="margin-bottom:0;">
+                    <div class="panel-heading">
+                        <h5 class="panel-title" style="font-size: 14px;">Monthly Summary</h5>
+                    </div>
+                    <div class="panel-body" style="padding: 10px;">
+                        <div class="row">
+                            <div class="col-xs-6 text-center" style="border-right: 1px solid #eee;">
+                                <h4 style="margin: 5px 0; color: #31708f;">
+                                    <strong>
+                                        <?php 
+                                            $m_hours = floor($total_seconds_month / 3600);
+                                            $m_minutes = floor(($total_seconds_month % 3600) / 60);
+                                            echo "{$m_hours}h {$m_minutes}m";
+                                        ?>
+                                    </strong>
+                                </h4>
+                                <span class="text-muted" style="font-size: 11px; text-transform: uppercase;">Total Worked Time</span>
+                            </div>
+                            <div class="col-xs-6 text-center">
+                                <h4 style="margin: 5px 0; color: #31708f;">
+                                    <strong><?php echo isset($total_punches_month) ? $total_punches_month : 0; ?></strong>
+                                </h4>
+                                <span class="text-muted" style="font-size: 11px; text-transform: uppercase;">Total Device Punches</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -55,10 +82,12 @@
                     <table class="table table-striped table-bordered" id="monthly_log_table" width="100%">
                         <thead>
                             <tr>
-                                <th style="width: 20%;">Date</th>
-                                <th style="width: 30%;">Clock In Time</th>
-                                <th style="width: 30%;">Clock Out Time</th>
-                                <th style="width: 20%;">Status</th>
+                                <th style="width: 15%;">Date</th>
+                                <th style="width: 20%;">Clock In Time</th>
+                                <th style="width: 20%;">Clock Out Time</th>
+                                <th style="width: 15%;">Punches</th>
+                                <th style="width: 15%;">Total Time</th>
+                                <th style="width: 15%;">Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -67,6 +96,8 @@
                                 <td><strong><?= date('d M, Y', strtotime($log['log_date'])) ?></strong></td>
                                 <?php if(empty($log['clock_in_time'])): ?>
                                     <td class="text-center">-</td>
+                                    <td class="text-center">-</td>
+                                    <td class="text-center">0</td>
                                     <td class="text-center">-</td>
                                     <td><span class="label label-danger">Absent / No Log</span></td>
                                 <?php else: ?>
@@ -78,10 +109,38 @@
                                             <span class="text-warning"><?= date('h:i:s A', strtotime($log['clock_out_time'])) ?></span>
                                         <?php endif; ?>
                                     </td>
+                                    <td class="text-center">
+                                        <span class="label label-info"><?= isset($log['total_punches']) ? $log['total_punches'] : 0 ?></span>
+                                    </td>
+                                    <td>
+                                        <?php 
+                                            if ($log['total_time_seconds'] > 0) {
+                                                $hours = floor($log['total_time_seconds'] / 3600);
+                                                $minutes = floor(($log['total_time_seconds'] % 3600) / 60);
+                                                echo "<span class='text-info'><strong>{$hours}h {$minutes}m</strong></span>";
+                                            } else {
+                                                echo "<span class='text-muted'>-</span>";
+                                            }
+                                        ?>
+                                    </td>
                                     <td><span class="label label-success">Present</span></td>
                                 <?php endif; ?>
                             </tr>
-                            <?php endforeach; else: ?>
+                            <?php endforeach; ?>
+                            <!-- Total Row -->
+                            <tr class="info" style="font-size: 16px;">
+                                <td colspan="3" class="text-right"><strong>MONTHLY TOTALS:</strong></td>
+                                <td class="text-center"><strong><?= $total_punches_month ?></strong></td>
+                                <td>
+                                    <strong>
+                                        <?php 
+                                            echo "{$m_hours}h {$m_minutes}m";
+                                        ?>
+                                    </strong>
+                                </td>
+                                <td></td>
+                            </tr>
+                            <?php else: ?>
                             <tr>
                                 <td colspan="4" class="text-center">No attendance logs found for this month.</td>
                             </tr>

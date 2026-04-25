@@ -4,13 +4,29 @@ const cron = require('node-cron');
 const fs = require('fs');
 const path = require('path');
 
+/**
+ * Format a Date object as a local datetime string: "YYYY-MM-DD HH:MM:SS"
+ * This avoids the UTC ISO serialization bug where JS Date.toJSON()
+ * outputs UTC time, making all Bangladesh times appear 6 hours earlier.
+ */
+function formatLocalDateTime(date) {
+    const d = new Date(date);
+    const year  = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day   = String(d.getDate()).padStart(2, '0');
+    const hh    = String(d.getHours()).padStart(2, '0');
+    const mm    = String(d.getMinutes()).padStart(2, '0');
+    const ss    = String(d.getSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hh}:${mm}:${ss}`;
+}
+
 // Configuration
 const config = {
     DEVICE_IP: '192.168.0.169',
     DEVICE_PORT: 4370,
     API_URL: 'http://localhost/tic_crm/api/biometric_attendance/sync',
     API_TOKEN: 'zkteco_sync_token_123',
-    SYNC_INTERVAL: '*/30 * * * * *', // Every 30 seconds
+    SYNC_INTERVAL: '*/10 * * * * *', // Every 10 seconds
     STATE_FILE: path.join(__dirname, 'sync_state.json')
 };
 
@@ -30,7 +46,14 @@ function updateLastSyncTime(time) {
     fs.writeFileSync(config.STATE_FILE, JSON.stringify({ lastSyncTime: time.toISOString() }));
 }
 
+let syncing = false;
+
 async function syncLogs() {
+    if (syncing) {
+        console.log("Sync already in progress, skipping...");
+        return;
+    }
+    syncing = true;
     let zk = new ZKLib(config.DEVICE_IP, config.DEVICE_PORT, 10000, 4000);
     
     try {
@@ -56,10 +79,18 @@ async function syncLogs() {
             
             if (newLogs.length > 0) {
                 console.log(`Fetched ${newLogs.length} new logs since last state. Sending to ERP...`);
-                
+
+                // Convert recordTime to local datetime string to avoid UTC serialization bug.
+                // Without this, JS Date objects stringify as UTC ISO (e.g. "03:30Z" for 09:30 local),
+                // causing PHP to store UTC times and all Bangladesh times to show as AM.
+                const logsToSend = newLogs.map(log => ({
+                    ...log,
+                    recordTime: formatLocalDateTime(log.recordTime)
+                }));
+
                 try {
                     const response = await axios.post(config.API_URL, {
-                        logs: newLogs
+                        logs: logsToSend
                     }, {
                         headers: {
                             'X-API-TOKEN': config.API_TOKEN,
@@ -90,6 +121,8 @@ async function syncLogs() {
         if (zk) {
             try { await zk.disconnect(); } catch (e) {}
         }
+    } finally {
+        syncing = false;
     }
 }
 

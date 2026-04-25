@@ -1673,7 +1673,15 @@ class Attendance extends Admin_Controller
         $this->db->order_by('max_id', 'DESC');
         $this->db->limit(500);
         
-        $data['all_logs'] = $this->db->get()->result();
+        $all_logs = $this->db->get()->result();
+        
+        foreach ($all_logs as $log) {
+            $log->total_time_seconds = 0;
+            if (!empty($log->clock_in_time) && !empty($log->clock_out_time) && $log->clock_in_time !== $log->clock_out_time) {
+                $log->total_time_seconds = strtotime($log->clock_out_time) - strtotime($log->clock_in_time);
+            }
+        }
+        $data['all_logs'] = $all_logs;
 
         // Get employees for the export dropdown
         $data['all_employee'] = $this->attendance_model->get_all_employee();
@@ -1712,7 +1720,9 @@ class Attendance extends Admin_Controller
             $full_logs[$current_date] = [
                 'log_date' => $current_date,
                 'clock_in_time' => null,
-                'clock_out_time' => null
+                'clock_out_time' => null,
+                'total_time_seconds' => 0,
+                'total_punches' => 0
             ];
         }
 
@@ -1723,7 +1733,8 @@ class Attendance extends Admin_Controller
             $this->db->select('
                 DATE(created_at) as log_date,
                 MIN(created_at) as clock_in_time,
-                MAX(created_at) as clock_out_time
+                MAX(created_at) as clock_out_time,
+                COUNT(id) as total_punches
             ');
             $this->db->where('device_user_id', $mapping->device_user_id);
             $this->db->where('MONTH(created_at)', $month);
@@ -1732,12 +1743,28 @@ class Attendance extends Admin_Controller
             $this->db->order_by('log_date', 'ASC');
             $logs = $this->db->get('biometric_attendance_logs')->result_array();
 
+            $total_seconds_month = 0;
+            $total_punches_month = 0;
             foreach ($logs as $log) {
                 if (isset($full_logs[$log['log_date']])) {
                     $full_logs[$log['log_date']]['clock_in_time'] = $log['clock_in_time'];
                     $full_logs[$log['log_date']]['clock_out_time'] = $log['clock_out_time'];
+                    $full_logs[$log['log_date']]['total_punches'] = $log['total_punches'];
+
+                    $total_time_seconds = 0;
+                    if (!empty($log['clock_in_time']) && !empty($log['clock_out_time']) && $log['clock_in_time'] !== $log['clock_out_time']) {
+                        $total_time_seconds = strtotime($log['clock_out_time']) - strtotime($log['clock_in_time']);
+                    }
+                    $full_logs[$log['log_date']]['total_time_seconds'] = $total_time_seconds;
+                    $total_seconds_month += $total_time_seconds;
+                    $total_punches_month += $log['total_punches'];
                 }
             }
+            $data['total_seconds_month'] = $total_seconds_month;
+            $data['total_punches_month'] = $total_punches_month;
+        } else {
+            $data['total_seconds_month'] = 0;
+            $data['total_punches_month'] = 0;
         }
 
         $logs_array = array_values($full_logs);
@@ -1799,7 +1826,8 @@ class Attendance extends Admin_Controller
             $full_logs[$current_date] = [
                 'log_date' => $current_date,
                 'clock_in_time' => null,
-                'clock_out_time' => null
+                'clock_out_time' => null,
+                'total_time_seconds' => 0
             ];
         }
 
@@ -1823,10 +1851,18 @@ class Attendance extends Admin_Controller
         $this->db->order_by('log_date', 'ASC');
         $logs = $this->db->get('biometric_attendance_logs')->result_array();
 
+        $total_seconds_month = 0;
         foreach ($logs as $log) {
             if (isset($full_logs[$log['log_date']])) {
                 $full_logs[$log['log_date']]['clock_in_time'] = $log['clock_in_time'];
                 $full_logs[$log['log_date']]['clock_out_time'] = $log['clock_out_time'];
+
+                $total_time_seconds = 0;
+                if (!empty($log['clock_in_time']) && !empty($log['clock_out_time']) && $log['clock_in_time'] !== $log['clock_out_time']) {
+                    $total_time_seconds = strtotime($log['clock_out_time']) - strtotime($log['clock_in_time']);
+                }
+                $full_logs[$log['log_date']]['total_time_seconds'] = $total_time_seconds;
+                $total_seconds_month += $total_time_seconds;
             }
         }
         $logs = array_values($full_logs);
@@ -1849,16 +1885,24 @@ class Attendance extends Admin_Controller
         fputcsv($file, array("")); // Empty line separator
         
         // Write Data Table Header
-        $header = array("Date", "Clock In Time", "Clock Out Time", "Status");
+        $header = array("Date", "Clock In Time", "Clock Out Time", "Total Time", "Status");
         fputcsv($file, $header);
         
         if (!empty($logs)) {
             foreach ($logs as $log) {
+                $time_str = '-';
+                if ($log['total_time_seconds'] > 0) {
+                    $hours = floor($log['total_time_seconds'] / 3600);
+                    $minutes = floor(($log['total_time_seconds'] % 3600) / 60);
+                    $time_str = $hours . "h " . $minutes . "m";
+                }
+
                 if(empty($log['clock_in_time'])) {
                     fputcsv($file, array(
                         date('d M, Y', strtotime($log['log_date'])),
                         '-',
                         '-',
+                        $time_str,
                         'Absent / No Log'
                     ));
                 } else {
@@ -1866,10 +1910,17 @@ class Attendance extends Admin_Controller
                         date('d M, Y', strtotime($log['log_date'])),
                         date('h:i:s A', strtotime($log['clock_in_time'])),
                         $log['clock_in_time'] === $log['clock_out_time'] ? '-' : date('h:i:s A', strtotime($log['clock_out_time'])),
+                        $time_str,
                         'Present'
                     ));
                 }
             }
+
+            // Write Monthly Total Row
+            $m_hours = floor($total_seconds_month / 3600);
+            $m_minutes = floor(($total_seconds_month % 3600) / 60);
+            fputcsv($file, array(""));
+            fputcsv($file, array("TOTAL WORKED TIME FOR MONTH:", "", "", $m_hours . "h " . $m_minutes . "m", ""));
         }
         
         fclose($file);
