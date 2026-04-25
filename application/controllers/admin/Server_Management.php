@@ -153,54 +153,23 @@ class Server_Management extends Admin_Controller
 
     private function get_expired_items()
     {
-        $items = [];
-        $today = date('Y-m-d');
+        $expired_domains = $this->domain_model->get_expired_domains();
+        $expired_hostings = $this->hosting_model->get_expired_hostings();
         
-        // Get all expired domains (regardless of status)
-        $this->db->reset_query();
-        $this->db->select('id, domain_name as name, expiry_date, "domain" as type');
-        $this->db->from('tbldomains');
-        $this->db->where('expiry_date <', $today);
-        $domains = $this->db->get()->result_array();
-        
-        // Get all expired hostings (regardless of status)
-        $this->db->reset_query();
-        $this->db->select('id, title as name, expiry_date, "hosting" as type');
-        $this->db->from('tblserver_hostings');
-        $this->db->where('expiry_date <', $today);
-        $hostings = $this->db->get()->result_array();
-        
-        $items = array_merge($domains, $hostings);
+        $items = array_merge($expired_domains, $expired_hostings);
         
         usort($items, function($a, $b) {
-            return strtotime($b['expiry_date']) - strtotime($a['expiry_date']); // newest expired first
+            return strtotime($b['expiry_date']) - strtotime($a['expiry_date']);
         });
-        
-        foreach ($items as &$item) {
-            $item['days_expired'] = (int)ceil((strtotime($today) - strtotime($item['expiry_date'])) / (60 * 60 * 24));
-            $item['link'] = $item['type'] === 'domain' 
-                ? 'admin/server_management/add_domain/' . $item['id'] 
-                : 'admin/server_management/add_hosting/' . $item['id'];
-        }
         
         return $items;
     }
 
     private function get_inactive_providers()
     {
-        $this->db->select('id, provider_name as name, status, "provider" as type');
-        $this->db->from('tblproviders');
-        $this->db->where('status', 'Inactive');
-        $this->db->order_by('provider_name', 'ASC');
-        $providers = $this->db->get()->result_array();
-        
-        foreach ($providers as &$provider) {
-            $provider['link'] = 'admin/server_management/add_provider/' . $provider['id'];
-        }
-        
-        return $providers;
+        return $this->provider_model->get_inactive_providers();
     }
-
+    
     private function get_running_items()
     {
         $items = [];

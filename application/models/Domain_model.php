@@ -178,4 +178,25 @@ class Domain_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
+
+    public function get_expired_domains() {
+        $today = date('Y-m-d');
+        $this->db->reset_query();
+        $this->db->select('id, domain_name as name, expiry_date, status');
+        $this->db->from('tbldomains');
+        $this->db->where("(status = 'Expired' OR expiry_date < '" . $today . "')", NULL, FALSE);
+        $this->db->order_by('expiry_date', 'DESC');
+        $query = $this->db->get();
+        $domains = $query->result_array();
+        
+        $today_timestamp = strtotime($today);
+        foreach ($domains as &$domain) {
+            $domain['type'] = 'domain';
+            $days_expired = ($today_timestamp - strtotime($domain['expiry_date'])) / (60 * 60 * 24);
+            $domain['days_expired'] = is_float($days_expired) ? ceil($days_expired) : intval($days_expired);
+            $domain['link'] = 'admin/server_management/add_domain/' . $domain['id'];
+        }
+        
+        return $domains;
+    }
 }

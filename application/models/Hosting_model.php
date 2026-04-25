@@ -168,4 +168,25 @@ class Hosting_model extends CI_Model {
         }
         return $this->db->delete('tblserver_hostings');
     }
+
+    public function get_expired_hostings() {
+        $today = date('Y-m-d');
+        $this->db->reset_query();
+        $this->db->select('id, title as name, expiry_date, status');
+        $this->db->from('tblserver_hostings');
+        $this->db->where("(status = 'Expired' OR status = 'Cancelled' OR expiry_date < '" . $today . "')", NULL, FALSE);
+        $this->db->order_by('expiry_date', 'DESC');
+        $query = $this->db->get();
+        $hostings = $query->result_array();
+        
+        $today_timestamp = strtotime($today);
+        foreach ($hostings as &$hosting) {
+            $hosting['type'] = 'hosting';
+            $days_expired = ($today_timestamp - strtotime($hosting['expiry_date'])) / (60 * 60 * 24);
+            $hosting['days_expired'] = is_float($days_expired) ? ceil($days_expired) : intval($days_expired);
+            $hosting['link'] = 'admin/server_management/add_hosting/' . $hosting['id'];
+        }
+        
+        return $hostings;
+    }
 }

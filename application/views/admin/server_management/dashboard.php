@@ -283,30 +283,30 @@ $inactive_all = ($stats['inactive_providers'] ?? 0);
             </div>
             
             <?php $all_inactive = array_merge($expired_items ?? [], $inactive_providers ?? []); ?>
-            <?php if (!empty($all_inactive)): ?>
+            <?php if (is_array($all_inactive) && count($all_inactive) > 0): ?>
                 <ul class="activity-feed">
                     <?php foreach ($all_inactive as $item): ?>
                         <li>
                             <div class="activity-avatar bg-light-red">
-                                <i class="fa <?= $item['type'] === 'provider' ? 'fa-briefcase' : ($item['type'] === 'domain' ? 'fa-globe' : 'fa-server') ?>"></i>
+                                <i class="fa <?= ($item['type'] ?? '') === 'provider' ? 'fa-briefcase' : (($item['type'] ?? '') === 'domain' ? 'fa-globe' : 'fa-server') ?>"></i>
                             </div>
                             <div class="activity-details">
-                                <strong><?= htmlspecialchars($item['name']) ?></strong><br>
+                                <strong><?= htmlspecialchars($item['name'] ?? '') ?></strong><br>
                                 <small class="text-muted">
-                                    <?php if ($item['type'] === 'provider'): ?>
-                                        Status: <?= $item['status'] ?>
+                                    <?php if (($item['type'] ?? '') === 'provider'): ?>
+                                        Status: <?= $item['status'] ?? 'Inactive' ?>
                                     <?php else: ?>
-                                        Expired: <?= date('M j, Y', strtotime($item['expiry_date'])) ?>
+                                        Expired: <?= date('M j, Y', strtotime($item['expiry_date'] ?? date('Y-m-d'))) ?>
                                     <?php endif; ?>
                                 </small>
                             </div>
                             <div class="activity-time">
-                                <?php if ($item['type'] !== 'provider'): ?>
-                                    <span class="badge badge-danger"><?= $item['days_expired'] ?> days ago</span><br>
+                                <?php if (($item['type'] ?? '') !== 'provider'): ?>
+                                    <span class="badge badge-danger"><?= intval($item['days_expired'] ?? 0) ?> days ago</span><br>
                                 <?php else: ?>
                                     <span class="badge badge-secondary">Inactive</span><br>
                                 <?php endif; ?>
-                                <a href="<?= base_url($item['link']) ?>" class="text-primary" style="font-size: 11px;"><i class="fa fa-pencil"></i> View</a>
+                                <a href="<?= base_url($item['link'] ?? '#') ?>" class="text-primary" style="font-size: 11px;"><i class="fa fa-pencil"></i> View</a>
                             </div>
                         </li>
                     <?php endforeach; ?>
