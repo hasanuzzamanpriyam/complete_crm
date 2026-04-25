@@ -24,21 +24,31 @@ class Server_Management extends Admin_Controller
 
         $domain_stats = $this->domain_model->get_stats();
         $hosting_stats = $this->hosting_model->get_stats();
+        $provider_stats = $this->provider_model->get_stats();
 
         $data['stats'] = [
             'total_hostings' => $hosting_stats['total'],
             'active_hostings' => $hosting_stats['active'],
             'pending_hostings' => $hosting_stats['pending'],
             'suspended_hostings' => $hosting_stats['suspended'],
+            'expired_hostings' => $hosting_stats['expired'],
             'total_domains' => $domain_stats['total'],
             'active_domains' => $domain_stats['active'],
             'pending_domains' => $domain_stats['pending'],
             'expiring_hostings' => $hosting_stats['expiring'],
-            'expiring_domains' => $domain_stats['expiring']
+            'expiring_domains' => $domain_stats['expiring'],
+            'expired_domains' => $domain_stats['expired'],
+            'total_providers' => $provider_stats['total'],
+            'active_providers' => $provider_stats['active'],
+            'inactive_providers' => $provider_stats['inactive'],
+            'running_count' => $hosting_stats['active'] + $domain_stats['active']
         ];
 
         $data['recent_activities'] = $this->get_recent_activities();
         $data['expiring_items'] = $this->get_expiring_items();
+        $data['expired_items'] = $this->get_expired_items();
+        $data['inactive_providers'] = $this->get_inactive_providers();
+        $data['running_items'] = $this->get_running_items();
 
         $data['subview'] = $this->load->view('admin/server_management/dashboard', $data, TRUE);
         $this->load->view('admin/_layout_main', $data);
@@ -133,6 +143,112 @@ class Server_Management extends Admin_Controller
         
         foreach ($items as &$item) {
             $item['days_left'] = (int)ceil((strtotime($item['expiry_date']) - strtotime($today)) / (60 * 60 * 24));
+            $item['link'] = $item['type'] === 'domain' 
+                ? 'admin/server_management/add_domain/' . $item['id'] 
+                : 'admin/server_management/add_hosting/' . $item['id'];
+        }
+        
+        return $items;
+    }
+
+    private function get_expired_items()
+    {
+        $items = [];
+        $today = date('Y-m-d');
+        
+        // Get all expired domains (regardless of status)
+        $this->db->reset_query();
+        $this->db->select('id, domain_name as name, expiry_date, "domain" as type');
+        $this->db->from('tbldomains');
+        $this->db->where('expiry_date <', $today);
+        $domains = $this->db->get()->result_array();
+        
+        // Get all expired hostings (regardless of status)
+        $this->db->reset_query();
+        $this->db->select('id, title as name, expiry_date, "hosting" as type');
+        $this->db->from('tblserver_hostings');
+        $this->db->where('expiry_date <', $today);
+        $hostings = $this->db->get()->result_array();
+        
+        $items = array_merge($domains, $hostings);
+        
+        usort($items, function($a, $b) {
+            return strtotime($b['expiry_date']) - strtotime($a['expiry_date']); // newest expired first
+        });
+        
+        foreach ($items as &$item) {
+            $item['days_expired'] = (int)ceil((strtotime($today) - strtotime($item['expiry_date'])) / (60 * 60 * 24));
+            $item['link'] = $item['type'] === 'domain' 
+                ? 'admin/server_management/add_domain/' . $item['id'] 
+                : 'admin/server_management/add_hosting/' . $item['id'];
+        }
+        
+        return $items;
+    }
+
+    private function get_inactive_providers()
+    {
+        $this->db->select('id, provider_name as name, status, "provider" as type');
+        $this->db->from('tblproviders');
+        $this->db->where('status', 'Inactive');
+        $this->db->order_by('provider_name', 'ASC');
+        $providers = $this->db->get()->result_array();
+        
+        foreach ($providers as &$provider) {
+            $provider['link'] = 'admin/server_management/add_provider/' . $provider['id'];
+        }
+        
+        return $providers;
+    }
+
+    private function get_running_items()
+    {
+        $items = [];
+        $today = date('Y-m-d');
+        
+        // Get active domains that haven't expired
+        $this->db->select('id, domain_name as name, purchase_date, expiry_date, "domain" as type');
+        $this->db->from('tbldomains');
+        $this->db->where('status', 'Active');
+        $this->db->where('expiry_date >=', $today);
+        $domains = $this->db->get()->result_array();
+        
+        // Get active hostings that haven't expired
+        $this->db->select('id, title as name, purchase_date, expiry_date, "hosting" as type');
+        $this->db->from('tblserver_hostings');
+        $this->db->where('status', 'Active');
+        $this->db->where('expiry_date >=', $today);
+        $hostings = $this->db->get()->result_array();
+        
+        $items = array_merge($domains, $hostings);
+        
+        // Sort by oldest purchase_date (longest running first)
+        usort($items, function($a, $b) {
+            return strtotime($a['purchase_date']) - strtotime($b['purchase_date']);
+        });
+        
+        foreach ($items as &$item) {
+            $purchase_timestamp = strtotime($item['purchase_date']);
+            $today_timestamp = strtotime($today);
+            $days_running = (int)(($today_timestamp - $purchase_timestamp) / (60 * 60 * 24));
+            
+            // Calculate years and months
+            $years = floor($days_running / 365);
+            $remaining_days = $days_running % 365;
+            $months = floor($remaining_days / 30);
+            
+            if ($years > 0) {
+                $item['running_for'] = $years . ' year' . ($years > 1 ? 's' : '');
+                if ($months > 0) {
+                    $item['running_for'] .= ' ' . $months . ' month' . ($months > 1 ? 's' : '');
+                }
+            } elseif ($months > 0) {
+                $item['running_for'] = $months . ' month' . ($months > 1 ? 's' : '');
+            } else {
+                $item['running_for'] = $days_running . ' day' . ($days_running > 1 ? 's' : '');
+            }
+            
+            $item['days_running'] = $days_running;
             $item['link'] = $item['type'] === 'domain' 
                 ? 'admin/server_management/add_domain/' . $item['id'] 
                 : 'admin/server_management/add_hosting/' . $item['id'];

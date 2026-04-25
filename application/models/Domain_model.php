@@ -156,6 +156,12 @@ class Domain_model extends CI_Model {
         $this->db->where('status', 'Expired');
         $stats['expired'] = $this->db->count_all_results('tbldomains');
         
+        $this->db->where('expiry_date <', date('Y-m-d'));
+        $this->db->where('status !=', 'Expired');
+        $stats['expired_auto'] = $this->db->count_all_results('tbldomains');
+        
+        $stats['expired'] = ($stats['expired'] ?? 0) + ($stats['expired_auto'] ?? 0);
+        
         $this->db->where('expiry_date >=', date('Y-m-d'));
         $this->db->where('expiry_date <=', date('Y-m-d', strtotime('+30 days')));
         $this->db->where('status', 'Active');

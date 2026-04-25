@@ -149,6 +149,9 @@ class Hosting_model extends CI_Model {
         $this->db->where('status', 'Active');
         $stats['expiring'] = $this->db->count_all_results('tblserver_hostings');
         
+        $this->db->where('expiry_date <', date('Y-m-d'));
+        $stats['expired'] = $this->db->count_all_results('tblserver_hostings');
+        
         return $stats;
     }
 

@@ -102,4 +102,17 @@ class Provider_model extends CI_Model {
         }
         return $this->db->delete('tblproviders');
     }
+
+    public function get_stats() {
+        $stats = [];
+        $stats['total'] = $this->db->count_all('tblproviders');
+        
+        $this->db->where('status', 'Active');
+        $stats['active'] = $this->db->count_all_results('tblproviders');
+        
+        $this->db->where('status', 'Inactive');
+        $stats['inactive'] = $this->db->count_all_results('tblproviders');
+        
+        return $stats;
+    }
 }

@@ -1,28 +1,40 @@
 <?php 
 // Calculate combined totals for the unified cards
-$total_all    = ($stats['total_hostings'] ?? 0) + ($stats['total_domains'] ?? 0);
-$active_all   = ($stats['active_hostings'] ?? 0) + ($stats['active_domains'] ?? 0);
+$total_all    = ($stats['total_hostings'] ?? 0) + ($stats['total_domains'] ?? 0) + ($stats['total_providers'] ?? 0);
+$active_all   = ($stats['active_hostings'] ?? 0) + ($stats['active_domains'] ?? 0) + ($stats['active_providers'] ?? 0);
 $pending_all  = ($stats['pending_hostings'] ?? 0) + ($stats['pending_domains'] ?? 0);
 $expiring_all = ($stats['expiring_hostings'] ?? 0) + ($stats['expiring_domains'] ?? 0);
+$expired_all = ($stats['expired_hostings'] ?? 0) + ($stats['expired_domains'] ?? 0);
+$inactive_all = ($stats['inactive_providers'] ?? 0);
 ?>
 
 <?php echo message_box('success'); ?>
 <?php echo message_box('error'); ?>
 
 <style>
-    /* Clean, Corporate Card Styles */
+    /* Custom 5-Column Grid for exactly 5 cards */
+    .five-column-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 20px;
+        margin-bottom: 25px;
+    }
+    @media (max-width: 1200px) { .five-column-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 768px) { .five-column-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 500px) { .five-column-grid { grid-template-columns: 1fr; } }
+
+    /* Clean Unified Card Styles */
     .stat-box {
         background-color: #fff;
         border-radius: 8px;
-        padding: 20px 20px 15px 20px;
+        padding: 20px;
         box-shadow: 0 2px 5px rgba(0,0,0,0.04);
         border: 1px solid #eaeaea;
-        margin-bottom: 20px;
         transition: all 0.2s ease-in-out;
         display: flex;
         flex-direction: column;
+        height: 100%;
     }
-    
     .stat-box:hover {
         box-shadow: 0 5px 15px rgba(0,0,0,0.08);
         transform: translateY(-2px);
@@ -36,121 +48,98 @@ $expiring_all = ($stats['expiring_hostings'] ?? 0) + ($stats['expiring_domains']
     }
 
     .stat-icon-wrapper {
-        width: 60px;
-        height: 60px;
+        width: 50px;
+        height: 50px;
         border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 24px;
+        font-size: 22px;
         margin-right: 15px;
         flex-shrink: 0;
     }
 
-    /* Theme-matched colors */
-    .icon-theme-red { background-color: rgba(244, 67, 54, 0.1); color: #f44336; }
-    .icon-theme-blue { background-color: rgba(23, 162, 184, 0.1); color: #17a2b8; }
-    .icon-theme-green { background-color: rgba(40, 167, 69, 0.1); color: #28a745; }
-    .icon-theme-yellow { background-color: rgba(255, 193, 7, 0.15); color: #e0a800; }
-
-    .stat-info {
-        flex-grow: 1;
-    }
+    /* Theme Colors */
+    .bg-light-blue { background-color: rgba(23, 162, 184, 0.1); color: #17a2b8; }
+    .bg-light-green { background-color: rgba(40, 167, 69, 0.1); color: #28a745; }
+    .bg-light-yellow { background-color: rgba(255, 193, 7, 0.15); color: #e0a800; }
+    .bg-light-orange { background-color: rgba(253, 126, 20, 0.1); color: #fd7e14; }
+    .bg-light-red { background-color: rgba(220, 53, 69, 0.1); color: #dc3545; }
 
     .stat-info .stat-title {
-        font-size: 12px;
-        color: #888;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+        font-size: 13px;
+        color: #6c757d;
         font-weight: 600;
         display: block;
-        margin-bottom: 4px;
+        margin-bottom: 2px;
     }
 
     .stat-info h3 {
         margin: 0;
-        font-size: 28px;
+        font-size: 26px;
         font-weight: 700;
         color: #333;
         line-height: 1;
     }
 
-    /* Bottom Section for Breakdown */
-    .stat-footer {
-        border-top: 1px solid #f0f0f0;
+    /* Bottom Breakdown Pills */
+    .stat-breakdown {
+        display: flex;
+        gap: 8px;
+        margin-top: auto; /* Pushes to bottom */
+        border-top: 1px dashed #eaeaea;
         padding-top: 12px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
     }
-
-    .stat-sub-item {
-        font-size: 12px;
-        color: #6c757d;
-        display: flex;
-        align-items: center;
+    
+    .mini-pill {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 4px 8px;
+        border-radius: 4px;
+        background: #f8f9fa;
+        color: #495057;
+        flex: 1;
+        text-align: center;
+        border: 1px solid #eee;
     }
+    .mini-pill i { margin-right: 3px; opacity: 0.7; }
 
-    .stat-sub-item i {
-        margin-right: 6px;
-        opacity: 0.7;
-    }
-
-    .stat-sub-item strong {
-        color: #333;
-        margin-right: 4px;
-        font-size: 13px;
-    }
-
-    /* Panel/Card Overrides to match your tables */
+    /* Panels for Lists */
     .dashboard-panel {
         background: #fff;
         border-radius: 8px;
         box-shadow: 0 2px 5px rgba(0,0,0,0.04);
         border: 1px solid #eaeaea;
-        margin-bottom: 20px;
+        margin-bottom: 25px;
+        height: 100%;
     }
-    
     .dashboard-panel .panel-heading {
         padding: 15px 20px;
         border-bottom: 1px solid #eaeaea;
-        background-color: #f8f9fa;
+        background-color: #fcfcfc;
         border-radius: 8px 8px 0 0;
     }
-    
     .dashboard-panel .panel-heading h5 {
         margin: 0;
-        font-size: 14px;
+        font-size: 15px;
         font-weight: 600;
-        color: #495057;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+        color: #333;
     }
 
-    /* Refined Activity List */
-    .activity-feed {
-        padding: 0;
-        margin: 0;
-        list-style: none;
-    }
-    
+    /* Activity Lists */
+    .activity-feed { padding: 0; margin: 0; list-style: none; }
     .activity-feed li {
         padding: 15px 20px;
         border-bottom: 1px solid #f4f4f4;
         display: flex;
         align-items: center;
     }
-    
-    .activity-feed li:last-child {
-        border-bottom: none;
-    }
+    .activity-feed li:last-child { border-bottom: none; }
     
     .activity-avatar {
         width: 35px;
         height: 35px;
         border-radius: 50%;
-        background-color: #f4f4f4;
-        color: #888;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -159,166 +148,121 @@ $expiring_all = ($stats['expiring_hostings'] ?? 0) + ($stats['expiring_domains']
         flex-shrink: 0;
     }
     
-    .activity-details {
-        flex-grow: 1;
-        font-size: 13px;
-        color: #495057;
-    }
+    .activity-details { flex-grow: 1; font-size: 13px; color: #495057; }
+    .activity-time { font-size: 12px; text-align: right; margin-left: 15px; }
     
-    .activity-time {
-        font-size: 12px;
-        color: #aaa;
-        white-space: nowrap;
-        margin-left: 15px;
-    }
-
-    /* Empty States */
+    /* Empty State */
     .empty-state-box {
-        padding: 40px 20px;
+        padding: 30px 20px;
         text-align: center;
-    }
-    .empty-state-box i {
-        font-size: 40px;
-        color: #e0e0e0;
-        margin-bottom: 15px;
-    }
-    .empty-state-box p {
         color: #888;
-        margin: 0;
-        font-size: 14px;
     }
+    .empty-state-box i { font-size: 30px; color: #e0e0e0; margin-bottom: 10px; display: block; }
 </style>
 
-<div class="row">
+<div class="five-column-grid">
     
-    <div class="col-md-3 col-sm-6">
-        <div class="stat-box">
-            <div class="stat-main">
-                <div class="stat-icon-wrapper icon-theme-blue">
-                    <i class="fa fa-cubes"></i>
-                </div>
-                <div class="stat-info">
-                    <span class="stat-title">Total Services</span>
-                    <h3><?= $total_all ?></h3>
-                </div>
+    <div class="stat-box">
+        <div class="stat-main">
+            <div class="stat-icon-wrapper bg-light-blue"><i class="fa fa-cubes"></i></div>
+            <div class="stat-info">
+                <span class="stat-title">Total Services</span>
+                <h3><?= $total_all ?></h3>
             </div>
-            <div class="stat-footer">
-                <div class="stat-sub-item">
-                    <i class="fa fa-server"></i> <strong><?= $stats['total_hostings'] ?? 0 ?></strong> Hostings
-                </div>
-                <div class="stat-sub-item">
-                    <i class="fa fa-globe"></i> <strong><?= $stats['total_domains'] ?? 0 ?></strong> Domains
-                </div>
-            </div>
+        </div>
+        <div class="stat-breakdown">
+            <div class="mini-pill"><i class="fa fa-server text-info"></i> <?= $stats['total_hostings'] ?? 0 ?> Host</div>
+            <div class="mini-pill"><i class="fa fa-globe text-info"></i> <?= $stats['total_domains'] ?? 0 ?> Dom</div>
+            <div class="mini-pill"><i class="fa fa-briefcase text-info"></i> <?= $stats['total_providers'] ?? 0 ?> Prov</div>
         </div>
     </div>
     
-    <div class="col-md-3 col-sm-6">
-        <div class="stat-box">
-            <div class="stat-main">
-                <div class="stat-icon-wrapper icon-theme-green">
-                    <i class="fa fa-check-circle"></i>
-                </div>
-                <div class="stat-info">
-                    <span class="stat-title">Active Services</span>
-                    <h3><?= $active_all ?></h3>
-                </div>
+    <div class="stat-box">
+        <div class="stat-main">
+            <div class="stat-icon-wrapper bg-light-green"><i class="fa fa-check-circle"></i></div>
+            <div class="stat-info">
+                <span class="stat-title">Active</span>
+                <h3><?= $active_all ?></h3>
             </div>
-            <div class="stat-footer">
-                <div class="stat-sub-item">
-                    <i class="fa fa-server text-success"></i> <strong><?= $stats['active_hostings'] ?? 0 ?></strong> Hostings
-                </div>
-                <div class="stat-sub-item">
-                    <i class="fa fa-globe text-success"></i> <strong><?= $stats['active_domains'] ?? 0 ?></strong> Domains
-                </div>
-            </div>
+        </div>
+        <div class="stat-breakdown">
+            <div class="mini-pill"><i class="fa fa-server text-success"></i> <?= $stats['active_hostings'] ?? 0 ?> Host</div>
+            <div class="mini-pill"><i class="fa fa-globe text-success"></i> <?= $stats['active_domains'] ?? 0 ?> Dom</div>
+            <div class="mini-pill"><i class="fa fa-briefcase text-success"></i> <?= $stats['active_providers'] ?? 0 ?> Prov</div>
         </div>
     </div>
     
-    <div class="col-md-3 col-sm-6">
-        <div class="stat-box">
-            <div class="stat-main">
-                <div class="stat-icon-wrapper icon-theme-yellow">
-                    <i class="fa fa-clock-o"></i>
-                </div>
-                <div class="stat-info">
-                    <span class="stat-title">Pending Services</span>
-                    <h3><?= $pending_all ?></h3>
-                </div>
+    <div class="stat-box">
+        <div class="stat-main">
+            <div class="stat-icon-wrapper bg-light-yellow"><i class="fa fa-clock-o"></i></div>
+            <div class="stat-info">
+                <span class="stat-title">Pending</span>
+                <h3><?= $pending_all ?></h3>
             </div>
-            <div class="stat-footer">
-                <div class="stat-sub-item">
-                    <i class="fa fa-server text-warning"></i> <strong><?= $stats['pending_hostings'] ?? 0 ?></strong> Hostings
-                </div>
-                <div class="stat-sub-item">
-                    <i class="fa fa-globe text-warning"></i> <strong><?= $stats['pending_domains'] ?? 0 ?></strong> Domains
-                </div>
-            </div>
+        </div>
+        <div class="stat-breakdown">
+            <div class="mini-pill"><i class="fa fa-server text-warning"></i> <?= $stats['pending_hostings'] ?? 0 ?> Host</div>
+            <div class="mini-pill"><i class="fa fa-globe text-warning"></i> <?= $stats['pending_domains'] ?? 0 ?> Dom</div>
         </div>
     </div>
     
-    <div class="col-md-3 col-sm-6">
-        <div class="stat-box" style="border-top: 3px solid #f44336;">
-            <div class="stat-main">
-                <div class="stat-icon-wrapper icon-theme-red">
-                    <i class="fa fa-exclamation-triangle"></i>
-                </div>
-                <div class="stat-info">
-                    <span class="stat-title">Expiring (30 Days)</span>
-                    <h3><?= $expiring_all ?></h3>
-                </div>
+    <div class="stat-box" style="border-top: 3px solid #fd7e14;">
+        <div class="stat-main">
+            <div class="stat-icon-wrapper bg-light-orange"><i class="fa fa-exclamation-triangle"></i></div>
+            <div class="stat-info">
+                <span class="stat-title">Expiring (30 Days)</span>
+                <h3><?= $expiring_all ?></h3>
             </div>
-            <div class="stat-footer">
-                <div class="stat-sub-item">
-                    <i class="fa fa-server text-danger"></i> <strong><?= $stats['expiring_hostings'] ?? 0 ?></strong> Hostings
-                </div>
-                <div class="stat-sub-item">
-                    <i class="fa fa-globe text-danger"></i> <strong><?= $stats['expiring_domains'] ?? 0 ?></strong> Domains
-                </div>
-            </div>
+        </div>
+        <div class="stat-breakdown">
+            <div class="mini-pill"><i class="fa fa-server text-warning"></i> <?= $stats['expiring_hostings'] ?? 0 ?> Host</div>
+            <div class="mini-pill"><i class="fa fa-globe text-warning"></i> <?= $stats['expiring_domains'] ?? 0 ?> Dom</div>
         </div>
     </div>
     
+    <div class="stat-box" style="border-top: 3px solid #dc3545;">
+        <div class="stat-main">
+            <div class="stat-icon-wrapper bg-light-red"><i class="fa fa-times-circle"></i></div>
+            <div class="stat-info">
+                <span class="stat-title">Expired/Inactive</span>
+                <h3><?= $expired_all + $inactive_all ?></h3>
+            </div>
+        </div>
+        <div class="stat-breakdown">
+            <div class="mini-pill"><i class="fa fa-server text-danger"></i> <?= $stats['expired_hostings'] ?? 0 ?> Host</div>
+            <div class="mini-pill"><i class="fa fa-globe text-danger"></i> <?= $stats['expired_domains'] ?? 0 ?> Dom</div>
+            <div class="mini-pill"><i class="fa fa-briefcase text-danger"></i> <?= $stats['inactive_providers'] ?? 0 ?> Prov</div>
+        </div>
+    </div>
+
 </div>
 
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-6 mb-4">
         <div class="dashboard-panel">
             <div class="panel-heading">
-                <h5><i class="fa fa-exclamation-triangle mr-2 text-danger"></i> Expiring Soon (30 Days)</h5>
+                <h5><i class="fa fa-exclamation-triangle mr-2 text-warning"></i> Expiring Within 30 Days</h5>
             </div>
             
             <?php if (!empty($expiring_items)): ?>
                 <ul class="activity-feed">
                     <?php foreach ($expiring_items as $item): ?>
                         <li>
-                            <div class="activity-avatar" style="background-color: <?= $item['type'] === 'domain' ? 'rgba(23, 162, 184, 0.1)' : 'rgba(40, 167, 69, 0.1)' ?>; color: <?= $item['type'] === 'domain' ? '#17a2b8' : '#28a745' ?>;">
-                                <i class="fa <?= $item['type'] === 'domain' ? 'fa-globe' : 'fa-server' ?>"></i>
+                            <div class="activity-avatar bg-light">
+                                <i class="fa <?= $item['type'] === 'domain' ? 'fa-globe text-info' : 'fa-server text-success' ?>"></i>
                             </div>
                             <div class="activity-details">
-                                <strong><?= htmlspecialchars($item['name']) ?></strong>
-                                <br>
-                                <small class="text-muted">
-                                    <span class="badge badge-<?= $item['type'] === 'domain' ? 'info' : 'success' ?>" style="padding: 2px 6px; font-size: 10px;"><?= ucfirst($item['type']) ?></span>
-                                    Expires: <?= date('M j, Y', strtotime($item['expiry_date'])) ?>
-                                </small>
+                                <strong><?= htmlspecialchars($item['name']) ?></strong><br>
+                                <small class="text-muted">Expires: <?= date('M j, Y', strtotime($item['expiry_date'])) ?></small>
                             </div>
                             <div class="activity-time">
                                 <?php
                                 $badge_class = 'badge-danger';
-                                if ($item['days_left'] > 21) {
-                                    $badge_class = 'badge-warning';
-                                } elseif ($item['days_left'] > 7) {
-                                    $badge_class = 'badge-info';
-                                }
+                                if ($item['days_left'] > 21) { $badge_class = 'badge-warning'; } 
+                                elseif ($item['days_left'] > 7) { $badge_class = 'badge-info'; }
                                 ?>
-                                <span class="badge <?= $badge_class ?>" style="padding: 4px 8px; font-size: 11px;">
-                                    <?= $item['days_left'] ?> days
-                                </span>
-                                <br>
-                                <a href="<?= base_url($item['link']) ?>" class="btn btn-sm btn-link text-primary mt-1" style="font-size: 11px;">
-                                    <i class="fa fa-pencil"></i> Edit
-                                </a>
+                                <span class="badge <?= $badge_class ?>"><?= $item['days_left'] ?> days left</span><br>
+                                <a href="<?= base_url($item['link']) ?>" class="text-primary" style="font-size: 11px;"><i class="fa fa-pencil"></i> edit</a>
                             </div>
                         </li>
                     <?php endforeach; ?>
@@ -326,13 +270,95 @@ $expiring_all = ($stats['expiring_hostings'] ?? 0) + ($stats['expiring_domains']
             <?php else: ?>
                 <div class="empty-state-box">
                     <i class="fa fa-check-circle text-success"></i>
-                    <p>No items expiring within 30 days!</p>
+                    <p>All clear! No items expiring soon.</p>
                 </div>
             <?php endif; ?>
         </div>
     </div>
     
-    <div class="col-md-6">
+    <div class="col-md-6 mb-4">
+        <div class="dashboard-panel">
+            <div class="panel-heading">
+                <h5><i class="fa fa-times-circle mr-2 text-danger"></i> Expired / Inactive Items (<?= count($expired_items ?? []) ?> expired, <?= count($inactive_providers ?? []) ?> inactive)</h5>
+            </div>
+            
+            <?php $all_inactive = array_merge($expired_items ?? [], $inactive_providers ?? []); ?>
+            <?php if (!empty($all_inactive)): ?>
+                <ul class="activity-feed">
+                    <?php foreach ($all_inactive as $item): ?>
+                        <li>
+                            <div class="activity-avatar bg-light-red">
+                                <i class="fa <?= $item['type'] === 'provider' ? 'fa-briefcase' : ($item['type'] === 'domain' ? 'fa-globe' : 'fa-server') ?>"></i>
+                            </div>
+                            <div class="activity-details">
+                                <strong><?= htmlspecialchars($item['name']) ?></strong><br>
+                                <small class="text-muted">
+                                    <?php if ($item['type'] === 'provider'): ?>
+                                        Status: <?= $item['status'] ?>
+                                    <?php else: ?>
+                                        Expired: <?= date('M j, Y', strtotime($item['expiry_date'])) ?>
+                                    <?php endif; ?>
+                                </small>
+                            </div>
+                            <div class="activity-time">
+                                <?php if ($item['type'] !== 'provider'): ?>
+                                    <span class="badge badge-danger"><?= $item['days_expired'] ?> days ago</span><br>
+                                <?php else: ?>
+                                    <span class="badge badge-secondary">Inactive</span><br>
+                                <?php endif; ?>
+                                <a href="<?= base_url($item['link']) ?>" class="text-primary" style="font-size: 11px;"><i class="fa fa-pencil"></i> View</a>
+                            </div>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php else: ?>
+                <div class="empty-state-box">
+                    <i class="fa fa-check-circle text-success"></i>
+                    <p>Great! All items are active.</p>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <div class="dashboard-panel">
+            <div class="panel-heading">
+                <h5><i class="fa fa-play-circle mr-2 text-success"></i> Currently Running Services (<?= count($running_items ?? []) ?>)</h5>
+            </div>
+            
+            <?php if (!empty($running_items)): ?>
+                <ul class="activity-feed">
+                    <?php foreach ($running_items as $item): ?>
+                        <li>
+                            <div class="activity-avatar bg-light-green">
+                                <i class="fa <?= $item['type'] === 'domain' ? 'fa-globe text-success' : 'fa-server text-success' ?>"></i>
+                            </div>
+                            <div class="activity-details">
+                                <strong><?= htmlspecialchars($item['name']) ?></strong><br>
+                                <small class="text-muted">
+                                    Purchased: <?= date('M j, Y', strtotime($item['purchase_date'])) ?> • 
+                                    Expires: <?= date('M j, Y', strtotime($item['expiry_date'])) ?>
+                                </small>
+                            </div>
+                            <div class="activity-time">
+                                <span class="badge badge-success" style="color: #17a2b8;"><?= $item['running_for'] ?></span><br>                            </div>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php else: ?>
+                <div class="empty-state-box">
+                    <i class="fa fa-stop-circle text-muted"></i>
+                    <p>No running services at the moment.</p>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
         <div class="dashboard-panel">
             <div class="panel-heading">
                 <h5><i class="fa fa-history mr-2 text-muted"></i> Recent Activities</h5>
@@ -342,15 +368,14 @@ $expiring_all = ($stats['expiring_hostings'] ?? 0) + ($stats['expiring_domains']
                 <ul class="activity-feed">
                     <?php foreach ($recent_activities as $activity): ?>
                         <li>
-                            <div class="activity-avatar">
-                                <i class="fa <?= !empty($activity['icon']) ? htmlspecialchars($activity['icon']) : 'fa-user' ?>"></i>
+                            <div class="activity-avatar bg-light">
+                                <i class="fa <?= !empty($activity['icon']) ? htmlspecialchars($activity['icon']) : 'fa-user text-muted' ?>"></i>
                             </div>
                             <div class="activity-details">
-                                <strong><?= htmlspecialchars($activity['action']) ?></strong>
-                                <br>
-                                <small class="text-muted">by <span class="text-info"><?= htmlspecialchars($activity['user']) ?></span></small>
+                                <strong><?= htmlspecialchars($activity['action']) ?></strong><br>
+                                <small class="text-muted">Action by <span class="text-info"><?= htmlspecialchars($activity['user']) ?></span></small>
                             </div>
-                            <div class="activity-time">
+                            <div class="activity-time text-muted">
                                 <i class="fa fa-clock-o"></i> <?= htmlspecialchars($activity['time']) ?>
                             </div>
                         </li>
