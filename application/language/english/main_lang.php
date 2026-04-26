@@ -665,6 +665,11 @@ $lang['server_dashboard'] = 'Server Dashboard';
 $lang['hosting_management'] = 'Hosting Management';
 $lang['domain_management'] = 'Domain Management';
 $lang['provider_management'] = 'Provider Management';
+
+// Breadcrumb fallbacks
+$lang['domain'] = 'Domain Management';
+$lang['hosting'] = 'Hosting Management';
+$lang['provider'] = 'Provider Management';
 $lang['add_hosting'] = 'Add Hosting';
 $lang['add_domain'] = 'Add Domain';
 $lang['add_provider'] = 'Add Provider';

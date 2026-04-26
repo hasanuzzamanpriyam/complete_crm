@@ -106,7 +106,7 @@ if (empty($timezone)) {
                 <?php
                 $breadcrumbs = $this->breadcrumbs->build_breadcrumbs();
                 if (empty($breadcrumbs)) {
-                    $breadcrumbs = lang($this->uri->segment(2));
+                    $breadcrumbs = !empty($title) ? $title : lang($this->uri->segment(2));
                 }
                 echo $breadcrumbs; ?>
                 <?php

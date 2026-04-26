@@ -2,7 +2,7 @@
 
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class Server_Management extends Admin_Controller
+class Server_management extends Admin_Controller
 {
 
     public function __construct()
@@ -11,6 +11,17 @@ class Server_Management extends Admin_Controller
         $this->load->model('provider_model');
         $this->load->model('domain_model');
         $this->load->model('hosting_model');
+        
+        $method = $this->router->fetch_method();
+        if ($method == 'domain' || $method == 'add_domain') {
+            $this->session->set_userdata('menu_active_id', array('111122222223', '1111222222233'));
+        } elseif ($method == 'hosting' || $method == 'add_hosting') {
+            $this->session->set_userdata('menu_active_id', array('111122222223', '1111222222232'));
+        } elseif ($method == 'provider' || $method == 'add_provider') {
+            $this->session->set_userdata('menu_active_id', array('111122222223', '1111222222234'));
+        } else {
+            $this->session->set_userdata('menu_active_id', array('111122222223', '1111222222231'));
+        }
     }
 
     public function index()
