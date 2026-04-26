@@ -41,7 +41,7 @@
                     </div>
                 </div>
                 <div class="col-sm-1">
-                    <div id="cp2" class="input-group colorpicker-component">
+                    <div id="cp_project" class="input-group colorpicker-component">
                         <input type="hidden" value="<?= config_item('project_color') ?>" name="project_color"
                                class="form-control"/>
                         <span class="input-group-addon"><i></i></span>
@@ -61,7 +61,7 @@
                     </div>
                 </div>
                 <div class="col-sm-1">
-                    <div id="cp2" class="input-group colorpicker-component">
+                    <div id="cp_milestone" class="input-group colorpicker-component">
                         <input type="hidden" value="<?= config_item('milestone_color') ?>" name="milestone_color"
                                class="form-control"/>
                         <span class="input-group-addon"><i></i></span>
@@ -84,7 +84,7 @@
                     </div>
                 </div>
                 <div class="col-sm-1">
-                    <div id="cp2" class="input-group colorpicker-component">
+                    <div id="cp_tasks" class="input-group colorpicker-component">
                         <input type="hidden" value="<?= config_item('tasks_color') ?>" name="tasks_color"
                                class="form-control"/>
                         <span class="input-group-addon"><i></i></span>
@@ -104,7 +104,7 @@
                     </div>
                 </div>
                 <div class="col-sm-1">
-                    <div id="cp2" class="input-group colorpicker-component">
+                    <div id="cp_bugs" class="input-group colorpicker-component">
                         <input type="hidden" value="<?= config_item('bugs_color') ?>" name="bugs_color"
                                class="form-control"/>
                         <span class="input-group-addon"><i></i></span>
@@ -126,7 +126,7 @@
                     </div>
                 </div>
                 <div class="col-sm-1">
-                    <div id="cp2" class="input-group colorpicker-component">
+                    <div id="cp_invoice" class="input-group colorpicker-component">
                         <input type="hidden" value="<?= config_item('invoice_color') ?>" name="invoice_color"
                                class="form-control"/>
                         <span class="input-group-addon"><i></i></span>
@@ -146,7 +146,7 @@
                     </div>
                 </div>
                 <div class="col-sm-1">
-                    <div id="cp2" class="input-group colorpicker-component">
+                    <div id="cp_payments" class="input-group colorpicker-component">
                         <input type="hidden" value="<?= config_item('payments_color') ?>" name="payments_color"
                                class="form-control"/>
                         <span class="input-group-addon"><i></i></span>
@@ -168,7 +168,7 @@
                     </div>
                 </div>
                 <div class="col-sm-1">
-                    <div id="cp2" class="input-group colorpicker-component">
+                    <div id="cp_estimate" class="input-group colorpicker-component">
                         <input type="hidden" value="<?= config_item('estimate_color') ?>" name="estimate_color"
                                class="form-control"/>
                         <span class="input-group-addon"><i></i></span>
@@ -188,7 +188,7 @@
                     </div>
                 </div>
                 <div class="col-sm-1">
-                    <div id="cp2" class="input-group colorpicker-component">
+                    <div id="cp_opportunities" class="input-group colorpicker-component">
                         <input type="hidden" value="<?= config_item('opportunities_color') ?>"
                                name="opportunities_color" class="form-control"/>
                         <span class="input-group-addon"><i></i></span>
@@ -209,8 +209,8 @@
                         </label>
                     </div>
                 </div>
-                <div class="col-sm-1">
-                    <div id="cp2" class="input-group colorpicker-component">
+<div class="col-sm-1">
+                    <div id="cp_goal_tracking" class="input-group colorpicker-component">
                         <input type="hidden" value="<?= config_item('goal_tracking_color') ?>"
                                name="goal_tracking_color" class="form-control"/>
                         <span class="input-group-addon"><i></i></span>
@@ -230,7 +230,11 @@
                     </div>
                 </div>
                 <div class="col-sm-1">
-                
+                    <div id="cp_holiday" class="input-group colorpicker-component">
+                        <input type="hidden" value="<?= config_item('holiday_color') ?: '#f0ad4e' ?>"
+                               name="holiday_color" class="form-control"/>
+                        <span class="input-group-addon"><i></i></span>
+                    </div>
                 </div>
             </div>
             <div class="form-group">
@@ -248,7 +252,7 @@
                     </div>
                 </div>
                 <div class="col-sm-1">
-                    <div id="cp2" class="input-group colorpicker-component">
+                    <div id="cp_absent" class="input-group colorpicker-component">
                         <input type="hidden" value="<?= config_item('absent_color') ?>" name="absent_color"
                                class="form-control"/>
                         <span class="input-group-addon"><i></i></span>
@@ -268,7 +272,7 @@
                     </div>
                 </div>
                 <div class="col-sm-1">
-                    <div id="cp2" class="input-group colorpicker-component">
+                    <div id="cp_on_leave" class="input-group colorpicker-component">
                         <input type="hidden" value="<?= config_item('on_leave_color') ?>" name="on_leave_color"
                                class="form-control"/>
                         <span class="input-group-addon"><i></i></span>
@@ -290,7 +294,7 @@
                     </div>
                 </div>
                 <div class="col-sm-1">
-                    <div id="cp2" class="input-group colorpicker-component">
+                    <div id="cp_leads" class="input-group colorpicker-component">
                         <input type="hidden" value="<?= config_item('leads_color') ?>"
                                name="leads_color" class="form-control"/>
                         <span class="input-group-addon"><i></i></span>
@@ -310,7 +314,7 @@
                     </div>
                 </div>
                 <div class="col-sm-1">
-                    <div id="cp2" class="input-group colorpicker-component">
+                    <div id="cp_expense_schedule" class="input-group colorpicker-component">
                         <input type="hidden" value="<?= config_item('expense_schedule_color') ?: '#fb6b5b' ?>"
                                name="expense_schedule_color" class="form-control"/>
                         <span class="input-group-addon"><i></i></span>
@@ -320,7 +324,11 @@
             
             <script>
                 $(function () {
-                    $('.colorpicker-component').colorpicker();
+                    $('.colorpicker-component').each(function() {
+                        var $this = $(this);
+                        var color = $this.find('input').val();
+                        $this.colorpicker({color: color});
+                    });
                 });
             </script>
             
