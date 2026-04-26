@@ -53,6 +53,10 @@
         background-color: #ffc107;
         color: #212529;
     }
+    .badge-expired {
+        background-color: #dc3545;
+        color: #fff;
+    }
 
     /* Action Button Styles */
     .btn-action {
@@ -124,6 +128,7 @@
                             <option value="Suspended">Suspended</option>
                             <option value="Pending">Pending</option>
                             <option value="Cancelled">Cancelled</option>
+                            <option value="Expired">Expired</option>
                         </select>
                     </div>
                     <div class="col-md-2">
@@ -185,6 +190,7 @@
                                                 case 'Pending': $badge_class = 'badge-pending'; break;
                                                 case 'Active': $badge_class = 'badge-active'; break;
                                                 case 'Suspended': $badge_class = 'badge-suspended'; break;
+                                                case 'Expired': $badge_class = 'badge-expired'; break;
                                             }
                                             ?>
                                             <span class="badge badge-pill <?= $badge_class ?>"><?= htmlspecialchars($hosting['status']) ?></span>

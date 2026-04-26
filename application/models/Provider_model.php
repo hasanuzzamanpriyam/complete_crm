@@ -102,4 +102,34 @@ class Provider_model extends CI_Model {
         }
         return $this->db->delete('tblproviders');
     }
+
+    public function get_stats() {
+        $stats = [];
+        $stats['total'] = $this->db->count_all('tblproviders');
+        
+        $this->db->where('status', 'Active');
+        $stats['active'] = $this->db->count_all_results('tblproviders');
+        
+        $this->db->where('status', 'Inactive');
+        $stats['inactive'] = $this->db->count_all_results('tblproviders');
+        
+        return $stats;
+    }
+
+    public function get_inactive_providers() {
+        $this->db->reset_query();
+        $this->db->select('id, provider_name as name, status');
+        $this->db->from('tblproviders');
+        $this->db->where('status', 'Inactive');
+        $this->db->order_by('provider_name', 'ASC');
+        $query = $this->db->get();
+        $providers = $query->result_array();
+        
+        foreach ($providers as &$provider) {
+            $provider['type'] = 'provider';
+            $provider['link'] = 'admin/server_management/add_provider/' . $provider['id'];
+        }
+        
+        return $providers;
+    }
 }
