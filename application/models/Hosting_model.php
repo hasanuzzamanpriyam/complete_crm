@@ -189,4 +189,73 @@ class Hosting_model extends CI_Model {
         
         return $hostings;
     }
+
+    public function get_expiring_hostings($days = 7) {
+        $today = date('Y-m-d');
+        $end_date = date('Y-m-d', strtotime("+{$days} days"));
+        
+        $this->db->reset_query();
+        $this->db->select('id, title as name, expiry_date, status');
+        $this->db->from('tblserver_hostings');
+        $this->db->where('expiry_date >=', $today);
+        $this->db->where('expiry_date <=', $end_date);
+        $this->db->where('status', 'Active');
+        $this->db->order_by('expiry_date', 'ASC');
+        $query = $this->db->get();
+        $hostings = $query->result_array();
+        
+        $today_timestamp = strtotime($today);
+        foreach ($hostings as &$hosting) {
+            $hosting['type'] = 'hosting';
+            $days_left = (strtotime($hosting['expiry_date']) - $today_timestamp) / (60 * 60 * 24);
+            $hosting['days_left'] = is_float($days_left) ? ceil($days_left) : intval($days_left);
+            $hosting['link'] = 'admin/server_management/add_hosting/' . $hosting['id'];
+        }
+        
+        return $hostings;
+    }
+
+    public function get_calendar_events() {
+        $events = array();
+        $upcoming_days = config_item('upcoming_expiry_days') ? config_item('upcoming_expiry_days') : 7;
+        
+        $expiring = $this->get_expiring_hostings($upcoming_days);
+        $expired = $this->get_expired_hostings();
+        
+        foreach ($expiring as $hosting) {
+            $events[] = array(
+                'title' => '[HST] ' . $hosting['name'],
+                'start' => $hosting['expiry_date'],
+                'end' => $hosting['expiry_date'],
+                'color' => config_item('hosting_color') ?: '#ffd93d',
+                'url' => base_url() . $hosting['link'],
+                'type' => 'hosting',
+                'status' => 'upcoming',
+                'days_left' => $hosting['days_left']
+            );
+        }
+        
+        foreach ($expired as $hosting) {
+            $events[] = array(
+                'title' => '[HST] ' . $hosting['name'],
+                'start' => $hosting['expiry_date'],
+                'end' => $hosting['expiry_date'],
+                'color' => '#ff6b6b',
+                'url' => base_url() . $hosting['link'],
+                'type' => 'hosting',
+                'status' => 'expired',
+                'days_expired' => $hosting['days_expired']
+            );
+        }
+        
+        return $events;
+    }
+
+    public function get_all_hostings_for_notification() {
+        $this->db->select('id, title, expiry_date, status');
+        $this->db->from('tblserver_hostings');
+        $this->db->where('status !=', 'Expired');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
 }

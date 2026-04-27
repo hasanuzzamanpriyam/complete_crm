@@ -21,6 +21,8 @@ class Calendar extends Admin_Controller
         $this->load->model('admin_model');
         $this->load->model('invoice_model');
         $this->load->model('estimates_model');
+        $this->load->model('domain_model');
+        $this->load->model('hosting_model');
     }
 
     public function index($action = NULL)
@@ -30,13 +32,41 @@ class Calendar extends Admin_Controller
         $data['select_2'] = true;
         $data['datepicker'] = true;
         $data['page'] = lang('calendar');
+        $data['domain_model'] = $this->domain_model;
+        $data['hosting_model'] = $this->hosting_model;
+        
+        $data['calendar_categories'] = array();
+        
+        $config_map = array(
+            'project' => 'project_on_calendar',
+            'milestone' => 'milestone_on_calendar', 
+            'tasks' => 'tasks_on_calendar',
+            'bugs' => 'bugs_on_calendar',
+            'invoice' => 'invoice_on_calendar',
+            'payments' => 'payments_on_calendar',
+            'estimate' => 'estimate_on_calendar',
+            'opportunities' => 'opportunities_on_calendar',
+            'leads' => 'leads_on_calendar',
+            'goal' => 'goal_tracking_on_calendar',
+            'holiday' => 'holiday_on_calendar',
+            'absent' => 'absent_on_calendar',
+            'on_leave' => 'on_leave_on_calendar',
+            'expenses' => 'expense_schedule_on_calendar',
+            'domain' => 'domain_on_calendar',
+            'hosting' => 'hosting_on_calendar'
+        );
+        
+        foreach ($config_map as $key => $config) {
+            if (config_item($config) == 'on') {
+                $data['calendar_categories'][] = $key;
+            }
+        }
+        
         if (!empty($action) && $action == 'search') {
             $data['searchType'] = $this->uri->segment(5);
-
         } else {
             $data['searchType'] = 'all';
         }
-
 
         $user_id = $this->session->userdata('user_id');
         $user_info = $this->admin_model->check_by(array('user_id' => $user_id), 'tbl_users');
@@ -78,7 +108,8 @@ class Calendar extends Admin_Controller
     public function save_settings()
     {
         $input_data = $this->admin_model->array_from_post(array('gcal_api_key', 'gcal_id', 'project_on_calendar', 'milestone_on_calendar', 'tasks_on_calendar', 'bugs_on_calendar', 'invoice_on_calendar', 'payments_on_calendar', 'estimate_on_calendar', 'opportunities_on_calendar', 'leads_on_calendar', 'goal_tracking_on_calendar', 'holiday_on_calendar', 'absent_on_calendar', 'on_leave_on_calendar', 'expense_schedule_on_calendar',
-            'project_color', 'milestone_color', 'tasks_color', 'bugs_color', 'invoice_color', 'payments_color', 'estimate_color', 'opportunities_color', 'leads_color', 'goal_tracking_color', 'holiday_color', 'absent_color', 'on_leave_color', 'expense_schedule_color'));
+            'project_color', 'milestone_color', 'tasks_color', 'bugs_color', 'invoice_color', 'payments_color', 'estimate_color', 'opportunities_color', 'leads_color', 'goal_tracking_color', 'holiday_color', 'absent_color', 'on_leave_color', 'expense_schedule_color',
+            'domain_on_calendar', 'domain_color', 'hosting_on_calendar', 'hosting_color', 'upcoming_expiry_days'));
 
         foreach ($input_data as $key => $value) {
             $data = array('value' => $value);

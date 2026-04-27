@@ -70,6 +70,9 @@ $lang['ongoing'] = 'On Going';
 $lang['send_notifier'] = 'Send Notifier';
 $lang['email_successfully_send'] = 'Email Information Succefully Send';
 $lang['calendar_settings'] = 'Calendar Settings';
+$lang['domains'] = 'Domains';
+$lang['hosting'] = 'Hosting';
+$lang['upcoming_expiry_days'] = 'Upcoming Expiry Days';
 $lang['google_api'] = 'Google Calendar API';
 $lang['calendar_id'] = 'Calendar ID';
 $lang['activity_save_settings'] = 'Settings Information Created';
@@ -572,6 +575,16 @@ $lang['gone'] = 'gone';
 $lang['assign_by'] = 'Assign by';
 $lang['auto_check_for_new_notifications'] = 'Auto check for new notifications';
 $lang['auto_check_for_new_notifications_help'] = '(Seconds - Set 0 to disable)';
+
+// Domain & Hosting Notification Messages
+$lang['domain_updated'] = 'Domain has been updated - %s';
+$lang['new_domain_added'] = 'New domain has been added - %s';
+$lang['hosting_updated'] = 'Hosting has been updated - %s';
+$lang['new_hosting_added'] = 'New hosting has been added - %s';
+$lang['domain_expiring_soon'] = 'Domain expiring soon - %s';
+$lang['hosting_expiring_soon'] = 'Hosting expiring soon - %s';
+$lang['domain_expired'] = 'Domain has expired - %s';
+$lang['hosting_expired'] = 'Hosting has expired - %s';
 $lang['desktop_notifications'] = 'Enable Desktop Notifications';
 $lang['realtime_notification'] = 'Enable Real Time Notifications';
 $lang['pusher_app_id'] = 'Pusher app id';

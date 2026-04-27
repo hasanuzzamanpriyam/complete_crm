@@ -441,10 +441,28 @@ class Server_management extends Admin_Controller
                 if ($id) {
                     $this->hosting_model->update_hosting($id, $data_save);
                     $this->log_activity('server_management', 'Updated hosting "' . $data_save['title'] . '"', 'fa-pencil', 'admin/server_management/add_hosting/' . $id, $data_save['status']);
+                    
+                    $notify_data = array(
+                        'description' => 'hosting_updated',
+                        'icon' => 'fa-server',
+                        'link' => 'admin/server_management/add_hosting/' . $id,
+                        'value' => $data_save['title']
+                    );
+                    add_notification($notify_data);
+                    
                     set_message('success', 'Hosting updated successfully!');
                 } else {
                     $new_id = $this->hosting_model->insert_hosting($data_save);
                     $this->log_activity('server_management', 'Added new hosting "' . $data_save['title'] . '"', 'fa-plus', 'admin/server_management/add_hosting/' . $new_id, $data_save['status']);
+                    
+                    $notify_data = array(
+                        'description' => 'new_hosting_added',
+                        'icon' => 'fa-server',
+                        'link' => 'admin/server_management/add_hosting/' . $new_id,
+                        'value' => $data_save['title']
+                    );
+                    add_notification($notify_data);
+                    
                     set_message('success', 'Hosting added successfully!');
                 }
                 redirect('admin/server_management/hosting');
@@ -528,10 +546,28 @@ $data['providers'] = $this->domain_model->get_all_providers();
                 if ($id) {
                     $this->domain_model->update_domain($id, $data_save);
                     $this->log_activity('server_management', 'Updated domain "' . $data_save['domain_name'] . '"', 'fa-pencil', 'admin/server_management/add_domain/' . $id, $data_save['status']);
+                    
+                    $notify_data = array(
+                        'description' => 'domain_updated',
+                        'icon' => 'fa-globe',
+                        'link' => 'admin/server_management/add_domain/' . $id,
+                        'value' => $data_save['domain_name']
+                    );
+                    add_notification($notify_data);
+                    
                     set_message('success', 'Domain updated successfully!');
                 } else {
                     $new_id = $this->domain_model->insert_domain($data_save);
                     $this->log_activity('server_management', 'Added new domain "' . $data_save['domain_name'] . '"', 'fa-plus', 'admin/server_management/add_domain/' . $new_id, $data_save['status']);
+                    
+                    $notify_data = array(
+                        'description' => 'new_domain_added',
+                        'icon' => 'fa-globe',
+                        'link' => 'admin/server_management/add_domain/' . $new_id,
+                        'value' => $data_save['domain_name']
+                    );
+                    add_notification($notify_data);
+                    
                     set_message('success', 'Domain added successfully!');
                 }
                 redirect('admin/server_management/domain');

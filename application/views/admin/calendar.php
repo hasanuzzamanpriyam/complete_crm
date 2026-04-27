@@ -7,6 +7,84 @@ z-index: 1151 !important;
 .mt-sm {
 font-size: 14px;
 }
+
+/* FullCalendar Popover Overflow Fix */
+.fc-popover {
+    max-height: 350px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border-radius: 4px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.175);
+}
+
+.fc-popover .fc-header {
+    background: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+    padding: 8px 12px;
+    border-radius: 4px 4px 0 0;
+}
+
+.fc-popover .fc-day-grid-container {
+    max-height: 280px;
+    overflow-y: auto;
+}
+
+.fc-event-container {
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+.fc-event-container .fc-day-grid-event {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Calendar filter dropdown - Ultimate z-index fix */
+.calendar-filter {
+    position: static !important;
+}
+
+.calendar-filter > .dropdown-menu {
+    position: absolute !important;
+    top: 100% !important;
+    left: auto !important;
+    right: 0 !important;
+    z-index: 99999 !important;
+    margin-top: 2px !important;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Fix parent stacking context */
+.panel-heading {
+    position: relative !important;
+    z-index: 10;
+}
+
+.panel-title {
+    position: relative !important;
+    z-index: 10;
+}
+
+/* Ensure calendar doesn't create new stacking issues */
+.full-calender {
+    position: static !important;
+}
+
+.content-body {
+    position: relative;
+    z-index: 1;
+}
+
+/* Fix for dropdown menu being cut off in panel-heading */
+.panel-custom, 
+.panel-heading, 
+.panel-title, 
+.pull-right, 
+.pull-left {
+    overflow: visible !important;
+}
 </style>
 <?php
 echo message_box('success');
@@ -33,9 +111,9 @@ $leave_info = $this->db->where('attendance_status', '3')->get('tbl_attendance')-
    class="text-default ml"><i class="fa fa-cogs"></i></a>
 </div>
 <?php } ?>
-<div class="pull-left">
-<div class="btn-group ">
-<button class="btn btn-xs btn-success dropdown-toggle" data-toggle="dropdown">
+<div class="pull-left" style="position: relative; z-index: 9999;">
+<div class="btn-group calendar-filter">
+<button class="btn btn-xs btn-success dropdown-toggle calendar-filter-btn" data-toggle="dropdown">
     <?php
     if (!empty($searchType)) {
         echo lang($searchType);
@@ -44,81 +122,43 @@ $leave_info = $this->db->where('attendance_status', '3')->get('tbl_attendance')-
     }
     ?>
     <span class="caret"></span></button>
-<ul class="dropdown-menu pull-right animated zoomIn">
+<ul class="dropdown-menu pull-right animated zoomIn calendar-dropdown">
     <li>
-        <a href="<?= base_url() ?>admin/calendar/index/search/all"><?= lang('all') ?></a>
+        <a href="javascript:void(0);" class="calendar-filter-link" data-filter="all"><?php echo lang('all'); ?></a>
     </li>
-    <?php if (config_item('project_on_calendar') == 'on') { ?>
-        <li>
-            <a href="<?= base_url() ?>admin/calendar/index/search/projects"><?= lang('project') ?></a>
-        </li>
-    <?php } ?>
-    <?php if (config_item('milestone_on_calendar') == 'on') { ?>
-        <li>
-            <a href="<?= base_url() ?>admin/calendar/index/search/milestones"><?= lang('milestone') ?></a>
-        </li>
-    <?php } ?>
-    <?php if (config_item('tasks_on_calendar') == 'on') { ?>
-        <li>
-            <a href="<?= base_url() ?>admin/calendar/index/search/tasks"><?= lang('tasks') ?></a>
-        </li>
-    <?php } ?>
-    <?php if (config_item('bugs_on_calendar') == 'on') { ?>
-        <li>
-            <a href="<?= base_url() ?>admin/calendar/index/search/bugs"><?= lang('bugs') ?></a>
-        </li>
-    <?php } ?>
-    <?php if (config_item('invoice_on_calendar') == 'on') { ?>
-        <li>
-            <a href="<?= base_url() ?>admin/calendar/index/search/invoices"><?= lang('invoice') ?></a>
-        </li>
-    <?php } ?>
-    <?php if (config_item('payments_on_calendar') == 'on') { ?>
-        <li>
-            <a href="<?= base_url() ?>admin/calendar/index/search/payments"><?= lang('payments') ?></a>
-        </li>
-    <?php } ?>
-    <?php if (config_item('estimate_on_calendar') == 'on') { ?>
-        <li>
-            <a href="<?= base_url() ?>admin/calendar/index/search/estimates"><?= lang('estimate') ?></a>
-        </li>
-    <?php } ?>
-    <?php if (config_item('opportunities_on_calendar') == 'on') { ?>
-        <li>
-            <a href="<?= base_url() ?>admin/calendar/index/search/opportunities"><?= lang('opportunities') ?></a>
-        </li>
-    <?php } ?>
-    <?php if (config_item('leads_on_calendar') == 'on') { ?>
-        <li>
-            <a href="<?= base_url() ?>admin/calendar/index/search/leads"><?= lang('leads') ?></a>
-        </li>
-    <?php } ?>
-    <?php if (config_item('goal_tracking_on_calendar') == 'on') { ?>
-        <li>
-            <a href="<?= base_url() ?>admin/calendar/index/search/goal"><?= lang('goal_tracking') ?></a>
-        </li>
-    <?php } ?>
-    <?php if (config_item('holiday_on_calendar') == 'on') { ?>
-        <li>
-            <a href="<?= base_url() ?>admin/calendar/index/search/holiday"><?= lang('holiday') ?></a>
-        </li>
-    <?php } ?>
-    <?php if (config_item('absent_on_calendar') == 'on') { ?>
-        <li>
-            <a href="<?= base_url() ?>admin/calendar/index/search/absent"><?= lang('absent') ?></a>
-        </li>
-    <?php } ?>
-    <?php if (config_item('on_leave_on_calendar') == 'on') { ?>
-        <li>
-            <a href="<?= base_url() ?>admin/calendar/index/search/on_leave"><?= lang('on_leave') ?></a>
-        </li>
-    <?php } ?>
-    <?php if (config_item('expense_schedule_on_calendar') == 'on') { ?>
-        <li>
-            <a href="<?= base_url() ?>admin/calendar/index/search/expenses"><?= lang('expense_schedules') ?: 'Expense Schedules' ?></a>
-        </li>
-    <?php } ?>
+    <?php 
+    if (!empty($calendar_categories)) {
+        foreach ($calendar_categories as $cat) {
+            // Map category keys to language strings
+            $lang_keys = array(
+                'project' => 'project',
+                'milestone' => 'milestone',
+                'tasks' => 'tasks',
+                'bugs' => 'bugs',
+                'invoice' => 'invoice',
+                'payments' => 'payments',
+                'estimate' => 'estimate',
+                'opportunities' => 'opportunities',
+                'leads' => 'leads',
+                'goal' => 'goal_tracking',
+                'holiday' => 'holiday',
+                'absent' => 'absent',
+                'on_leave' => 'on_leave',
+                'expenses' => 'expense_schedules',
+                'domain' => 'domains',
+                'hosting' => 'hosting'
+            );
+            $lang_key = isset($lang_keys[$cat]) ? $lang_keys[$cat] : $cat;
+            ?>
+            <li>
+                <a href="javascript:void(0);" class="calendar-filter-link" data-filter="<?php echo $cat; ?>"><?php echo lang($lang_key); ?></a>
+            </li>
+            <?php
+        }
+    }
+    ?>
 </ul>
+</div>
 </div>
 </div>
 </div>
@@ -143,5 +183,60 @@ $this->load->view("admin/calendar/my_calendar");
 
 ?>
 <!--Calendar-->
+
+<script type="text/javascript">
+$(document).ready(function() {
+    // Calendar Filter Functionality
+    $('.calendar-filter-link').on('click', function(e) {
+        e.preventDefault();
+        
+        var filter = $(this).data('filter');
+        
+        // Update dropdown button text
+        var filterText = $(this).text();
+        $('.calendar-filter-btn').html(filterText + ' <span class="caret"></span>');
+        
+        // Filter calendar events via FullCalendar
+        if (typeof calendar !== 'undefined') {
+            // Get all event sources
+            var allSources = calendar.fullCalendar('getEventSources');
+            
+            // Hide all events first
+            calendar.fullCalendar('removeEventSource', allSources);
+            
+            if (filter === 'all') {
+                // Reload all sources - we need to reload the page or store original sources
+                // For now, we'll use the event filtering approach
+                location.href = '<?php echo base_url(); ?>admin/calendar/index/search/all';
+            } else {
+                // Filter events by type - reload with specific search
+                var searchMap = {
+                    'project': 'projects',
+                    'milestone': 'milestones',
+                    'tasks': 'tasks',
+                    'bugs': 'bugs',
+                    'invoice': 'invoices',
+                    'payments': 'payments',
+                    'estimate': 'estimates',
+                    'opportunities': 'opportunities',
+                    'leads': 'leads',
+                    'goal': 'goal',
+                    'holiday': 'holiday',
+                    'absent': 'absent',
+                    'on_leave': 'on_leave',
+                    'expenses': 'expenses',
+                    'domain': 'domain',
+                    'hosting': 'hosting'
+                };
+                var searchValue = isset(searchMap[filter]) ? searchMap[filter] : filter;
+                location.href = '<?php echo base_url(); ?>admin/calendar/index/search/' + searchValue;
+            }
+        }
+    });
+    
+    // Alternative client-side filtering using event source filtering
+    // This works if calendar is initialized with named sources
+});
+</script>
 
 

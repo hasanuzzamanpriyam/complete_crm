@@ -199,4 +199,73 @@ class Domain_model extends CI_Model {
         
         return $domains;
     }
+
+    public function get_expiring_domains($days = 7) {
+        $today = date('Y-m-d');
+        $end_date = date('Y-m-d', strtotime("+{$days} days"));
+        
+        $this->db->reset_query();
+        $this->db->select('id, domain_name as name, expiry_date, status');
+        $this->db->from('tbldomains');
+        $this->db->where('expiry_date >=', $today);
+        $this->db->where('expiry_date <=', $end_date);
+        $this->db->where('status', 'Active');
+        $this->db->order_by('expiry_date', 'ASC');
+        $query = $this->db->get();
+        $domains = $query->result_array();
+        
+        $today_timestamp = strtotime($today);
+        foreach ($domains as &$domain) {
+            $domain['type'] = 'domain';
+            $days_left = (strtotime($domain['expiry_date']) - $today_timestamp) / (60 * 60 * 24);
+            $domain['days_left'] = is_float($days_left) ? ceil($days_left) : intval($days_left);
+            $domain['link'] = 'admin/server_management/add_domain/' . $domain['id'];
+        }
+        
+        return $domains;
+    }
+
+    public function get_calendar_events() {
+        $events = array();
+        $upcoming_days = config_item('upcoming_expiry_days') ? config_item('upcoming_expiry_days') : 7;
+        
+        $expiring = $this->get_expiring_domains($upcoming_days);
+        $expired = $this->get_expired_domains();
+        
+        foreach ($expiring as $domain) {
+            $events[] = array(
+                'title' => '[DOM] ' . $domain['name'],
+                'start' => $domain['expiry_date'],
+                'end' => $domain['expiry_date'],
+                'color' => config_item('domain_color') ?: '#ffd93d',
+                'url' => base_url() . $domain['link'],
+                'type' => 'domain',
+                'status' => 'upcoming',
+                'days_left' => $domain['days_left']
+            );
+        }
+        
+        foreach ($expired as $domain) {
+            $events[] = array(
+                'title' => '[DOM] ' . $domain['name'],
+                'start' => $domain['expiry_date'],
+                'end' => $domain['expiry_date'],
+                'color' => '#ff6b6b',
+                'url' => base_url() . $domain['link'],
+                'type' => 'domain',
+                'status' => 'expired',
+                'days_expired' => $domain['days_expired']
+            );
+        }
+        
+        return $events;
+    }
+
+    public function get_all_domains_for_notification() {
+        $this->db->select('id, domain_name, expiry_date, status');
+        $this->db->from('tbldomains');
+        $this->db->where('status !=', 'Expired');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
 }

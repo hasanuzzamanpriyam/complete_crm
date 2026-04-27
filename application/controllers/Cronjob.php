@@ -49,6 +49,8 @@ class Cronjob extends MY_Controller
             $this->autoclose_tickets();
             $this->reminders();
             $this->outgoing_emails();
+            // check domain and hosting expiry
+            $this->check_domain_hosting_expiry();
         }
     }
 
@@ -932,5 +934,122 @@ class Cronjob extends MY_Controller
     {
         $this->index(true);
         redirect('admin/settings/cronjob');
+    }
+
+    public function check_domain_hosting_expiry()
+    {
+        $this->load->model('domain_model');
+        $this->load->model('hosting_model');
+        
+        $upcoming_days = config_item('upcoming_expiry_days') ? config_item('upcoming_expiry_days') : 7;
+        $today = date('Y-m-d');
+        $upcoming_date = date('Y-m-d', strtotime("+{$upcoming_days} days"));
+        
+        // Check for upcoming expirations (exactly X days away)
+        $this->db->select('id, domain_name, expiry_date');
+        $this->db->from('tbldomains');
+        $this->db->where('expiry_date', $upcoming_date);
+        $this->db->where('status', 'Active');
+        $upcoming_domains = $this->db->get()->result();
+        
+        foreach ($upcoming_domains as $domain) {
+            $exists = $this->db->where('description', 'domain_expiring_soon')
+                ->where('value', $domain->domain_name)
+                ->where('DATE(date)', $today)
+                ->get('tbl_notifications');
+            
+            if ($exists->num_rows() == 0) {
+                add_notification(array(
+                    'description' => 'domain_expiring_soon',
+                    'icon' => 'fa-globe',
+                    'link' => 'admin/server_management/add_domain/' . $domain->id,
+                    'value' => $domain->domain_name . ' - ' . $upcoming_days . ' days'
+                ));
+            }
+        }
+        
+        $this->db->select('id, title, expiry_date');
+        $this->db->from('tblserver_hostings');
+        $this->db->where('expiry_date', $upcoming_date);
+        $this->db->where('status', 'Active');
+        $upcoming_hostings = $this->db->get()->result();
+        
+        foreach ($upcoming_hostings as $hosting) {
+            $exists = $this->db->where('description', 'hosting_expiring_soon')
+                ->where('value', $hosting->title)
+                ->where('DATE(date)', $today)
+                ->get('tbl_notifications');
+            
+            if ($exists->num_rows() == 0) {
+                add_notification(array(
+                    'description' => 'hosting_expiring_soon',
+                    'icon' => 'fa-server',
+                    'link' => 'admin/server_management/add_hosting/' . $hosting->id,
+                    'value' => $hosting->title . ' - ' . $upcoming_days . ' days'
+                ));
+            }
+        }
+        
+        // Check for already expired domains
+        $this->db->select('id, domain_name, expiry_date');
+        $this->db->from('tbldomains');
+        $this->db->where('expiry_date <', $today);
+        $this->db->where('status !=', 'Expired');
+        $expired_domains = $this->db->get()->result();
+        
+        foreach ($expired_domains as $domain) {
+            $days_expired = (strtotime($today) - strtotime($domain->expiry_date)) / (60 * 60 * 24);
+            $days_expired = is_float($days_expired) ? ceil($days_expired) : intval($days_expired);
+            
+            // Update status to expired
+            $this->db->where('id', $domain->id);
+            $this->db->update('tbldomains', array('status' => 'Expired'));
+            
+            $exists = $this->db->where('description', 'domain_expired')
+                ->where('value', $domain->domain_name)
+                ->where('DATE(date)', $today)
+                ->get('tbl_notifications');
+            
+            if ($exists->num_rows() == 0) {
+                add_notification(array(
+                    'description' => 'domain_expired',
+                    'icon' => 'fa-globe',
+                    'link' => 'admin/server_management/add_domain/' . $domain->id,
+                    'value' => $domain->domain_name . ' - ' . $days_expired . ' days expired'
+                ));
+            }
+        }
+        
+        // Check for already expired hostings
+        $this->db->select('id, title, expiry_date');
+        $this->db->from('tblserver_hostings');
+        $this->db->where('expiry_date <', $today);
+        $this->db->where('status !=', 'Expired');
+        $expired_hostings = $this->db->get()->result();
+        
+        foreach ($expired_hostings as $hosting) {
+            $days_expired = (strtotime($today) - strtotime($hosting->expiry_date)) / (60 * 60 * 24);
+            $days_expired = is_float($days_expired) ? ceil($days_expired) : intval($days_expired);
+            
+            // Update status to expired
+            $this->db->where('id', $hosting->id);
+            $this->db->update('tblserver_hostings', array('status' => 'Expired'));
+            
+            $exists = $this->db->where('description', 'hosting_expired')
+                ->where('value', $hosting->title)
+                ->where('DATE(date)', $today)
+                ->get('tbl_notifications');
+            
+            if ($exists->num_rows() == 0) {
+                add_notification(array(
+                    'description' => 'hosting_expired',
+                    'icon' => 'fa-server',
+                    'link' => 'admin/server_management/add_hosting/' . $hosting->id,
+                    'value' => $hosting->title . ' - ' . $days_expired . ' days expired'
+                ));
+            }
+        }
+        
+        log_message('info', 'Domain and Hosting Expiry Check Completed');
     }
 }
