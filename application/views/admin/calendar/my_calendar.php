@@ -519,35 +519,40 @@ $gcal_id = config_item('gcal_id');
                             ?>
                         ],
                     },
-                    <?php if (config_item('domain_on_calendar') == 'on') {
-                        $domain_events = $this->domain_model->get_calendar_events();
-                        if (!empty($domain_events)) {
-                            foreach ($domain_events as $domain_event) {
-                                $status_label = $domain_event['status'] === 'expired' ? ' (EXPIRED)' : ' (Expiring: ' . $domain_event['days_left'] . ' days)';
-                    ?> {
-                                    title: "<?= clear_textarea_breaks($domain_event['title']) . $status_label ?>",
-                                    start: "<?= $domain_event['start'] ?>",
-                                    end: "<?= $domain_event['end'] ?>",
-                                    color: "<?= $domain_event['color'] ?>",
-                                    url: "<?= $domain_event['url'] ?>"
-                                },
-                                <?php }
-                        }
-                    } ?><?php if (config_item('hosting_on_calendar') == 'on') {
-                            $hosting_events = $this->hosting_model->get_calendar_events();
-                            if (!empty($hosting_events)) {
-                                foreach ($hosting_events as $hosting_event) {
-                                    $status_label = $hosting_event['status'] === 'expired' ? ' (EXPIRED)' : ' (Expiring: ' . $hosting_event['days_left'] . ' days)';
+                    {
+                        events: [
+                        <?php if (config_item('domain_on_calendar') == 'on') {
+                            $domain_events = $this->domain_model->get_calendar_events();
+                            if (!empty($domain_events)) {
+                                foreach ($domain_events as $domain_event) {
+                                    $status_label = $domain_event['status'] === 'expired' ? ' (EXPIRED)' : ' (Expiring: ' . $domain_event['days_left'] . ' days)';
                         ?> {
-                                    title: "<?= clear_textarea_breaks($hosting_event['title']) . $status_label ?>",
-                                    start: "<?= $hosting_event['start'] ?>",
-                                    end: "<?= $hosting_event['end'] ?>",
-                                    color: "<?= $hosting_event['color'] ?>",
-                                    url: "<?= $hosting_event['url'] ?>"
-                                },
-                    <?php }
+                                        title: "<?= clear_textarea_breaks($domain_event['title']) . $status_label ?>",
+                                        start: "<?= $domain_event['start'] ?>",
+                                        end: "<?= $domain_event['end'] ?>",
+                                        color: "<?= $domain_event['color'] ?>",
+                                        url: "<?= $domain_event['url'] ?>"
+                                    },
+                                    <?php }
                             }
                         } ?>
+                        <?php if (config_item('hosting_on_calendar') == 'on') {
+                                $hosting_events = $this->hosting_model->get_calendar_events();
+                                if (!empty($hosting_events)) {
+                                    foreach ($hosting_events as $hosting_event) {
+                                        $status_label = $hosting_event['status'] === 'expired' ? ' (EXPIRED)' : ' (Expiring: ' . $hosting_event['days_left'] . ' days)';
+                            ?> {
+                                        title: "<?= clear_textarea_breaks($hosting_event['title']) . $status_label ?>",
+                                        start: "<?= $hosting_event['start'] ?>",
+                                        end: "<?= $hosting_event['end'] ?>",
+                                        color: "<?= $hosting_event['color'] ?>",
+                                        url: "<?= $hosting_event['url'] ?>"
+                                    },
+                        <?php }
+                                }
+                            } ?>
+                        ]
+                    }
                 ]
             });
         }

@@ -24,7 +24,16 @@
             .fc-state-default {
                 background: none !important;
                 color: inherit !important;
-                ;
+            }
+
+            .fc-popover .fc-event {
+                margin-bottom: 4px !important;
+                padding: 4px 6px !important;
+                border-radius: 4px !important;
+            }
+
+            .fc-popover .fc-event-container {
+                padding: 4px 8px !important;
             }
         </style>
         <?php
@@ -189,6 +198,66 @@
                                         url: '<?= base_url() ?>client/bugs/view_bug_details/<?= $v_bug->bug_id ?>'
                                     },
                             <?php
+                                endforeach;
+                            }
+                            
+                            $domain_info = $this->db->where('project_id', $project_details->project_id)->get('tbldomains')->result();
+                            if (!empty($domain_info)) {
+                                foreach ($domain_info as $v_domain) :
+                                    if(!empty($v_domain->expiry_date)) {
+                                        $is_expired = (strtotime($v_domain->expiry_date) < strtotime(date('Y-m-d'))) || $v_domain->status == 'Expired';
+                                        $target_date = $is_expired ? date('Y-m-d') : $v_domain->expiry_date;
+                                        
+                                        $start_day = date('d', strtotime($target_date));
+                                        $smonth = date('n', strtotime($target_date));
+                                        $start_month = $smonth - 1;
+                                        $start_year = date('Y', strtotime($target_date));
+                                        $end_year = date('Y', strtotime($target_date));
+                                        $end_day = date('d', strtotime($target_date));
+                                        $emonth = date('n', strtotime($target_date));
+                                        $end_month = $emonth - 1;
+                                        
+                                        $title_suffix = $is_expired ? " (EXPIRED)" : " (Domain Expiry)";
+                                        $color = $is_expired ? '#ff6b6b' : (config_item('project_color') ?: '#00c0ef');
+                                ?> {
+                                        title: "<?php echo $v_domain->domain_name . $title_suffix; ?>",
+                                        start: new Date(<?php echo $start_year . ',' . $start_month . ',' . $start_day; ?>),
+                                        end: new Date(<?php echo $end_year . ',' . $end_month . ',' . $end_day; ?>),
+                                        color: '<?= $color ?>',
+                                        url: '<?= base_url() ?>client/domain/details/<?= $v_domain->id ?>'
+                                    },
+                            <?php
+                                    }
+                                endforeach;
+                            }
+                            
+                            $hosting_info = $this->db->where('project_id', $project_details->project_id)->get('tblserver_hostings')->result();
+                            if (!empty($hosting_info)) {
+                                foreach ($hosting_info as $v_hosting) :
+                                    if(!empty($v_hosting->expiry_date)) {
+                                        $is_expired = (strtotime($v_hosting->expiry_date) < strtotime(date('Y-m-d'))) || $v_hosting->status == 'Expired' || $v_hosting->status == 'Cancelled';
+                                        $target_date = $is_expired ? date('Y-m-d') : $v_hosting->expiry_date;
+
+                                        $start_day = date('d', strtotime($target_date));
+                                        $smonth = date('n', strtotime($target_date));
+                                        $start_month = $smonth - 1;
+                                        $start_year = date('Y', strtotime($target_date));
+                                        $end_year = date('Y', strtotime($target_date));
+                                        $end_day = date('d', strtotime($target_date));
+                                        $emonth = date('n', strtotime($target_date));
+                                        $end_month = $emonth - 1;
+                                        
+                                        $title_suffix = $is_expired ? " (EXPIRED)" : " (Hosting Expiry)";
+                                        $color = $is_expired ? '#ff6b6b' : (config_item('project_color') ?: '#00c0ef');
+                                ?> {
+                                        title: "<?php echo $v_hosting->title . $title_suffix; ?>",
+                                        start: new Date(<?php echo $start_year . ',' . $start_month . ',' . $start_day; ?>),
+                                        end: new Date(<?php echo $end_year . ',' . $end_month . ',' . $end_day; ?>),
+                                        color: '<?= $color ?>',
+                                        url: '<?= base_url() ?>client/hosting/details/<?= $v_hosting->id ?>'
+                                    },
+                            <?php
+                                    }
                                 endforeach;
                             }
                             ?>

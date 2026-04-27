@@ -166,6 +166,23 @@ if ($tasks == 'kanban') {
                                         <input type="hidden" name="un_transactions_id" required class="form-control"
                                                value="<?php echo $transactions_id ?>"/>
                                     <?php } ?>
+                                    <?php
+                                    $domain_id = null;
+                                    $server_hosting_id = null;
+                                    if (!empty($task_info->module) && $task_info->module == 'domain') {
+                                        $domain_id = $task_info->module_field_id;
+                                    } elseif (!empty($domain_id_from_url)) {
+                                        $domain_id = $domain_id_from_url; ?>
+                                        <input type="hidden" name="un_domain_id" required class="form-control"
+                                               value="<?php echo $domain_id ?>"/>
+                                    <?php }
+                                    if (!empty($task_info->module) && $task_info->module == 'server_hosting') {
+                                        $server_hosting_id = $task_info->module_field_id;
+                                    } elseif (!empty($server_hosting_id_from_url)) {
+                                        $server_hosting_id = $server_hosting_id_from_url; ?>
+                                        <input type="hidden" name="un_server_hosting_id" required class="form-control"
+                                               value="<?php echo $server_hosting_id ?>"/>
+                                    <?php } ?>
                                     <div class="form-group" id="border-none">
                                         <label for="field-1" class="col-sm-4 control-label"><?= lang('related_to') ?>
                                         </label>
@@ -189,6 +206,10 @@ if ($tasks == 'kanban') {
                                                 <option value="expenses"
                                                     <?= (!empty($transactions_id) ? 'selected' : '') ?>>
                                                     <?= lang('expenses') ?> </option>
+                                                <option value="domain" <?= (!empty($domain_id) ? 'selected' : '') ?>>
+                                                    Domain </option>
+                                                <option value="server_hosting" <?= (!empty($server_hosting_id) ? 'selected' : '') ?>>
+                                                    Server Hosting </option>
                                             </select>
                                         </div>
                                     </div>
@@ -505,6 +526,64 @@ if ($tasks == 'kanban') {
                                                                 if (!empty($v_expenses->reference)) {
                                                                     echo '#' . $v_expenses->reference;
                                                                 } ?></option>
+                                                            <?php
+                                                        }
+                                                    }
+                                                    ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    <?php endif ?>
+                                    <?php if (!empty($domain_id)) : ?>
+                                        <div class="form-group <?= $domain_id ? 'domain' : 'company' ?>"
+                                             id="border-none">
+                                            <label for="field-1"
+                                                   class="col-sm-4 control-label"><?= lang('select') . ' Domain' ?>
+                                                <span class="required">*</span></label>
+                                            <div class="col-sm-8">
+                                                <select name="domain_id" style="width: 100%"
+                                                        class="select_box <?= $domain_id ? 'domain' : 'company' ?>"
+                                                        required="1">
+                                                    <?php
+                                                    $all_domains = $this->db->get('tbldomains')->result();
+                                                    if (!empty($all_domains)) {
+                                                        foreach ($all_domains as $v_domain) {
+                                                            ?>
+                                                            <option value="<?= $v_domain->id ?>" <?php
+                                                            if (!empty($domain_id)) {
+                                                                echo $v_domain->id == $domain_id ? 'selected' : '';
+                                                            }
+                                                            ?>>
+                                                                <?= $v_domain->domain_name ?></option>
+                                                            <?php
+                                                        }
+                                                    }
+                                                    ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    <?php endif ?>
+                                    <?php if (!empty($server_hosting_id)) : ?>
+                                        <div class="form-group <?= $server_hosting_id ? 'server_hosting' : 'company' ?>"
+                                             id="border-none">
+                                            <label for="field-1"
+                                                   class="col-sm-4 control-label"><?= lang('select') . ' Server Hosting' ?>
+                                                <span class="required">*</span></label>
+                                            <div class="col-sm-8">
+                                                <select name="server_hosting_id" style="width: 100%"
+                                                        class="select_box <?= $server_hosting_id ? 'server_hosting' : 'company' ?>"
+                                                        required="1">
+                                                    <?php
+                                                    $all_hostings = $this->db->get('tblserver_hostings')->result();
+                                                    if (!empty($all_hostings)) {
+                                                        foreach ($all_hostings as $v_hosting) {
+                                                            ?>
+                                                            <option value="<?= $v_hosting->id ?>" <?php
+                                                            if (!empty($server_hosting_id)) {
+                                                                echo $v_hosting->id == $server_hosting_id ? 'selected' : '';
+                                                            }
+                                                            ?>>
+                                                                <?= $v_hosting->title ?></option>
                                                             <?php
                                                         }
                                                     }

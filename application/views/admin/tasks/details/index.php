@@ -170,6 +170,32 @@ if (!empty($check_existing)) {
                                 </div>
                             </div>
                         <?php endif ?>
+                        <?php
+                        if ($task_details->module == 'domain' && !empty($task_details->module_field_id)) :
+                            $domain_info = $this->db->where('id', $task_details->module_field_id)->get('tbldomains')->row();
+                            ?>
+                            <div class="form-group">
+                                <div class="col-sm-4"><strong
+                                            class="mr-sm">Domain</strong>
+                                </div>
+                                <div class="col-sm-8">
+                                    <?php if (!empty($domain_info->domain_name)) echo $domain_info->domain_name; ?>
+                                </div>
+                            </div>
+                        <?php endif ?>
+                        <?php
+                        if ($task_details->module == 'server_hosting' && !empty($task_details->module_field_id)) :
+                            $hosting_info = $this->db->where('id', $task_details->module_field_id)->get('tblserver_hostings')->row();
+                            ?>
+                            <div class="form-group">
+                                <div class="col-sm-4"><strong
+                                            class="mr-sm">Server Hosting</strong>
+                                </div>
+                                <div class="col-sm-8">
+                                    <?php if (!empty($hosting_info->title)) echo $hosting_info->title; ?>
+                                </div>
+                            </div>
+                        <?php endif ?>
                         
                         <div class="form-group">
                             <div class="col-sm-4"><strong><?= lang('start_date') ?> :</strong></div>
@@ -691,6 +717,32 @@ if (!empty($check_existing)) {
                     <div class="col-sm-8 " style="margin-left: -5px;">
                         <p class="form-control-static">
                             <?php if (!empty($sub_task->task_name)) echo $sub_task->task_name; ?></p>
+                    </div>
+                </div>
+            <?php endif ?>
+            <?php
+            if ($task_details->module == 'domain' && !empty($task_details->module_field_id)) :
+                $domain_info = $this->db->where('id', $task_details->module_field_id)->get('tbldomains')->row();
+                ?>
+                <div class="form-group  col-sm-10">
+                    <label class="control-label col-sm-3 "><strong
+                                class="mr-sm">Domain</strong></label>
+                    <div class="col-sm-8 " style="margin-left: -5px;">
+                        <p class="form-control-static">
+                            <?php if (!empty($domain_info->domain_name)) echo $domain_info->domain_name; ?></p>
+                    </div>
+                </div>
+            <?php endif ?>
+            <?php
+            if ($task_details->module == 'server_hosting' && !empty($task_details->module_field_id)) :
+                $hosting_info = $this->db->where('id', $task_details->module_field_id)->get('tblserver_hostings')->row();
+                ?>
+                <div class="form-group  col-sm-10">
+                    <label class="control-label col-sm-3 "><strong
+                                class="mr-sm">Server Hosting</strong></label>
+                    <div class="col-sm-8 " style="margin-left: -5px;">
+                        <p class="form-control-static">
+                            <?php if (!empty($hosting_info->title)) echo $hosting_info->title; ?></p>
                     </div>
                 </div>
             <?php endif ?>

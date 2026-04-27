@@ -248,8 +248,8 @@ class Domain_model extends CI_Model {
         foreach ($expired as $domain) {
             $events[] = array(
                 'title' => '[DOM] ' . $domain['name'],
-                'start' => $domain['expiry_date'],
-                'end' => $domain['expiry_date'],
+                'start' => date('Y-m-d'),
+                'end' => date('Y-m-d'),
                 'color' => '#ff6b6b',
                 'url' => base_url() . $domain['link'],
                 'type' => 'domain',

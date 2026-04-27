@@ -40,6 +40,15 @@ font-size: 14px;
     text-overflow: ellipsis;
 }
 
+.fc-popover .fc-event {
+    margin-bottom: 4px !important;
+    padding: 4px 6px !important;
+    border-radius: 4px !important;
+}
+
+.fc-popover .fc-event-container {
+    padding: 4px 8px !important;
+}
 /* Calendar filter dropdown - Ultimate z-index fix */
 .calendar-filter {
     position: static !important;

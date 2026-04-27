@@ -238,8 +238,8 @@ class Hosting_model extends CI_Model {
         foreach ($expired as $hosting) {
             $events[] = array(
                 'title' => '[HST] ' . $hosting['name'],
-                'start' => $hosting['expiry_date'],
-                'end' => $hosting['expiry_date'],
+                'start' => date('Y-m-d'),
+                'end' => date('Y-m-d'),
                 'color' => '#ff6b6b',
                 'url' => base_url() . $hosting['link'],
                 'type' => 'hosting',

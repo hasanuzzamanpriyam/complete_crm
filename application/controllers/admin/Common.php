@@ -185,6 +185,30 @@ if (!defined('BASEPATH'))
             }
             echo $HTML;
             exit();
+        } elseif ($val == 'domain') {
+            $all_domains = $this->db->get('tbldomains')->result();
+            $HTML = null;
+            if ($all_domains) {
+                $HTML .= '<div class="col-sm-5"><select name="domain_id" id="related_to" class="form-control selectpicker m0" data-live-search="true">';
+                foreach ($all_domains as $domain) {
+                    $HTML .= "<option value='" . $domain->id . "'>" . $domain->domain_name . "</option>";
+                }
+                $HTML .= '</select></div>';
+            }
+            echo $HTML;
+            exit();
+        } elseif ($val == 'server_hosting') {
+            $all_hostings = $this->db->get('tblserver_hostings')->result();
+            $HTML = null;
+            if ($all_hostings) {
+                $HTML .= '<div class="col-sm-5"><select name="server_hosting_id" id="related_to" class="form-control selectpicker m0" data-live-search="true">';
+                foreach ($all_hostings as $hosting) {
+                    $HTML .= "<option value='" . $hosting->id . "'>" . $hosting->title . "</option>";
+                }
+                $HTML .= '</select></div>';
+            }
+            echo $HTML;
+            exit();
         }
     }
 

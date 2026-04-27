@@ -221,6 +221,18 @@ class Tasks extends Admin_Controller
                     if (isset($v_task->sub_task_id)) {
                         $name .= '<small ><a class="text-danger" href="' . base_url() . 'admin/tasks/details/' . $v_task->sub_task_id . '">' . lang('sub_tasks') . ': ' . get_any_field('tbl_task', array('task_id' => $v_task->sub_task_id), 'task_name') . '</a> </small>';
                     }
+                    if ($v_task->module == 'domain' && !empty($v_task->module_field_id)) {
+                        $domain_name = get_any_field('tbldomains', array('id' => $v_task->module_field_id), 'domain_name');
+                        if (!empty($domain_name)) {
+                            $name .= '<br><small><a class="text-info" href="' . base_url() . 'admin/domain/details/' . $v_task->module_field_id . '">Domain: ' . $domain_name . '</a></small>';
+                        }
+                    }
+                    if ($v_task->module == 'server_hosting' && !empty($v_task->module_field_id)) {
+                        $hosting_title = get_any_field('tblserver_hostings', array('id' => $v_task->module_field_id), 'title');
+                        if (!empty($hosting_title)) {
+                            $name .= '<br><small><a class="text-info" href="' . base_url() . 'admin/server_hostings/details/' . $v_task->module_field_id . '">Server Hosting: ' . $hosting_title . '</a></small>';
+                        }
+                    }
                     $sub_array[] = $name;
                     if (!empty($v_task->category_id)) {
                         $category = '<span class="tags">' . $v_task->customer_group . '</span>';
@@ -521,8 +533,24 @@ class Tasks extends Admin_Controller
                     $data['transactions_id'] = NULL;
                     $result += 1;
                 }
+                
+                $domain_id = $this->input->post('domain_id', TRUE);
+                if (!empty($domain_id)) {
+                    $data['module'] = 'domain';
+                    $data['module_field_id'] = $domain_id;
+                } else {
+                    $result += 1;
+                }
 
-                if ($result == 7) {
+                $server_hosting_id = $this->input->post('server_hosting_id', TRUE);
+                if (!empty($server_hosting_id)) {
+                    $data['module'] = 'server_hosting';
+                    $data['module_field_id'] = $server_hosting_id;
+                } else {
+                    $result += 1;
+                }
+
+                if ($result == 9) {
                     if (!empty($id)) {
                         $task_info = $this->db->where('task_id', $id)->get('tbl_task')->row();
                         $data['project_id'] = $task_info->project_id;
@@ -533,6 +561,8 @@ class Tasks extends Admin_Controller
                         $data['goal_tracking_id'] = $task_info->goal_tracking_id;
                         $data['sub_task_id'] = $task_info->sub_task_id;
                         $data['transactions_id'] = $task_info->transactions_id;
+                        $data['module'] = $task_info->module;
+                        $data['module_field_id'] = $task_info->module_field_id;
                     } else {
                         $data['project_id'] = $this->input->post('un_project_id', TRUE);
                         $data['milestones_id'] = $this->input->post('un_milestones_id', TRUE);;
@@ -542,6 +572,17 @@ class Tasks extends Admin_Controller
                         $data['goal_tracking_id'] = $this->input->post('un_goal_tracking_id', TRUE);
                         $data['sub_task_id'] = $this->input->post('un_sub_task_id', TRUE);
                         $data['transactions_id'] = $this->input->post('un_transactions_id', TRUE);
+                        
+                        $un_domain_id = $this->input->post('un_domain_id', TRUE);
+                        if (!empty($un_domain_id)) {
+                            $data['module'] = 'domain';
+                            $data['module_field_id'] = $un_domain_id;
+                        }
+                        $un_server_hosting_id = $this->input->post('un_server_hosting_id', TRUE);
+                        if (!empty($un_server_hosting_id)) {
+                            $data['module'] = 'server_hosting';
+                            $data['module_field_id'] = $un_server_hosting_id;
+                        }
                     }
                 }
             } else {
@@ -553,6 +594,8 @@ class Tasks extends Admin_Controller
                 $data['opportunities_id'] = NULL;
                 $data['sub_task_id'] = NULL;
                 $data['transactions_id'] = NULL;
+                $data['module'] = NULL;
+                $data['module_field_id'] = NULL;
             }
             $permission = $this->input->post('permission', true);
             if (!empty($permission)) {
