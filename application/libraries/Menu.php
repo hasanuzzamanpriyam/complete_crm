@@ -2,10 +2,10 @@
 
 class Menu
 {
-    
+
     public function dynamicMenu()
     {
-        
+
         $CI = &get_instance();
         $designations_id = $CI->session->userdata('designations_id');
         $user_type = $CI->session->userdata('user_type');
@@ -30,7 +30,8 @@ class Menu
                     'parent' => '0',
                     'sort' => '1000',
                     'time' => date('Y-m-d h:i:s'),
-                ], [
+                ],
+                [
                     'menu_id' => '1111222222221',
                     'label' => 'my_modules',
                     'link' => 'admin/my_module',
@@ -59,7 +60,8 @@ class Menu
                     'parent' => '0',
                     'sort' => '1001',
                     'time' => date('Y-m-d h:i:s'),
-                ], [
+                ],
+                [
                     'menu_id' => '1111222222231',
                     'label' => 'server_dashboard',
                     'link' => 'admin/server_management',
@@ -67,7 +69,8 @@ class Menu
                     'parent' => '111122222223',
                     'sort' => '1',
                     'time' => date('Y-m-d h:i:s'),
-                ], [
+                ],
+                [
                     'menu_id' => '1111222222232',
                     'label' => 'hosting_management',
                     'link' => 'admin/server_management/hosting',
@@ -75,15 +78,17 @@ class Menu
                     'parent' => '111122222223',
                     'sort' => '2',
                     'time' => date('Y-m-d h:i:s'),
-                ], [
+                ],
+                [
                     'menu_id' => '1111222222233',
                     'label' => 'domain_management',
                     'link' => 'admin/server_management/domain',
-                    'icon' => 'fa fa-domain',
+                    'icon' => 'fa fa-sitemap',
                     'parent' => '111122222223',
                     'sort' => '3',
                     'time' => date('Y-m-d h:i:s'),
-                ], [
+                ],
+                [
                     'menu_id' => '1111222222234',
                     'label' => 'provider_management',
                     'link' => 'admin/server_management/provider',
@@ -102,16 +107,16 @@ class Menu
             'items' => array(),
             'parents' => array()
         );
-        
+
         foreach ($user_menu as $v_menu) {
             $menu['items'][$v_menu->menu_id] = $v_menu;
             $menu['parents'][$v_menu->parent][] = $v_menu->menu_id;
         }
-        
+
         // Builds the array lists with data from the menu table
         return $output = $this->buildMenu(0, $menu);
     }
-    
+
     public function clientMenu()
     {
         $CI = &get_instance();
@@ -136,7 +141,7 @@ class Menu
         // Builds the array lists with data from the menu table
         return $output = $this->buildMenu(0, $menu);
     }
-    
+
     public function buildMenu($parent, $menu, $sub = NULL)
     {
         $html = "";
@@ -150,9 +155,9 @@ class Menu
             } else {
                 $html .= "<ul class='nav s-menu $ul_class'>\n";
             }
-            
+
             foreach ($menu['parents'][$parent] as $itemId) {
-                
+
                 $result = $this->active_menu_id($menu['items'][$itemId]->menu_id);
                 if ($result) {
                     $active = 'active';
@@ -177,7 +182,7 @@ class Menu
         }
         return $html;
     }
-    
+
     public function active_menu_id($id)
     {
         $CI = &get_instance();
