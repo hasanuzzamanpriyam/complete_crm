@@ -20,12 +20,12 @@ class Hosting_model extends CI_Model {
 
         if (!empty($filters)) {
             if (!empty($filters['start_date']) && !empty($filters['end_date'])) {
-                $this->db->where('sh.purchase_date >=', $filters['start_date']);
-                $this->db->where('sh.purchase_date <=', $filters['end_date']);
+                $this->db->where('sh.expiry_date >=', $filters['start_date']);
+                $this->db->where('sh.expiry_date <=', $filters['end_date']);
             } elseif (!empty($filters['start_date'])) {
-                $this->db->where('sh.purchase_date >=', $filters['start_date']);
+                $this->db->where('sh.expiry_date >=', $filters['start_date']);
             } elseif (!empty($filters['end_date'])) {
-                $this->db->where('sh.purchase_date <=', $filters['end_date']);
+                $this->db->where('sh.expiry_date <=', $filters['end_date']);
             }
 
             if (!empty($filters['status']) && $filters['status'] !== 'All') {
@@ -49,7 +49,13 @@ class Hosting_model extends CI_Model {
         $this->db->order_by('sh.id', 'DESC');
         $this->db->limit($limit, $start);
         $query = $this->db->get();
-        return $query->result_array();
+        $hostings = $query->result_array();
+        $today = time();
+        foreach ($hostings as &$hosting) {
+            $expiry = strtotime($hosting['expiry_date']);
+            $hosting['days_remaining'] = ceil(($expiry - $today) / 86400);
+        }
+        return $hostings;
     }
 
     public function get_hostings_count($filters = array()) {
@@ -59,12 +65,12 @@ class Hosting_model extends CI_Model {
 
         if (!empty($filters)) {
             if (!empty($filters['start_date']) && !empty($filters['end_date'])) {
-                $this->db->where('sh.purchase_date >=', $filters['start_date']);
-                $this->db->where('sh.purchase_date <=', $filters['end_date']);
+                $this->db->where('sh.expiry_date >=', $filters['start_date']);
+                $this->db->where('sh.expiry_date <=', $filters['end_date']);
             } elseif (!empty($filters['start_date'])) {
-                $this->db->where('sh.purchase_date >=', $filters['start_date']);
+                $this->db->where('sh.expiry_date >=', $filters['start_date']);
             } elseif (!empty($filters['end_date'])) {
-                $this->db->where('sh.purchase_date <=', $filters['end_date']);
+                $this->db->where('sh.expiry_date <=', $filters['end_date']);
             }
 
             if (!empty($filters['status']) && $filters['status'] !== 'All') {

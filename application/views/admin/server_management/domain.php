@@ -136,7 +136,7 @@
 
                 <div class="row mb-4 align-items-end">
                     <div class="col-md-3">
-                        <label class="text-muted small mb-1">Purchase Duration</label>
+                        <label class="text-muted small mb-1">Expiry Period</label>
                         <div class="input-group">
                             <input type="date" id="start_date" class="form-control form-control-sm">
                             <span class="input-group-addon" style="padding: 4px 8px; background: #eee; border: 1px solid #ccc; border-left: none; border-right: none;"><i class="fa fa-minus text-muted" style="font-size:10px;"></i></span>
@@ -193,8 +193,8 @@
                                 <th>Provider</th>
                                 <th>Domain Type</th>
                                 <th>Status</th>
-                                <th>Purchase Date</th>
                                 <th>Expiry Date</th>
+                                <th>Days Remaining</th>
                                 <th>Hosting</th>
                                 <th class="text-center" style="width: 80px;">Action</th>
                             </tr>
@@ -227,8 +227,19 @@
                                             ?>
                                             <span class="badge <?= $badge_class ?>"><?= htmlspecialchars($domain['status']) ?></span>
                                         </td>
-                                        <td><?= $domain['purchase_date'] ?></td>
                                         <td><?= $domain['expiry_date'] ?></td>
+                                        <td>
+                                            <?php
+                                            $days = $domain['days_remaining'];
+                                            if ($days > 0):
+                                            ?>
+                                                <span class="badge badge-pill badge-active"><?= $days ?> days left</span>
+                                            <?php elseif ($days == 0): ?>
+                                                <span class="badge badge-pill badge-pending">Expires today</span>
+                                            <?php else: ?>
+                                                <span class="badge badge-pill badge-expired">Expired <?= abs($days) ?> days ago</span>
+                                            <?php endif; ?>
+                                        </td>
                                         <td><?= !empty($domain['hosting_name']) ? htmlspecialchars($domain['hosting_name']) : '-' ?></td>
                                         <td class="text-center">
                                             <a href="<?= base_url('admin/server_management/add_domain/' . $domain['id']) ?>" class="btn-action" title="Edit"><i class="fa fa-pencil-square-o"></i></a>
@@ -267,7 +278,7 @@
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
             var min = $('#start_date').val();
             var max = $('#end_date').val();
-            var rowDate = new Date(data[5]); // Index 5 is Purchase Date
+            var rowDate = new Date(data[5]); // Index 5 is Expiry Date
 
             if (!min && !max) {
                 return true;
@@ -296,8 +307,8 @@
             ], // Sort by Domain Name by default
             "columnDefs": [{
                     "orderable": false,
-                    "targets": [0, 8]
-                } // Disable sorting for checkbox and action columns
+                    "targets": [0, 6, 9]
+                } // Disable sorting for checkbox, days remaining, and action columns
             ],
             "language": {
                 "info": "Showing _START_ to _END_ of _TOTAL_ entries",
