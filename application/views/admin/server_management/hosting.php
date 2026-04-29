@@ -362,10 +362,6 @@
                                         <td>: <?= htmlspecialchars($hosting['ip_address'] ?? 'N/A') ?></td>
                                     </tr>
                                     <tr>
-                                        <th>Plan</th>
-                                        <td>: <?= htmlspecialchars($hosting['plan']) ?></td>
-                                    </tr>
-                                    <tr>
                                         <th>Price</th>
                                         <td>: <?= htmlspecialchars($hosting['price']) ?> <?= htmlspecialchars($hosting['currency_id'] ?? '') ?></td>
                                     </tr>

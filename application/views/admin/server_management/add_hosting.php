@@ -71,6 +71,65 @@
                     <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
+                                <label>Server Name</label>
+                                <input type="text" name="server_name" class="form-control" value="<?= isset($hosting_info) ? $hosting_info->server_name : '' ?>" placeholder="Enter server name">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Main Domain</label>
+                                <div class="input-group">
+                                    <select name="main_domain[]" class="form-control select2" id="main_domain" multiple data-placeholder="Select Domain(s)">
+                                        <?php 
+                                        $selected_domains = isset($hosting_info) && $hosting_info->main_domain ? explode(',', $hosting_info->main_domain) : [];
+                                        ?>
+                                        <?php if (!empty($domains)): ?>
+                                            <?php foreach ($domains as $domain): ?>
+                                                <option value="<?= $domain['id'] ?>" <?= in_array($domain['id'], $selected_domains) ? 'selected' : '' ?>><?= $domain['domain_name'] ?></option>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </select>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-outline-secondary quick-add-btn" data-type="domain" data-url="<?= base_url('admin/server_management/add_domain') ?>">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Hostname</label>
+                                <input type="text" name="hostname" class="form-control" value="<?= isset($hosting_info) ? $hosting_info->hostname : '' ?>" placeholder="Enter hostname">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Nameservers</label>
+                                <div class="input-group">
+                                    <select name="nameservers[]" class="form-control select2" id="nameservers" multiple data-placeholder="Select Nameserver(s)">
+                                        <?php 
+                                        $selected_nameservers = isset($hosting_info) && $hosting_info->nameservers ? explode(',', $hosting_info->nameservers) : [];
+                                        ?>
+                                        <?php if (!empty($nameservers)): ?>
+                                            <?php foreach ($nameservers as $ns): ?>
+                                                <option value="<?= $ns['name'] ?>" <?= in_array($ns['name'], $selected_nameservers) ? 'selected' : '' ?>><?= $ns['name'] ?></option>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </select>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-outline-secondary quick-add-btn" data-type="nameserver" data-url="<?= base_url('admin/server_management/add_nameserver') ?>">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
                                 <label>Server Location</label>
                                 <input type="text" name="server_location" class="form-control" value="<?= isset($hosting_info) ? $hosting_info->server_location : '' ?>">
                             </div>
@@ -117,27 +176,36 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Expiry Date <span class="text-danger">*</span></label>
-                                <input type="date" name="expiry_date" class="form-control" value="<?= isset($hosting_info) ? $hosting_info->expiry_date : '' ?>" required>
+                                <input readonly type="date" name="expiry_date" class="form-control" value="<?= isset($hosting_info) ? $hosting_info->expiry_date : '' ?>" required>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <div class="form-group">
-                                <label>Plan <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <select name="plan" class="form-control" required>
-                                        <option value="">Select Plan</option>
-                                        <?php if (!empty($plans)): ?>
-                                            <?php foreach ($plans as $plan): ?>
-                                                <option value="<?= $plan['name'] ?>" <?= isset($hosting_info) && $hosting_info->plan == $plan['name'] ? 'selected' : '' ?>><?= $plan['name'] ?></option>
-                                            <?php endforeach; ?>
-                                        <?php endif; ?>
-                                    </select>
-                                    <div class="input-group-append">
-                                        <button type="button" class="btn btn-outline-secondary quick-add-btn" data-type="plan" data-url="<?= base_url('admin/ajax_api/add_plan') ?>">
-                                            <i class="fa fa-plus"></i>
-                                        </button>
-                                    </div>
-                                </div>
+                                <label>Duration <span class="text-danger">*</span></label>
+                                <input type="number" name="days" class="form-control" value="<?= isset($hosting_info) ? $hosting_info->days : '' ?>" placeholder="Enter duration" required>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Time Unit <span class="text-danger">*</span></label>
+                                <select name="time_unit" class="form-control" id="time_unit" required>
+                                    <option value="Days" <?= isset($hosting_info) && $hosting_info->time_unit == 'Days' ? 'selected' : '' ?>>Days</option>
+                                    <option value="Weeks" <?= isset($hosting_info) && $hosting_info->time_unit == 'Weeks' ? 'selected' : '' ?>>Weeks</option>
+                                    <option value="Months" <?= isset($hosting_info) && $hosting_info->time_unit == 'Months' ? 'selected' : '' ?>>Months</option>
+                                    <option value="Years" <?= isset($hosting_info) && $hosting_info->time_unit == 'Years' ? 'selected' : '' ?>>Years</option>
+                                    <option value="Decade" <?= isset($hosting_info) && $hosting_info->time_unit == 'Decade' ? 'selected' : '' ?>>Decade</option>
+                                    <option value="Century" <?= isset($hosting_info) && $hosting_info->time_unit == 'Century' ? 'selected' : '' ?>>Century</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Renew <span class="text-danger">*</span></label>
+                                <?php $selected_renew = isset($hosting_info) && !empty($hosting_info->renew) ? $hosting_info->renew : 'manual'; ?>
+                                <select name="renew" class="form-control" required>
+                                    <option value="manual" <?= $selected_renew == 'manual' ? 'selected' : '' ?>>Manual</option>
+                                    <option value="automatic" <?= $selected_renew == 'automatic' ? 'selected' : '' ?>>Automatic</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -456,7 +524,9 @@ $(document).ready(function() {
             'plan': 'Add New Plan',
             'project': 'Add New Project',
             'client': 'Add New Client',
-            'currency': 'Add New Currency'
+            'currency': 'Add New Currency',
+            'domain': 'Add New Domain',
+            'nameserver': 'Add New Nameserver'
         };
         $('#universalQuickAddModalLabel').text(titleMap[currentType] || 'Add New');
         
@@ -585,5 +655,44 @@ $(document).ready(function() {
     updateBdtConversion();
     $('#price_input').keyup(updateBdtConversion);
     $('#currency_id').change(updateBdtConversion);
+
+    // Auto-calculate expiry date
+    function calculateExpiryDate() {
+        var purchaseDate = $('input[name="purchase_date"]').val();
+        var duration = $('input[name="days"]').val();
+        var timeUnit = $('select[name="time_unit"]').val();
+        
+        if (purchaseDate && duration && timeUnit) {
+            var date = new Date(purchaseDate);
+            var value = parseInt(duration);
+            
+            switch(timeUnit) {
+                case 'Days':
+                    date.setDate(date.getDate() + value);
+                    break;
+                case 'Weeks':
+                    date.setDate(date.getDate() + (value * 7));
+                    break;
+                case 'Months':
+                    date.setMonth(date.getMonth() + value);
+                    break;
+                case 'Years':
+                    date.setFullYear(date.getFullYear() + value);
+                    break;
+                case 'Decade':
+                    date.setFullYear(date.getFullYear() + (value * 10));
+                    break;
+                case 'Century':
+                    date.setFullYear(date.getFullYear() + (value * 100));
+                    break;
+            }
+            
+            var expiryDate = date.toISOString().split('T')[0];
+            $('input[name="expiry_date"]').val(expiryDate);
+        }
+    }
+    
+    $('input[name="purchase_date"], input[name="days"], select[name="time_unit"]').on('change', calculateExpiryDate);
+    $('input[name="days"]').on('keyup', calculateExpiryDate);
 });
 </script>
