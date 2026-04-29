@@ -389,6 +389,9 @@ class Server_management extends Admin_Controller
     public function add_hosting($id = NULL)
     {
         $data['title'] = lang('add_hosting');
+        $data['currencies'] = $this->db->get('tbl_currencies')->result_array();
+        $data['server_types'] = $this->db->get('tbl_server_types')->result_array();
+        $data['plans'] = $this->db->get('tbl_hosting_plans')->result_array();
         
         if ($this->input->post()) {
             $this->form_validation->set_rules('title', 'Title', 'required|trim');
@@ -398,7 +401,7 @@ class Server_management extends Admin_Controller
             $this->form_validation->set_rules('expiry_date', 'Expiry Date', 'required|trim');
             $this->form_validation->set_rules('plan', 'Plan', 'required|trim');
             $this->form_validation->set_rules('status', 'Status', 'required|trim');
-
+            
             if ($this->form_validation->run() === FALSE) {
                 if ($id) {
                     $data['hosting_info'] = $this->hosting_model->get_hosting_by_id($id);
@@ -423,6 +426,7 @@ class Server_management extends Admin_Controller
                     'expiry_date' => $this->input->post('expiry_date', TRUE),
                     'plan' => $this->input->post('plan', TRUE),
                     'price' => $this->input->post('price', TRUE),
+                    'currency_id' => $this->input->post('currency_id', TRUE),
                     'project_id' => $this->input->post('project_id', TRUE),
                     'client_id' => $this->input->post('client_id', TRUE),
                     'status' => $this->input->post('status', TRUE),
@@ -437,7 +441,7 @@ class Server_management extends Admin_Controller
                     'notification_time_unit' => $this->input->post('expiry_notification') ? $this->input->post('notification_time_unit', TRUE) : NULL,
                     'description' => $this->input->post('description', TRUE)
                 );
-
+                
                 if ($id) {
                     $this->hosting_model->update_hosting($id, $data_save);
                     $this->log_activity('server_management', 'Updated hosting "' . $data_save['title'] . '"', 'fa-pencil', 'admin/server_management/add_hosting/' . $id, $data_save['status']);
@@ -618,6 +622,10 @@ $data['providers'] = $this->domain_model->get_all_providers();
                 if ($id) {
                     $data['provider_info'] = $this->provider_model->get_provider_by_id($id);
                 }
+                if ($this->input->is_ajax_request()) {
+                    echo json_encode(array('status' => 'error', 'message' => validation_errors()));
+                    return;
+                }
                 $data['subview'] = $this->load->view('admin/server_management/add_provider', $data, TRUE);
                 $this->load->view('admin/_layout_main', $data);
             } else {
@@ -637,6 +645,14 @@ $data['providers'] = $this->domain_model->get_all_providers();
                     $this->provider_model->insert_provider($data_save);
                     set_message('success', 'Provider added successfully!');
                 }
+                if ($this->input->is_ajax_request()) {
+                    echo json_encode(array(
+                        'status' => 'success',
+                        'id' => $id ? $id : $this->db->insert_id(),
+                        'text' => $data_save['provider_name']
+                    ));
+                    return;
+                }
                 redirect('admin/server_management/provider');
             }
         } else {
@@ -647,9 +663,95 @@ $data['providers'] = $this->domain_model->get_all_providers();
                     redirect('admin/server_management/provider');
                 }
             }
+            if ($this->input->is_ajax_request()) {
+                $this->load->view('admin/server_management/add_provider', $data);
+                return;
+            }
             $data['subview'] = $this->load->view('admin/server_management/add_provider', $data, TRUE);
             $this->load->view('admin/_layout_main', $data);
         }
+    }
+
+    public function add_server_type()
+    {
+        if ($this->input->post()) {
+            if ($this->input->is_ajax_request()) {
+                $name = $this->input->post('name', TRUE);
+                if ($name) {
+                    $data = array(
+                        'name' => $name,
+                        'created_at' => date('Y-m-d H:i:s')
+                    );
+                    if ($this->db->insert('tbl_server_types', $data)) {
+                        $insert_id = $this->db->insert_id();
+                        $response = array(
+                            'status' => 'success',
+                            'id' => $insert_id,
+                            'text' => $name
+                        );
+                        echo json_encode($response);
+                    } else {
+                        $response = array(
+                            'status' => 'error',
+                            'message' => 'Database error: ' . $this->db->error()['message']
+                        );
+                        echo json_encode($response);
+                    }
+                    exit;
+                }
+                echo json_encode(array('status' => 'error', 'message' => 'Invalid input'));
+                exit;
+            }
+            redirect('admin/server_management/hosting');
+        }
+        
+        if ($this->input->is_ajax_request()) {
+            $this->load->view('admin/server_management/add_server_type');
+            return;
+        }
+        $data['subview'] = $this->load->view('admin/server_management/add_server_type', [], TRUE);
+        $this->load->view('admin/_layout_main', $data);
+    }
+
+    public function add_plan()
+    {
+        if ($this->input->post()) {
+            if ($this->input->is_ajax_request()) {
+                $name = $this->input->post('name', TRUE);
+                if ($name) {
+                    $data = array(
+                        'name' => $name,
+                        'created_at' => date('Y-m-d H:i:s')
+                    );
+                    if ($this->db->insert('tbl_hosting_plans', $data)) {
+                        $insert_id = $this->db->insert_id();
+                        $response = array(
+                            'status' => 'success',
+                            'id' => $insert_id,
+                            'text' => $name
+                        );
+                        echo json_encode($response);
+                    } else {
+                        $response = array(
+                            'status' => 'error',
+                            'message' => 'Database error: ' . $this->db->error()['message']
+                        );
+                        echo json_encode($response);
+                    }
+                    exit;
+                }
+                echo json_encode(array('status' => 'error', 'message' => 'Invalid input'));
+                exit;
+            }
+            redirect('admin/server_management/hosting');
+        }
+        
+        if ($this->input->is_ajax_request()) {
+            $this->load->view('admin/server_management/add_plan');
+            return;
+        }
+        $data['subview'] = $this->load->view('admin/server_management/add_plan', [], TRUE);
+        $this->load->view('admin/_layout_main', $data);
     }
 
     public function valid_url($url)

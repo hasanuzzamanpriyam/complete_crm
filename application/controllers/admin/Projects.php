@@ -65,8 +65,23 @@ class Projects extends Admin_Controller
             $data['active'] = 2;
             $data['tab'] = 'projects';
         }
+        
+        if ($this->input->is_ajax_request()) {
+            $this->load->view('admin/projects/create', $data);
+            return;
+        }
+        
         $data['subview'] = $this->load->view('admin/projects/create', $data, TRUE);
         $this->load->view('admin/_layout_main', $data); //page load
+    }
+
+    public function _modal_quick_add()
+    {
+        if ($this->input->is_ajax_request()) {
+            $this->load->view('admin/projects/_modal_quick_add');
+            return;
+        }
+        show_404();
     }
 
     public function projectList($filterBy = null, $search_by = null)
@@ -475,6 +490,15 @@ class Projects extends Admin_Controller
             }
             $message = $msg;
             set_message($type, $message);
+            if ($this->input->is_ajax_request()) {
+                echo json_encode(array(
+                    'status' => 'success',
+                    'id' => $id,
+                    'text' => $data['project_name'],
+                    'message' => $msg
+                ));
+                exit;
+            }
             redirect('admin/projects/project_details/' . $id);
         } else {
             redirect('admin/projects');

@@ -2611,9 +2611,40 @@ class Settings extends Admin_Controller
         redirect('admin/dashboard');
     }
 
+    public function get_bdt_rate()
+    {
+        if ($this->input->is_ajax_request()) {
+            $currency_id = $this->input->post('currency_id', TRUE);
+            if ($currency_id) {
+                $currency = $this->db->where('id', $currency_id)->get('tbl_currencies')->row();
+                if ($currency) {
+                    echo json_encode(array('rate' => $currency->rate ?? 1.00));
+                    exit;
+                }
+            }
+            echo json_encode(array('rate' => 0));
+            exit;
+        }
+        show_404();
+    }
+
     public function new_currency($action = null, $code = null)
     {
-        if (!empty($action)) {
+        if ($this->input->post()) {
+            if ($this->input->is_ajax_request()) {
+                $code = $this->input->post('code', TRUE);
+                $name = $this->input->post('name', TRUE);
+                $symbol = $this->input->post('symbol', TRUE);
+                if ($code && $name) {
+                    $data = ['code' => $code, 'name' => $name, 'symbol' => $symbol, 'rate' => 1.00];
+                    $this->db->insert('tbl_currencies', $data);
+                    $insert_id = $this->db->insert_id();
+                    echo json_encode(['status' => 'success', 'id' => $insert_id, 'text' => $name . ' (' . $code . ')']);
+                    exit;
+                }
+                echo json_encode(['status' => 'error', 'message' => 'Invalid input']);
+                exit;
+            }
             $data = $this->settings_model->array_from_post(array('code', 'name', 'symbol'));
             if (!empty($code)) {
                 $this->db->set($data);
@@ -2626,6 +2657,12 @@ class Settings extends Admin_Controller
                 redirect('admin/settings/system');
             }
         }
+        
+        if ($this->input->is_ajax_request()) {
+            $this->load->view('admin/settings/_modal_new_currency');
+            return;
+        }
+        
         $data['title'] = lang('activities');
         $data['modal_subview'] = $this->load->view('admin/settings/_modal_new_currency', $data, FALSE);
         $this->load->view('admin/_layout_modal', $data);

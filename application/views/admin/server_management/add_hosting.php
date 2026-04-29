@@ -28,9 +28,11 @@
                                             <?php endforeach; ?>
                                         <?php endif; ?>
                                     </select>
-                                    <span class="input-group-btn">
-                                        <a href="<?= base_url('admin/server_management/add_provider') ?>" class="btn btn-default" type="button">Add</a>
-                                    </span>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-outline-secondary quick-add-btn" data-type="provider" data-url="<?= base_url('admin/server_management/add_provider') ?>">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -43,13 +45,21 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Server Type <span class="text-danger">*</span></label>
-                                <select name="server_type" class="form-control" required>
-                                    <option value="">Select Type</option>
-                                    <option value="Shared" <?= isset($hosting_info) && $hosting_info->server_type == 'Shared' ? 'selected' : '' ?>>Shared</option>
-                                    <option value="VPS" <?= isset($hosting_info) && $hosting_info->server_type == 'VPS' ? 'selected' : '' ?>>VPS</option>
-                                    <option value="Cloud" <?= isset($hosting_info) && $hosting_info->server_type == 'Cloud' ? 'selected' : '' ?>>Cloud</option>
-                                    <option value="Dedicated" <?= isset($hosting_info) && $hosting_info->server_type == 'Dedicated' ? 'selected' : '' ?>>Dedicated</option>
-                                </select>
+                                <div class="input-group">
+                                    <select name="server_type" class="form-control" required>
+                                        <option value="">Select Type</option>
+                                        <?php if (!empty($server_types)): ?>
+                                            <?php foreach ($server_types as $type): ?>
+                                                <option value="<?= $type['name'] ?>" <?= isset($hosting_info) && $hosting_info->server_type == $type['name'] ? 'selected' : '' ?>><?= $type['name'] ?></option>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </select>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-outline-secondary quick-add-btn" data-type="server_type" data-url="<?= base_url('admin/ajax_api/add_server_type') ?>">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -108,13 +118,21 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Plan <span class="text-danger">*</span></label>
-                                <select name="plan" class="form-control" required>
-                                    <option value="">Select Plan</option>
-                                    <option value="Basic" <?= isset($hosting_info) && $hosting_info->plan == 'Basic' ? 'selected' : '' ?>>Basic</option>
-                                    <option value="Standard" <?= isset($hosting_info) && $hosting_info->plan == 'Standard' ? 'selected' : '' ?>>Standard</option>
-                                    <option value="Professional" <?= isset($hosting_info) && $hosting_info->plan == 'Professional' ? 'selected' : '' ?>>Professional</option>
-                                    <option value="Enterprise" <?= isset($hosting_info) && $hosting_info->plan == 'Enterprise' ? 'selected' : '' ?>>Enterprise</option>
-                                </select>
+                                <div class="input-group">
+                                    <select name="plan" class="form-control" required>
+                                        <option value="">Select Plan</option>
+                                        <?php if (!empty($plans)): ?>
+                                            <?php foreach ($plans as $plan): ?>
+                                                <option value="<?= $plan['name'] ?>" <?= isset($hosting_info) && $hosting_info->plan == $plan['name'] ? 'selected' : '' ?>><?= $plan['name'] ?></option>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </select>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-outline-secondary quick-add-btn" data-type="plan" data-url="<?= base_url('admin/ajax_api/add_plan') ?>">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -122,28 +140,57 @@
                     <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label>Price</label>
-                                <input type="number" name="price" class="form-control" value="<?= isset($hosting_info) ? $hosting_info->price : '' ?>">
+                                <label>Price <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <select name="currency_id" class="form-control" id="currency_id" required>
+                                            <option value="">Select Currency</option>
+                                            <?php if (!empty($currencies)): ?>
+                                                <?php foreach ($currencies as $currency): ?>
+                                                    <option value="<?= $currency['code'] ?>" 
+                                                            data-rate="<?= isset($currency['rate']) ? $currency['rate'] : 0 ?>"
+                                                            <?= isset($hosting_info) && $hosting_info->currency_id == $currency['code'] ? 'selected' : '' ?>>
+                                                        <?= $currency['code'] ?> (<?= $currency['symbol'] ?>)
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            <?php endif; ?>
+                                        </select>
+                                    </div>
+                                    <input type="number" step="0.01" name="price" class="form-control" id="price_input" value="<?= isset($hosting_info) ? $hosting_info->price : '' ?>" required>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-outline-secondary quick-add-btn" data-type="currency" data-url="<?= base_url('admin/ajax_api/add_currency') ?>">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <small class="text-muted d-block mt-1" id="bdt_conversion_text">Equivalent: <span id="bdt_amount">0.00</span> BDT</small>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Project</label>
-                                <select name="project_id" class="form-control">
-                                    <option value="">Select Project</option>
-                                    <?php if (!empty($projects)): ?>
-                                        <?php foreach ($projects as $project): ?>
-                                            <option value="<?= $project['project_id'] ?>" <?= isset($hosting_info) && $hosting_info->project_id == $project['project_id'] ? 'selected' : '' ?>><?= $project['project_name'] ?></option>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </select>
+                                <div class="input-group">
+                                    <select name="project_id" class="form-control" id="project_id">
+                                        <option value="">Select Project</option>
+                                        <?php if (!empty($projects)): ?>
+                                            <?php foreach ($projects as $project): ?>
+                                                <option value="<?= $project['project_id'] ?>" <?= isset($hosting_info) && $hosting_info->project_id == $project['project_id'] ? 'selected' : '' ?>><?= $project['project_name'] ?></option>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </select>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-outline-secondary quick-add-btn" data-type="project" data-url="<?= base_url('admin/ajax_api/add_project') ?>">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Client</label>
                                 <div class="input-group">
-                                    <select name="client_id" class="form-control">
+                                    <select name="client_id" class="form-control" id="client_id">
                                         <option value="">Select Client</option>
                                         <?php if (!empty($clients)): ?>
                                             <?php foreach ($clients as $client): ?>
@@ -151,9 +198,11 @@
                                             <?php endforeach; ?>
                                         <?php endif; ?>
                                     </select>
-                                    <span class="input-group-btn">
-                                        <button class="btn btn-default" type="button">Add</button>
-                                    </span>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-outline-secondary quick-add-btn" data-type="client" data-url="<?= base_url('admin/ajax_api/add_client') ?>">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -283,16 +332,42 @@
     </div>
 </div>
 
+<div class="modal fade" id="universalQuickAddModal" tabindex="-1" role="dialog" aria-labelledby="universalQuickAddModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="universalQuickAddModalLabel">Add New</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center" id="modalLoader">
+                    <i class="fa fa-spinner fa-spin fa-2x"></i> Loading...
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="universalModalSubmitBtn">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 $(document).ready(function() {
-    var csrfToken = '<?= $this->security->get_csrf_hash() ?>';
-    
-    $('#notification_days_wrapper, #notification_unit_wrapper').hide();
+    // CSRF Configuration
+    var csrfName = '<?= $this->security->get_csrf_token_name() ?>';
+    var csrfHash = '<?= $this->security->get_csrf_hash() ?>';
+    var base_url = '<?= base_url() ?>';
+    var currentTargetSelect = null;
+    var currentType = null;
 
+    // Existing Notification Logic
+    $('#notification_days_wrapper, #notification_unit_wrapper').hide();
     if ($('#expiry_notification').is(':checked')) {
         $('#notification_days_wrapper, #notification_unit_wrapper').show();
     }
-
     $('#expiry_notification').change(function() {
         if ($(this).is(':checked')) {
             $('#notification_days_wrapper, #notification_unit_wrapper').slideDown();
@@ -301,13 +376,14 @@ $(document).ready(function() {
         }
     });
 
+    // Existing Provider URL Fetch
     $('#provider_id').change(function() {
         var provider_id = $(this).val();
         if (provider_id) {
             $.ajax({
-                url: '<?= base_url('admin/server_management/fetch_hosting_provider_url') ?>',
+                url: base_url + 'admin/server_management/fetch_hosting_provider_url',
                 type: 'POST',
-                data: { provider_id: provider_id, csrf_token: csrfToken },
+                data: { provider_id: provider_id, csrf_test_name: csrfHash },
                 dataType: 'json',
                 success: function(response) {
                     if (response.status === 'success') {
@@ -323,11 +399,11 @@ $(document).ready(function() {
         }
     });
 
+    // Existing Password Toggle
     $('.toggle-password').click(function() {
         var target = $(this).data('target');
         var input = $('#' + target);
         var icon = $(this).find('i');
-        
         if (input.attr('type') === 'password') {
             input.attr('type', 'text');
             icon.removeClass('fa-eye').addClass('fa-eye-slash');
@@ -336,5 +412,149 @@ $(document).ready(function() {
             icon.removeClass('fa-eye-slash').addClass('fa-eye');
         }
     });
+
+    // Quick Add Modal Logic
+    $('.quick-add-btn').click(function(e) {
+        e.preventDefault();
+        var btn = $(this);
+        currentTargetSelect = btn.closest('.input-group').find('select');
+        currentType = btn.data('type');
+        var url = btn.data('url');
+        
+        var titleMap = {
+            'provider': 'Add New Provider',
+            'server_type': 'Add New Server Type',
+            'plan': 'Add New Plan',
+            'project': 'Add New Project',
+            'client': 'Add New Client',
+            'currency': 'Add New Currency'
+        };
+        $('#universalQuickAddModalLabel').text(titleMap[currentType] || 'Add New');
+        
+        $('#universalQuickAddModal .modal-body').html('<div class="text-center mt-3 mb-3"><i class="fa fa-spinner fa-spin fa-2x"></i> Loading...</div>');
+        $('#universalQuickAddModal').modal('show');
+        
+        $.get(url, function(response) {
+            var wrapper = $('<div>').html(response);
+            var form = wrapper.find('form').first();
+            if (!form.length) {
+                form = wrapper.filter('form').first();
+            }
+            if (form.length) {
+                var formAction = form.attr('action');
+                if (formAction && formAction.indexOf('http') === -1 && formAction.indexOf(base_url) === -1) {
+                    formAction = base_url + formAction;
+                }
+                form.removeAttr('action').data('action', formAction);
+                form.addClass('quick-add-form');
+                $('#universalQuickAddModal .modal-body').html(form);
+            } else {
+                // If it's just a raw form string (like from our new views)
+                if (response.indexOf('<form') !== -1) {
+                    $('#universalQuickAddModal .modal-body').html(response);
+                } else {
+                    $('#universalQuickAddModal .modal-body').html('<div class="alert alert-danger">Failed to load form</div>');
+                }
+            }
+        }).fail(function(xhr) {
+            $('#universalQuickAddModal .modal-body').html('<div class="alert alert-danger">Error: Not Found</div>');
+        });
+    });
+
+    // Universal Modal Submit Button
+    $('#universalModalSubmitBtn').off('click').on('click', function() {
+        var form = $('#universalQuickAddModal .modal-body').find('form');
+        if (form.length) {
+            form.submit();
+        }
+    });
+    
+    // Modal Form Submission via AJAX
+    $(document).off('submit', '#universalQuickAddModal form').on('submit', '#universalQuickAddModal form', function(e) {
+        e.preventDefault();
+        var form = $(this);
+        var action = form.data('action') || form.attr('action');
+        if (!action) return alert('Form action not found');
+        
+        if (action.indexOf('http') === -1 && action.indexOf(base_url) === -1) {
+            action = base_url + action;
+        }
+        
+        var originalBtnText = $('#universalModalSubmitBtn').text();
+        $('#universalModalSubmitBtn').prop('disabled', true).text('Saving...');
+        
+        $.ajax({
+            url: action,
+            type: 'POST',
+            data: form.serialize(),
+            dataType: 'json',
+            success: function(response) {
+                if (response.status === 'success' && currentTargetSelect) {
+                    currentTargetSelect.append($('<option>', {
+                        value: response.id,
+                        text: response.text || response.name,
+                        selected: true
+                    }));
+                    $('#universalQuickAddModal').modal('hide');
+                } else {
+                    alert(response.message || 'Error adding record');
+                }
+            },
+            error: function(xhr) {
+                console.log('Error response:', xhr.responseText);
+                alert('Error: ' + xhr.statusText + ' - Check console for details');
+            },
+            complete: function() {
+                $('#universalModalSubmitBtn').prop('disabled', false).text(originalBtnText);
+            }
+        });
+    });
+
+    // Reset Modal on Hide
+    $('#universalQuickAddModal').on('hidden.bs.modal', function() {
+        $(this).find('.modal-body').empty();
+        currentTargetSelect = null;
+        currentType = null;
+    });
+
+    // Real-Time Currency Conversion
+    function updateBdtConversion() {
+        var price = parseFloat($('#price_input').val()) || 0;
+        var selectedOption = $('#currency_id option:selected');
+        var currencyCode = selectedOption.val();
+        
+        if (!currencyCode) {
+            $('#bdt_amount').text('0.00');
+            return;
+        }
+
+        if (currencyCode === 'BDT' || currencyCode === 'BAN') {
+            $('#bdt_amount').text(price.toFixed(2));
+            return;
+        }
+
+        var liveRate = parseFloat(selectedOption.data('live-rate')) || 0;
+        
+        if (liveRate === 0) {
+            $('#bdt_amount').html('<i class="fa fa-spinner fa-spin"></i> Fetching...');
+            $.getJSON('https://api.exchangerate-api.com/v4/latest/' + currencyCode, function(data) {
+                if (data && data.rates && data.rates.BDT) {
+                    var rate = data.rates.BDT;
+                    selectedOption.data('live-rate', rate);
+                    $('#bdt_amount').text((price * rate).toFixed(2));
+                } else {
+                    $('#bdt_amount').text('Rate unavailable');
+                }
+            }).fail(function() {
+                $('#bdt_amount').text('API Error');
+            });
+            return;
+        }
+        $('#bdt_amount').text((price * liveRate).toFixed(2));
+    }
+
+    updateBdtConversion();
+    $('#price_input').keyup(updateBdtConversion);
+    $('#currency_id').change(updateBdtConversion);
 });
 </script>

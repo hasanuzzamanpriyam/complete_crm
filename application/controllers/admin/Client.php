@@ -1438,6 +1438,15 @@ class Client extends Admin_Controller
         $this->load->view('admin/_layout_modal', $data);
     }
 
+    public function _modal_quick_add()
+    {
+        if ($this->input->is_ajax_request()) {
+            $this->load->view('admin/client/_modal_quick_add');
+            return;
+        }
+        show_404();
+    }
+
     public function update_client()
     {
         $created = can_action('4', 'created');
