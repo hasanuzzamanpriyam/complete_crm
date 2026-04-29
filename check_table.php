@@ -1,25 +1,21 @@
 <?php
-//defined('BASEPATH') OR exit('No direct script access allowed');
-$db = mysqli_connect('localhost', 'root', '', 'tic_crm');
-if (!$db) { die('Connection failed: ' . mysqli_connect_error()); }
-
-// Check if currency_id column exists
-$result = mysqli_query($db, "SHOW COLUMNS FROM tbl_hosting LIKE 'currency_id'");
-if (mysqli_num_rows($result) == 0) {
-    mysqli_query($db, "ALTER TABLE tbl_hosting ADD COLUMN currency_id INT(11) NULL AFTER plan");
-    echo "Added currency_id column\n";
-} else {
-    echo "currency_id column already exists\n";
+require 'application/config/database.php';
+$mysqli = new mysqli($db['default']['hostname'], $db['default']['username'], $db['default']['password'], $db['default']['database']);
+if ($mysqli->connect_error) {
+    die('Connect Error: ' . $mysqli->connect_error);
 }
-
-// Check if price column exists  
-$result = mysqli_query($db, "SHOW COLUMNS FROM tbl_hosting LIKE 'price'");
-if (mysqli_num_rows($result) == 0) {
-    mysqli_query($db, "ALTER TABLE tbl_hosting ADD COLUMN price DECIMAL(10,2) NULL AFTER currency_id");
-    echo "Added price column\n";
+$result = $mysqli->query('DESCRIBE tblserver_hostings');
+if ($result) {
+    echo "Table structure for tblserver_hostings:\n";
+    echo str_repeat('-', 100) . "\n";
+    echo sprintf("%-25s | %-25s | %-8s | %-5s | %s\n", "Field", "Type", "Null", "Key", "Default");
+    echo str_repeat('-', 100) . "\n";
+    while ($row = $result->fetch_assoc()) {
+        printf("%-25s | %-25s | %-8s | %-5s | %s\n", $row['Field'], $row['Type'], $row['Null'], $row['Key'], $row['Default']);
+    }
+    $result->free();
 } else {
-    echo "price column already exists\n";
+    echo 'Error: ' . $mysqli->error . "\n";
 }
-
-mysqli_close($db);
+$mysqli->close();
 ?>

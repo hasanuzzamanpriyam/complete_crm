@@ -4,6 +4,10 @@
 <?php $hosting_id = isset($hosting_info) ? $hosting_info->id : ''; ?>
 <?php $action = $hosting_id ? 'admin/server_management/add_hosting/' . $hosting_id : 'admin/server_management/add_hosting'; ?>
 
+<link rel="stylesheet" href="<?= base_url() ?>assets/plugins/select2/dist/css/select2.min.css">
+<link rel="stylesheet" href="<?= base_url() ?>assets/plugins/select2/dist/css/select2-bootstrap.min.css">
+<script src="<?= base_url() ?>assets/plugins/select2/dist/js/select2.min.js"></script>
+
 <div class="row">
     <div class="col-md-12">
         <div class="card shadow-sm">
@@ -74,7 +78,8 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>IP Address</label>
-                                <input type="text" name="ip_address" class="form-control" value="<?= isset($hosting_info) ? $hosting_info->ip_address : '' ?>">
+                                <input type="text" name="ip_address" class="form-control" id="ip_address" value="<?= isset($hosting_info) ? $hosting_info->ip_address : '' ?>" placeholder="e.g. 192.168.1.1 or 2001:db8::1">
+                                <small class="text-muted">IPv4 or IPv6 compatible</small>
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -170,11 +175,13 @@
                             <div class="form-group">
                                 <label>Project</label>
                                 <div class="input-group">
-                                    <select name="project_id" class="form-control" id="project_id">
-                                        <option value="">Select Project</option>
+                                    <select name="project_id[]" class="form-control select2" id="project_id" multiple data-placeholder="Select Project(s)">
+                                        <?php 
+                                        $selected_projects = isset($hosting_info) && $hosting_info->project_id ? explode(',', $hosting_info->project_id) : [];
+                                        ?>
                                         <?php if (!empty($projects)): ?>
                                             <?php foreach ($projects as $project): ?>
-                                                <option value="<?= $project['project_id'] ?>" <?= isset($hosting_info) && $hosting_info->project_id == $project['project_id'] ? 'selected' : '' ?>><?= $project['project_name'] ?></option>
+                                                <option value="<?= $project['project_id'] ?>" <?= in_array($project['project_id'], $selected_projects) ? 'selected' : '' ?>><?= $project['project_name'] ?></option>
                                             <?php endforeach; ?>
                                         <?php endif; ?>
                                     </select>
@@ -190,11 +197,13 @@
                             <div class="form-group">
                                 <label>Client</label>
                                 <div class="input-group">
-                                    <select name="client_id" class="form-control" id="client_id">
-                                        <option value="">Select Client</option>
+                                    <select name="client_id[]" class="form-control select2" id="client_id" multiple data-placeholder="Select Client(s)">
+                                        <?php 
+                                        $selected_clients = isset($hosting_info) && $hosting_info->client_id ? explode(',', $hosting_info->client_id) : [];
+                                        ?>
                                         <?php if (!empty($clients)): ?>
                                             <?php foreach ($clients as $client): ?>
-                                                <option value="<?= $client['client_id'] ?>" <?= isset($hosting_info) && $hosting_info->client_id == $client['client_id'] ? 'selected' : '' ?>><?= $client['name'] ?></option>
+                                                <option value="<?= $client['client_id'] ?>" <?= in_array($client['client_id'], $selected_clients) ? 'selected' : '' ?>><?= $client['name'] ?></option>
                                             <?php endforeach; ?>
                                         <?php endif; ?>
                                     </select>
@@ -356,6 +365,26 @@
 
 <script>
 $(document).ready(function() {
+    // Initialize Select2
+    $('.select2').select2({
+        theme: 'bootstrap',
+        width: '100%'
+    });
+
+    // IP Address Validation (IPv4/IPv6)
+    $('#ip_address').on('change', function() {
+        var ip = $(this).val().trim();
+        if (ip === '') return;
+
+        var ipv4Regex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+        var ipv6Regex = /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/;
+
+        if (!ipv4Regex.test(ip) && !ipv6Regex.test(ip)) {
+            alert('Invalid IP Address! Please enter a valid IPv4 or IPv6 address.');
+            $(this).val('').focus();
+        }
+    });
+
     // CSRF Configuration
     var csrfName = '<?= $this->security->get_csrf_token_name() ?>';
     var csrfHash = '<?= $this->security->get_csrf_hash() ?>';
