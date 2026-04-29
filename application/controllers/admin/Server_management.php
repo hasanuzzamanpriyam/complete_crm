@@ -450,6 +450,19 @@ class Server_management extends Admin_Controller
                 if (!in_array($renew, array('automatic', 'manual'), true)) {
                     $renew = 'manual';
                 }
+
+                $dns_provider_name = trim((string) $this->input->post('dns_provider_name', TRUE));
+                $dns_provider_id = NULL;
+                if ($dns_provider_name !== '') {
+                    $dns_provider = $this->db
+                        ->where('LOWER(provider_name) = ' . $this->db->escape(strtolower($dns_provider_name)), NULL, FALSE)
+                        ->get('tblproviders')
+                        ->row();
+                    if ($dns_provider) {
+                        $dns_provider_id = $dns_provider->id;
+                        $dns_provider_name = $dns_provider->provider_name;
+                    }
+                }
                 
                 $data_save = array(
                     'title' => $this->input->post('title', TRUE),
@@ -465,6 +478,10 @@ class Server_management extends Admin_Controller
                     'cpanel_url' => $this->input->post('cpanel_url', TRUE),
                     'username' => $this->input->post('username', TRUE),
                     'password' => $this->input->post('password', TRUE),
+                    'dns_provider_id' => $dns_provider_id,
+                    'dns_provider_name' => $dns_provider_name,
+                    'dns_email' => $this->input->post('dns_email', TRUE),
+                    'dns_password' => $this->input->post('dns_password', TRUE),
                     'purchase_date' => $this->input->post('purchase_date', TRUE),
                     'expiry_date' => $expiry_date,
                     'days' => $this->input->post('days', TRUE),

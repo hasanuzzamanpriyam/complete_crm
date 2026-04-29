@@ -167,6 +167,58 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="mt-4 mb-3">
+                        <h5>DNS Provider Credentials</h5>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>DNS Provider</label>
+                                <?php
+                                $selected_dns_provider_name = '';
+                                if (isset($hosting_info) && !empty($hosting_info->dns_provider_name)) {
+                                    $selected_dns_provider_name = $hosting_info->dns_provider_name;
+                                } elseif (isset($hosting_info) && !empty($hosting_info->dns_provider_id) && !empty($providers)) {
+                                    foreach ($providers as $provider) {
+                                        if ($hosting_info->dns_provider_id == $provider['id']) {
+                                            $selected_dns_provider_name = $provider['provider_name'];
+                                            break;
+                                        }
+                                    }
+                                }
+                                ?>
+                                <input type="text" name="dns_provider_name" class="form-control" id="dns_provider_name" value="<?= htmlspecialchars($selected_dns_provider_name) ?>" placeholder="Select or type DNS provider" list="dns_providers_list">
+                                <datalist id="dns_providers_list">
+                                    <?php if (!empty($providers)): ?>
+                                        <?php foreach ($providers as $provider): ?>
+                                            <option value="<?= htmlspecialchars($provider['provider_name']) ?>">
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </datalist>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>DNS Login Email</label>
+                                <input type="email" name="dns_email" class="form-control" value="<?= isset($hosting_info) ? $hosting_info->dns_email : '' ?>" placeholder="Cloudflare login email">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>DNS Login Password</label>
+                                <div class="input-group">
+                                    <input type="password" name="dns_password" class="form-control" value="<?= isset($hosting_info) ? $hosting_info->dns_password : '' ?>" id="dns_password" placeholder="Cloudflare login password">
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-default toggle-password" type="button" data-target="dns_password"><i class="fa fa-eye"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Purchase Date <span class="text-danger">*</span></label>
@@ -438,6 +490,7 @@ $(document).ready(function() {
         theme: 'bootstrap',
         width: '100%'
     });
+
 
     // IP Address Validation (IPv4/IPv6)
     $('#ip_address').on('change', function() {
