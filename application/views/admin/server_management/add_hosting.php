@@ -593,6 +593,9 @@ $(document).ready(function() {
                 form = wrapper.filter('form').first();
             }
             if (form.length) {
+                // Remove duplicate footers/buttons from the loaded form content
+                form.find('.modal-footer, .card-footer, .panel-footer, .btn-bottom-toolbar').remove();
+                
                 var formAction = form.attr('action');
                 if (formAction && formAction.indexOf('http') === -1 && formAction.indexOf(base_url) === -1) {
                     formAction = base_url + formAction;
