@@ -10,7 +10,9 @@ class Domain_model extends CI_Model {
 
     public function insert_domain($data) {
         $data['created_at'] = date('Y-m-d H:i:s');
-        return $this->db->insert('tbldomains', $data);
+        $data['updated_at'] = date('Y-m-d H:i:s');
+        $this->db->insert('tbldomains', $data);
+        return $this->db->insert_id();
     }
 
     public function get_domains($limit, $start, $filters = array()) {
@@ -136,6 +138,7 @@ class Domain_model extends CI_Model {
     }
 
     public function update_domain($id, $data) {
+        $data['updated_at'] = date('Y-m-d H:i:s');
         $this->db->where('id', $id);
         return $this->db->update('tbldomains', $data);
     }
@@ -178,10 +181,13 @@ class Domain_model extends CI_Model {
     public function get_all_hostings() {
         $this->db->select('id, hosting_name');
         $this->db->from('tblhostings');
-        $this->db->where('status', 'Active');
         $this->db->order_by('hosting_name', 'ASC');
         $query = $this->db->get();
         return $query->result_array();
+    }
+
+    public function insert_hosting_type($data) {
+        return $this->db->insert('tblhostings', $data);
     }
 
     public function get_expired_domains() {
@@ -272,5 +278,17 @@ class Domain_model extends CI_Model {
         $this->db->where('status !=', 'Expired');
         $query = $this->db->get();
         return $query->result_array();
+    }
+
+    public function get_domain_types() {
+        return $this->db->get('tbl_domain_types')->result_array();
+    }
+
+    public function get_domain_statuses() {
+        return $this->db->get('tbl_domain_status')->result_array();
+    }
+
+    public function insert_domain_status($data) {
+        return $this->db->insert('tbl_domain_status', $data);
     }
 }

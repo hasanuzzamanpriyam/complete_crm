@@ -70,6 +70,11 @@ class Client extends Admin_Controller
         }
         // get all language
         $data['languages'] = $this->db->where('active', 1)->order_by('name', 'ASC')->get('tbl_languages')->result();
+        
+        if ($this->input->is_ajax_request()) {
+            $this->load->view('admin/client/create_client', $data);
+            return;
+        }
 
         $data['subview'] = $this->load->view('admin/client/create_client', $data, TRUE);
         $this->load->view('admin/_layout_main', $data); //page load
@@ -404,6 +409,15 @@ class Client extends Admin_Controller
             // messages for user
             $type = "success";
             $message = lang('client_updated');
+            if ($this->input->is_ajax_request()) {
+                echo json_encode(array(
+                    'status' => $type,
+                    'id' => $id,
+                    'text' => $data['name'],
+                    'message' => $message
+                ));
+                exit;
+            }
             set_message($type, $message);
         }
         $save_and_create_contact = $this->input->post('save_and_create_contact', true);

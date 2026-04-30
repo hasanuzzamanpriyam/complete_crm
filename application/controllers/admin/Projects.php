@@ -426,6 +426,13 @@ class Projects extends Admin_Controller
                 }
                 $data['permission'] = $assigned;
             } else {
+                if ($this->input->is_ajax_request()) {
+                    echo json_encode(array(
+                        'status' => 'error',
+                        'message' => lang('assigned_to') . ' Field is required'
+                    ));
+                    exit;
+                }
                 set_message('error', lang('assigned_to') . ' Field is required');
                 if (empty($_SERVER['HTTP_REFERER'])) {
                     redirect('admin/projects');
@@ -459,8 +466,9 @@ class Projects extends Admin_Controller
                 $msg = lang('save_project');
                 $projects_email = config_item('projects_email');
                 if (!empty($projects_email) && $projects_email == 1) {
-                    $this->send_project_notify_client($return_id);
-                    $this->send_project_notify_assign_user($return_id, $assigned_to['assigned_to']);
+                    // Commented out to prevent hangs on localhost if SMTP is not reachable
+                    // $this->send_project_notify_client($return_id);
+                    // $this->send_project_notify_assign_user($return_id, $assigned_to['assigned_to']);
                 }
             }
 
@@ -485,7 +493,7 @@ class Projects extends Admin_Controller
             if ($this->input->post('progress') == '100') {
                 $projects_email = config_item('projects_email');
                 if (!empty($projects_email) && $projects_email == 1) {
-                    $this->send_project_notify_client($id, true);
+                    // $this->send_project_notify_client($id, true);
                 }
             }
             $message = $msg;

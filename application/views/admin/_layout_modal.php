@@ -1,6 +1,7 @@
 <!-- Modal -->
 <style type="text/css">
-    .bootstrap-timepicker-widget.dropdown-menu.open {
+    .bootstrap-timepicker-widget.dropdown-menu.open,
+    .datepicker.dropdown-menu {
         display: inline-block;
         z-index: 99999 !important;
     }

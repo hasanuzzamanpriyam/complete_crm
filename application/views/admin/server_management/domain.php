@@ -62,6 +62,11 @@
         color: #fff;
     }
 
+    .badge-secondary {
+        background-color: #6c757d;
+        color: #fff;
+    }
+
     /* Action Button Styles */
     .btn-action {
         border: 1px solid #dee2e6;
@@ -147,10 +152,13 @@
                         <label class="text-muted small mb-1">Status</label>
                         <select id="filter_status" class="form-control form-control-sm">
                             <option value="">All</option>
-                            <option value="Active">Active</option>
-                            <option value="Pending">Pending</option>
-                            <option value="Transferring">Transferring</option>
-                            <option value="Expired">Expired</option>
+                            <?php if (!empty($domain_statuses)): ?>
+                                <?php foreach ($domain_statuses as $status): ?>
+                                    <option value="<?= htmlspecialchars($status['status_name']) ?>">
+                                        <?= htmlspecialchars($status['status_name']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </select>
                     </div>
                     <div class="col-md-2">
@@ -174,12 +182,13 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="row mb-3 align-items-center">
                     <div class="col-md-6">
                         <button id="bulkDeleteBtn" class="btn btn-sm btn-outline-danger" style="display: none;"><i class="fa fa-trash"></i> Delete Selected</button>
                     </div>
                     <div class="col-md-6 text-right">
+                        <a href="<?= base_url('admin/server_management/hosting_names') ?>" class="btn btn-sm btn-info"><i class="fa fa-list"></i> Manage Hostings</a>
                         <a href="<?= base_url('admin/server_management/add_domain') ?>" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add Domain</a>
                     </div>
                 </div>
@@ -203,8 +212,16 @@
                             <?php if (!empty($domains)): ?>
                                 <?php foreach ($domains as $domain): ?>
                                     <tr>
-                                        <td><input type="checkbox" class="row-checkbox" value="<?= $domain['id'] ?>"></td>
-                                        <td><span class="font-weight-bold"><?= htmlspecialchars($domain['domain_name']) ?></span></td>
+                                        <td><input type="checkbox" class="row-checkbox" value="<?= $domain['id'] ?>" <?= !empty($domain['is_locked']) ? 'disabled' : '' ?>></td>
+                                        <td>
+                                            <span class="font-weight-bold"><?= htmlspecialchars($domain['domain_name']) ?></span>
+                                            <?php if (!empty($domain['is_locked'])): ?>
+                                                <i class="fa fa-lock text-danger ml-1" title="Locked"></i>
+                                            <?php endif; ?>
+                                            <?php if (!empty($domain['is_for_sale'])): ?>
+                                                <span class="badge badge-warning ml-1" style="background-color: #ffc107; color: #212529; font-size: 9px; padding: 2px 5px;">FOR SALE</span>
+                                            <?php endif; ?>
+                                        </td>
                                         <td><?= !empty($domain['provider_name']) ? htmlspecialchars($domain['provider_name']) : '-' ?></td>
                                         <td><span class="badge badge-domain-type"><?= htmlspecialchars($domain['domain_type']) ?></span></td>
                                         <td>
@@ -222,6 +239,9 @@
                                                     break;
                                                 case 'Active':
                                                     $badge_class = 'badge-active';
+                                                    break;
+                                                default:
+                                                    $badge_class = 'badge-secondary';
                                                     break;
                                             }
                                             ?>
@@ -242,8 +262,24 @@
                                         </td>
                                         <td><?= !empty($domain['hosting_name']) ? htmlspecialchars($domain['hosting_name']) : '-' ?></td>
                                         <td class="text-center">
-                                            <a href="<?= base_url('admin/server_management/add_domain/' . $domain['id']) ?>" class="btn-action" title="Edit"><i class="fa fa-pencil-square-o"></i></a>
-                                            <a href="<?= base_url('admin/server_management/delete_domain/' . $domain['id']) ?>" class="btn-action text-danger" title="Delete" onclick="return confirm('Are you sure you want to delete this domain?')"><i class="fa fa-trash-o"></i></a>
+                                            <div class="btn-group">
+                                                <a href="<?= base_url('admin/server_management/add_domain/' . $domain['id']) ?>" class="btn-action <?= !empty($domain['is_locked']) ? 'disabled' : '' ?>" title="<?= !empty($domain['is_locked']) ? 'Locked' : 'Edit' ?>"><i class="fa fa-pencil-square-o"></i></a>
+                                                
+                                                <a href="javascript:void(0)" 
+                                                   class="btn-action toggle-lock" 
+                                                   data-id="<?= $domain['id'] ?>" 
+                                                   data-status="<?= !empty($domain['is_locked']) ? 1 : 0 ?>"
+                                                   title="<?= !empty($domain['is_locked']) ? 'Unlock Domain' : 'Lock Domain' ?>">
+                                                    <i class="fa <?= !empty($domain['is_locked']) ? 'fa-lock text-danger' : 'fa-unlock text-success' ?>"></i>
+                                                </a>
+
+                                                <a href="<?= base_url('admin/server_management/delete_domain/' . $domain['id']) ?>" 
+                                                   class="btn-action text-danger <?= !empty($domain['is_locked']) ? 'disabled' : '' ?>" 
+                                                   title="<?= !empty($domain['is_locked']) ? 'Locked' : 'Delete' ?>" 
+                                                   onclick="<?= !empty($domain['is_locked']) ? 'return false;' : "return confirm('Are you sure you want to delete this domain?')" ?>">
+                                                    <i class="fa fa-trash-o"></i>
+                                                </a>
+                                            </div>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -273,6 +309,44 @@
 
 <script type="text/javascript">
     $(document).ready(function() {
+        
+        // Handle Lock Toggle
+        $('.toggle-lock').on('click', function() {
+            var btn = $(this);
+            var id = btn.data('id');
+            var currentStatus = btn.data('status');
+            var newStatus = currentStatus == 1 ? 0 : 1;
+            var icon = btn.find('i');
+            
+            $.ajax({
+                url: '<?= base_url('admin/server_management/change_domain_lock/') ?>' + id + '/' + newStatus,
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status === 'success') {
+                        // Update UI
+                        btn.data('status', newStatus);
+                        if (newStatus == 1) {
+                            icon.removeClass('fa-unlock text-success').addClass('fa-lock text-danger');
+                            btn.attr('title', 'Unlock Domain');
+                            btn.closest('tr').find('.btn-action:not(.toggle-lock)').addClass('disabled').attr('title', 'Locked');
+                            btn.closest('tr').find('.row-checkbox').prop('disabled', true);
+                        } else {
+                            icon.removeClass('fa-lock text-danger').addClass('fa-unlock text-success');
+                            btn.attr('title', 'Lock Domain');
+                            btn.closest('tr').find('.btn-action:not(.toggle-lock)').removeClass('disabled');
+                            btn.closest('tr').find('a[title="Edit"]').attr('title', 'Edit');
+                            btn.closest('tr').find('a[title="Delete"]').attr('title', 'Delete');
+                            btn.closest('tr').find('.row-checkbox').prop('disabled', false);
+                        }
+                        
+                        if (typeof toastr !== 'undefined') {
+                            toastr.success(response.message);
+                        }
+                    }
+                }
+            });
+        });
 
         // Custom Date Range Filter Logic for DataTables
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {

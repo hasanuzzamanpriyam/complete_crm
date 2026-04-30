@@ -11,7 +11,7 @@ class Server_management extends Admin_Controller
         $this->load->model('provider_model');
         $this->load->model('domain_model');
         $this->load->model('hosting_model');
-        
+
         $method = $this->router->fetch_method();
         if ($method == 'domain' || $method == 'add_domain') {
             $this->session->set_userdata('menu_active_id', array('111122222223', '1111222222233'));
@@ -111,7 +111,7 @@ class Server_management extends Admin_Controller
     private function log_activity($module, $activity, $icon = 'fa-server', $link = null, $value1 = null, $value2 = null)
     {
         $user_id = $this->session->userdata('user_id');
-        
+
         $activity_data = [
             'user' => $user_id ? $user_id : 0,
             'module' => $module,
@@ -122,7 +122,7 @@ class Server_management extends Admin_Controller
             'value2' => $value2,
             'activity_date' => date('Y-m-d H:i:s')
         ];
-        
+
         $this->db->insert('tbl_activities', $activity_data);
     }
 
@@ -131,34 +131,34 @@ class Server_management extends Admin_Controller
         $items = [];
         $end_date = date('Y-m-d', strtotime("+{$days} days"));
         $today = date('Y-m-d');
-        
+
         $this->db->select('id, domain_name as name, expiry_date, "domain" as type');
         $this->db->from('tbldomains');
         $this->db->where('expiry_date >=', $today);
         $this->db->where('expiry_date <=', $end_date);
         $this->db->where('status', 'Active');
         $domains = $this->db->get()->result_array();
-        
+
         $this->db->select('id, title as name, expiry_date, "hosting" as type');
         $this->db->from('tblserver_hostings');
         $this->db->where('expiry_date >=', $today);
         $this->db->where('expiry_date <=', $end_date);
         $this->db->where('status', 'Active');
         $hostings = $this->db->get()->result_array();
-        
+
         $items = array_merge($domains, $hostings);
-        
-        usort($items, function($a, $b) {
+
+        usort($items, function ($a, $b) {
             return strtotime($a['expiry_date']) - strtotime($b['expiry_date']);
         });
-        
+
         foreach ($items as &$item) {
             $item['days_left'] = (int)ceil((strtotime($item['expiry_date']) - strtotime($today)) / (60 * 60 * 24));
-            $item['link'] = $item['type'] === 'domain' 
-                ? 'admin/server_management/add_domain/' . $item['id'] 
+            $item['link'] = $item['type'] === 'domain'
+                ? 'admin/server_management/add_domain/' . $item['id']
                 : 'admin/server_management/add_hosting/' . $item['id'];
         }
-        
+
         return $items;
     }
 
@@ -166,13 +166,13 @@ class Server_management extends Admin_Controller
     {
         $expired_domains = $this->domain_model->get_expired_domains();
         $expired_hostings = $this->hosting_model->get_expired_hostings();
-        
+
         $items = array_merge($expired_domains, $expired_hostings);
-        
-        usort($items, function($a, $b) {
+
+        usort($items, function ($a, $b) {
             return strtotime($b['expiry_date']) - strtotime($a['expiry_date']);
         });
-        
+
         return $items;
     }
 
@@ -180,43 +180,43 @@ class Server_management extends Admin_Controller
     {
         return $this->provider_model->get_inactive_providers();
     }
-    
+
     private function get_running_items()
     {
         $items = [];
         $today = date('Y-m-d');
-        
+
         // Get active domains that haven't expired
         $this->db->select('id, domain_name as name, purchase_date, expiry_date, "domain" as type');
         $this->db->from('tbldomains');
         $this->db->where('status', 'Active');
         $this->db->where('expiry_date >=', $today);
         $domains = $this->db->get()->result_array();
-        
+
         // Get active hostings that haven't expired
         $this->db->select('id, title as name, purchase_date, expiry_date, "hosting" as type');
         $this->db->from('tblserver_hostings');
         $this->db->where('status', 'Active');
         $this->db->where('expiry_date >=', $today);
         $hostings = $this->db->get()->result_array();
-        
+
         $items = array_merge($domains, $hostings);
-        
+
         // Sort by oldest purchase_date (longest running first)
-        usort($items, function($a, $b) {
+        usort($items, function ($a, $b) {
             return strtotime($a['purchase_date']) - strtotime($b['purchase_date']);
         });
-        
+
         foreach ($items as &$item) {
             $purchase_timestamp = strtotime($item['purchase_date']);
             $today_timestamp = strtotime($today);
             $days_running = (int)(($today_timestamp - $purchase_timestamp) / (60 * 60 * 24));
-            
+
             // Calculate years and months
             $years = floor($days_running / 365);
             $remaining_days = $days_running % 365;
             $months = floor($remaining_days / 30);
-            
+
             if ($years > 0) {
                 $item['running_for'] = $years . ' year' . ($years > 1 ? 's' : '');
                 if ($months > 0) {
@@ -227,13 +227,13 @@ class Server_management extends Admin_Controller
             } else {
                 $item['running_for'] = $days_running . ' day' . ($days_running > 1 ? 's' : '');
             }
-            
+
             $item['days_running'] = $days_running;
-            $item['link'] = $item['type'] === 'domain' 
-                ? 'admin/server_management/add_domain/' . $item['id'] 
+            $item['link'] = $item['type'] === 'domain'
+                ? 'admin/server_management/add_domain/' . $item['id']
                 : 'admin/server_management/add_hosting/' . $item['id'];
         }
-        
+
         return $items;
     }
 
@@ -334,8 +334,9 @@ class Server_management extends Admin_Controller
         $data['filters'] = $filters;
         $data['total_rows'] = $total_rows;
         $data['offset'] = $offset;
-        
+
         $data['providers'] = $this->domain_model->get_all_providers();
+        $data['domain_statuses'] = $this->domain_model->get_domain_statuses();
 
         $this->load->library('pagination');
         $config['base_url'] = base_url('admin/server_management/domain');
@@ -395,7 +396,7 @@ class Server_management extends Admin_Controller
         $data['currencies'] = $this->db->get('tbl_currencies')->result_array();
         $data['server_types'] = $this->db->get('tbl_server_types')->result_array();
         $data['plans'] = $this->db->get('tbl_hosting_plans')->result_array();
-        
+
         if ($this->input->post()) {
             $this->form_validation->set_rules('title', 'Title', 'required|trim');
             $this->form_validation->set_rules('provider_id', 'Provider', 'required|trim');
@@ -405,7 +406,7 @@ class Server_management extends Admin_Controller
             $this->form_validation->set_rules('time_unit', 'Time Unit', 'required|trim');
             $this->form_validation->set_rules('renew', 'Renew', 'required|trim|in_list[automatic,manual]');
             $this->form_validation->set_rules('status', 'Status', 'required|trim');
-            
+
             if ($this->form_validation->run() === FALSE) {
                 if ($id) {
                     $data['hosting_info'] = $this->hosting_model->get_hosting_by_id($id);
@@ -423,11 +424,11 @@ class Server_management extends Admin_Controller
                 $purchase_date = $this->input->post('purchase_date', TRUE);
                 $days_value = $this->input->post('days', TRUE);
                 $time_unit = $this->input->post('time_unit', TRUE);
-                
+
                 $expiry_date = $this->input->post('expiry_date', TRUE); // fallback
                 if ($purchase_date && $days_value && $time_unit) {
                     $date = new DateTime($purchase_date);
-                    switch($time_unit) {
+                    switch ($time_unit) {
                         case 'Days':
                             $date->modify('+' . $days_value . ' days');
                             break;
@@ -459,7 +460,7 @@ class Server_management extends Admin_Controller
                 $dns_provider_id = NULL;
                 // We are no longer connecting this to tblproviders as requested.
                 // It will just be stored as a string in the hosting record.
-                
+
                 $data_save = array(
                     'title' => $this->input->post('title', TRUE),
                     'server_name' => $this->input->post('server_name', TRUE),
@@ -499,11 +500,11 @@ class Server_management extends Admin_Controller
                     'notification_time_unit' => $this->input->post('expiry_notification') ? $this->input->post('notification_time_unit', TRUE) : NULL,
                     'description' => $this->input->post('description', TRUE)
                 );
-                
+
                 if ($id) {
                     if ($this->hosting_model->update_hosting($id, $data_save)) {
                         $this->log_activity('server_management', 'Updated hosting "' . $data_save['title'] . '"', 'fa-pencil', 'admin/server_management/add_hosting/' . $id, $data_save['status']);
-                        
+
                         $notify_data = array(
                             'description' => 'hosting_updated',
                             'icon' => 'fa-server',
@@ -511,7 +512,7 @@ class Server_management extends Admin_Controller
                             'value' => $data_save['title']
                         );
                         add_notification($notify_data);
-                        
+
                         set_message('success', 'Hosting updated successfully!');
                     } else {
                         set_message('error', 'Failed to update hosting. Database error.');
@@ -520,7 +521,7 @@ class Server_management extends Admin_Controller
                     $new_id = $this->hosting_model->insert_hosting($data_save);
                     if ($new_id) {
                         $this->log_activity('server_management', 'Added new hosting "' . $data_save['title'] . '"', 'fa-plus', 'admin/server_management/add_hosting/' . $new_id, $data_save['status']);
-                        
+
                         $notify_data = array(
                             'description' => 'new_hosting_added',
                             'icon' => 'fa-server',
@@ -528,7 +529,7 @@ class Server_management extends Admin_Controller
                             'value' => $data_save['title']
                         );
                         add_notification($notify_data);
-                        
+
                         set_message('success', 'Hosting added successfully!');
                     } else {
                         set_message('error', 'Failed to add hosting. Database error.');
@@ -554,7 +555,7 @@ class Server_management extends Admin_Controller
     public function fetch_hosting_provider_url()
     {
         $provider_id = $this->input->post('provider_id');
-        
+
         if ($provider_id) {
             $url = $this->hosting_model->get_provider_url($provider_id);
             echo json_encode(array('status' => 'success', 'provider_url' => $url));
@@ -567,7 +568,7 @@ class Server_management extends Admin_Controller
     public function add_domain($id = NULL)
     {
         $data['title'] = lang('add_domain');
-        
+
         if ($this->input->post()) {
             $this->form_validation->set_rules('domain_name', 'Domain Name', 'required|trim');
             $this->form_validation->set_rules('provider_id', 'Provider', 'required|trim');
@@ -575,7 +576,8 @@ class Server_management extends Admin_Controller
             $this->form_validation->set_rules('status', 'Status', 'required|trim');
             $this->form_validation->set_rules('purchase_date', 'Purchase Date', 'required|trim');
             $this->form_validation->set_rules('expiry_date', 'Expiry Date', 'required|trim');
-            $this->form_validation->set_rules('plan', 'Plan', 'required|trim');
+            $this->form_validation->set_rules('days', 'Duration', 'required|trim|numeric');
+            $this->form_validation->set_rules('time_unit', 'Time Unit', 'required|trim');
 
             if ($this->form_validation->run() === FALSE) {
                 if ($this->input->is_ajax_request()) {
@@ -589,9 +591,49 @@ class Server_management extends Admin_Controller
                 $data['hostings'] = $this->domain_model->get_all_hostings();
                 $data['clients'] = $this->domain_model->get_all_clients();
                 $data['projects'] = $this->domain_model->get_all_projects();
+                $data['domain_types'] = $this->domain_model->get_domain_types();
+                $data['domain_statuses'] = $this->domain_model->get_domain_statuses();
+                $data['currencies'] = $this->db->get('tbl_currencies')->result_array();
+                $data['nameservers'] = $this->db->get('tbl_nameservers')->result_array();
                 $data['subview'] = $this->load->view('admin/server_management/add_domain', $data, TRUE);
                 $this->load->view('admin/_layout_main', $data);
             } else {
+                // Auto-calculate expiry date (server-side fallback)
+                $purchase_date = $this->input->post('purchase_date', TRUE);
+                $days_value = $this->input->post('days', TRUE);
+                $time_unit = $this->input->post('time_unit', TRUE);
+                $expiry_date = $this->input->post('expiry_date', TRUE); // Default from form
+
+                if ($purchase_date && $days_value && $time_unit) {
+                    try {
+                        $date = new DateTime($purchase_date);
+                        $amount = intval($days_value);
+                        switch ($time_unit) {
+                            case 'Days':
+                                $date->modify('+' . $amount . ' days');
+                                break;
+                            case 'Weeks':
+                                $date->modify('+' . ($amount * 7) . ' days');
+                                break;
+                            case 'Months':
+                                $date->modify('+' . $amount . ' months');
+                                break;
+                            case 'Years':
+                                $date->modify('+' . $amount . ' years');
+                                break;
+                            case 'Decade':
+                                $date->modify('+' . ($amount * 10) . ' years');
+                                break;
+                            case 'Century':
+                                $date->modify('+' . ($amount * 100) . ' years');
+                                break;
+                        }
+                        $expiry_date = $date->format('Y-m-d');
+                    } catch (Exception $e) {
+                        // Keep form value if date parsing fails
+                    }
+                }
+
                 $data_save = array(
                     'domain_name'             => $this->input->post('domain_name', TRUE),
                     'provider_id'           => $this->input->post('provider_id', TRUE),
@@ -602,9 +644,12 @@ class Server_management extends Admin_Controller
                     'password'              => $this->input->post('password', TRUE),
                     'status'                => $this->input->post('status', TRUE),
                     'purchase_date'        => $this->input->post('purchase_date', TRUE),
-                    'expiry_date'          => $this->input->post('expiry_date', TRUE),
+                    'expiry_date'          => $expiry_date,
+                    'days'                 => $this->input->post('days', TRUE),
+                    'time_unit'            => $this->input->post('time_unit', TRUE),
                     'price'                => $this->input->post('price', TRUE),
-                    'plan'                 => $this->input->post('plan', TRUE),
+                    'currency_id'          => $this->input->post('currency_id', TRUE),
+                    'plan'                 => $this->input->post('days', TRUE) . ' ' . $this->input->post('time_unit', TRUE),
                     'registrar_url'         => $this->input->post('registrar_url', TRUE),
                     'registrar_username'    => $this->input->post('registrar_username', TRUE),
                     'registrar_password'    => $this->input->post('registrar_password', TRUE),
@@ -616,13 +661,32 @@ class Server_management extends Admin_Controller
                     'expiry_notification' => $this->input->post('expiry_notification') ? 1 : 0,
                     'notification_days'   => $this->input->post('expiry_notification') ? $this->input->post('notification_days', TRUE) : NULL,
                     'notification_time_unit' => $this->input->post('expiry_notification') ? $this->input->post('notification_time_unit', TRUE) : NULL,
+                    'is_locked'            => $this->input->post('is_locked') ? 1 : 0,
+                    'is_for_sale'          => $this->input->post('is_for_sale') ? 1 : 0,
+                    'nameservers'          => is_array($this->input->post('nameservers')) ? implode(',', $this->input->post('nameservers')) : $this->input->post('nameservers', TRUE),
                     'description'        => $this->input->post('description', TRUE)
                 );
+
+                // Handle Custom Fields
+                $labels = $this->input->post('custom_field_label', TRUE);
+                $values = $this->input->post('custom_field_value', TRUE);
+                $custom_fields = array();
+                if (!empty($labels)) {
+                    foreach ($labels as $index => $label) {
+                        if (!empty($label)) {
+                            $custom_fields[] = array(
+                                'label' => $label,
+                                'value' => isset($values[$index]) ? $values[$index] : ''
+                            );
+                        }
+                    }
+                }
+                $data_save['custom_fields'] = json_encode($custom_fields);
 
                 if ($id) {
                     $this->domain_model->update_domain($id, $data_save);
                     $this->log_activity('server_management', 'Updated domain "' . $data_save['domain_name'] . '"', 'fa-pencil', 'admin/server_management/add_domain/' . $id, $data_save['status']);
-                    
+
                     $notify_data = array(
                         'description' => 'domain_updated',
                         'icon' => 'fa-globe',
@@ -630,12 +694,12 @@ class Server_management extends Admin_Controller
                         'value' => $data_save['domain_name']
                     );
                     add_notification($notify_data);
-                    
+
                     set_message('success', 'Domain updated successfully!');
                 } else {
                     $new_id = $this->domain_model->insert_domain($data_save);
                     $this->log_activity('server_management', 'Added new domain "' . $data_save['domain_name'] . '"', 'fa-plus', 'admin/server_management/add_domain/' . $new_id, $data_save['status']);
-                    
+
                     $notify_data = array(
                         'description' => 'new_domain_added',
                         'icon' => 'fa-globe',
@@ -643,7 +707,7 @@ class Server_management extends Admin_Controller
                         'value' => $data_save['domain_name']
                     );
                     add_notification($notify_data);
-                    
+
                     set_message('success', 'Domain added successfully!');
                 }
 
@@ -669,7 +733,11 @@ class Server_management extends Admin_Controller
             $data['clients'] = $this->domain_model->get_all_clients();
             $data['projects'] = $this->domain_model->get_all_projects();
             $data['hostings'] = $this->domain_model->get_all_hostings();
-            
+            $data['domain_types'] = $this->domain_model->get_domain_types();
+            $data['domain_statuses'] = $this->domain_model->get_domain_statuses();
+            $data['currencies'] = $this->db->get('tbl_currencies')->result_array();
+            $data['nameservers'] = $this->db->get('tbl_nameservers')->result_array();
+
             if ($this->input->is_ajax_request()) {
                 $this->load->view('admin/server_management/add_domain', $data);
                 return;
@@ -682,14 +750,14 @@ class Server_management extends Admin_Controller
     public function fetch_provider_url()
     {
         $provider_id = $this->input->post('provider_id');
-        
+
         if ($provider_id) {
             $url = $this->domain_model->get_provider_url($provider_id);
             echo json_encode(array('status' => 'success', 'provider_url' => $url));
         } else {
             echo json_encode(array('status' => 'error', 'message' => 'Invalid provider'));
         }
-        
+
         // Prevent any extra output
         exit;
     }
@@ -709,8 +777,10 @@ class Server_management extends Admin_Controller
                     $data['provider_info'] = $this->provider_model->get_provider_by_id($id);
                 }
                 if ($this->input->is_ajax_request()) {
-                    echo json_encode(array('status' => 'error', 'message' => validation_errors()));
-                    return;
+                    $response = array('status' => 'error', 'message' => validation_errors());
+                    $this->output->set_content_type('application/json')->set_output(json_encode($response));
+                    $this->output->_display();
+                    exit;
                 }
                 $data['subview'] = $this->load->view('admin/server_management/add_provider', $data, TRUE);
                 $this->load->view('admin/_layout_main', $data);
@@ -732,12 +802,17 @@ class Server_management extends Admin_Controller
                     set_message('success', 'Provider added successfully!');
                 }
                 if ($this->input->is_ajax_request()) {
-                    echo json_encode(array(
+                    $response = array(
                         'status' => 'success',
+                        'message' => 'Provider saved successfully',
                         'id' => $id ? $id : $this->db->insert_id(),
                         'text' => $data_save['provider_name']
-                    ));
-                    return;
+                    );
+                    $this->output
+                        ->set_content_type('application/json')
+                        ->set_output(json_encode($response));
+                    $this->output->_display();
+                    exit;
                 }
                 redirect('admin/server_management/provider');
             }
@@ -827,7 +902,7 @@ class Server_management extends Admin_Controller
             }
             redirect('admin/server_management/hosting');
         }
-        
+
         if ($this->input->is_ajax_request()) {
             $this->load->view('admin/server_management/add_server_type');
             return;
@@ -868,7 +943,7 @@ class Server_management extends Admin_Controller
             }
             redirect('admin/server_management/hosting');
         }
-        
+
         if ($this->input->is_ajax_request()) {
             $this->load->view('admin/server_management/add_plan');
             return;
@@ -903,7 +978,7 @@ class Server_management extends Admin_Controller
 
         $filters = array(
             'status'        => $this->input->get('status', TRUE) ?: 'All',
-            'provider_type'=> $this->input->get('provider_type', TRUE) ?: 'All',
+            'provider_type' => $this->input->get('provider_type', TRUE) ?: 'All',
             'search'       => $this->input->get('search', TRUE),
             'start_date'   => $this->input->get('start_date', TRUE),
             'end_date'     => $this->input->get('end_date', TRUE)
@@ -973,5 +1048,208 @@ class Server_management extends Admin_Controller
         }
         $data['subview'] = $this->load->view('admin/server_management/add_dns_provider', [], TRUE);
         $this->load->view('admin/_layout_main', $data);
+    }
+
+    public function hosting_names()
+    {
+        $data['title'] = "Manage Hosting Names";
+        $data['hostings'] = $this->domain_model->get_all_hostings();
+        $data['subview'] = $this->load->view('admin/server_management/hosting_names', $data, TRUE);
+        $this->load->view('admin/_layout_main', $data);
+    }
+
+    public function delete_hosting_name($id)
+    {
+        if ($id) {
+            $this->db->where('id', $id)->delete('tblhostings');
+            set_message('success', 'Hosting deleted successfully!');
+        }
+        redirect('admin/server_management/hosting_names');
+    }
+
+    public function add_hosting_type()
+    {
+        if ($this->input->post()) {
+            $hosting_name = $this->input->post('hosting_name', TRUE);
+            if ($hosting_name) {
+                // Check if exists
+                $check = $this->db->where('hosting_name', $hosting_name)->get('tblhostings')->row();
+                if (!$check) {
+                    $data = array(
+                        'hosting_name' => $hosting_name,
+                        'status' => 'Active',
+                        'created_at' => date('Y-m-d H:i:s')
+                    );
+                    if ($this->domain_model->insert_hosting_type($data)) {
+                        $new_id = $this->db->insert_id();
+                        echo json_encode(array(
+                            'status' => 'success',
+                            'id' => $new_id,
+                            'text' => $hosting_name
+                        ));
+                    } else {
+                        echo json_encode(array('status' => 'error', 'message' => 'Database error'));
+                    }
+                } else {
+                    echo json_encode(array('status' => 'error', 'message' => 'Hosting already exists'));
+                }
+            } else {
+                echo json_encode(array('status' => 'error', 'message' => 'Invalid input'));
+            }
+            exit;
+        }
+
+        if ($this->input->is_ajax_request()) {
+            $this->load->view('admin/server_management/add_hosting_type');
+            return;
+        }
+    }
+
+    public function add_domain_type()
+    {
+        if ($this->input->post()) {
+            $domain_type = $this->input->post('domain_type', TRUE);
+            if ($domain_type) {
+                // Check if exists
+                $check = $this->db->where('domain_type', $domain_type)->get('tbl_domain_types')->row();
+                if (!$check) {
+                    $data = array(
+                        'domain_type' => strtoupper($domain_type),
+                        'created_at' => date('Y-m-d H:i:s')
+                    );
+                    if ($this->db->insert('tbl_domain_types', $data)) {
+                        $new_id = $this->db->insert_id();
+                        echo json_encode(array(
+                            'status' => 'success',
+                            'id' => strtoupper($domain_type),
+                            'text' => strtoupper($domain_type)
+                        ));
+                    } else {
+                        echo json_encode(array('status' => 'error', 'message' => 'Database error'));
+                    }
+                } else {
+                    echo json_encode(array('status' => 'error', 'message' => 'Type already exists'));
+                }
+            } else {
+                echo json_encode(array('status' => 'error', 'message' => 'Invalid input'));
+            }
+            exit;
+        }
+
+        if ($this->input->is_ajax_request()) {
+            $this->load->view('admin/server_management/add_domain_type');
+            return;
+        }
+    }
+
+    public function add_domain_status()
+    {
+        if ($this->input->post()) {
+            $status_name = $this->input->post('status_name', TRUE);
+            if ($status_name) {
+                // Check if exists
+                $check = $this->db->where('status_name', $status_name)->get('tbl_domain_status')->row();
+                if (!$check) {
+                    $data = array(
+                        'status_name' => $status_name,
+                        'created_at' => date('Y-m-d H:i:s')
+                    );
+                    if ($this->domain_model->insert_domain_status($data)) {
+                        $new_id = $this->db->insert_id();
+                        echo json_encode(array(
+                            'status' => 'success',
+                            'id' => $status_name,
+                            'text' => $status_name
+                        ));
+                    } else {
+                        echo json_encode(array('status' => 'error', 'message' => 'Database error'));
+                    }
+                } else {
+                    echo json_encode(array('status' => 'error', 'message' => 'Status already exists'));
+                }
+            } else {
+                echo json_encode(array('status' => 'error', 'message' => 'Invalid input'));
+            }
+            exit;
+        }
+
+        if ($this->input->is_ajax_request()) {
+            $this->load->view('admin/server_management/add_domain_status');
+            return;
+        }
+    }
+
+    public function add_project()
+    {
+        if ($this->input->post()) {
+            $project_name = $this->input->post('project_name', TRUE);
+            if ($project_name) {
+                $data = array(
+                    'project_name' => $project_name,
+                    'created_at' => date('Y-m-d H:i:s')
+                );
+                if ($this->db->insert('tbl_project', $data)) {
+                    $new_id = $this->db->insert_id();
+                    echo json_encode(array(
+                        'status' => 'success',
+                        'id' => $new_id,
+                        'text' => $project_name
+                    ));
+                } else {
+                    echo json_encode(array('status' => 'error', 'message' => 'Database error'));
+                }
+            } else {
+                echo json_encode(array('status' => 'error', 'message' => 'Invalid input'));
+            }
+            exit;
+        }
+
+        if ($this->input->is_ajax_request()) {
+            $this->load->view('admin/server_management/add_project');
+            return;
+        }
+    }
+
+    public function add_client()
+    {
+        if ($this->input->post()) {
+            $name = $this->input->post('name', TRUE);
+            if ($name) {
+                $data = array(
+                    'name' => $name,
+                    'email' => $this->input->post('email', TRUE),
+                    'created_at' => date('Y-m-d H:i:s')
+                );
+                if ($this->db->insert('tbl_client', $data)) {
+                    $new_id = $this->db->insert_id();
+                    echo json_encode(array(
+                        'status' => 'success',
+                        'id' => $new_id,
+                        'text' => $name
+                    ));
+                } else {
+                    echo json_encode(array('status' => 'error', 'message' => 'Database error'));
+                }
+            } else {
+                echo json_encode(array('status' => 'error', 'message' => 'Invalid input'));
+            }
+            exit;
+        }
+
+        if ($this->input->is_ajax_request()) {
+            $this->load->view('admin/server_management/add_client');
+            return;
+        }
+    }
+    public function change_domain_lock($id, $status)
+    {
+        $data['is_locked'] = $status;
+        $this->domain_model->update_domain($id, $data);
+        $domain = $this->domain_model->get_domain_by_id($id);
+        $this->log_activity('server_management', ($status ? 'Locked' : 'Unlocked') . ' domain "' . $domain->domain_name . '"', 'fa-lock');
+        
+        $response = array('status' => 'success', 'message' => 'Domain ' . ($status ? 'locked' : 'unlocked') . ' successfully');
+        echo json_encode($response);
+        exit;
     }
 }

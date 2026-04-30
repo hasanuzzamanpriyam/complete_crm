@@ -1,6 +1,12 @@
 <?php echo message_box('success'); ?>
 <?php echo message_box('error'); ?>
 
+<style>
+    .datepicker {
+        z-index: 1151 !important;
+    }
+</style>
+
 <div class="row">
     <div class="col-md-12">
         <div class="card shadow-sm">
@@ -29,7 +35,9 @@
                                         <?php endif; ?>
                                     </select>
                                     <span class="input-group-btn">
-                                        <a href="<?= base_url('admin/server_management/add_provider') ?>" class="btn btn-default" target="_blank" title="Add New Provider"><i class="fa fa-plus"></i></a>
+                                        <button type="button" class="btn btn-default quick-add-btn" data-type="provider" data-url="<?= base_url('admin/server_management/add_provider') ?>" title="Add New Provider">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
                                     </span>
                                 </div>
                             </div>
@@ -43,17 +51,23 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Type <span class="text-danger">*</span></label>
-                                <select name="domain_type" class="form-control" required>
-                                    <option value="">Select Type</option>
-                                    <option value="COM" <?= !empty($domain_info) && $domain_info->domain_type == 'COM' ? 'selected' : '' ?>>COM</option>
-                                    <option value="NET" <?= !empty($domain_info) && $domain_info->domain_type == 'NET' ? 'selected' : '' ?>>NET</option>
-                                    <option value="ORG" <?= !empty($domain_info) && $domain_info->domain_type == 'ORG' ? 'selected' : '' ?>>ORG</option>
-                                    <option value="IO" <?= !empty($domain_info) && $domain_info->domain_type == 'IO' ? 'selected' : '' ?>>IO</option>
-                                    <option value="DEV" <?= !empty($domain_info) && $domain_info->domain_type == 'DEV' ? 'selected' : '' ?>>DEV</option>
-                                    <option value="TECH" <?= !empty($domain_info) && $domain_info->domain_type == 'TECH' ? 'selected' : '' ?>>TECH</option>
-                                    <option value="CO" <?= !empty($domain_info) && $domain_info->domain_type == 'CO' ? 'selected' : '' ?>>CO</option>
-                                    <option value="APP" <?= !empty($domain_info) && $domain_info->domain_type == 'APP' ? 'selected' : '' ?>>APP</option>
-                                </select>
+                                <div class="input-group">
+                                    <select name="domain_type" id="domain_type_select" class="form-control" required>
+                                        <option value="">Select Type</option>
+                                        <?php if (!empty($domain_types)): ?>
+                                            <?php foreach ($domain_types as $type): ?>
+                                                <option value="<?= $type['domain_type'] ?>" <?= !empty($domain_info) && $domain_info->domain_type == $type['domain_type'] ? 'selected' : '' ?>>
+                                                    <?= htmlspecialchars($type['domain_type']) ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </select>
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-default quick-add-btn" data-type="type" data-url="<?= base_url('admin/server_management/add_domain_type') ?>" title="Add New Type">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -63,16 +77,23 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Hosting</label>
-                                <select name="hosting_id" class="form-control">
-                                    <option value="">Select Hosting</option>
-                                    <?php if (!empty($hostings)): ?>
-                                        <?php foreach ($hostings as $hosting): ?>
-                                            <option value="<?= $hosting['id'] ?>" <?= !empty($domain_info) && $domain_info->hosting_id == $hosting['id'] ? 'selected' : '' ?>>
-                                                <?= htmlspecialchars($hosting['hosting_name']) ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </select>
+                                <div class="input-group">
+                                    <select name="hosting_id" id="hosting_id_select" class="form-control">
+                                        <option value="">Select Hosting</option>
+                                        <?php if (!empty($hostings)): ?>
+                                            <?php foreach ($hostings as $hosting): ?>
+                                                <option value="<?= $hosting['id'] ?>" <?= !empty($domain_info) && $domain_info->hosting_id == $hosting['id'] ? 'selected' : '' ?>>
+                                                    <?= htmlspecialchars($hosting['hosting_name']) ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </select>
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-default quick-add-btn" data-type="hosting" data-url="<?= base_url('admin/server_management/add_hosting_type') ?>" title="Add New Hosting">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -95,13 +116,23 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Status <span class="text-danger">*</span></label>
-                                <select name="status" class="form-control" required>
-                                    <option value="">Select Status</option>
-                                    <option value="Active" <?= !empty($domain_info) && $domain_info->status == 'Active' ? 'selected' : '' ?>>Active</option>
-                                    <option value="Pending" <?= !empty($domain_info) && $domain_info->status == 'Pending' ? 'selected' : '' ?>>Pending</option>
-                                    <option value="Transferring" <?= !empty($domain_info) && $domain_info->status == 'Transferring' ? 'selected' : '' ?>>Transferring</option>
-                                    <option value="Expired" <?= !empty($domain_info) && $domain_info->status == 'Expired' ? 'selected' : '' ?>>Expired</option>
-                                </select>
+                                <div class="input-group">
+                                    <select name="status" id="domain_status_select" class="form-control" required>
+                                        <option value="">Select Status</option>
+                                        <?php if (!empty($domain_statuses)): ?>
+                                            <?php foreach ($domain_statuses as $status): ?>
+                                                <option value="<?= $status['status_name'] ?>" <?= !empty($domain_info) && $domain_info->status == $status['status_name'] ? 'selected' : '' ?>>
+                                                    <?= htmlspecialchars($status['status_name']) ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </select>
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-default quick-add-btn" data-type="status" data-url="<?= base_url('admin/server_management/add_domain_status') ?>" title="Add New Status">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -111,31 +142,53 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Purchase Date <span class="text-danger">*</span></label>
-                                <input type="date" name="purchase_date" class="form-control" value="<?= !empty($domain_info) ? $domain_info->purchase_date : '' ?>" required>
+                                <input type="date" name="purchase_date" id="purchase_date" class="form-control" value="<?= !empty($domain_info) ? $domain_info->purchase_date : '' ?>" required>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Duration <span class="text-danger">*</span></label>
+                                <input type="number" name="days" id="duration" class="form-control" value="<?= !empty($domain_info) ? $domain_info->days : '' ?>" placeholder="Enter duration" required>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Plan Mode <span class="text-danger">*</span></label>
+                                <select name="time_unit" id="time_unit" class="form-control" required>
+                                    <option value="Days" <?= !empty($domain_info) && $domain_info->time_unit == 'Days' ? 'selected' : '' ?>>Days</option>
+                                    <option value="Weeks" <?= !empty($domain_info) && $domain_info->time_unit == 'Weeks' ? 'selected' : '' ?>>Weeks</option>
+                                    <option value="Months" <?= !empty($domain_info) && $domain_info->time_unit == 'Months' ? 'selected' : '' ?>>Months</option>
+                                    <option value="Years" <?= !empty($domain_info) && $domain_info->time_unit == 'Years' ? 'selected' : '' ?>>Years</option>
+                                    <option value="Decade" <?= !empty($domain_info) && $domain_info->time_unit == 'Decade' ? 'selected' : '' ?>>Decade</option>
+                                    <option value="Century" <?= !empty($domain_info) && $domain_info->time_unit == 'Century' ? 'selected' : '' ?>>Century</option>
+                                </select>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Expiry Date <span class="text-danger">*</span></label>
-                                <input type="date" name="expiry_date" class="form-control" value="<?= !empty($domain_info) ? $domain_info->expiry_date : '' ?>" required>
+                                <input type="date" name="expiry_date" id="expiry_date" class="form-control" value="<?= !empty($domain_info) ? $domain_info->expiry_date : '' ?>" required readonly>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <div class="form-group">
                                 <label>Price</label>
-                                <input type="number" name="price" step="0.01" class="form-control" value="<?= !empty($domain_info) ? $domain_info->price : '' ?>">
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label>Plan <span class="text-danger">*</span></label>
-                                <select name="plan" class="form-control" required>
-                                    <option value="">Select Plan</option>
-                                    <option value="Basic" <?= !empty($domain_info) && $domain_info->plan == 'Basic' ? 'selected' : '' ?>>Basic</option>
-                                    <option value="Standard" <?= !empty($domain_info) && $domain_info->plan == 'Standard' ? 'selected' : '' ?>>Standard</option>
-                                    <option value="Professional" <?= !empty($domain_info) && $domain_info->plan == 'Professional' ? 'selected' : '' ?>>Professional</option>
-                                    <option value="Enterprise" <?= !empty($domain_info) && $domain_info->plan == 'Enterprise' ? 'selected' : '' ?>>Enterprise</option>
-                                </select>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <select name="currency_id" class="form-control" id="currency_id">
+                                            <option value="">Currency</option>
+                                            <?php if (!empty($currencies)): ?>
+                                                <?php foreach ($currencies as $currency): ?>
+                                                    <option value="<?= $currency['code'] ?>" <?= !empty($domain_info) && $domain_info->currency_id == $currency['code'] ? 'selected' : '' ?>>
+                                                        <?= $currency['code'] ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            <?php endif; ?>
+                                        </select>
+                                    </div>
+                                    <input type="number" name="price" id="price_input" step="0.01" class="form-control" value="<?= !empty($domain_info) ? $domain_info->price : '' ?>">
+                                </div>
+                                <small class="text-muted" id="conversion_result"></small>
                             </div>
                         </div>
                     </div>
@@ -183,23 +236,30 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Project</label>
-                                <select name="project_id" class="form-control">
-                                    <option value="">Select Project</option>
-                                    <?php if (!empty($projects)): ?>
-                                        <?php foreach ($projects as $project): ?>
-                                            <option value="<?= $project['project_id'] ?>" <?= !empty($domain_info) && $domain_info->project_id == $project['project_id'] ? 'selected' : '' ?>>
-                                                <?= htmlspecialchars($project['project_name']) ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </select>
+                                <div class="input-group">
+                                    <select name="project_id" id="project_id_select" class="form-control">
+                                        <option value="">Select Project</option>
+                                        <?php if (!empty($projects)): ?>
+                                            <?php foreach ($projects as $project): ?>
+                                                <option value="<?= $project['project_id'] ?>" <?= !empty($domain_info) && $domain_info->project_id == $project['project_id'] ? 'selected' : '' ?>>
+                                                    <?= htmlspecialchars($project['project_name']) ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </select>
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-default quick-add-btn" data-type="project" data-url="<?= base_url('admin/projects/create') ?>" title="Add New Project">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Client</label>
                                 <div class="input-group">
-                                    <select name="client_id" class="form-control">
+                                    <select name="client_id" id="client_id_select" class="form-control">
                                         <option value="">Select Client</option>
                                         <?php if (!empty($clients)): ?>
                                             <?php foreach ($clients as $client): ?>
@@ -209,6 +269,35 @@
                                             <?php endforeach; ?>
                                         <?php endif; ?>
                                     </select>
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-default quick-add-btn" data-type="client" data-url="<?= base_url('admin/client/create_client') ?>" title="Add New Client">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Name Servers</label>
+                                <div class="input-group">
+                                    <select name="nameservers[]" class="form-control select_box" multiple="multiple" style="width: 100%">
+                                        <?php
+                                        $selected_nameservers = !empty($domain_info->nameservers) ? explode(',', $domain_info->nameservers) : array();
+                                        if (!empty($nameservers)) {
+                                            foreach ($nameservers as $ns) {
+                                                ?>
+                                                <option value="<?= $ns['name'] ?>" <?= in_array($ns['name'], $selected_nameservers) ? 'selected' : '' ?>><?= $ns['name'] ?></option>
+                                                <?php
+                                            }
+                                        }
+                                        ?>
+                                    </select>
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-default quick-add-btn" data-type="nameserver" data-url="<?= base_url('admin/server_management/add_nameserver') ?>" title="Add New Nameserver">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -218,15 +307,37 @@
                     <div class="row mt-4">
                         <div class="col-md-3">
                             <div class="form-group">
-                                <div class="custom-control custom-checkbox mt-2">
-                                    <input type="checkbox" name="auto_renewal" class="custom-control-input" id="auto_renewal" value="1" <?= !empty($domain_info) && $domain_info->auto_renewal == 1 ? 'checked' : '' ?>>
-                                    <label class="custom-control-label" for="auto_renewal">Auto Renewal</label>
-                                </div>
+                                <label>Auto Renewal</label>
+                                <?php $auto_renewal = !empty($domain_info) ? $domain_info->auto_renewal : 0; ?>
+                                <select name="auto_renewal" class="form-control" id="auto_renewal">
+                                    <option value="0" <?= $auto_renewal == 0 ? 'selected' : '' ?>>Manual</option>
+                                    <option value="1" <?= $auto_renewal == 1 ? 'selected' : '' ?>>Auto</option>
+                                </select>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
-                                <div class="custom-control custom-checkbox mt-2">
+                                <label>Lock Domain</label>
+                                <?php $is_locked = !empty($domain_info) ? $domain_info->is_locked : 0; ?>
+                                <select name="is_locked" class="form-control" id="is_locked">
+                                    <option value="0" <?= $is_locked == 0 ? 'selected' : '' ?>>Unlocked</option>
+                                    <option value="1" <?= $is_locked == 1 ? 'selected' : '' ?>>Locked</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>For Sale</label>
+                                <?php $is_for_sale = !empty($domain_info) ? $domain_info->is_for_sale : 0; ?>
+                                <select name="is_for_sale" class="form-control" id="is_for_sale">
+                                    <option value="0" <?= $is_for_sale == 0 ? 'selected' : '' ?>>No</option>
+                                    <option value="1" <?= $is_for_sale == 1 ? 'selected' : '' ?>>Yes</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <div class="custom-control custom-checkbox mt-4">
                                     <input type="checkbox" name="whois_protection" class="custom-control-input" id="whois_protection" value="1" <?= !empty($domain_info) && $domain_info->whois_protection == 1 ? 'checked' : '' ?>>
                                     <label class="custom-control-label" for="whois_protection">WHOIS Protection</label>
                                 </div>
@@ -262,6 +373,47 @@
                         </div>
                     </div>
 
+                    <!-- Custom Fields -->
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div class="card border-info">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0"><i class="fa fa-list"></i> Custom Fields</h5>
+                                    <button type="button" class="btn btn-info btn-sm" id="add_custom_field">
+                                        <i class="fa fa-plus"></i> Add Field
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <div id="custom_fields_container">
+                                        <?php 
+                                        $custom_fields = !empty($domain_info->custom_fields) ? json_decode($domain_info->custom_fields, true) : array();
+                                        if (!empty($custom_fields)): 
+                                            foreach ($custom_fields as $field):
+                                        ?>
+                                            <div class="row custom-field-row mb-2">
+                                                <div class="col-md-5">
+                                                    <input type="text" name="custom_field_label[]" class="form-control" placeholder="Label" value="<?= htmlspecialchars($field['label']) ?>">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <input type="text" name="custom_field_value[]" class="form-control" placeholder="Value" value="<?= htmlspecialchars($field['value']) ?>">
+                                                </div>
+                                                <div class="col-md-1">
+                                                    <button type="button" class="btn btn-danger remove-custom-field"><i class="fa fa-trash"></i></button>
+                                                </div>
+                                            </div>
+                                        <?php 
+                                            endforeach;
+                                        endif; 
+                                        ?>
+                                    </div>
+                                    <div id="no_custom_fields_msg" style="display: <?= !empty($custom_fields) ? 'none' : 'block' ?>;">
+                                        <p class="text-info text-center mb-0" style="font-style: italic;">No custom fields added. Click "Add Field" to add one.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Description -->
                     <div class="row mt-4">
                         <div class="col-md-12">
@@ -272,31 +424,31 @@
                         </div>
                     </div>
 
-<script>
-$(document).ready(function() {
-    var csrfToken = '<?= $this->security->get_csrf_hash() ?>';
-    
-    // Toggle notification fields based on expiry_notification checkbox
-    function toggleNotificationFields() {
-        if ($('#expiry_notification').is(':checked')) {
-            $('#notification_days_wrapper').show();
-            $('#notification_unit_wrapper').show();
-        } else {
-            $('#notification_days_wrapper').hide();
-            $('#notification_unit_wrapper').hide();
-        }
-    }
-    
-    // Run on page load
-    toggleNotificationFields();
-    
-    // Toggle on change
-    $('#expiry_notification').change(function() {
-        toggleNotificationFields();
-    });
-    
-    // Provider change handler
-    $('#provider_id').change(function() {
+                    <script>
+                        $(document).ready(function() {
+                            var csrfToken = '<?= $this->security->get_csrf_hash() ?>';
+
+                            // Toggle notification fields based on expiry_notification checkbox
+                            function toggleNotificationFields() {
+                                if ($('#expiry_notification').is(':checked')) {
+                                    $('#notification_days_wrapper').show();
+                                    $('#notification_unit_wrapper').show();
+                                } else {
+                                    $('#notification_days_wrapper').hide();
+                                    $('#notification_unit_wrapper').hide();
+                                }
+                            }
+
+                            // Run on page load
+                            toggleNotificationFields();
+
+                            // Toggle on change
+                            $('#expiry_notification').change(function() {
+                                toggleNotificationFields();
+                            });
+
+                            // Provider change handler
+                            $('#provider_id').change(function() {
                                 var provider_id = $(this).val();
                                 if (provider_id) {
                                     $.ajax({
@@ -321,11 +473,230 @@ $(document).ready(function() {
                                 }
                             });
 
+                            // Expiry Date Calculation
+                            function calculateExpiryDate() {
+                                var purchaseDate = $('#purchase_date').val();
+                                var duration = $('#duration').val();
+                                var timeUnit = $('#time_unit').val();
+
+                                if (purchaseDate && duration && timeUnit) {
+                                    var date = new Date(purchaseDate);
+                                    var amount = parseInt(duration);
+
+                                    if (isNaN(amount)) return;
+
+                                    switch (timeUnit) {
+                                        case 'Days':
+                                            date.setDate(date.getDate() + amount);
+                                            break;
+                                        case 'Weeks':
+                                            date.setDate(date.getDate() + (amount * 7));
+                                            break;
+                                        case 'Months':
+                                            date.setMonth(date.getMonth() + amount);
+                                            break;
+                                        case 'Years':
+                                            date.setFullYear(date.getFullYear() + amount);
+                                            break;
+                                        case 'Decade':
+                                            date.setFullYear(date.getFullYear() + (amount * 10));
+                                            break;
+                                        case 'Century':
+                                            date.setFullYear(date.getFullYear() + (amount * 100));
+                                            break;
+                                    }
+
+                                    var year = date.getFullYear();
+                                    var month = ('0' + (date.getMonth() + 1)).slice(-2);
+                                    var day = ('0' + date.getDate()).slice(-2);
+
+                                    $('#expiry_date').val(year + '-' + month + '-' + day);
+                                }
+                            }
+
+                            $('#purchase_date, #duration, #time_unit').on('change keyup', calculateExpiryDate);
+
+                            // Initial call
+                            calculateExpiryDate();
+
+                            // Currency Conversion
+                            function updateConversion() {
+                                var price = $('#price_input').val();
+                                var currency = $('#currency_id').val();
+
+                                if (price && currency) {
+                                    if (currency === 'BDT') {
+                                        $('#conversion_result').text('');
+                                        return;
+                                    }
+
+                                    $('#conversion_result').html('<i class="fa fa-spinner fa-spin"></i> Converting...');
+
+                                    $.getJSON('https://api.exchangerate-api.com/v4/latest/' + currency, function(data) {
+                                        if (data && data.rates && data.rates.BDT) {
+                                            var rate = data.rates.BDT;
+                                            var converted = (price * rate).toFixed(2);
+                                            $('#conversion_result').text('≈ ' + converted + ' BDT');
+                                        } else {
+                                            $('#conversion_result').text('Rate unavailable');
+                                        }
+                                    }).fail(function() {
+                                        $('#conversion_result').text('API Error');
+                                    });
+                                } else {
+                                    $('#conversion_result').text('');
+                                }
+                            }
+
+                            $('#price_input, #currency_id').on('change keyup', updateConversion);
+                            updateConversion();
+
                             $('.toggle-password').click(function() {
                                 var input = $(this).closest('.input-group').find('input');
                                 var type = input.attr('type') === 'password' ? 'text' : 'password';
                                 input.attr('type', type);
                                 $(this).find('i').toggleClass('fa-eye fa-eye-slash');
+                            });
+
+                            $('#myModal').on('shown.bs.modal', function() {
+                                if ($.fn.select2) {
+                                    $(this).find('.select_box').select2({
+                                        dropdownParent: $('#myModal')
+                                    });
+                                }
+                                if (typeof initdatepicker === 'function') {
+                                    initdatepicker();
+                                }
+                                $(this).find('.start_date, .end_date, .datepicker').datepicker({
+                                    autoclose: true,
+                                    format: 'yyyy-mm-dd',
+                                    todayBtn: "linked"
+                                });
+                                // Force show on click if needed
+                                $(this).find('.start_date, .end_date, .datepicker').on('click', function() {
+                                    $(this).datepicker('show');
+                                });
+                                // Fix for icon click
+                                $(this).find('.input-group-addon a').on('click', function(e) {
+                                    e.preventDefault();
+                                    $(this).parents('.input-group').find('input').focus();
+                                });
+                            });
+
+                            // Quick Add Modal Logic
+                            $('.quick-add-btn').click(function(e) {
+                                e.preventDefault();
+                                var btn = $(this);
+                                currentTargetSelect = btn.closest('.input-group').find('select');
+                                var type = btn.data('type');
+                                var url = btn.data('url');
+                                
+                                var titleMap = {
+                                    'provider': 'Add New Provider',
+                                    'project': 'Add New Project',
+                                    'client': 'Add New Client',
+                                    'nameserver': 'Add New Nameserver',
+                                    'type': 'Add New Domain Type',
+                                    'status': 'Add New Domain Status',
+                                    'hosting': 'Add New Hosting'
+                                };
+                                $('#myModal .modal-title').text(titleMap[type] || 'Add New');
+                                $('#myModal .modal-body').html('<div class="text-center mt-3 mb-3"><i class="fa fa-spinner fa-spin fa-2x"></i> Loading...</div>');
+                                $('#myModal').modal('show');
+                                
+                                $.get(url, function(response) {
+                                    $('#myModal .modal-content').html(response);
+                                }).fail(function() {
+                                    $('#myModal .modal-body').html('<div class="alert alert-danger">Error: Not Found</div>');
+                                });
+                            });
+
+                            // Handle modal form submissions via AJAX
+                            $(document).on('submit', '#myModal form', function(e) {
+                                var form = $(this);
+                                var action = form.attr('action');
+                                if (!action) return;
+
+                                // Prevent default submission for specific quick-add forms
+                                if (action.indexOf('admin/projects/saved_project') !== -1 || 
+                                    action.indexOf('admin/client/save_client') !== -1 ||
+                                    action.indexOf('admin/server_management/add_nameserver') !== -1 ||
+                                    action.indexOf('admin/server_management/add_provider') !== -1 ||
+                                    action.indexOf('admin/server_management/add_domain_type') !== -1 ||
+                                    action.indexOf('admin/server_management/add_domain_status') !== -1 ||
+                                    action.indexOf('admin/server_management/add_hosting_type') !== -1) {
+                                    
+                                    e.preventDefault();
+                                    
+                                    var submitBtn = form.find('button[type="submit"]');
+                                    var originalBtnText = submitBtn.text();
+                                    submitBtn.prop('disabled', true).text('Saving...');
+
+                                    $.ajax({
+                                        type: "POST",
+                                        url: action,
+                                        data: form.serialize(),
+                                        dataType: "json",
+                                        success: function(response) {
+                                            if (response.status === 'success') {
+                                                var select = currentTargetSelect;
+                                                if (!select || !select.length) {
+                                                    // Fallback to finding by type if currentTargetSelect is lost
+                                                    if (action.indexOf('projects') !== -1) select = $('#project_id_select');
+                                                    else if (action.indexOf('client') !== -1) select = $('#client_id_select');
+                                                    else if (action.indexOf('nameserver') !== -1) select = $('select[name="nameservers[]"]');
+                                                    else if (action.indexOf('provider') !== -1) select = $('#provider_id');
+                                                    else if (action.indexOf('add_domain_type') !== -1) select = $('#domain_type_select');
+                                                    else if (action.indexOf('add_domain_status') !== -1) select = $('#domain_status_select');
+                                                    else if (action.indexOf('add_hosting_type') !== -1) select = $('#hosting_id_select');
+                                                }
+
+                                                if (select && select.length) {
+                                                    var newOption = new Option(response.text || response.name, response.id, true, true);
+                                                    select.append(newOption).trigger('change');
+                                                }
+
+                                                $('#myModal').modal('hide');
+                                                if (typeof toastr !== 'undefined') {
+                                                    toastr.success(response.message || 'Saved successfully');
+                                                }
+                                            } else {
+                                                alert(response.message || 'Error occurred while saving');
+                                            }
+                                        },
+                                        error: function(xhr, status, error) {
+                                            alert('An error occurred. Please check the console.');
+                                            console.error(xhr.responseText);
+                                        },
+                                        complete: function() {
+                                            submitBtn.prop('disabled', false).text(originalBtnText);
+                                        }
+                                    });
+                                }
+                            });
+                            // Custom Fields Logic
+                            $('#add_custom_field').click(function() {
+                                var row = `
+                                    <div class="row custom-field-row mb-2">
+                                        <div class="col-md-5">
+                                            <input type="text" name="custom_field_label[]" class="form-control" placeholder="Label">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="text" name="custom_field_value[]" class="form-control" placeholder="Value">
+                                        </div>
+                                        <div class="col-md-1">
+                                            <button type="button" class="btn btn-danger remove-custom-field"><i class="fa fa-trash"></i></button>
+                                        </div>
+                                    </div>`;
+                                $('#custom_fields_container').append(row);
+                                $('#no_custom_fields_msg').hide();
+                            });
+
+                            $(document).on('click', '.remove-custom-field', function() {
+                                $(this).closest('.custom-field-row').remove();
+                                if ($('#custom_fields_container .custom-field-row').length === 0) {
+                                    $('#no_custom_fields_msg').show();
+                                }
                             });
                         });
                     </script>

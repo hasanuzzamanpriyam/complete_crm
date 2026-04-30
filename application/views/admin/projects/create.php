@@ -147,7 +147,18 @@ if (!empty($created) || !empty($edited)) {
                                     </div>
                                 </div>
                             </div>
+                                                        <script>
+                                if ($.fn.datepicker && $.fn.datepicker.noConflict) {
+                                    var bootstrapDatepicker = $.fn.datepicker.noConflict();
+                                    $.fn.bootstrapDatepicker = bootstrapDatepicker;
+                                }
+                            </script>
                             <script src="<?= base_url() ?>assets/js/jquery-ui.js"></script>
+                            <script>
+                                if ($.fn.bootstrapDatepicker) {
+                                    $.fn.datepicker = $.fn.bootstrapDatepicker;
+                                }
+                            </script>
                             <?php $direction = $this->session->userdata('direction');
                                 if (!empty($direction) && $direction == 'rtl') {
                                     $RTL = 'on';
@@ -349,7 +360,7 @@ if (!empty($created) || !empty($edited)) {
                                         class="text-danger">*</span></label>
                                 <div class="col-lg-8">
                                     <div class="input-group">
-                                        <input required type="text" name="start_date" class="form-control start_date"
+                                        <input required type="text" name="start_date" data-provide="datepicker" class="form-control start_date"
                                             value="<?php
                                                                                                                                     if (!empty($project_info->start_date)) {
                                                                                                                                         echo date('Y-m-d', strtotime($project_info->start_date));
@@ -367,7 +378,7 @@ if (!empty($created) || !empty($edited)) {
                                         class="text-danger">*</span></label>
                                 <div class="col-lg-8">
                                     <div class="input-group">
-                                        <input required type="text" name="end_date" class="form-control end_date"
+                                        <input required type="text" name="end_date" data-provide="datepicker" class="form-control end_date"
                                             value="<?php
                                                                                                                                 if (!empty($project_info->end_date)) {
                                                                                                                                     echo date('Y-m-d', strtotime($project_info->end_date));
