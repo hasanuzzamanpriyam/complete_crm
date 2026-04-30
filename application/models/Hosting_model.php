@@ -268,4 +268,14 @@ class Hosting_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
+
+    public function get_distinct_dns_providers() {
+        $this->db->select('DISTINCT(dns_provider_name) as provider_name');
+        $this->db->from('tblserver_hostings');
+        $this->db->where('dns_provider_name IS NOT NULL');
+        $this->db->where('dns_provider_name !=', '');
+        $this->db->order_by('dns_provider_name', 'ASC');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
 }

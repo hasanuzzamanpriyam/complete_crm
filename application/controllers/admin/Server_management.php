@@ -415,6 +415,7 @@ class Server_management extends Admin_Controller
                 $data['projects'] = $this->hosting_model->get_all_projects();
                 $data['domains'] = $this->domain_model->get_all_domains();
                 $data['nameservers'] = $this->db->get('tbl_nameservers')->result_array();
+                $data['dns_providers'] = $this->db->order_by('name', 'ASC')->get('tbl_dns_providers')->result_array();
                 $data['subview'] = $this->load->view('admin/server_management/add_hosting', $data, TRUE);
                 $this->load->view('admin/_layout_main', $data);
             } else {
@@ -456,16 +457,8 @@ class Server_management extends Admin_Controller
 
                 $dns_provider_name = trim((string) $this->input->post('dns_provider_name', TRUE));
                 $dns_provider_id = NULL;
-                if ($dns_provider_name !== '') {
-                    $dns_provider = $this->db
-                        ->where('LOWER(provider_name) = ' . $this->db->escape(strtolower($dns_provider_name)), NULL, FALSE)
-                        ->get('tblproviders')
-                        ->row();
-                    if ($dns_provider) {
-                        $dns_provider_id = $dns_provider->id;
-                        $dns_provider_name = $dns_provider->provider_name;
-                    }
-                }
+                // We are no longer connecting this to tblproviders as requested.
+                // It will just be stored as a string in the hosting record.
                 
                 $data_save = array(
                     'title' => $this->input->post('title', TRUE),
@@ -552,6 +545,7 @@ class Server_management extends Admin_Controller
             $data['projects'] = $this->hosting_model->get_all_projects();
             $data['domains'] = $this->domain_model->get_all_domains();
             $data['nameservers'] = $this->db->get('tbl_nameservers')->result_array();
+            $data['dns_providers'] = $this->db->order_by('name', 'ASC')->get('tbl_dns_providers')->result_array();
             $data['subview'] = $this->load->view('admin/server_management/add_hosting', $data, TRUE);
             $this->load->view('admin/_layout_main', $data);
         }
@@ -942,5 +936,42 @@ class Server_management extends Admin_Controller
             set_message('error', 'Nothing to delete!');
         }
         redirect('admin/server_management/provider');
+    }
+
+    public function add_dns_provider()
+    {
+        if ($this->input->post()) {
+            if ($this->input->is_ajax_request()) {
+                $name = $this->input->post('name', TRUE);
+                if ($name) {
+                    $data = array(
+                        'name' => $name,
+                        'created_at' => date('Y-m-d H:i:s')
+                    );
+                    if ($this->db->insert('tbl_dns_providers', $data)) {
+                        $response = array(
+                            'status' => 'success',
+                            'id' => $name,
+                            'text' => $name
+                        );
+                        echo json_encode($response);
+                    } else {
+                        $response = array('status' => 'error', 'message' => 'Database error: ' . $this->db->error()['message']);
+                        echo json_encode($response);
+                    }
+                    exit;
+                }
+                echo json_encode(array('status' => 'error', 'message' => 'Invalid input'));
+                exit;
+            }
+            redirect('admin/server_management/hosting');
+        }
+
+        if ($this->input->is_ajax_request()) {
+            $this->load->view('admin/server_management/add_dns_provider');
+            return;
+        }
+        $data['subview'] = $this->load->view('admin/server_management/add_dns_provider', [], TRUE);
+        $this->load->view('admin/_layout_main', $data);
     }
 }

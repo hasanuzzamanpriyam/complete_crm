@@ -189,14 +189,26 @@
                                     }
                                 }
                                 ?>
-                                <input type="text" name="dns_provider_name" class="form-control" id="dns_provider_name" value="<?= htmlspecialchars($selected_dns_provider_name) ?>" placeholder="Select or type DNS provider" list="dns_providers_list">
-                                <datalist id="dns_providers_list">
-                                    <?php if (!empty($providers)): ?>
-                                        <?php foreach ($providers as $provider): ?>
-                                            <option value="<?= htmlspecialchars($provider['provider_name']) ?>">
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </datalist>
+                                <div class="input-group">
+                                    <select name="dns_provider_name" class="form-control select2-tags" id="dns_provider_name" data-placeholder="Select or type DNS provider">
+                                        <option value=""></option>
+                                        <?php if (!empty($dns_providers)): ?>
+                                            <?php foreach ($dns_providers as $provider): ?>
+                                                <option value="<?= htmlspecialchars($provider['name']) ?>" <?= (isset($hosting_info) && $hosting_info->dns_provider_name == $provider['name']) ? 'selected' : '' ?>>
+                                                    <?= htmlspecialchars($provider['name']) ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                        <?php if (!empty($selected_dns_provider_name) && !in_array($selected_dns_provider_name, array_column($dns_providers ?: [], 'name'))): ?>
+                                            <option value="<?= htmlspecialchars($selected_dns_provider_name) ?>" selected><?= htmlspecialchars($selected_dns_provider_name) ?></option>
+                                        <?php endif; ?>
+                                    </select>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-outline-secondary quick-add-btn" data-type="dns_provider" data-url="<?= base_url('admin/server_management/add_dns_provider') ?>">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -491,6 +503,16 @@ $(document).ready(function() {
         width: '100%'
     });
 
+    $('.select2-tags').select2({
+        theme: 'bootstrap',
+        width: '100%',
+        tags: true,
+        placeholder: function() {
+            return $(this).data('placeholder');
+        },
+        allowClear: true
+    });
+
 
     // IP Address Validation (IPv4/IPv6)
     $('#ip_address').on('change', function() {
@@ -579,7 +601,8 @@ $(document).ready(function() {
             'client': 'Add New Client',
             'currency': 'Add New Currency',
             'domain': 'Add New Domain',
-            'nameserver': 'Add New Nameserver'
+            'nameserver': 'Add New Nameserver',
+            'dns_provider': 'Add New DNS Provider'
         };
         $('#universalQuickAddModalLabel').text(titleMap[currentType] || 'Add New');
         
