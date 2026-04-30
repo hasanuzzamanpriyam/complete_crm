@@ -255,6 +255,9 @@ class Server_management extends Admin_Controller
 
         $data['hostings'] = $this->hosting_model->get_hostings($limit, $offset, $filters);
         $data['providers'] = $this->hosting_model->get_all_providers();
+        $data['projects'] = $this->hosting_model->get_all_projects();
+        $data['clients'] = $this->hosting_model->get_all_clients();
+        $data['domains'] = $this->domain_model->get_all_domains();
         $data['filters'] = $filters;
         $data['total_rows'] = $total_rows;
         $data['offset'] = $offset;

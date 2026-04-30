@@ -164,6 +164,19 @@
     table.dataTable tbody td {
         padding: 8px -1px;
     }
+
+    .password-toggle {
+        cursor: pointer;
+        color: #d32f2f;
+        border-bottom: 1px dashed #d32f2f;
+        font-family: monospace;
+        padding: 2px 4px;
+        transition: all 0.3s;
+    }
+
+    .password-toggle:hover {
+        background: rgba(211, 47, 47, 0.05);
+    }
 </style>
 
 <div class="row mb-lg">
@@ -350,8 +363,28 @@
                                         <td>: <?= htmlspecialchars($hosting['provider_name']) ?></td>
                                     </tr>
                                     <tr>
+                                        <th>Provider URL</th>
+                                        <td>: <?php
+                                            if (!empty($hosting['provider_url'])) {
+                                                $url = htmlspecialchars($hosting['provider_url']);
+                                                $link_url = (strpos($hosting['provider_url'], 'http') === 0) ? $hosting['provider_url'] : 'http://' . $hosting['provider_url'];
+                                                echo '<a href="' . htmlspecialchars($link_url) . '" target="_blank">' . $url . '</a>';
+                                            } else {
+                                                echo 'N/A';
+                                            }
+                                            ?></td>
+                                    </tr>
+                                    <tr>
                                         <th>Server Type</th>
                                         <td>: <?= htmlspecialchars($hosting['server_type']) ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Server Name</th>
+                                        <td>: <?= htmlspecialchars($hosting['server_name'] ?? 'N/A') ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Hostname</th>
+                                        <td>: <?= htmlspecialchars($hosting['hostname'] ?? 'N/A') ?></td>
                                     </tr>
                                     <tr>
                                         <th>Server Location</th>
@@ -382,6 +415,14 @@
                                         <td>: <?= $hosting['expiry_date'] ?></td>
                                     </tr>
                                     <tr>
+                                        <th>Duration</th>
+                                        <td>: <?= htmlspecialchars($hosting['days']) ?> <?= htmlspecialchars($hosting['time_unit']) ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Renew Type</th>
+                                        <td>: <span class="badge badge-pill <?= $hosting['renew'] == 'automatic' ? 'badge-active' : 'badge-suspended' ?>"><?= ucfirst($hosting['renew']) ?></span></td>
+                                    </tr>
+                                    <tr>
                                         <th>CPanel URL</th>
                                         <td>: <?php
                                             if (!empty($hosting['cpanel_url'])) {
@@ -399,7 +440,88 @@
                                     </tr>
                                     <tr>
                                         <th>Password</th>
-                                        <td>: <?= htmlspecialchars($hosting['password'] ?? 'N/A') ?></td>
+                                        <td>: <?php if (!empty($hosting['password'])): ?>
+                                                <span class="password-toggle" data-password="<?= htmlspecialchars($hosting['password']) ?>" title="Click to show/hide">••••••••</span>
+                                            <?php else: ?>
+                                                N/A
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-6 border-right">
+                                <h6 class="border-bottom pb-1 mb-2">FTP Information</h6>
+                                <table class="table table-borderless table-sm mb-0">
+                                    <tr>
+                                        <th style="width: 40%;">FTP Username</th>
+                                        <td>: <?= htmlspecialchars($hosting['ftp_username'] ?? 'N/A') ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th>FTP Password</th>
+                                        <td>: <?php if (!empty($hosting['ftp_password'])): ?>
+                                                <span class="password-toggle" data-password="<?= htmlspecialchars($hosting['ftp_password']) ?>" title="Click to show/hide">••••••••</span>
+                                            <?php else: ?>
+                                                N/A
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="border-bottom pb-1 mb-2">DNS Provider Credentials</h6>
+                                <table class="table table-borderless table-sm mb-0">
+                                    <tr>
+                                        <th style="width: 40%;">DNS Provider</th>
+                                        <td>: <?= htmlspecialchars($hosting['dns_provider_name'] ?? 'N/A') ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Login Email</th>
+                                        <td>: <?= htmlspecialchars($hosting['dns_email'] ?? 'N/A') ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Login Password</th>
+                                        <td>: <?php if (!empty($hosting['dns_password'])): ?>
+                                                <span class="password-toggle" data-password="<?= htmlspecialchars($hosting['dns_password']) ?>" title="Click to show/hide">••••••••</span>
+                                            <?php else: ?>
+                                                N/A
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-6 border-right">
+                                <h6 class="border-bottom pb-1 mb-2">SSL Settings</h6>
+                                <table class="table table-borderless table-sm mb-0">
+                                    <tr>
+                                        <th style="width: 40%;">SSL Certificate</th>
+                                        <td>: <?= !empty($hosting['ssl_certificate']) ? '<span class="text-success">Enabled</span>' : '<span class="text-danger">Disabled</span>' ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th>SSL Type</th>
+                                        <td>: <?= htmlspecialchars($hosting['ssl_type'] ?? 'N/A') ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th>SSL Expiry</th>
+                                        <td>: <?= htmlspecialchars($hosting['ssl_expiry_date'] ?? 'N/A') ?></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="border-bottom pb-1 mb-2">Notification Settings</h6>
+                                <table class="table table-borderless table-sm mb-0">
+                                    <tr>
+                                        <th style="width: 40%;">Expiry Alert</th>
+                                        <td>: <?= !empty($hosting['expiry_notification']) ? '<span class="text-success">Active</span>' : '<span class="text-danger">Inactive</span>' ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Notify Before</th>
+                                        <td>: <?= !empty($hosting['expiry_notification']) ? htmlspecialchars($hosting['notification_days']) . ' ' . htmlspecialchars($hosting['notification_time_unit']) : 'N/A' ?></td>
                                     </tr>
                                 </table>
                             </div>
@@ -407,27 +529,84 @@
 
                         <div class="row mt-3">
                             <div class="col-md-12">
-                                <h6 class="border-bottom pb-1 mb-2">FTP & SSL Information</h6>
+                                <h6 class="border-bottom pb-1 mb-2">Assignments & Additional Info</h6>
                                 <table class="table table-borderless table-sm mb-0">
                                     <tr>
-                                        <th style="width: 20%;">FTP Username</th>
-                                        <td style="width: 30%;">: <?= htmlspecialchars($hosting['ftp_username'] ?? 'N/A') ?></td>
-                                        <th style="width: 20%;">FTP Password</th>
-                                        <td style="width: 30%;">: <?= htmlspecialchars($hosting['ftp_password'] ?? 'N/A') ?></td>
+                                        <th style="width: 20%;">Main Domain(s)</th>
+                                        <td>: <?php
+                                            if (!empty($hosting['main_domain'])) {
+                                                $domain_ids = explode(',', $hosting['main_domain']);
+                                                $domain_names = [];
+                                                foreach ($domain_ids as $id) {
+                                                    foreach ($domains as $d) {
+                                                        if ($d['id'] == $id) {
+                                                            $domain_names[] = $d['domain_name'];
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                                echo !empty($domain_names) ? implode(', ', $domain_names) : $hosting['main_domain'];
+                                            } else {
+                                                echo 'N/A';
+                                            }
+                                            ?></td>
                                     </tr>
                                     <tr>
-                                        <th>SSL Certificate</th>
-                                        <td>: <?= !empty($hosting['ssl_certificate']) ? 'Yes' : 'No' ?></td>
-                                        <th>SSL Expiry</th>
-                                        <td>: <?= htmlspecialchars($hosting['ssl_expiry_date'] ?? 'N/A') ?></td>
+                                        <th>Nameservers</th>
+                                        <td>: <?= htmlspecialchars($hosting['nameservers'] ?? 'N/A') ?></td>
                                     </tr>
                                     <tr>
-                                        <th>SSL Type</th>
-                                        <td colspan="3">: <?= htmlspecialchars($hosting['ssl_type'] ?? 'N/A') ?></td>
+                                        <th>Project(s)</th>
+                                        <td>: <?php
+                                            if (!empty($hosting['project_id'])) {
+                                                $project_ids = explode(',', $hosting['project_id']);
+                                                $project_names = [];
+                                                foreach ($project_ids as $id) {
+                                                    foreach ($projects as $p) {
+                                                        if ($p['project_id'] == $id) {
+                                                            $project_names[] = $p['project_name'];
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                                echo !empty($project_names) ? implode(', ', $project_names) : $hosting['project_id'];
+                                            } else {
+                                                echo 'N/A';
+                                            }
+                                            ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Client(s)</th>
+                                        <td>: <?php
+                                            if (!empty($hosting['client_id'])) {
+                                                $client_ids = explode(',', $hosting['client_id']);
+                                                $client_names = [];
+                                                foreach ($client_ids as $id) {
+                                                    foreach ($clients as $c) {
+                                                        if ($c['client_id'] == $id) {
+                                                            $client_names[] = $c['name'];
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                                echo !empty($client_names) ? implode(', ', $client_names) : $hosting['client_id'];
+                                            } else {
+                                                echo 'N/A';
+                                            }
+                                            ?></td>
                                     </tr>
                                 </table>
                             </div>
                         </div>
+
+                        <?php if (!empty($hosting['ssl_info'])): ?>
+                            <div class="row mt-3">
+                                <div class="col-md-12">
+                                    <h6 class="border-bottom pb-1 mb-2">SSL Certificate Info</h6>
+                                    <pre class="bg-light p-2 small"><?= htmlspecialchars($hosting['ssl_info']) ?></pre>
+                                </div>
+                            </div>
+                        <?php endif; ?>
 
                         <?php if (!empty($hosting['description'])): ?>
                             <div class="row mt-3">
@@ -597,6 +776,17 @@
 
                 $('body').append(form);
                 form.submit();
+            }
+        });
+
+        // Password Toggle Logic
+        $(document).on('click', '.password-toggle', function() {
+            var $this = $(this);
+            var password = $this.data('password');
+            if ($this.text() === '••••••••') {
+                $this.text(password);
+            } else {
+                $this.text('••••••••');
             }
         });
     });
