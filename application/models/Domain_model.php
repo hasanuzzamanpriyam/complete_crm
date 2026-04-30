@@ -137,6 +137,21 @@ class Domain_model extends CI_Model {
         return $query->row();
     }
 
+    public function get_domain_info($id) {
+        $this->db->select('d.*, p.provider_name as provider, h.hosting_name as hosting, pr.project_name as project, c.name as client_name');
+        $this->db->from('tbldomains d');
+        $this->db->join('tblproviders p', 'd.provider_id = p.id', 'left');
+        $this->db->join('tblhostings h', 'd.hosting_id = h.id', 'left');
+        $this->db->join('tbl_project pr', 'd.project_id = pr.project_id', 'left');
+        $this->db->join('tbl_client c', 'd.client_id = c.client_id', 'left');
+        $this->db->where('d.id', $id);
+        $query = $this->db->get();
+        if ($query) {
+            return $query->row();
+        }
+        return NULL;
+    }
+
     public function update_domain($id, $data) {
         $data['updated_at'] = date('Y-m-d H:i:s');
         $this->db->where('id', $id);

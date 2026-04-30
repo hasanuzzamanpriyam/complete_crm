@@ -370,6 +370,27 @@ class Server_management extends Admin_Controller
         $this->load->view('admin/_layout_main', $data);
     }
 
+    public function view_domain($id = NULL)
+    {
+        try {
+            if (!$id) {
+                echo "Invalid Domain ID";
+                return;
+            }
+
+            $data['domain'] = $this->domain_model->get_domain_info($id);
+            if (empty($data['domain'])) {
+                echo "Domain not found";
+                return;
+            }
+
+            $this->load->view('admin/server_management/view_domain', $data);
+        } catch (Exception $e) {
+            log_message('error', $e->getMessage());
+            echo "Error: " . $e->getMessage();
+        }
+    }
+
     public function delete_domain($id = NULL)
     {
         $ids = $this->input->post('ids', TRUE);

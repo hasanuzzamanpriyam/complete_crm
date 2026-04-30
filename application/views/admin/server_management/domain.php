@@ -263,6 +263,12 @@
                                         <td><?= !empty($domain['hosting_name']) ? htmlspecialchars($domain['hosting_name']) : '-' ?></td>
                                         <td class="text-center">
                                             <div class="btn-group">
+                                                <a href="<?= base_url('admin/server_management/view_domain/' . $domain['id']) ?>" 
+                                                   class="btn-action view-domain" 
+                                                   data-id="<?= $domain['id'] ?>" 
+                                                   title="View Details">
+                                                    <i class="fa fa-eye"></i>
+                                                </a>
                                                 <a href="<?= base_url('admin/server_management/add_domain/' . $domain['id']) ?>" class="btn-action <?= !empty($domain['is_locked']) ? 'disabled' : '' ?>" title="<?= !empty($domain['is_locked']) ? 'Locked' : 'Edit' ?>"><i class="fa fa-pencil-square-o"></i></a>
                                                 
                                                 <a href="javascript:void(0)" 
@@ -310,8 +316,29 @@
 <script type="text/javascript">
     $(document).ready(function() {
         
+        // Handle View Details
+        $(document).on('click', '.view-domain', function(e) {
+            e.preventDefault();
+            var id = $(this).data('id');
+            var url = $(this).attr('href');
+            
+            $('#myModal').modal('show');
+            $('#myModal .modal-content').html('<div class="modal-body text-center mt-3 mb-3"><i class="fa fa-spinner fa-spin fa-2x"></i> Loading Domain Details...</div>');
+            
+            $.ajax({
+                url: url,
+                type: 'GET',
+                success: function(response) {
+                    $('#myModal .modal-content').html(response);
+                },
+                error: function(xhr, status, error) {
+                    $('#myModal .modal-content').html('<div class="modal-header"><button type="button" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Error</h4></div><div class="modal-body"><div class="alert alert-danger">Error: Could not load domain details. Status: ' + status + '</div></div>');
+                }
+            });
+        });
+
         // Handle Lock Toggle
-        $('.toggle-lock').on('click', function() {
+        $(document).on('click', '.toggle-lock', function() {
             var btn = $(this);
             var id = btn.data('id');
             var currentStatus = btn.data('status');
@@ -381,7 +408,7 @@
             ], // Sort by Domain Name by default
             "columnDefs": [{
                     "orderable": false,
-                    "targets": [0, 6, 9]
+                    "targets": [0, 6, 8]
                 } // Disable sorting for checkbox, days remaining, and action columns
             ],
             "language": {
