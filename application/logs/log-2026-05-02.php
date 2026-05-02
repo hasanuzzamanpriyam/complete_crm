@@ -234702,3 +234702,2768 @@ INFO - 2026-05-02 09:40:19 --> Language file loaded: language/english/unit_test_
 INFO - 2026-05-02 09:40:19 --> Language file loaded: language/english/upload_lang.php
 INFO - 2026-05-02 09:40:19 --> Language file loaded: language/english/utilities_lang.php
 INFO - 2026-05-02 15:40:19 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:40:21 --> Config Class Initialized
+INFO - 2026-05-02 09:40:21 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:40:21 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:40:21 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:40:21 --> URI Class Initialized
+INFO - 2026-05-02 09:40:21 --> Router Class Initialized
+INFO - 2026-05-02 09:40:21 --> Output Class Initialized
+INFO - 2026-05-02 09:40:21 --> Security Class Initialized
+DEBUG - 2026-05-02 09:40:21 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:40:21 --> Input Class Initialized
+INFO - 2026-05-02 09:40:21 --> Language Class Initialized
+INFO - 2026-05-02 09:40:21 --> Language Class Initialized
+INFO - 2026-05-02 09:40:21 --> Config Class Initialized
+INFO - 2026-05-02 09:40:21 --> Loader Class Initialized
+INFO - 2026-05-02 09:40:21 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:40:21 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:40:21 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:40:21 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:40:21 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:40:21 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:40:21 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:40:21 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:40:21 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:40:21 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:40:21 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:40:21 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:40:21 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:40:21 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:40:21 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:40:21 --> MY_Model class loaded
+INFO - 2026-05-02 09:40:21 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:40:21 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:40:21 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:40:21 --> Controller Class Initialized
+INFO - 2026-05-02 09:40:21 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:40:21 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:40:21 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:40:21 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:40:21 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:40:21 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:40:21 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:40:21 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:40:21 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:40:21 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:40:21 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:40:21 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:40:21 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:40:21 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:40:21 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:40:21 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:40:21 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:40:21 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:40:21 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:40:21 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:40:21 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:40:21 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:40:21 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:40:21 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:40:21 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:40:21 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:40:21 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:40:21 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:40:21 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:40:21 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:40:21 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:40:21 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:40:21 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:40:21 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:40:21 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:40:21 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:40:21 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:40:21 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:40:21 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:40:21 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:40:21 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:40:21 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:40:21 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:40:21 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:40:21 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:40:24 --> Config Class Initialized
+INFO - 2026-05-02 09:40:24 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:40:24 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:40:24 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:40:24 --> URI Class Initialized
+INFO - 2026-05-02 09:40:24 --> Router Class Initialized
+INFO - 2026-05-02 09:40:24 --> Output Class Initialized
+INFO - 2026-05-02 09:40:24 --> Security Class Initialized
+DEBUG - 2026-05-02 09:40:24 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:40:24 --> Input Class Initialized
+INFO - 2026-05-02 09:40:24 --> Language Class Initialized
+INFO - 2026-05-02 09:40:24 --> Language Class Initialized
+INFO - 2026-05-02 09:40:24 --> Config Class Initialized
+INFO - 2026-05-02 09:40:24 --> Loader Class Initialized
+INFO - 2026-05-02 09:40:24 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:40:24 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:40:24 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:40:24 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:40:24 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:40:24 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:40:24 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:40:24 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:40:24 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:40:24 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:40:24 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:40:24 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:40:24 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:40:24 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:40:24 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:40:24 --> MY_Model class loaded
+INFO - 2026-05-02 09:40:24 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:40:24 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:40:24 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:40:24 --> Controller Class Initialized
+INFO - 2026-05-02 09:40:24 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:40:24 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:40:24 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:40:24 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:40:24 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:40:24 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:40:24 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:40:24 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:40:24 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:40:24 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:40:24 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:40:24 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:40:24 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:40:24 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:40:24 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:40:24 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:40:24 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:40:24 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:40:24 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:40:24 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:40:24 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:40:24 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:40:24 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:40:24 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:40:24 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:40:24 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:40:24 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:40:24 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:40:24 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:40:24 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:40:24 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:40:24 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:40:24 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:40:24 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:40:24 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:40:24 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:40:24 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:40:24 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:40:24 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:40:24 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:40:24 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:40:24 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:40:24 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:40:24 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:40:24 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:40:29 --> Config Class Initialized
+INFO - 2026-05-02 09:40:29 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:40:29 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:40:29 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:40:29 --> URI Class Initialized
+INFO - 2026-05-02 09:40:29 --> Router Class Initialized
+INFO - 2026-05-02 09:40:29 --> Output Class Initialized
+INFO - 2026-05-02 09:40:29 --> Security Class Initialized
+DEBUG - 2026-05-02 09:40:29 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:40:29 --> Input Class Initialized
+INFO - 2026-05-02 09:40:29 --> Language Class Initialized
+INFO - 2026-05-02 09:40:29 --> Language Class Initialized
+INFO - 2026-05-02 09:40:29 --> Config Class Initialized
+INFO - 2026-05-02 09:40:29 --> Loader Class Initialized
+INFO - 2026-05-02 09:40:29 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:40:29 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:40:29 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:40:29 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:40:29 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:40:29 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:40:29 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:40:29 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:40:29 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:40:29 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:40:29 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:40:29 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:40:29 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:40:29 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:40:29 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:40:29 --> MY_Model class loaded
+INFO - 2026-05-02 09:40:29 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:40:29 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:40:29 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:40:29 --> Controller Class Initialized
+INFO - 2026-05-02 09:40:29 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:40:29 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:40:29 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:40:29 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:40:29 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:40:29 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:40:29 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:40:29 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:40:29 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:40:29 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:40:29 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:40:29 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:40:29 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:40:29 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:40:29 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:40:29 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:40:29 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:40:29 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:40:29 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:40:29 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:40:29 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:40:29 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:40:29 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:40:29 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:40:29 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:40:29 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:40:29 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:40:29 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:40:29 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:40:29 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:40:29 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:40:29 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:40:29 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:40:29 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:40:29 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:40:29 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:40:29 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:40:29 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:40:29 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:40:29 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:40:29 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:40:29 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:40:29 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:40:29 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:40:29 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:40:35 --> Config Class Initialized
+INFO - 2026-05-02 09:40:35 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:40:35 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:40:35 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:40:35 --> URI Class Initialized
+INFO - 2026-05-02 09:40:35 --> Router Class Initialized
+INFO - 2026-05-02 09:40:35 --> Output Class Initialized
+INFO - 2026-05-02 09:40:35 --> Security Class Initialized
+DEBUG - 2026-05-02 09:40:35 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:40:35 --> Input Class Initialized
+INFO - 2026-05-02 09:40:35 --> Language Class Initialized
+INFO - 2026-05-02 09:40:35 --> Language Class Initialized
+INFO - 2026-05-02 09:40:35 --> Config Class Initialized
+INFO - 2026-05-02 09:40:35 --> Loader Class Initialized
+INFO - 2026-05-02 09:40:35 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:40:35 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:40:35 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:40:35 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:40:35 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:40:35 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:40:35 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:40:35 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:40:35 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:40:35 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:40:35 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:40:35 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:40:35 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:40:35 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:40:35 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:40:35 --> MY_Model class loaded
+INFO - 2026-05-02 09:40:35 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:40:35 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:40:35 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:40:35 --> Controller Class Initialized
+INFO - 2026-05-02 09:40:35 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:40:35 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:40:35 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:40:35 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:40:35 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:40:35 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:40:35 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:40:35 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:40:35 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:40:35 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:40:35 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:40:35 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:40:35 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:40:35 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:40:35 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:40:35 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:40:35 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:40:35 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:40:35 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:40:35 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:40:35 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:40:35 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:40:35 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:40:35 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:40:35 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:40:35 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:40:35 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:40:35 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:40:35 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:40:35 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:40:35 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:40:35 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:40:35 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:40:35 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:40:35 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:40:35 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:40:35 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:40:35 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:40:35 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:40:35 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:40:35 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:40:35 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:40:35 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:40:35 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:40:35 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:40:36 --> Config Class Initialized
+INFO - 2026-05-02 09:40:36 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:40:36 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:40:36 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:40:36 --> URI Class Initialized
+INFO - 2026-05-02 09:40:36 --> Router Class Initialized
+INFO - 2026-05-02 09:40:36 --> Output Class Initialized
+INFO - 2026-05-02 09:40:36 --> Security Class Initialized
+DEBUG - 2026-05-02 09:40:36 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:40:36 --> Input Class Initialized
+INFO - 2026-05-02 09:40:36 --> Language Class Initialized
+INFO - 2026-05-02 09:40:36 --> Language Class Initialized
+INFO - 2026-05-02 09:40:36 --> Config Class Initialized
+INFO - 2026-05-02 09:40:36 --> Loader Class Initialized
+INFO - 2026-05-02 09:40:36 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:40:36 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:40:36 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:40:36 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:40:36 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:40:36 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:40:36 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:40:36 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:40:36 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:40:36 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:40:36 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:40:36 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:40:36 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:40:36 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:40:36 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:40:36 --> MY_Model class loaded
+INFO - 2026-05-02 09:40:36 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:40:36 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:40:36 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:40:36 --> Controller Class Initialized
+INFO - 2026-05-02 09:40:36 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:40:36 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:40:36 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:40:36 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:40:36 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:40:36 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:40:36 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:40:36 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:40:36 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:40:36 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:40:36 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:40:36 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:40:36 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:40:36 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:40:36 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:40:36 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:40:36 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:40:36 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:40:36 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:40:36 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:40:36 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:40:36 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:40:36 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:40:36 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:40:36 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:40:36 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:40:36 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:40:37 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:40:37 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:40:37 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:40:37 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:40:37 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:40:37 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:40:37 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:40:37 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:40:37 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:40:37 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:40:37 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:40:37 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:40:37 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:40:37 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:40:37 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:40:37 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:40:37 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:40:37 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:40:38 --> Config Class Initialized
+INFO - 2026-05-02 09:40:38 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:40:38 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:40:38 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:40:38 --> URI Class Initialized
+INFO - 2026-05-02 09:40:38 --> Router Class Initialized
+INFO - 2026-05-02 09:40:38 --> Output Class Initialized
+INFO - 2026-05-02 09:40:38 --> Security Class Initialized
+DEBUG - 2026-05-02 09:40:38 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:40:38 --> Input Class Initialized
+INFO - 2026-05-02 09:40:38 --> Language Class Initialized
+INFO - 2026-05-02 09:40:38 --> Language Class Initialized
+INFO - 2026-05-02 09:40:38 --> Config Class Initialized
+INFO - 2026-05-02 09:40:38 --> Loader Class Initialized
+INFO - 2026-05-02 09:40:38 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:40:38 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:40:38 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:40:38 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:40:38 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:40:38 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:40:38 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:40:38 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:40:38 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:40:38 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:40:38 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:40:38 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:40:38 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:40:38 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:40:38 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:40:38 --> MY_Model class loaded
+INFO - 2026-05-02 09:40:38 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:40:38 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:40:38 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:40:38 --> Controller Class Initialized
+INFO - 2026-05-02 09:40:38 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:40:38 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:40:38 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:40:38 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:40:38 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:40:38 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:40:38 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:40:38 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:40:38 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:40:38 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:40:38 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:40:38 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:40:38 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:40:38 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:40:38 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:40:38 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:40:38 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:40:38 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:40:38 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:40:38 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:40:38 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:40:38 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:40:38 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:40:38 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:40:38 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:40:38 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:40:38 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:40:38 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:40:38 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:40:38 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:40:38 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:40:38 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:40:38 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:40:38 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:40:38 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:40:38 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:40:38 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:40:38 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:40:38 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:40:38 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:40:38 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:40:38 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:40:38 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:40:38 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:40:38 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:40:39 --> Config Class Initialized
+INFO - 2026-05-02 09:40:39 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:40:39 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:40:39 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:40:39 --> URI Class Initialized
+INFO - 2026-05-02 09:40:39 --> Router Class Initialized
+INFO - 2026-05-02 09:40:39 --> Output Class Initialized
+INFO - 2026-05-02 09:40:39 --> Security Class Initialized
+DEBUG - 2026-05-02 09:40:39 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:40:39 --> Input Class Initialized
+INFO - 2026-05-02 09:40:39 --> Language Class Initialized
+INFO - 2026-05-02 09:40:39 --> Language Class Initialized
+INFO - 2026-05-02 09:40:39 --> Config Class Initialized
+INFO - 2026-05-02 09:40:39 --> Loader Class Initialized
+INFO - 2026-05-02 09:40:39 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:40:39 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:40:39 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:40:39 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:40:39 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:40:39 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:40:39 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:40:39 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:40:39 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:40:39 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:40:39 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:40:39 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:40:39 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:40:39 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:40:39 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:40:39 --> MY_Model class loaded
+INFO - 2026-05-02 09:40:39 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:40:39 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:40:39 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:40:39 --> Controller Class Initialized
+INFO - 2026-05-02 09:40:39 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:40:39 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:40:39 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:40:39 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:40:39 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:40:39 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:40:39 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:40:39 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:40:39 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:40:39 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:40:39 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:40:39 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:40:39 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:40:39 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:40:39 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:40:39 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:40:39 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:40:39 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:40:39 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:40:39 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:40:39 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:40:39 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:40:39 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:40:39 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:40:39 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:40:39 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:40:39 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:40:39 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:40:39 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:40:39 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:40:39 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:40:39 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:40:39 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:40:39 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:40:39 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:40:39 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:40:39 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:40:39 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:40:39 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:40:39 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:40:39 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:40:39 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:40:39 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:40:39 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:40:39 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:40:43 --> Config Class Initialized
+INFO - 2026-05-02 09:40:43 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:40:43 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:40:43 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:40:43 --> URI Class Initialized
+INFO - 2026-05-02 09:40:43 --> Router Class Initialized
+INFO - 2026-05-02 09:40:43 --> Output Class Initialized
+INFO - 2026-05-02 09:40:43 --> Security Class Initialized
+DEBUG - 2026-05-02 09:40:43 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:40:43 --> Input Class Initialized
+INFO - 2026-05-02 09:40:43 --> Language Class Initialized
+INFO - 2026-05-02 09:40:43 --> Language Class Initialized
+INFO - 2026-05-02 09:40:43 --> Config Class Initialized
+INFO - 2026-05-02 09:40:43 --> Loader Class Initialized
+INFO - 2026-05-02 09:40:43 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:40:43 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:40:43 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:40:43 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:40:43 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:40:43 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:40:43 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:40:43 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:40:43 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:40:43 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:40:43 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:40:43 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:40:43 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:40:43 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:40:43 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:40:43 --> MY_Model class loaded
+INFO - 2026-05-02 09:40:43 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:40:43 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:40:43 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:40:43 --> Controller Class Initialized
+INFO - 2026-05-02 09:40:43 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:40:43 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:40:43 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:40:43 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:40:43 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:40:43 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:40:43 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:40:43 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:40:43 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:40:43 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:40:43 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:40:43 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:40:43 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:40:43 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:40:43 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:40:43 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:40:43 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:40:43 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:40:43 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:40:43 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:40:43 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:40:43 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:40:43 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:40:43 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:40:43 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:40:43 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:40:43 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:40:43 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:40:43 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:40:43 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:40:43 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:40:43 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:40:43 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:40:43 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:40:43 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:40:43 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:40:43 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:40:43 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:40:43 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:40:43 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:40:43 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:40:43 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:40:43 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:40:43 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:40:43 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:40:44 --> Config Class Initialized
+INFO - 2026-05-02 09:40:44 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:40:44 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:40:44 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:40:44 --> URI Class Initialized
+INFO - 2026-05-02 09:40:44 --> Router Class Initialized
+INFO - 2026-05-02 09:40:44 --> Output Class Initialized
+INFO - 2026-05-02 09:40:44 --> Security Class Initialized
+DEBUG - 2026-05-02 09:40:44 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:40:44 --> Input Class Initialized
+INFO - 2026-05-02 09:40:44 --> Language Class Initialized
+INFO - 2026-05-02 09:40:44 --> Language Class Initialized
+INFO - 2026-05-02 09:40:44 --> Config Class Initialized
+INFO - 2026-05-02 09:40:44 --> Loader Class Initialized
+INFO - 2026-05-02 09:40:44 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:40:44 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:40:44 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:40:44 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:40:44 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:40:44 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:40:44 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:40:44 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:40:44 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:40:44 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:40:44 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:40:44 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:40:44 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:40:44 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:40:44 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:40:44 --> MY_Model class loaded
+INFO - 2026-05-02 09:40:44 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:40:44 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:40:44 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:40:44 --> Controller Class Initialized
+INFO - 2026-05-02 09:40:44 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:40:44 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:40:44 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:40:44 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:40:44 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:40:44 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:40:44 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:40:44 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:40:44 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:40:44 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:40:44 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:40:44 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:40:44 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:40:44 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:40:44 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:40:44 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:40:44 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:40:44 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:40:44 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:40:44 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:40:44 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:40:44 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:40:44 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:40:44 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:40:44 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:40:44 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:40:44 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:40:44 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:40:44 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:40:44 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:40:44 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:40:44 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:40:44 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:40:44 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:40:44 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:40:44 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:40:44 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:40:44 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:40:44 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:40:44 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:40:44 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:40:44 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:40:44 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:40:44 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:40:44 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:40:48 --> Config Class Initialized
+INFO - 2026-05-02 09:40:48 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:40:48 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:40:48 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:40:48 --> URI Class Initialized
+INFO - 2026-05-02 09:40:48 --> Router Class Initialized
+INFO - 2026-05-02 09:40:48 --> Output Class Initialized
+INFO - 2026-05-02 09:40:48 --> Security Class Initialized
+DEBUG - 2026-05-02 09:40:48 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:40:48 --> Input Class Initialized
+INFO - 2026-05-02 09:40:48 --> Language Class Initialized
+INFO - 2026-05-02 09:40:48 --> Language Class Initialized
+INFO - 2026-05-02 09:40:48 --> Config Class Initialized
+INFO - 2026-05-02 09:40:48 --> Loader Class Initialized
+INFO - 2026-05-02 09:40:48 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:40:48 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:40:48 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:40:48 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:40:48 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:40:48 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:40:48 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:40:48 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:40:48 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:40:48 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:40:48 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:40:48 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:40:48 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:40:48 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:40:48 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:40:48 --> MY_Model class loaded
+INFO - 2026-05-02 09:40:48 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:40:48 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:40:48 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:40:48 --> Controller Class Initialized
+INFO - 2026-05-02 09:40:48 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:40:48 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:40:48 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:40:48 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:40:48 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:40:48 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:40:48 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:40:48 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:40:48 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:40:48 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:40:48 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:40:48 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:40:48 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:40:48 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:40:48 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:40:48 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:40:48 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:40:48 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:40:48 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:40:48 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:40:48 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:40:48 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:40:48 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:40:48 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:40:48 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:40:48 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:40:48 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:40:48 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:40:48 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:40:48 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:40:48 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:40:48 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:40:48 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:40:48 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:40:48 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:40:48 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:40:48 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:40:48 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:40:48 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:40:48 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:40:48 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:40:48 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:40:48 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:40:48 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:40:48 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:40:49 --> Config Class Initialized
+INFO - 2026-05-02 09:40:49 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:40:49 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:40:49 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:40:49 --> URI Class Initialized
+INFO - 2026-05-02 09:40:49 --> Router Class Initialized
+INFO - 2026-05-02 09:40:49 --> Output Class Initialized
+INFO - 2026-05-02 09:40:49 --> Security Class Initialized
+DEBUG - 2026-05-02 09:40:49 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:40:49 --> Input Class Initialized
+INFO - 2026-05-02 09:40:49 --> Language Class Initialized
+INFO - 2026-05-02 09:40:49 --> Language Class Initialized
+INFO - 2026-05-02 09:40:49 --> Config Class Initialized
+INFO - 2026-05-02 09:40:49 --> Loader Class Initialized
+INFO - 2026-05-02 09:40:49 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:40:49 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:40:49 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:40:49 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:40:49 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:40:49 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:40:49 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:40:49 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:40:49 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:40:49 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:40:49 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:40:49 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:40:49 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:40:49 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:40:49 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:40:49 --> MY_Model class loaded
+INFO - 2026-05-02 09:40:49 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:40:49 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:40:49 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:40:49 --> Controller Class Initialized
+INFO - 2026-05-02 09:40:49 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:40:49 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:40:49 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:40:49 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:40:49 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:40:49 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:40:49 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:40:49 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:40:49 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:40:49 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:40:49 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:40:49 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:40:49 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:40:49 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:40:49 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:40:49 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:40:49 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:40:49 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:40:49 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:40:49 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:40:49 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:40:49 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:40:49 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:40:49 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:40:49 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:40:49 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:40:49 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:40:49 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:40:49 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:40:49 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:40:49 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:40:49 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:40:49 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:40:49 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:40:49 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:40:49 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:40:49 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:40:49 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:40:49 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:40:49 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:40:49 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:40:49 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:40:49 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:40:49 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:40:49 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:40:53 --> Config Class Initialized
+INFO - 2026-05-02 09:40:53 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:40:53 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:40:53 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:40:53 --> URI Class Initialized
+INFO - 2026-05-02 09:40:53 --> Router Class Initialized
+INFO - 2026-05-02 09:40:53 --> Output Class Initialized
+INFO - 2026-05-02 09:40:53 --> Security Class Initialized
+DEBUG - 2026-05-02 09:40:53 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:40:53 --> Input Class Initialized
+INFO - 2026-05-02 09:40:53 --> Language Class Initialized
+INFO - 2026-05-02 09:40:53 --> Language Class Initialized
+INFO - 2026-05-02 09:40:53 --> Config Class Initialized
+INFO - 2026-05-02 09:40:53 --> Loader Class Initialized
+INFO - 2026-05-02 09:40:53 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:40:53 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:40:53 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:40:53 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:40:53 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:40:53 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:40:53 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:40:53 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:40:53 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:40:53 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:40:53 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:40:53 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:40:53 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:40:53 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:40:53 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:40:53 --> MY_Model class loaded
+INFO - 2026-05-02 09:40:53 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:40:53 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:40:53 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:40:53 --> Controller Class Initialized
+INFO - 2026-05-02 09:40:53 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:40:53 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:40:53 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:40:53 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:40:53 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:40:53 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:40:53 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:40:53 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:40:53 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:40:53 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:40:53 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:40:53 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:40:53 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:40:53 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:40:53 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:40:53 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:40:53 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:40:53 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:40:53 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:40:53 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:40:53 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:40:53 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:40:53 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:40:53 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:40:53 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:40:53 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:40:53 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:40:53 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:40:53 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:40:53 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:40:53 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:40:53 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:40:53 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:40:53 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:40:53 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:40:53 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:40:53 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:40:53 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:40:53 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:40:53 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:40:53 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:40:53 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:40:53 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:40:53 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:40:53 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:40:54 --> Config Class Initialized
+INFO - 2026-05-02 09:40:54 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:40:54 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:40:54 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:40:54 --> URI Class Initialized
+INFO - 2026-05-02 09:40:54 --> Router Class Initialized
+INFO - 2026-05-02 09:40:54 --> Output Class Initialized
+INFO - 2026-05-02 09:40:54 --> Security Class Initialized
+DEBUG - 2026-05-02 09:40:54 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:40:54 --> Input Class Initialized
+INFO - 2026-05-02 09:40:54 --> Language Class Initialized
+INFO - 2026-05-02 09:40:54 --> Language Class Initialized
+INFO - 2026-05-02 09:40:54 --> Config Class Initialized
+INFO - 2026-05-02 09:40:54 --> Loader Class Initialized
+INFO - 2026-05-02 09:40:54 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:40:54 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:40:54 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:40:54 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:40:54 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:40:54 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:40:54 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:40:54 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:40:54 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:40:54 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:40:54 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:40:54 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:40:54 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:40:54 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:40:54 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:40:54 --> MY_Model class loaded
+INFO - 2026-05-02 09:40:54 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:40:54 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:40:54 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:40:54 --> Controller Class Initialized
+INFO - 2026-05-02 09:40:54 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:40:54 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:40:54 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:40:54 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:40:54 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:40:54 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:40:54 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:40:54 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:40:54 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:40:54 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:40:54 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:40:54 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:40:54 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:40:54 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:40:54 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:40:54 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:40:54 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:40:54 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:40:54 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:40:54 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:40:54 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:40:54 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:40:54 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:40:54 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:40:54 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:40:54 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:40:54 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:40:54 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:40:54 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:40:54 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:40:54 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:40:54 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:40:54 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:40:54 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:40:54 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:40:54 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:40:54 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:40:54 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:40:54 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:40:54 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:40:54 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:40:54 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:40:54 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:40:54 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:40:54 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:40:58 --> Config Class Initialized
+INFO - 2026-05-02 09:40:58 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:40:58 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:40:58 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:40:58 --> URI Class Initialized
+INFO - 2026-05-02 09:40:58 --> Router Class Initialized
+INFO - 2026-05-02 09:40:58 --> Output Class Initialized
+INFO - 2026-05-02 09:40:58 --> Security Class Initialized
+DEBUG - 2026-05-02 09:40:58 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:40:58 --> Input Class Initialized
+INFO - 2026-05-02 09:40:58 --> Language Class Initialized
+INFO - 2026-05-02 09:40:58 --> Language Class Initialized
+INFO - 2026-05-02 09:40:58 --> Config Class Initialized
+INFO - 2026-05-02 09:40:58 --> Loader Class Initialized
+INFO - 2026-05-02 09:40:58 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:40:58 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:40:58 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:40:58 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:40:58 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:40:58 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:40:58 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:40:58 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:40:58 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:40:58 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:40:58 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:40:58 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:40:58 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:40:58 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:40:58 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:40:58 --> MY_Model class loaded
+INFO - 2026-05-02 09:40:58 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:40:58 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:40:58 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:40:58 --> Controller Class Initialized
+INFO - 2026-05-02 09:40:58 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:40:58 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:40:58 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:40:58 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:40:58 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:40:58 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:40:58 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:40:58 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:40:58 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:40:58 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:40:58 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:40:58 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:40:58 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:40:58 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:40:58 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:40:58 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:40:58 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:40:58 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:40:58 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:40:58 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:40:58 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:40:58 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:40:58 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:40:58 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:40:58 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:40:58 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:40:58 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:40:58 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:40:58 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:40:58 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:40:58 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:40:58 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:40:58 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:40:58 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:40:58 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:40:58 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:40:58 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:40:58 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:40:58 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:40:58 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:40:58 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:40:58 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:40:58 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:40:58 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:40:58 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:40:59 --> Config Class Initialized
+INFO - 2026-05-02 09:40:59 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:40:59 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:40:59 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:40:59 --> URI Class Initialized
+INFO - 2026-05-02 09:40:59 --> Router Class Initialized
+INFO - 2026-05-02 09:40:59 --> Output Class Initialized
+INFO - 2026-05-02 09:40:59 --> Security Class Initialized
+DEBUG - 2026-05-02 09:40:59 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:40:59 --> Input Class Initialized
+INFO - 2026-05-02 09:40:59 --> Language Class Initialized
+INFO - 2026-05-02 09:40:59 --> Language Class Initialized
+INFO - 2026-05-02 09:40:59 --> Config Class Initialized
+INFO - 2026-05-02 09:40:59 --> Loader Class Initialized
+INFO - 2026-05-02 09:40:59 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:40:59 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:40:59 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:40:59 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:40:59 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:40:59 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:40:59 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:40:59 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:40:59 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:40:59 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:40:59 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:40:59 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:40:59 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:40:59 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:40:59 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:40:59 --> MY_Model class loaded
+INFO - 2026-05-02 09:40:59 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:40:59 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:40:59 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:40:59 --> Controller Class Initialized
+INFO - 2026-05-02 09:40:59 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:40:59 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:40:59 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:40:59 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:40:59 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:40:59 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:40:59 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:40:59 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:40:59 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:40:59 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:40:59 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:40:59 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:40:59 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:40:59 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:40:59 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:40:59 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:40:59 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:40:59 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:40:59 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:40:59 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:40:59 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:40:59 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:40:59 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:40:59 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:40:59 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:40:59 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:40:59 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:40:59 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:40:59 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:40:59 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:40:59 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:40:59 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:40:59 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:40:59 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:40:59 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:40:59 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:40:59 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:40:59 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:40:59 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:40:59 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:40:59 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:40:59 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:40:59 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:40:59 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:40:59 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:41:03 --> Config Class Initialized
+INFO - 2026-05-02 09:41:03 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:41:03 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:41:03 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:41:03 --> URI Class Initialized
+INFO - 2026-05-02 09:41:03 --> Router Class Initialized
+INFO - 2026-05-02 09:41:03 --> Output Class Initialized
+INFO - 2026-05-02 09:41:03 --> Security Class Initialized
+DEBUG - 2026-05-02 09:41:03 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:41:03 --> Input Class Initialized
+INFO - 2026-05-02 09:41:03 --> Language Class Initialized
+INFO - 2026-05-02 09:41:03 --> Language Class Initialized
+INFO - 2026-05-02 09:41:03 --> Config Class Initialized
+INFO - 2026-05-02 09:41:03 --> Loader Class Initialized
+INFO - 2026-05-02 09:41:03 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:41:03 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:41:03 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:41:03 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:41:03 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:41:03 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:41:03 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:41:03 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:41:03 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:41:03 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:41:03 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:41:03 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:41:03 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:41:03 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:41:03 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:41:03 --> MY_Model class loaded
+INFO - 2026-05-02 09:41:03 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:41:03 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:41:03 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:41:03 --> Controller Class Initialized
+INFO - 2026-05-02 09:41:03 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:41:03 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:41:03 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:41:03 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:41:03 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:41:03 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:41:03 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:41:03 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:41:03 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:41:03 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:41:03 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:41:03 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:41:03 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:41:03 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:41:03 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:41:03 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:41:03 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:41:03 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:41:03 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:41:03 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:41:03 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:41:03 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:41:03 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:41:03 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:41:03 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:41:03 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:41:03 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:41:03 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:41:03 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:41:03 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:41:03 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:41:03 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:41:03 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:41:03 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:41:03 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:41:03 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:41:03 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:41:03 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:41:03 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:41:03 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:41:03 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:41:03 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:41:03 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:41:03 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:41:03 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:41:04 --> Config Class Initialized
+INFO - 2026-05-02 09:41:04 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:41:04 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:41:04 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:41:04 --> URI Class Initialized
+INFO - 2026-05-02 09:41:04 --> Router Class Initialized
+INFO - 2026-05-02 09:41:04 --> Output Class Initialized
+INFO - 2026-05-02 09:41:04 --> Security Class Initialized
+DEBUG - 2026-05-02 09:41:04 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:41:04 --> Input Class Initialized
+INFO - 2026-05-02 09:41:04 --> Language Class Initialized
+INFO - 2026-05-02 09:41:04 --> Language Class Initialized
+INFO - 2026-05-02 09:41:04 --> Config Class Initialized
+INFO - 2026-05-02 09:41:04 --> Loader Class Initialized
+INFO - 2026-05-02 09:41:04 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:41:04 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:41:04 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:41:04 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:41:04 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:41:04 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:41:04 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:41:04 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:41:04 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:41:04 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:41:04 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:41:04 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:41:04 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:41:04 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:41:04 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:41:04 --> MY_Model class loaded
+INFO - 2026-05-02 09:41:04 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:41:04 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:41:04 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:41:04 --> Controller Class Initialized
+INFO - 2026-05-02 09:41:04 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:41:04 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:41:04 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:41:04 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:41:04 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:41:04 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:41:04 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:41:04 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:41:04 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:41:04 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:41:04 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:41:04 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:41:04 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:41:04 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:41:04 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:41:04 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:41:04 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:41:04 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:41:04 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:41:04 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:41:04 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:41:04 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:41:04 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:41:04 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:41:04 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:41:04 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:41:04 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:41:04 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:41:04 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:41:04 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:41:04 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:41:04 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:41:04 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:41:04 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:41:04 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:41:04 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:41:04 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:41:04 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:41:04 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:41:04 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:41:04 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:41:04 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:41:04 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:41:04 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:41:04 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:41:08 --> Config Class Initialized
+INFO - 2026-05-02 09:41:08 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:41:08 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:41:08 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:41:08 --> URI Class Initialized
+INFO - 2026-05-02 09:41:08 --> Router Class Initialized
+INFO - 2026-05-02 09:41:08 --> Output Class Initialized
+INFO - 2026-05-02 09:41:08 --> Security Class Initialized
+DEBUG - 2026-05-02 09:41:08 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:41:08 --> Input Class Initialized
+INFO - 2026-05-02 09:41:08 --> Language Class Initialized
+INFO - 2026-05-02 09:41:08 --> Language Class Initialized
+INFO - 2026-05-02 09:41:08 --> Config Class Initialized
+INFO - 2026-05-02 09:41:08 --> Loader Class Initialized
+INFO - 2026-05-02 09:41:08 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:41:08 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:41:08 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:41:08 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:41:08 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:41:08 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:41:08 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:41:08 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:41:08 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:41:08 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:41:08 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:41:08 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:41:08 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:41:08 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:41:08 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:41:08 --> MY_Model class loaded
+INFO - 2026-05-02 09:41:08 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:41:08 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:41:08 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:41:08 --> Controller Class Initialized
+INFO - 2026-05-02 09:41:08 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:41:08 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:41:08 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:41:08 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:41:08 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:41:08 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:41:08 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:41:08 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:41:08 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:41:08 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:41:08 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:41:08 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:41:08 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:41:08 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:41:08 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:41:08 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:41:08 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:41:08 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:41:08 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:41:08 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:41:08 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:41:08 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:41:08 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:41:08 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:41:08 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:41:08 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:41:08 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:41:08 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:41:08 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:41:08 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:41:08 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:41:08 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:41:08 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:41:08 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:41:08 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:41:08 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:41:08 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:41:08 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:41:08 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:41:08 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:41:08 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:41:08 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:41:08 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:41:08 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:41:08 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:41:09 --> Config Class Initialized
+INFO - 2026-05-02 09:41:09 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:41:09 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:41:09 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:41:09 --> URI Class Initialized
+INFO - 2026-05-02 09:41:09 --> Router Class Initialized
+INFO - 2026-05-02 09:41:09 --> Output Class Initialized
+INFO - 2026-05-02 09:41:09 --> Security Class Initialized
+DEBUG - 2026-05-02 09:41:09 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:41:09 --> Input Class Initialized
+INFO - 2026-05-02 09:41:09 --> Language Class Initialized
+INFO - 2026-05-02 09:41:09 --> Language Class Initialized
+INFO - 2026-05-02 09:41:09 --> Config Class Initialized
+INFO - 2026-05-02 09:41:09 --> Loader Class Initialized
+INFO - 2026-05-02 09:41:09 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:41:09 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:41:09 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:41:09 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:41:09 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:41:09 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:41:09 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:41:09 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:41:09 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:41:09 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:41:09 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:41:09 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:41:09 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:41:09 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:41:09 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:41:09 --> MY_Model class loaded
+INFO - 2026-05-02 09:41:09 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:41:09 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:41:09 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:41:09 --> Controller Class Initialized
+INFO - 2026-05-02 09:41:09 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:41:09 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:41:09 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:41:09 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:41:09 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:41:09 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:41:09 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:41:09 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:41:09 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:41:09 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:41:09 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:41:09 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:41:09 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:41:09 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:41:09 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:41:09 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:41:09 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:41:09 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:41:09 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:41:09 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:41:09 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:41:09 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:41:09 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:41:09 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:41:09 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:41:09 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:41:09 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:41:09 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:41:09 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:41:09 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:41:09 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:41:09 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:41:09 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:41:09 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:41:09 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:41:09 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:41:09 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:41:09 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:41:09 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:41:09 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:41:09 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:41:09 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:41:09 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:41:09 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:41:09 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:41:13 --> Config Class Initialized
+INFO - 2026-05-02 09:41:13 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:41:13 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:41:13 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:41:13 --> URI Class Initialized
+INFO - 2026-05-02 09:41:13 --> Router Class Initialized
+INFO - 2026-05-02 09:41:13 --> Output Class Initialized
+INFO - 2026-05-02 09:41:13 --> Security Class Initialized
+DEBUG - 2026-05-02 09:41:13 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:41:13 --> Input Class Initialized
+INFO - 2026-05-02 09:41:13 --> Language Class Initialized
+INFO - 2026-05-02 09:41:13 --> Language Class Initialized
+INFO - 2026-05-02 09:41:13 --> Config Class Initialized
+INFO - 2026-05-02 09:41:13 --> Loader Class Initialized
+INFO - 2026-05-02 09:41:13 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:41:13 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:41:13 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:41:13 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:41:13 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:41:13 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:41:13 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:41:13 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:41:13 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:41:13 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:41:13 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:41:13 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:41:13 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:41:13 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:41:13 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:41:13 --> MY_Model class loaded
+INFO - 2026-05-02 09:41:13 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:41:13 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:41:13 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:41:13 --> Controller Class Initialized
+INFO - 2026-05-02 09:41:13 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:41:13 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:41:13 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:41:13 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:41:13 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:41:13 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:41:13 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:41:13 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:41:13 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:41:13 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:41:13 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:41:13 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:41:13 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:41:13 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:41:13 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:41:13 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:41:13 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:41:13 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:41:13 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:41:13 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:41:13 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:41:13 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:41:13 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:41:13 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:41:13 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:41:13 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:41:13 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:41:13 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:41:13 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:41:13 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:41:13 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:41:13 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:41:13 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:41:13 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:41:13 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:41:13 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:41:13 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:41:13 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:41:13 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:41:13 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:41:13 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:41:13 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:41:13 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:41:13 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:41:13 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:41:14 --> Config Class Initialized
+INFO - 2026-05-02 09:41:14 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:41:14 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:41:14 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:41:14 --> URI Class Initialized
+INFO - 2026-05-02 09:41:14 --> Router Class Initialized
+INFO - 2026-05-02 09:41:14 --> Output Class Initialized
+INFO - 2026-05-02 09:41:14 --> Security Class Initialized
+DEBUG - 2026-05-02 09:41:14 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:41:14 --> Input Class Initialized
+INFO - 2026-05-02 09:41:14 --> Language Class Initialized
+INFO - 2026-05-02 09:41:14 --> Language Class Initialized
+INFO - 2026-05-02 09:41:14 --> Config Class Initialized
+INFO - 2026-05-02 09:41:14 --> Loader Class Initialized
+INFO - 2026-05-02 09:41:14 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:41:14 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:41:14 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:41:14 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:41:14 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:41:14 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:41:14 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:41:14 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:41:14 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:41:14 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:41:14 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:41:14 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:41:14 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:41:14 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:41:14 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:41:14 --> MY_Model class loaded
+INFO - 2026-05-02 09:41:14 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:41:14 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:41:14 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:41:14 --> Controller Class Initialized
+INFO - 2026-05-02 09:41:14 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:41:14 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:41:14 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:41:14 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:41:14 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:41:14 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:41:14 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:41:14 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:41:14 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:41:14 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:41:14 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:41:14 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:41:14 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:41:14 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:41:14 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:41:14 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:41:14 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:41:14 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:41:14 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:41:14 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:41:14 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:41:14 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:41:14 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:41:14 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:41:14 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:41:14 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:41:14 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:41:14 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:41:14 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:41:14 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:41:14 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:41:14 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:41:14 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:41:14 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:41:14 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:41:14 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:41:14 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:41:14 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:41:14 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:41:14 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:41:14 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:41:14 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:41:14 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:41:14 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:41:14 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:41:18 --> Config Class Initialized
+INFO - 2026-05-02 09:41:18 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:41:18 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:41:18 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:41:18 --> URI Class Initialized
+INFO - 2026-05-02 09:41:18 --> Router Class Initialized
+INFO - 2026-05-02 09:41:18 --> Output Class Initialized
+INFO - 2026-05-02 09:41:18 --> Security Class Initialized
+DEBUG - 2026-05-02 09:41:18 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:41:18 --> Input Class Initialized
+INFO - 2026-05-02 09:41:18 --> Language Class Initialized
+INFO - 2026-05-02 09:41:18 --> Language Class Initialized
+INFO - 2026-05-02 09:41:18 --> Config Class Initialized
+INFO - 2026-05-02 09:41:18 --> Loader Class Initialized
+INFO - 2026-05-02 09:41:18 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:41:18 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:41:18 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:41:18 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:41:18 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:41:18 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:41:18 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:41:18 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:41:18 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:41:18 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:41:18 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:41:18 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:41:18 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:41:18 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:41:18 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:41:18 --> MY_Model class loaded
+INFO - 2026-05-02 09:41:18 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:41:18 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:41:18 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:41:18 --> Controller Class Initialized
+INFO - 2026-05-02 09:41:18 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:41:18 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:41:18 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:41:18 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:41:18 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:41:18 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:41:18 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:41:18 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:41:18 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:41:18 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:41:18 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:41:18 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:41:18 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:41:18 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:41:18 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:41:18 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:41:18 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:41:18 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:41:18 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:41:18 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:41:18 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:41:18 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:41:18 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:41:18 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:41:18 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:41:18 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:41:18 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:41:18 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:41:18 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:41:18 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:41:18 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:41:18 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:41:18 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:41:18 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:41:18 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:41:18 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:41:18 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:41:18 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:41:18 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:41:18 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:41:18 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:41:18 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:41:18 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:41:18 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:41:18 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:41:19 --> Config Class Initialized
+INFO - 2026-05-02 09:41:19 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:41:19 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:41:19 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:41:19 --> URI Class Initialized
+INFO - 2026-05-02 09:41:19 --> Router Class Initialized
+INFO - 2026-05-02 09:41:19 --> Output Class Initialized
+INFO - 2026-05-02 09:41:19 --> Security Class Initialized
+DEBUG - 2026-05-02 09:41:19 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:41:19 --> Input Class Initialized
+INFO - 2026-05-02 09:41:19 --> Language Class Initialized
+INFO - 2026-05-02 09:41:19 --> Language Class Initialized
+INFO - 2026-05-02 09:41:19 --> Config Class Initialized
+INFO - 2026-05-02 09:41:19 --> Loader Class Initialized
+INFO - 2026-05-02 09:41:19 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:41:19 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:41:19 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:41:19 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:41:19 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:41:19 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:41:19 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:41:19 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:41:19 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:41:19 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:41:19 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:41:19 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:41:19 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:41:19 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:41:19 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:41:19 --> MY_Model class loaded
+INFO - 2026-05-02 09:41:19 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:41:19 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:41:19 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:41:19 --> Controller Class Initialized
+INFO - 2026-05-02 09:41:19 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:41:19 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:41:19 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:41:19 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:41:19 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:41:19 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:41:19 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:41:19 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:41:19 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:41:19 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:41:19 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:41:19 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:41:19 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:41:19 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:41:19 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:41:19 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:41:19 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:41:19 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:41:19 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:41:19 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:41:19 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:41:19 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:41:19 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:41:19 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:41:19 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:41:19 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:41:19 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:41:19 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:41:19 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:41:19 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:41:19 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:41:19 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:41:19 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:41:19 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:41:19 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:41:19 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:41:19 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:41:19 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:41:19 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:41:19 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:41:19 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:41:19 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:41:19 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:41:19 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:41:19 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:41:23 --> Config Class Initialized
+INFO - 2026-05-02 09:41:23 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:41:23 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:41:23 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:41:23 --> URI Class Initialized
+INFO - 2026-05-02 09:41:23 --> Router Class Initialized
+INFO - 2026-05-02 09:41:23 --> Output Class Initialized
+INFO - 2026-05-02 09:41:23 --> Security Class Initialized
+DEBUG - 2026-05-02 09:41:23 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:41:23 --> Input Class Initialized
+INFO - 2026-05-02 09:41:23 --> Language Class Initialized
+INFO - 2026-05-02 09:41:23 --> Language Class Initialized
+INFO - 2026-05-02 09:41:23 --> Config Class Initialized
+INFO - 2026-05-02 09:41:23 --> Loader Class Initialized
+INFO - 2026-05-02 09:41:23 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:41:23 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:41:23 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:41:23 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:41:23 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:41:23 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:41:23 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:41:23 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:41:23 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:41:23 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:41:23 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:41:23 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:41:23 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:41:23 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:41:23 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:41:23 --> MY_Model class loaded
+INFO - 2026-05-02 09:41:23 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:41:23 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:41:23 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:41:23 --> Controller Class Initialized
+INFO - 2026-05-02 09:41:23 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:41:23 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:41:23 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:41:23 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:41:23 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:41:23 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:41:23 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:41:23 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:41:23 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:41:23 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:41:23 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:41:23 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:41:23 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:41:23 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:41:23 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:41:23 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:41:23 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:41:23 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:41:23 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:41:23 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:41:23 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:41:23 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:41:23 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:41:23 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:41:23 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:41:23 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:41:23 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:41:23 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:41:23 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:41:23 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:41:23 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:41:23 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:41:23 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:41:23 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:41:23 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:41:23 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:41:23 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:41:23 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:41:23 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:41:23 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:41:23 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:41:23 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:41:23 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:41:23 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:41:23 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:41:24 --> Config Class Initialized
+INFO - 2026-05-02 09:41:24 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:41:24 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:41:24 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:41:24 --> URI Class Initialized
+INFO - 2026-05-02 09:41:24 --> Router Class Initialized
+INFO - 2026-05-02 09:41:24 --> Output Class Initialized
+INFO - 2026-05-02 09:41:24 --> Security Class Initialized
+DEBUG - 2026-05-02 09:41:24 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:41:24 --> Input Class Initialized
+INFO - 2026-05-02 09:41:24 --> Language Class Initialized
+INFO - 2026-05-02 09:41:24 --> Language Class Initialized
+INFO - 2026-05-02 09:41:24 --> Config Class Initialized
+INFO - 2026-05-02 09:41:24 --> Loader Class Initialized
+INFO - 2026-05-02 09:41:24 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:41:24 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:41:24 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:41:24 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:41:24 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:41:24 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:41:24 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:41:24 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:41:24 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:41:24 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:41:24 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:41:24 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:41:24 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:41:24 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:41:24 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:41:24 --> MY_Model class loaded
+INFO - 2026-05-02 09:41:24 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:41:24 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:41:24 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:41:24 --> Controller Class Initialized
+INFO - 2026-05-02 09:41:24 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:41:24 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:41:24 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:41:24 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:41:24 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:41:24 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:41:24 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:41:24 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:41:24 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:41:24 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:41:24 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:41:24 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:41:24 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:41:24 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:41:24 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:41:24 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:41:24 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:41:24 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:41:24 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:41:24 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:41:24 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:41:24 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:41:24 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:41:24 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:41:24 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:41:24 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:41:24 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:41:24 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:41:24 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:41:24 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:41:24 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:41:24 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:41:24 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:41:24 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:41:24 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:41:24 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:41:24 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:41:24 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:41:24 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:41:24 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:41:24 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:41:24 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:41:24 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:41:24 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:41:24 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:41:28 --> Config Class Initialized
+INFO - 2026-05-02 09:41:28 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:41:28 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:41:28 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:41:28 --> URI Class Initialized
+INFO - 2026-05-02 09:41:28 --> Router Class Initialized
+INFO - 2026-05-02 09:41:28 --> Output Class Initialized
+INFO - 2026-05-02 09:41:28 --> Security Class Initialized
+DEBUG - 2026-05-02 09:41:28 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:41:28 --> Input Class Initialized
+INFO - 2026-05-02 09:41:28 --> Language Class Initialized
+INFO - 2026-05-02 09:41:28 --> Language Class Initialized
+INFO - 2026-05-02 09:41:28 --> Config Class Initialized
+INFO - 2026-05-02 09:41:28 --> Loader Class Initialized
+INFO - 2026-05-02 09:41:28 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:41:28 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:41:28 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:41:28 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:41:28 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:41:28 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:41:28 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:41:28 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:41:28 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:41:28 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:41:28 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:41:28 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:41:28 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:41:28 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:41:28 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:41:28 --> MY_Model class loaded
+INFO - 2026-05-02 09:41:28 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:41:28 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:41:28 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:41:28 --> Controller Class Initialized
+INFO - 2026-05-02 09:41:28 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:41:28 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:41:28 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:41:28 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:41:28 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:41:28 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:41:28 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:41:28 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:41:28 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:41:28 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:41:28 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:41:28 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:41:28 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:41:28 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:41:28 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:41:28 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:41:28 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:41:28 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:41:28 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:41:28 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:41:28 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:41:28 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:41:28 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:41:28 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:41:28 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:41:28 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:41:28 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:41:28 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:41:28 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:41:28 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:41:28 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:41:28 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:41:28 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:41:28 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:41:28 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:41:28 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:41:28 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:41:28 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:41:28 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:41:28 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:41:28 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:41:28 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:41:28 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:41:28 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:41:28 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:41:29 --> Config Class Initialized
+INFO - 2026-05-02 09:41:29 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:41:29 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:41:29 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:41:29 --> URI Class Initialized
+INFO - 2026-05-02 09:41:29 --> Router Class Initialized
+INFO - 2026-05-02 09:41:29 --> Output Class Initialized
+INFO - 2026-05-02 09:41:29 --> Security Class Initialized
+DEBUG - 2026-05-02 09:41:29 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:41:29 --> Input Class Initialized
+INFO - 2026-05-02 09:41:29 --> Language Class Initialized
+INFO - 2026-05-02 09:41:29 --> Language Class Initialized
+INFO - 2026-05-02 09:41:29 --> Config Class Initialized
+INFO - 2026-05-02 09:41:29 --> Loader Class Initialized
+INFO - 2026-05-02 09:41:29 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:41:29 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:41:29 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:41:29 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:41:29 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:41:29 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:41:29 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:41:29 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:41:29 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:41:29 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:41:29 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:41:29 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:41:29 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:41:29 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:41:29 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:41:29 --> MY_Model class loaded
+INFO - 2026-05-02 09:41:29 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:41:29 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:41:29 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:41:29 --> Controller Class Initialized
+INFO - 2026-05-02 09:41:29 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:41:29 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:41:29 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:41:29 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:41:29 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:41:29 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:41:29 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:41:29 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:41:29 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:41:29 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:41:29 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:41:29 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:41:29 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:41:29 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:41:29 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:41:29 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:41:29 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:41:29 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:41:29 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:41:29 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:41:29 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:41:29 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:41:29 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:41:29 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:41:29 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:41:29 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:41:29 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:41:29 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:41:29 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:41:29 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:41:29 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:41:29 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:41:29 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:41:29 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:41:29 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:41:29 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:41:29 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:41:29 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:41:29 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:41:29 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:41:29 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:41:29 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:41:29 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:41:29 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:41:29 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:41:33 --> Config Class Initialized
+INFO - 2026-05-02 09:41:33 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:41:33 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:41:33 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:41:33 --> URI Class Initialized
+INFO - 2026-05-02 09:41:33 --> Router Class Initialized
+INFO - 2026-05-02 09:41:33 --> Output Class Initialized
+INFO - 2026-05-02 09:41:33 --> Security Class Initialized
+DEBUG - 2026-05-02 09:41:33 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:41:33 --> Input Class Initialized
+INFO - 2026-05-02 09:41:33 --> Language Class Initialized
+INFO - 2026-05-02 09:41:33 --> Language Class Initialized
+INFO - 2026-05-02 09:41:33 --> Config Class Initialized
+INFO - 2026-05-02 09:41:33 --> Loader Class Initialized
+INFO - 2026-05-02 09:41:33 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:41:33 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:41:33 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:41:33 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:41:33 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:41:33 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:41:33 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:41:33 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:41:33 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:41:33 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:41:33 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:41:33 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:41:33 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:41:33 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:41:33 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:41:33 --> MY_Model class loaded
+INFO - 2026-05-02 09:41:33 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:41:33 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:41:33 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:41:33 --> Controller Class Initialized
+INFO - 2026-05-02 09:41:33 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:41:33 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:41:33 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:41:33 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:41:33 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:41:33 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:41:33 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:41:33 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:41:33 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:41:33 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:41:33 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:41:33 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:41:33 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:41:33 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:41:33 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:41:33 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:41:33 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:41:33 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:41:33 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:41:33 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:41:33 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:41:33 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:41:33 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:41:33 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:41:33 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:41:33 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:41:33 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:41:33 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:41:33 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:41:33 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:41:33 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:41:33 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:41:33 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:41:33 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:41:33 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:41:33 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:41:33 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:41:33 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:41:33 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:41:33 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:41:33 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:41:33 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:41:33 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:41:33 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:41:33 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:41:34 --> Config Class Initialized
+INFO - 2026-05-02 09:41:34 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:41:34 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:41:34 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:41:34 --> URI Class Initialized
+INFO - 2026-05-02 09:41:34 --> Router Class Initialized
+INFO - 2026-05-02 09:41:34 --> Output Class Initialized
+INFO - 2026-05-02 09:41:34 --> Security Class Initialized
+DEBUG - 2026-05-02 09:41:34 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:41:34 --> Input Class Initialized
+INFO - 2026-05-02 09:41:34 --> Language Class Initialized
+INFO - 2026-05-02 09:41:34 --> Language Class Initialized
+INFO - 2026-05-02 09:41:34 --> Config Class Initialized
+INFO - 2026-05-02 09:41:34 --> Loader Class Initialized
+INFO - 2026-05-02 09:41:34 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:41:34 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:41:34 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:41:34 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:41:34 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:41:34 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:41:34 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:41:34 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:41:34 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:41:34 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:41:34 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:41:34 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:41:34 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:41:34 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:41:34 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:41:34 --> MY_Model class loaded
+INFO - 2026-05-02 09:41:34 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:41:34 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:41:34 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:41:34 --> Controller Class Initialized
+INFO - 2026-05-02 09:41:34 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:41:34 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:41:34 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:41:34 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:41:34 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:41:34 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:41:34 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:41:34 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:41:34 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:41:34 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:41:34 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:41:34 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:41:34 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:41:34 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:41:34 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:41:34 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:41:34 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:41:34 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:41:34 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:41:34 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:41:34 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:41:34 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:41:34 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:41:34 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:41:34 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:41:34 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:41:34 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:41:34 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:41:34 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:41:34 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:41:34 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:41:34 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:41:34 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:41:34 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:41:34 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:41:34 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:41:34 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:41:34 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:41:34 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:41:34 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:41:34 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:41:34 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:41:34 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:41:34 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:41:34 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:42:21 --> Config Class Initialized
+INFO - 2026-05-02 09:42:21 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:42:21 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:42:21 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:42:21 --> URI Class Initialized
+INFO - 2026-05-02 09:42:21 --> Router Class Initialized
+INFO - 2026-05-02 09:42:21 --> Output Class Initialized
+INFO - 2026-05-02 09:42:21 --> Security Class Initialized
+DEBUG - 2026-05-02 09:42:21 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:42:21 --> Input Class Initialized
+INFO - 2026-05-02 09:42:21 --> Language Class Initialized
+INFO - 2026-05-02 09:42:21 --> Language Class Initialized
+INFO - 2026-05-02 09:42:21 --> Config Class Initialized
+INFO - 2026-05-02 09:42:21 --> Loader Class Initialized
+INFO - 2026-05-02 09:42:21 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:42:21 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:42:21 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:42:21 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:42:21 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:42:21 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:42:21 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:42:21 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:42:21 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:42:21 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:42:21 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:42:21 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:42:21 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:42:21 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:42:21 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:42:21 --> MY_Model class loaded
+INFO - 2026-05-02 09:42:21 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:42:21 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:42:21 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:42:21 --> Controller Class Initialized
+INFO - 2026-05-02 09:42:21 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:42:21 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:42:21 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:42:21 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:42:21 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:42:21 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:42:21 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:42:21 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:42:21 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:42:21 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:42:21 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:42:21 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:42:21 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:42:21 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:42:21 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:42:21 --> Config Class Initialized
+INFO - 2026-05-02 09:42:21 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:42:21 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:42:21 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:42:21 --> URI Class Initialized
+INFO - 2026-05-02 09:42:21 --> Router Class Initialized
+INFO - 2026-05-02 09:42:21 --> Output Class Initialized
+INFO - 2026-05-02 09:42:21 --> Security Class Initialized
+DEBUG - 2026-05-02 09:42:21 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:42:21 --> Input Class Initialized
+INFO - 2026-05-02 09:42:21 --> Language Class Initialized
+INFO - 2026-05-02 09:42:21 --> Language Class Initialized
+INFO - 2026-05-02 09:42:21 --> Config Class Initialized
+INFO - 2026-05-02 09:42:21 --> Loader Class Initialized
+INFO - 2026-05-02 09:42:21 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:42:21 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:42:21 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:42:21 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:42:21 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:42:21 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:42:21 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:42:21 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:42:21 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:42:21 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:42:21 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:42:21 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:42:21 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:42:21 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:42:21 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:42:21 --> MY_Model class loaded
+INFO - 2026-05-02 09:42:21 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:42:21 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:42:21 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:42:21 --> Controller Class Initialized
+INFO - 2026-05-02 09:42:21 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:42:21 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:42:21 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:42:21 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:42:21 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:42:21 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:42:21 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:42:21 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:42:21 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:42:21 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:42:21 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:42:21 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:42:21 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:42:21 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:42:21 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:42:21 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:43:21 --> Config Class Initialized
+INFO - 2026-05-02 09:43:21 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:43:21 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:43:21 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:43:21 --> URI Class Initialized
+INFO - 2026-05-02 09:43:21 --> Router Class Initialized
+INFO - 2026-05-02 09:43:21 --> Output Class Initialized
+INFO - 2026-05-02 09:43:21 --> Security Class Initialized
+DEBUG - 2026-05-02 09:43:21 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:43:21 --> Input Class Initialized
+INFO - 2026-05-02 09:43:21 --> Language Class Initialized
+INFO - 2026-05-02 09:43:21 --> Language Class Initialized
+INFO - 2026-05-02 09:43:21 --> Config Class Initialized
+INFO - 2026-05-02 09:43:21 --> Loader Class Initialized
+INFO - 2026-05-02 09:43:21 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:43:21 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:43:21 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:43:21 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:43:21 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:43:21 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:43:21 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:43:21 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:43:21 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:43:21 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:43:21 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:43:21 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:43:21 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:43:21 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:43:21 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:43:21 --> MY_Model class loaded
+INFO - 2026-05-02 09:43:21 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:43:21 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:43:21 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:43:21 --> Controller Class Initialized
+INFO - 2026-05-02 09:43:21 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:43:21 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:43:21 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:43:21 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:43:21 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:43:21 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:43:21 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:43:21 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:43:21 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:43:21 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:43:21 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:43:21 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:43:21 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:43:21 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:43:21 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:43:21 --> Config Class Initialized
+INFO - 2026-05-02 09:43:21 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:43:21 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:43:21 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:43:21 --> URI Class Initialized
+INFO - 2026-05-02 09:43:21 --> Router Class Initialized
+INFO - 2026-05-02 09:43:21 --> Output Class Initialized
+INFO - 2026-05-02 09:43:21 --> Security Class Initialized
+DEBUG - 2026-05-02 09:43:21 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:43:21 --> Input Class Initialized
+INFO - 2026-05-02 09:43:21 --> Language Class Initialized
+INFO - 2026-05-02 09:43:21 --> Language Class Initialized
+INFO - 2026-05-02 09:43:21 --> Config Class Initialized
+INFO - 2026-05-02 09:43:21 --> Loader Class Initialized
+INFO - 2026-05-02 09:43:21 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:43:21 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:43:21 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:43:21 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:43:21 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:43:21 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:43:21 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:43:21 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:43:21 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:43:21 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:43:21 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:43:21 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:43:21 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:43:21 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:43:21 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:43:21 --> MY_Model class loaded
+INFO - 2026-05-02 09:43:21 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:43:21 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:43:21 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:43:21 --> Controller Class Initialized
+INFO - 2026-05-02 09:43:21 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:43:21 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:43:21 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:43:21 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:43:21 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:43:21 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:43:21 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:43:21 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:43:21 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:43:21 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:43:21 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:43:21 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:43:21 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:43:21 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:43:21 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:43:21 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:44:21 --> Config Class Initialized
+INFO - 2026-05-02 09:44:21 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:44:21 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:44:21 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:44:21 --> URI Class Initialized
+INFO - 2026-05-02 09:44:21 --> Router Class Initialized
+INFO - 2026-05-02 09:44:21 --> Output Class Initialized
+INFO - 2026-05-02 09:44:21 --> Security Class Initialized
+DEBUG - 2026-05-02 09:44:21 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:44:21 --> Input Class Initialized
+INFO - 2026-05-02 09:44:21 --> Language Class Initialized
+INFO - 2026-05-02 09:44:21 --> Language Class Initialized
+INFO - 2026-05-02 09:44:21 --> Config Class Initialized
+INFO - 2026-05-02 09:44:21 --> Loader Class Initialized
+INFO - 2026-05-02 09:44:21 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:44:21 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:44:21 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:44:21 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:44:21 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:44:21 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:44:21 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:44:21 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:44:21 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:44:21 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:44:21 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:44:21 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:44:21 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:44:21 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:44:21 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:44:21 --> MY_Model class loaded
+INFO - 2026-05-02 09:44:21 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:44:21 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:44:21 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:44:21 --> Controller Class Initialized
+INFO - 2026-05-02 09:44:21 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:44:21 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:44:21 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:44:21 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:44:21 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:44:21 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:44:21 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:44:21 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:44:21 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:44:21 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:44:21 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:44:21 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:44:21 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:44:21 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:44:21 --> Model "Chat_Model" initialized
+INFO - 2026-05-02 09:44:21 --> Config Class Initialized
+INFO - 2026-05-02 09:44:21 --> Hooks Class Initialized
+DEBUG - 2026-05-02 09:44:21 --> UTF-8 Support Enabled
+INFO - 2026-05-02 09:44:21 --> Utf8 Class Initialized
+INFO - 2026-05-02 09:44:21 --> URI Class Initialized
+INFO - 2026-05-02 09:44:21 --> Router Class Initialized
+INFO - 2026-05-02 09:44:21 --> Output Class Initialized
+INFO - 2026-05-02 09:44:21 --> Security Class Initialized
+DEBUG - 2026-05-02 09:44:21 --> Global POST, GET and COOKIE data sanitized
+INFO - 2026-05-02 09:44:21 --> Input Class Initialized
+INFO - 2026-05-02 09:44:21 --> Language Class Initialized
+INFO - 2026-05-02 09:44:21 --> Language Class Initialized
+INFO - 2026-05-02 09:44:21 --> Config Class Initialized
+INFO - 2026-05-02 09:44:21 --> Loader Class Initialized
+INFO - 2026-05-02 09:44:21 --> Helper loaded: files_helper
+DEBUG - 2026-05-02 09:44:21 --> Config file loaded: C:\laragon\www\tic_crm\application\config/bacs_config.php
+INFO - 2026-05-02 09:44:21 --> Helper loaded: url_helper
+INFO - 2026-05-02 09:44:21 --> Helper loaded: html_helper
+INFO - 2026-05-02 09:44:21 --> Helper loaded: admin_helper
+INFO - 2026-05-02 09:44:21 --> Helper loaded: alert_helper
+INFO - 2026-05-02 09:44:21 --> Helper loaded: file_helper
+INFO - 2026-05-02 09:44:21 --> Helper loaded: language_helper
+INFO - 2026-05-02 09:44:21 --> Helper loaded: hooks_helper
+INFO - 2026-05-02 09:44:21 --> Database Driver Class Initialized
+DEBUG - 2026-05-02 09:44:21 --> Session: "sess_driver" is empty; using BC fallback to "sess_use_database".
+DEBUG - 2026-05-02 09:44:21 --> Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".
+INFO - 2026-05-02 09:44:21 --> Session: Class initialized using 'database' driver.
+INFO - 2026-05-02 09:44:21 --> Helper loaded: form_helper
+INFO - 2026-05-02 09:44:21 --> Form Validation Class Initialized
+INFO - 2026-05-02 09:44:21 --> MY_Model class loaded
+INFO - 2026-05-02 09:44:21 --> Model "Admin_Model" initialized
+INFO - 2026-05-02 09:44:21 --> Helper loaded: directory_helper
+DEBUG - 2026-05-02 09:44:21 --> Config file loaded: C:\laragon\www\tic_crm\application\config/piprapay.php
+INFO - 2026-05-02 09:44:21 --> Controller Class Initialized
+INFO - 2026-05-02 09:44:21 --> Model "Login_Model" initialized
+INFO - 2026-05-02 09:44:21 --> Model "Items_Model" initialized
+INFO - 2026-05-02 09:44:21 --> Model "Invoice_Model" initialized
+INFO - 2026-05-02 09:44:21 --> Model "Common_model" initialized
+DEBUG - 2026-05-02 09:44:21 --> File loaded: C:\laragon\www\tic_crm\modules/complaints/language/english/complaints_lang.php
+DEBUG - 2026-05-02 09:44:21 --> File loaded: C:\laragon\www\tic_crm\modules/contracts/language/english/contracts_lang.php
+DEBUG - 2026-05-02 09:44:21 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/language/english/mailbox_lang.php
+DEBUG - 2026-05-02 09:44:21 --> File loaded: C:\laragon\www\tic_crm\modules/mailbox/helpers/mailbox_helper.php
+DEBUG - 2026-05-02 09:44:21 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/language/english/spreadsheet_lang.php
+DEBUG - 2026-05-02 09:44:21 --> File loaded: C:\laragon\www\tic_crm\modules/spreadsheet/helpers/spreadsheet_helper.php
+DEBUG - 2026-05-02 09:44:21 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/language/english/woocommerce_lang.php
+DEBUG - 2026-05-02 09:44:21 --> File loaded: C:\laragon\www\tic_crm\modules/woocommerce/helpers/woocommerce_helper.php
+DEBUG - 2026-05-02 09:44:21 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/language/english/zoom_lang.php
+DEBUG - 2026-05-02 09:44:21 --> File loaded: C:\laragon\www\tic_crm\modules/zoom/helpers/zoom_helper.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/bugs_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/calendar_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/client_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/date_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/db_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/departments_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/email_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/form_validation_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/ftp_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/imglib_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/leads_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/leave_management_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/main_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/migration_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/number_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/opportunities_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/pagination_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/payroll_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/profiler_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/performance_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/projects_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/sales_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/settings_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/stock_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/tasks_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/tickets_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/transactions_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/unit_test_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/upload_lang.php
+INFO - 2026-05-02 09:44:21 --> Language file loaded: language/english/utilities_lang.php
+INFO - 2026-05-02 15:44:21 --> Model "Chat_Model" initialized
