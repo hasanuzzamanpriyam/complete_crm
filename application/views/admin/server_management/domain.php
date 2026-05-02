@@ -132,6 +132,11 @@
         content: "\f0dd";
         opacity: 1;
     }
+    @media (min-width: 992px) {
+    .col-md-2 {
+        padding-left: 7%;
+    }
+}
 </style>
 
 <div class="row mb-lg">

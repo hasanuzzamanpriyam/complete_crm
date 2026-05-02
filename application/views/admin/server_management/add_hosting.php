@@ -8,11 +8,81 @@
 <link rel="stylesheet" href="<?= base_url() ?>assets/plugins/select2/dist/css/select2-bootstrap.min.css">
 <script src="<?= base_url() ?>assets/plugins/select2/dist/js/select2.min.js"></script>
 
+<style>
+    /* ERP Style Redesign */
+    .erp-card { border: none; border-radius: 0; box-shadow: none !important; background-color: transparent; }
+    .erp-card .card-body { padding: 0; }
+    
+    .erp-form label { font-size: 11px; font-weight: 600; color: #666; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.3px; }
+    .erp-form .form-control { border-radius: 2px; border: 1px solid #d2d6de; font-size: 13px; height: 34px; box-shadow: none; padding: 6px 10px; color: #333; transition: border-color .15s ease-in-out;}
+    .erp-form .form-control:focus { border-color: #3c8dbc; box-shadow: none; }
+    .erp-form textarea.form-control { height: auto; }
+    
+    /* ---------------------------------------------------
+       Strict Input Group Attachments (Fix for Select2 & Buttons) 
+       --------------------------------------------------- */
+    .erp-form .input-group { display: flex; flex-wrap: nowrap; align-items: stretch; width: 100%; }
+    
+    /* Ensure the inputs/selects take up the remaining space */
+    .erp-form .input-group > .form-control:not(select),
+    .erp-form .input-group .select2-container { flex: 1 1 auto; width: 1% !important; margin-bottom: 0; }
+    
+    /* Flatten borders for the attached look */
+    .erp-form .input-group > .form-control,
+    .erp-form .input-group > select.form-control:not(.select2-hidden-accessible),
+    .erp-form .input-group .select2-container--bootstrap .select2-selection { border-radius: 2px 0 0 2px; border-right: none; }
+
+    /* The Plus/Eye Button Wrapper */
+    .erp-form .input-group-append { display: flex; margin-left: 0; }
+    
+    /* The Attached Button Styling */
+    .erp-form .input-group-append .btn.quick-add-btn,
+    .erp-form .input-group-append .btn.toggle-password {
+        border-radius: 0 2px 2px 0;
+        height: 34px;
+        background-color: #f4f4f4;
+        border: 1px solid #d2d6de;
+        color: #555;
+        padding: 4px 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2;
+        transition: background-color 0.15s ease;
+    }
+    .erp-form .input-group-append .btn.toggle-password { background-color: #fff; } /* Eye icons white bg */
+    
+    .erp-form .input-group-append .btn:hover { background-color: #e0e0e0; color: #333; }
+
+    /* Price Input Specific Overrides (Prepend + Input + Append) */
+    .erp-form .input-group-prepend .form-control { border-radius: 2px 0 0 2px; border-right: 1px solid #d2d6de; flex: 0 0 auto; width: auto !important; height: 34px; }
+    .erp-form .price-group > input.form-control { border-radius: 0; border-left: none; }
+    
+    /* --------------------------------------------------- */
+    
+    .erp-section-title { font-size: 12px; font-weight: bold; color: #333; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-top: 30px; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .erp-form .form-group { margin-bottom: 15px; }
+    
+    /* Buttons */
+    .erp-form .btn-success { background-color: #00a65a; border-color: #008d4c; font-size: 12px; font-weight: 600; padding: 6px 25px; border-radius: 2px; box-shadow: none; text-transform: uppercase; }
+    .erp-form .btn-success:hover { background-color: #008d4c; }
+    .erp-form .btn-cancel { font-size: 12px; font-weight: 500; padding: 6px 15px; color: #0073b7; background: transparent; border: none; text-decoration: none; margin-left: 10px;}
+    .erp-form .btn-cancel:hover { text-decoration: underline; color: #005384; }
+
+    /* Select2 Overrides */
+    .select2-container--bootstrap .select2-selection { border: 1px solid #d2d6de; min-height: 34px; font-size: 13px; box-shadow: none; }
+    .select2-container--bootstrap .select2-selection--single .select2-selection__rendered { padding-top: 4px; color: #333; }
+    .select2-container--bootstrap .select2-selection--single .select2-selection__arrow { height: 32px; }
+    .select2-container--bootstrap .select2-selection--multiple .select2-selection__choice { margin-top: 4px; font-size: 12px; background-color: #e4e4e4; border: 1px solid #ccc; color: #333;}
+    .select2-container--bootstrap.select2-container--focus .select2-selection, .select2-container--bootstrap.select2-container--open .select2-selection { border-color: #3c8dbc; box-shadow: none; }
+</style>
+
 <div class="row">
     <div class="col-md-12">
-        <div class="card shadow-sm">
+        <div class="card erp-card">
             <div class="card-body">
-                <form method="post" action="<?= base_url($action) ?>">
+                <form method="post" action="<?= base_url($action) ?>" class="erp-form">
+                    
                     <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
@@ -33,7 +103,7 @@
                                         <?php endif; ?>
                                     </select>
                                     <div class="input-group-append">
-                                        <button type="button" class="btn btn-outline-secondary quick-add-btn" data-type="provider" data-url="<?= base_url('admin/server_management/add_provider') ?>">
+                                        <button type="button" class="btn quick-add-btn" data-type="provider" data-url="<?= base_url('admin/server_management/add_provider') ?>" tabindex="-1">
                                             <i class="fa fa-plus"></i>
                                         </button>
                                     </div>
@@ -59,7 +129,7 @@
                                         <?php endif; ?>
                                     </select>
                                     <div class="input-group-append">
-                                        <button type="button" class="btn btn-outline-secondary quick-add-btn" data-type="server_type" data-url="<?= base_url('admin/ajax_api/add_server_type') ?>">
+                                        <button type="button" class="btn quick-add-btn" data-type="server_type" data-url="<?= base_url('admin/ajax_api/add_server_type') ?>" tabindex="-1">
                                             <i class="fa fa-plus"></i>
                                         </button>
                                     </div>
@@ -90,7 +160,7 @@
                                         <?php endif; ?>
                                     </select>
                                     <div class="input-group-append">
-                                        <button type="button" class="btn btn-outline-secondary quick-add-btn" data-type="domain" data-url="<?= base_url('admin/server_management/add_domain') ?>">
+                                        <button type="button" class="btn quick-add-btn" data-type="domain" data-url="<?= base_url('admin/server_management/add_domain') ?>" tabindex="-1">
                                             <i class="fa fa-plus"></i>
                                         </button>
                                     </div>
@@ -118,7 +188,7 @@
                                         <?php endif; ?>
                                     </select>
                                     <div class="input-group-append">
-                                        <button type="button" class="btn btn-outline-secondary quick-add-btn" data-type="nameserver" data-url="<?= base_url('admin/server_management/add_nameserver') ?>">
+                                        <button type="button" class="btn quick-add-btn" data-type="nameserver" data-url="<?= base_url('admin/server_management/add_nameserver') ?>" tabindex="-1">
                                             <i class="fa fa-plus"></i>
                                         </button>
                                     </div>
@@ -138,7 +208,7 @@
                             <div class="form-group">
                                 <label>IP Address</label>
                                 <input type="text" name="ip_address" class="form-control" id="ip_address" value="<?= isset($hosting_info) ? $hosting_info->ip_address : '' ?>" placeholder="e.g. 192.168.1.1 or 2001:db8::1">
-                                <small class="text-muted">IPv4 or IPv6 compatible</small>
+                                <small class="text-muted" style="font-size:10px;">IPv4 or IPv6 compatible</small>
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -161,17 +231,16 @@
                                 <label>Password</label>
                                 <div class="input-group">
                                     <input type="password" name="password" class="form-control" value="<?= isset($hosting_info) ? $hosting_info->password : '' ?>" id="password">
-                                    <span class="input-group-btn">
-                                        <button class="btn btn-default toggle-password" type="button" data-target="password"><i class="fa fa-eye"></i></button>
-                                    </span>
+                                    <div class="input-group-append">
+                                        <button class="btn toggle-password" type="button" data-target="password" tabindex="-1"><i class="fa fa-eye"></i></button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="mt-4 mb-3">
-                        <h5>DNS Provider Credentials</h5>
-                    </div>
+                    <div class="erp-section-title">DNS Provider Credentials</div>
+                    
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">
@@ -204,7 +273,7 @@
                                         <?php endif; ?>
                                     </select>
                                     <div class="input-group-append">
-                                        <button type="button" class="btn btn-outline-secondary quick-add-btn" data-type="dns_provider" data-url="<?= base_url('admin/server_management/add_dns_provider') ?>">
+                                        <button type="button" class="btn quick-add-btn" data-type="dns_provider" data-url="<?= base_url('admin/server_management/add_dns_provider') ?>" tabindex="-1">
                                             <i class="fa fa-plus"></i>
                                         </button>
                                     </div>
@@ -222,13 +291,15 @@
                                 <label>DNS Login Password</label>
                                 <div class="input-group">
                                     <input type="password" name="dns_password" class="form-control" value="<?= isset($hosting_info) ? $hosting_info->dns_password : '' ?>" id="dns_password" placeholder="Cloudflare login password">
-                                    <span class="input-group-btn">
-                                        <button class="btn btn-default toggle-password" type="button" data-target="dns_password"><i class="fa fa-eye"></i></button>
-                                    </span>
+                                    <div class="input-group-append">
+                                        <button class="btn toggle-password" type="button" data-target="dns_password" tabindex="-1"><i class="fa fa-eye"></i></button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <div class="erp-section-title">Billing & Service Terms</div>
 
                     <div class="row">
                         <div class="col-md-3">
@@ -278,16 +349,16 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Price <span class="text-danger">*</span></label>
-                                <div class="input-group">
+                                <div class="input-group price-group">
                                     <div class="input-group-prepend">
                                         <select name="currency_id" class="form-control" id="currency_id" required>
-                                            <option value="">Select Currency</option>
+                                            <option value="">Currency</option>
                                             <?php if (!empty($currencies)): ?>
                                                 <?php foreach ($currencies as $currency): ?>
                                                     <option value="<?= $currency['code'] ?>" 
                                                             data-rate="<?= isset($currency['rate']) ? $currency['rate'] : 0 ?>"
                                                             <?= isset($hosting_info) && $hosting_info->currency_id == $currency['code'] ? 'selected' : '' ?>>
-                                                        <?= $currency['code'] ?> (<?= $currency['symbol'] ?>)
+                                                        <?= $currency['code'] ?>
                                                     </option>
                                                 <?php endforeach; ?>
                                             <?php endif; ?>
@@ -295,12 +366,12 @@
                                     </div>
                                     <input type="number" step="0.01" name="price" class="form-control" id="price_input" value="<?= isset($hosting_info) ? $hosting_info->price : '' ?>" required>
                                     <div class="input-group-append">
-                                        <button type="button" class="btn btn-outline-secondary quick-add-btn" data-type="currency" data-url="<?= base_url('admin/ajax_api/add_currency') ?>">
+                                        <button type="button" class="btn quick-add-btn" data-type="currency" data-url="<?= base_url('admin/ajax_api/add_currency') ?>" tabindex="-1">
                                             <i class="fa fa-plus"></i>
                                         </button>
                                     </div>
                                 </div>
-                                <small class="text-muted d-block mt-1" id="bdt_conversion_text">Equivalent: <span id="bdt_amount">0.00</span> BDT</small>
+                                <small class="text-muted d-block mt-1" id="bdt_conversion_text" style="font-size:10px;">Equivalent: <span id="bdt_amount">0.00</span> BDT</small>
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -318,7 +389,7 @@
                                         <?php endif; ?>
                                     </select>
                                     <div class="input-group-append">
-                                        <button type="button" class="btn btn-outline-secondary quick-add-btn" data-type="project" data-url="<?= base_url('admin/ajax_api/add_project') ?>">
+                                        <button type="button" class="btn quick-add-btn" data-type="project" data-url="<?= base_url('admin/ajax_api/add_project') ?>" tabindex="-1">
                                             <i class="fa fa-plus"></i>
                                         </button>
                                     </div>
@@ -340,7 +411,7 @@
                                         <?php endif; ?>
                                     </select>
                                     <div class="input-group-append">
-                                        <button type="button" class="btn btn-outline-secondary quick-add-btn" data-type="client" data-url="<?= base_url('admin/ajax_api/add_client') ?>">
+                                        <button type="button" class="btn quick-add-btn" data-type="client" data-url="<?= base_url('admin/ajax_api/add_client') ?>" tabindex="-1">
                                             <i class="fa fa-plus"></i>
                                         </button>
                                     </div>
@@ -373,23 +444,22 @@
                                 <label>FTP Password</label>
                                 <div class="input-group">
                                     <input type="password" name="ftp_password" class="form-control" value="<?= isset($hosting_info) ? $hosting_info->ftp_password : '' ?>" id="ftp_password">
-                                    <span class="input-group-btn">
-                                        <button class="btn btn-default toggle-password" type="button" data-target="ftp_password"><i class="fa fa-eye"></i></button>
-                                    </span>
+                                    <div class="input-group-append">
+                                        <button class="btn toggle-password" type="button" data-target="ftp_password" tabindex="-1"><i class="fa fa-eye"></i></button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="mt-4 mb-3">
-                        <h5>SSL Settings</h5>
-                    </div>
+                    <div class="erp-section-title">SSL Settings</div>
+                    
                     <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
-                                <div class="custom-control custom-checkbox mt-2">
+                                <div class="custom-control custom-checkbox" style="margin-top: 30px;">
                                     <input type="checkbox" name="ssl_certificate" class="custom-control-input" id="ssl_certificate" <?= isset($hosting_info) && $hosting_info->ssl_certificate ? 'checked' : '' ?>>
-                                    <label class="custom-control-label" for="ssl_certificate">SSL Certificate</label>
+                                    <label class="custom-control-label" for="ssl_certificate" style="text-transform: none; font-size: 13px;">SSL Certificate Enabled</label>
                                 </div>
                             </div>
                         </div>
@@ -415,20 +485,19 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label>SSL Certificate Information</label>
-                                <textarea name="ssl_info" class="form-control" rows="3"><?= isset($hosting_info) ? htmlspecialchars($hosting_info->ssl_info) : '' ?></textarea>
+                                <textarea name="ssl_info" class="form-control" rows="2"><?= isset($hosting_info) ? htmlspecialchars($hosting_info->ssl_info) : '' ?></textarea>
                             </div>
                         </div>
                     </div>
 
-                    <div class="mt-4 mb-3">
-                        <h5>Notification Settings</h5>
-                    </div>
+                    <div class="erp-section-title">Notification Settings</div>
+                    
                     <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
-                                <div class="custom-control custom-checkbox mt-2">
+                                <div class="custom-control custom-checkbox" style="margin-top: 30px;">
                                     <input type="checkbox" name="expiry_notification" class="custom-control-input" id="expiry_notification" <?= isset($hosting_info) && $hosting_info->expiry_notification ? 'checked' : '' ?>>
-                                    <label class="custom-control-label" for="expiry_notification">Expiry Notification</label>
+                                    <label class="custom-control-label" for="expiry_notification" style="text-transform: none; font-size: 13px;">Enable Expiry Notification</label>
                                 </div>
                             </div>
                         </div>
@@ -450,21 +519,20 @@
                         </div>
                     </div>
 
-                    <div class="mt-4 mb-3">
-                        <h5>Description</h5>
-                    </div>
+                    <div class="erp-section-title">Description</div>
+                    
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <textarea name="description" class="form-control" rows="4" placeholder="Enter description..."><?= isset($hosting_info) ? $hosting_info->description : '' ?></textarea>
+                                <textarea name="description" class="form-control" rows="3" placeholder="Enter description..."><?= isset($hosting_info) ? $hosting_info->description : '' ?></textarea>
                             </div>
                         </div>
                     </div>
 
-                    <div class="row mt-4">
+                    <div class="row mt-4 mb-4">
                         <div class="col-md-12 text-left">
                             <button type="submit" class="btn btn-success">Save</button>
-                            <a href="<?= base_url('admin/server_management/hosting') ?>" class="btn btn-secondary">Cancel</a>
+                            <a href="<?= base_url('admin/server_management/hosting') ?>" class="btn-cancel">Cancel</a>
                         </div>
                     </div>
                 </form>
@@ -475,9 +543,9 @@
 
 <div class="modal fade" id="universalQuickAddModal" tabindex="-1" role="dialog" aria-labelledby="universalQuickAddModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="universalQuickAddModalLabel">Add New</h5>
+        <div class="modal-content" style="border-radius: 2px;">
+            <div class="modal-header" style="background-color: #f4f4f4; border-bottom: 1px solid #ddd;">
+                <h5 class="modal-title" id="universalQuickAddModalLabel" style="font-size: 14px; font-weight: bold; color: #333; text-transform: uppercase;">Add New</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -487,9 +555,9 @@
                     <i class="fa fa-spinner fa-spin fa-2x"></i> Loading...
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="universalModalSubmitBtn">Save</button>
+            <div class="modal-footer" style="border-top: 1px solid #ddd; background-color: #f9f9f9;">
+                <button type="button" class="btn btn-default" data-dismiss="modal" style="border-radius: 2px; font-size: 12px; font-weight: 600; text-transform: uppercase;">Close</button>
+                <button type="button" class="btn btn-primary" id="universalModalSubmitBtn" style="border-radius: 2px; font-size: 12px; font-weight: 600; text-transform: uppercase;">Save</button>
             </div>
         </div>
     </div>
