@@ -62,13 +62,19 @@
                 </div>
                 <div class="panel-body p-0">
                     <div class="row">
-                        <div class="col-xs-6">
+                        <div class="col-xs-4">
                             <div class="p-3 bg-light rounded text-center">
-                                <div class="text-muted small text-uppercase">Purchase Date</div>
+                                <div class="text-muted small text-uppercase">Date</div>
+                                <div class="font-bold h4 m-0"><?= !empty($domain->date) ? date('d M, Y', strtotime($domain->date)) : '-' ?></div>
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="p-3 bg-light rounded text-center">
+                                <div class="text-muted small text-uppercase">Renewal Date</div>
                                 <div class="font-bold h4 m-0"><?= date('d M, Y', strtotime($domain->purchase_date)) ?></div>
                             </div>
                         </div>
-                        <div class="col-xs-6">
+                        <div class="col-xs-4">
                             <div class="p-3 bg-light rounded text-center">
                                 <div class="text-muted small text-uppercase">Expiry Date</div>
                                 <div class="font-bold h4 m-0 text-danger"><?= date('d M, Y', strtotime($domain->expiry_date)) ?></div>

@@ -407,7 +407,11 @@
                                         <td>: <span class="badge badge-pill <?= $badge_class ?>"><?= htmlspecialchars($hosting['status']) ?></span></td>
                                     </tr>
                                     <tr>
-                                        <th>Purchase Date</th>
+                                        <th>Date</th>
+                                        <td>: <?= !empty($hosting['date']) ? $hosting['date'] : '-' ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Renewal Date</th>
                                         <td>: <?= $hosting['purchase_date'] ?></td>
                                     </tr>
                                     <tr>
