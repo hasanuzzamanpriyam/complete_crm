@@ -363,8 +363,14 @@
                     <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label>Purchase Date <span class="text-danger">*</span></label>
+                                <label>Renewal Date <span class="text-danger">*</span></label>
                                 <input type="date" name="purchase_date" id="purchase_date" class="form-control" value="<?= !empty($domain_info) ? $domain_info->purchase_date : '' ?>" required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Expiry Date <span class="text-danger">*</span></label>
+                                <input type="date" name="expiry_date" id="expiry_date" class="form-control" value="<?= !empty($domain_info) ? $domain_info->expiry_date : '' ?>" required readonly>
                             </div>
                         </div>
                         <div class="col-md-2">
@@ -386,12 +392,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label>Expiry Date <span class="text-danger">*</span></label>
-                                <input type="date" name="expiry_date" id="expiry_date" class="form-control" value="<?= !empty($domain_info) ? $domain_info->expiry_date : '' ?>" required readonly>
-                            </div>
-                        </div>
+
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Price</label>

@@ -83,7 +83,7 @@
         <div class="card erp-card">
             <div class="card-body">
                 <form method="post" action="<?= base_url($action) ?>" class="erp-form">
-                    
+                    <div class="erp-section-title" style="margin-top: 5px;">Hosting Details</div>
                     <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
@@ -305,7 +305,7 @@
                     <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label>Purchase Date <span class="text-danger">*</span></label>
+                                <label>Renewal Date <span class="text-danger">*</span></label>
                                 <input type="date" name="purchase_date" class="form-control" value="<?= isset($hosting_info) ? $hosting_info->purchase_date : '' ?>" required>
                             </div>
                         </div>
