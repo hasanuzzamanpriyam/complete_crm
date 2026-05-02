@@ -5,14 +5,236 @@
     .datepicker {
         z-index: 1151 !important;
     }
+
+    /* ERP Style Redesign */
+    .erp-card {
+        border: none;
+        border-radius: 0;
+        box-shadow: none !important;
+        background-color: transparent;
+    }
+
+    .erp-card .card-body {
+        padding: 0;
+    }
+
+    .erp-form label {
+        font-size: 11px;
+        font-weight: 600;
+        color: #666;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+        letter-spacing: 0.3px;
+    }
+
+    .erp-form .form-control {
+        border-radius: 2px;
+        border: 1px solid #d2d6de;
+        font-size: 13px;
+        height: 34px;
+        box-shadow: none;
+        padding: 6px 10px;
+        color: #333;
+        transition: border-color .15s ease-in-out;
+    }
+
+    .erp-form .form-control:focus {
+        border-color: #3c8dbc;
+        box-shadow: none;
+    }
+
+    .erp-form textarea.form-control {
+        height: auto;
+    }
+
+    /* Strict Input Group Attachments */
+    .erp-form .input-group {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: stretch;
+        width: 100%;
+    }
+
+    .erp-form .input-group>.form-control:not(select),
+    .erp-form .input-group .select2-container,
+    .erp-form .input-group>select.form-control {
+        flex: 1 1 auto;
+        width: 1% !important;
+        margin-bottom: 0;
+    }
+
+    .erp-form .input-group>.form-control,
+    .erp-form .input-group>select.form-control:not(.select2-hidden-accessible),
+    .erp-form .input-group .select2-container--bootstrap .select2-selection {
+        border-radius: 2px 0 0 2px;
+        border-right: none;
+    }
+
+    .erp-form .input-group-append {
+        display: flex;
+        margin-left: 0;
+    }
+
+    .erp-form .input-group-append .btn.quick-add-btn,
+    .erp-form .input-group-append .btn.toggle-password {
+        border-radius: 0 2px 2px 0;
+        height: 34px;
+        background-color: #f4f4f4;
+        border: 1px solid #d2d6de;
+        color: #555;
+        padding: 4px 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2;
+        transition: background-color 0.15s ease;
+    }
+
+    .erp-form .input-group-append .btn.toggle-password {
+        background-color: #fff;
+    }
+
+    .erp-form .input-group-append .btn:hover {
+        background-color: #e0e0e0;
+        color: #333;
+    }
+
+    /* Price Input Specific Overrides */
+    .erp-form .input-group-prepend .form-control {
+        border-radius: 2px 0 0 2px;
+        border-right: 1px solid #d2d6de;
+        flex: 0 0 auto;
+        width: auto !important;
+        height: 34px;
+        background-color: #f9f9f9;
+    }
+
+    .erp-form .price-group>input.form-control {
+        border-radius: 0;
+        border-left: none;
+    }
+
+    .erp-section-title {
+        font-size: 12px;
+        font-weight: bold;
+        color: #333;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 8px;
+        margin-top: 30px;
+        margin-bottom: 15px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .erp-form .form-group {
+        margin-bottom: 15px;
+    }
+
+    /* Buttons */
+    .erp-form .btn-success {
+        background-color: #00a65a;
+        border-color: #008d4c;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 6px 25px;
+        border-radius: 2px;
+        box-shadow: none;
+        text-transform: uppercase;
+    }
+
+    .erp-form .btn-success:hover {
+        background-color: #008d4c;
+    }
+
+    .erp-form .btn-cancel {
+        font-size: 12px;
+        font-weight: 500;
+        padding: 6px 15px;
+        color: #0073b7;
+        background: transparent;
+        border: none;
+        text-decoration: none;
+        margin-left: 10px;
+    }
+
+    .erp-form .btn-cancel:hover {
+        text-decoration: underline;
+        color: #005384;
+    }
+
+    /* Custom Fields specific */
+    .custom-field-btn {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 2px;
+        background: #f4f4f4;
+        border: 1px solid #ddd;
+        color: #333;
+        text-transform: uppercase;
+    }
+
+    .custom-field-btn:hover {
+        background: #e4e4e4;
+        color: #000;
+    }
+
+    .remove-custom-field {
+        height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 2px;
+    }
+
+    /* Select2 Overrides */
+    .select2-container--bootstrap .select2-selection {
+        border: 1px solid #d2d6de;
+        min-height: 34px;
+        font-size: 13px;
+        box-shadow: none;
+    }
+
+    .select2-container--bootstrap .select2-selection--single .select2-selection__rendered {
+        padding-top: 4px;
+        color: #333;
+    }
+
+    .select2-container--bootstrap .select2-selection--single .select2-selection__arrow {
+        height: 32px;
+    }
+
+    .select2-container--bootstrap .select2-selection--multiple .select2-selection__choice {
+        margin-top: 4px;
+        font-size: 12px;
+        background-color: #e4e4e4;
+        border: 1px solid #ccc;
+        color: #333;
+    }
+
+    .select2-container--bootstrap.select2-container--focus .select2-selection,
+    .select2-container--bootstrap.select2-container--open .select2-selection {
+        border-color: #3c8dbc;
+        box-shadow: none;
+    }
+
+    .remove-custom-field {
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 2px;
+        width: 5% !important;
+    }
 </style>
 
 <div class="row">
     <div class="col-md-12">
-        <div class="card shadow-sm">
+        <div class="card erp-card">
             <div class="card-body">
-                <form method="post" action="<?= base_url('admin/server_management/add_domain' . (!empty($domain_info) ? '/' . $domain_info->id : '')) ?>">
-                    <!-- Row 1 -->
+                <form method="post" action="<?= base_url('admin/server_management/add_domain' . (!empty($domain_info) ? '/' . $domain_info->id : '')) ?>" class="erp-form">
+
+                    <div class="erp-section-title" style="margin-top: 5px;">Domain Details</div>
                     <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
@@ -34,11 +256,11 @@
                                             <?php endforeach; ?>
                                         <?php endif; ?>
                                     </select>
-                                    <span class="input-group-btn">
-                                        <button type="button" class="btn btn-default quick-add-btn" data-type="provider" data-url="<?= base_url('admin/server_management/add_provider') ?>" title="Add New Provider">
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn quick-add-btn" data-type="provider" data-url="<?= base_url('admin/server_management/add_provider') ?>" title="Add New Provider" tabindex="-1">
                                             <i class="fa fa-plus"></i>
                                         </button>
-                                    </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -62,17 +284,17 @@
                                             <?php endforeach; ?>
                                         <?php endif; ?>
                                     </select>
-                                    <span class="input-group-btn">
-                                        <button type="button" class="btn btn-default quick-add-btn" data-type="type" data-url="<?= base_url('admin/server_management/add_domain_type') ?>" title="Add New Type">
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn quick-add-btn" data-type="type" data-url="<?= base_url('admin/server_management/add_domain_type') ?>" title="Add New Type" tabindex="-1">
                                             <i class="fa fa-plus"></i>
                                         </button>
-                                    </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Row 2 -->
+                    <div class="erp-section-title">Hosting & Credentials</div>
                     <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
@@ -88,11 +310,11 @@
                                             <?php endforeach; ?>
                                         <?php endif; ?>
                                     </select>
-                                    <span class="input-group-btn">
-                                        <button type="button" class="btn btn-default quick-add-btn" data-type="hosting" data-url="<?= base_url('admin/server_management/add_hosting_type') ?>" title="Add New Hosting">
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn quick-add-btn" data-type="hosting" data-url="<?= base_url('admin/server_management/add_hosting_type') ?>" title="Add New Hosting" tabindex="-1">
                                             <i class="fa fa-plus"></i>
                                         </button>
-                                    </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -107,9 +329,9 @@
                                 <label>Password</label>
                                 <div class="input-group">
                                     <input type="password" name="password" class="form-control" value="<?= !empty($domain_info) ? htmlspecialchars($domain_info->password) : '' ?>">
-                                    <span class="input-group-btn">
-                                        <button class="btn btn-default toggle-password" type="button"><i class="fa fa-eye"></i></button>
-                                    </span>
+                                    <div class="input-group-append">
+                                        <button class="btn toggle-password" type="button" tabindex="-1"><i class="fa fa-eye"></i></button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -127,17 +349,17 @@
                                             <?php endforeach; ?>
                                         <?php endif; ?>
                                     </select>
-                                    <span class="input-group-btn">
-                                        <button type="button" class="btn btn-default quick-add-btn" data-type="status" data-url="<?= base_url('admin/server_management/add_domain_status') ?>" title="Add New Status">
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn quick-add-btn" data-type="status" data-url="<?= base_url('admin/server_management/add_domain_status') ?>" title="Add New Status" tabindex="-1">
                                             <i class="fa fa-plus"></i>
                                         </button>
-                                    </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Row 3 -->
+                    <div class="erp-section-title">Billing & Service Terms</div>
                     <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
@@ -173,7 +395,7 @@
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Price</label>
-                                <div class="input-group">
+                                <div class="input-group price-group">
                                     <div class="input-group-prepend">
                                         <select name="currency_id" class="form-control" id="currency_id">
                                             <option value="">Currency</option>
@@ -188,12 +410,12 @@
                                     </div>
                                     <input type="number" name="price" id="price_input" step="0.01" class="form-control" value="<?= !empty($domain_info) ? $domain_info->price : '' ?>">
                                 </div>
-                                <small class="text-muted" id="conversion_result"></small>
+                                <small class="text-muted d-block mt-1" id="conversion_result" style="font-size: 10px;"></small>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Row 4 -->
+                    <div class="erp-section-title">Registrar Details</div>
                     <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
@@ -212,9 +434,9 @@
                                 <label>Registrar Password</label>
                                 <div class="input-group">
                                     <input type="password" name="registrar_password" class="form-control" value="<?= !empty($domain_info) ? htmlspecialchars($domain_info->registrar_password) : '' ?>">
-                                    <span class="input-group-btn">
-                                        <button class="btn btn-default toggle-password" type="button"><i class="fa fa-eye"></i></button>
-                                    </span>
+                                    <div class="input-group-append">
+                                        <button class="btn toggle-password" type="button" tabindex="-1"><i class="fa fa-eye"></i></button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -231,7 +453,7 @@
                         </div>
                     </div>
 
-                    <!-- Row 5 -->
+                    <div class="erp-section-title">Assignments & Settings</div>
                     <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
@@ -247,11 +469,11 @@
                                             <?php endforeach; ?>
                                         <?php endif; ?>
                                     </select>
-                                    <span class="input-group-btn">
-                                        <button type="button" class="btn btn-default quick-add-btn" data-type="project" data-url="<?= base_url('admin/projects/create') ?>" title="Add New Project">
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn quick-add-btn" data-type="project" data-url="<?= base_url('admin/projects/create') ?>" title="Add New Project" tabindex="-1">
                                             <i class="fa fa-plus"></i>
                                         </button>
-                                    </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -269,11 +491,11 @@
                                             <?php endforeach; ?>
                                         <?php endif; ?>
                                     </select>
-                                    <span class="input-group-btn">
-                                        <button type="button" class="btn btn-default quick-add-btn" data-type="client" data-url="<?= base_url('admin/client/create_client') ?>" title="Add New Client">
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn quick-add-btn" data-type="client" data-url="<?= base_url('admin/client/create_client') ?>" title="Add New Client" tabindex="-1">
                                             <i class="fa fa-plus"></i>
                                         </button>
-                                    </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -286,25 +508,24 @@
                                         $selected_nameservers = !empty($domain_info->nameservers) ? explode(',', $domain_info->nameservers) : array();
                                         if (!empty($nameservers)) {
                                             foreach ($nameservers as $ns) {
-                                                ?>
+                                        ?>
                                                 <option value="<?= $ns['name'] ?>" <?= in_array($ns['name'], $selected_nameservers) ? 'selected' : '' ?>><?= $ns['name'] ?></option>
-                                                <?php
+                                        <?php
                                             }
                                         }
                                         ?>
                                     </select>
-                                    <span class="input-group-btn">
-                                        <button type="button" class="btn btn-default quick-add-btn" data-type="nameserver" data-url="<?= base_url('admin/server_management/add_nameserver') ?>" title="Add New Nameserver">
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn quick-add-btn" data-type="nameserver" data-url="<?= base_url('admin/server_management/add_nameserver') ?>" title="Add New Nameserver" tabindex="-1">
                                             <i class="fa fa-plus"></i>
                                         </button>
-                                    </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- General Toggles -->
-                    <div class="row mt-4">
+                    <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Auto Renewal</label>
@@ -335,23 +556,23 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <div class="form-group">
-                                <div class="custom-control custom-checkbox mt-4">
+                                <div class="custom-control custom-checkbox" style="margin-top: 30px;">
                                     <input type="checkbox" name="whois_protection" class="custom-control-input" id="whois_protection" value="1" <?= !empty($domain_info) && $domain_info->whois_protection == 1 ? 'checked' : '' ?>>
-                                    <label class="custom-control-label" for="whois_protection">WHOIS Protection</label>
+                                    <label class="custom-control-label" for="whois_protection" style="text-transform: none; font-size: 13px;">WHOIS Protection</label>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Notification Settings -->
-                    <div class="row mt-4">
+                    <div class="erp-section-title">Notification Settings</div>
+                    <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
-                                <div class="custom-control custom-checkbox mt-2">
+                                <div class="custom-control custom-checkbox" style="margin-top: 30px;">
                                     <input type="checkbox" name="expiry_notification" class="custom-control-input" id="expiry_notification" value="1" <?= !empty($domain_info) && $domain_info->expiry_notification == 1 ? 'checked' : '' ?>>
-                                    <label class="custom-control-label" for="expiry_notification">Expiry Notification</label>
+                                    <label class="custom-control-label" for="expiry_notification" style="text-transform: none; font-size: 13px;">Enable Expiry Notification</label>
                                 </div>
                             </div>
                         </div>
@@ -373,54 +594,56 @@
                         </div>
                     </div>
 
-                    <!-- Custom Fields -->
-                    <div class="row mt-4">
+                    <div class="d-flex justify-content-between align-items-end mt-4 mb-3" style="border-bottom: 1px solid #eee; padding-bottom: 8px;">
+                        <div class="erp-section-title" style="border-bottom: none; margin: 0; padding: 0;">Custom Fields</div>
+                        <button type="button" class="btn custom-field-btn" id="add_custom_field" tabindex="-1">
+                            <i class="fa fa-plus"></i> Add Field
+                        </button>
+                    </div>
+
+                    <div class="row">
                         <div class="col-md-12">
-                            <div class="card border-info">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <h5 class="mb-0"><i class="fa fa-list"></i> Custom Fields</h5>
-                                    <button type="button" class="btn btn-info btn-sm" id="add_custom_field">
-                                        <i class="fa fa-plus"></i> Add Field
-                                    </button>
-                                </div>
-                                <div class="card-body">
-                                    <div id="custom_fields_container">
-                                        <?php 
-                                        $custom_fields = !empty($domain_info->custom_fields) ? json_decode($domain_info->custom_fields, true) : array();
-                                        if (!empty($custom_fields)): 
-                                            foreach ($custom_fields as $field):
-                                        ?>
-                                            <div class="row custom-field-row mb-2">
-                                                <div class="col-md-5">
-                                                    <input type="text" name="custom_field_label[]" class="form-control" placeholder="Label" value="<?= htmlspecialchars($field['label']) ?>">
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <input type="text" name="custom_field_value[]" class="form-control" placeholder="Value" value="<?= htmlspecialchars($field['value']) ?>">
-                                                </div>
-                                                <div class="col-md-1">
-                                                    <button type="button" class="btn btn-danger remove-custom-field"><i class="fa fa-trash"></i></button>
-                                                </div>
+                            <div id="custom_fields_container">
+                                <?php
+                                $custom_fields = !empty($domain_info->custom_fields) ? json_decode($domain_info->custom_fields, true) : array();
+                                if (!empty($custom_fields)):
+                                    foreach ($custom_fields as $field):
+                                ?>
+                                        <div class="row custom-field-row mb-2">
+                                            <div class="col-md-5">
+                                                <input type="text" name="custom_field_label[]" class="form-control" placeholder="Label" value="<?= htmlspecialchars($field['label']) ?>">
                                             </div>
-                                        <?php 
-                                            endforeach;
-                                        endif; 
-                                        ?>
-                                    </div>
-                                    <div id="no_custom_fields_msg" style="display: <?= !empty($custom_fields) ? 'none' : 'block' ?>;">
-                                        <p class="text-info text-center mb-0" style="font-style: italic;">No custom fields added. Click "Add Field" to add one.</p>
-                                    </div>
-                                </div>
+                                            <div class="col-md-6">
+                                                <input type="text" name="custom_field_value[]" class="form-control" placeholder="Value" value="<?= htmlspecialchars($field['value']) ?>">
+                                            </div>
+                                            <div class="col-md-1">
+                                                <button type="button" class="btn btn-danger remove-custom-field w-100" tabindex="-1"><i class="fa fa-trash"></i></button>
+                                            </div>
+                                        </div>
+                                <?php
+                                    endforeach;
+                                endif;
+                                ?>
+                            </div>
+                            <div id="no_custom_fields_msg" style="display: <?= !empty($custom_fields) ? 'none' : 'block' ?>;">
+                                <p class="text-muted text-center mb-0" style="font-size: 12px; font-style: italic;">No custom fields added. Click "Add Field" to add one.</p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Description -->
-                    <div class="row mt-4">
+                    <div class="erp-section-title">Description</div>
+                    <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label>Description</label>
-                                <textarea name="description" class="form-control" rows="4" placeholder="Enter description..."><?= !empty($domain_info) ? htmlspecialchars($domain_info->description) : '' ?></textarea>
+                                <textarea name="description" class="form-control" rows="3" placeholder="Enter description..."><?= !empty($domain_info) ? htmlspecialchars($domain_info->description) : '' ?></textarea>
                             </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4 mb-4">
+                        <div class="col-md-12 text-left">
+                            <button type="submit" class="btn btn-success">Save</button>
+                            <a href="<?= base_url('admin/server_management/domain') ?>" class="btn-cancel">Cancel</a>
                         </div>
                     </div>
 
@@ -515,8 +738,6 @@
                             }
 
                             $('#purchase_date, #duration, #time_unit').on('change keyup', calculateExpiryDate);
-
-                            // Initial call
                             calculateExpiryDate();
 
                             // Currency Conversion
@@ -572,11 +793,9 @@
                                     format: 'yyyy-mm-dd',
                                     todayBtn: "linked"
                                 });
-                                // Force show on click if needed
                                 $(this).find('.start_date, .end_date, .datepicker').on('click', function() {
                                     $(this).datepicker('show');
                                 });
-                                // Fix for icon click
                                 $(this).find('.input-group-addon a').on('click', function(e) {
                                     e.preventDefault();
                                     $(this).parents('.input-group').find('input').focus();
@@ -590,7 +809,7 @@
                                 currentTargetSelect = btn.closest('.input-group').find('select');
                                 var type = btn.data('type');
                                 var url = btn.data('url');
-                                
+
                                 var titleMap = {
                                     'provider': 'Add New Provider',
                                     'project': 'Add New Project',
@@ -603,7 +822,7 @@
                                 $('#myModal .modal-title').text(titleMap[type] || 'Add New');
                                 $('#myModal .modal-body').html('<div class="text-center mt-3 mb-3"><i class="fa fa-spinner fa-spin fa-2x"></i> Loading...</div>');
                                 $('#myModal').modal('show');
-                                
+
                                 $.get(url, function(response) {
                                     $('#myModal .modal-content').html(response);
                                 }).fail(function() {
@@ -617,17 +836,16 @@
                                 var action = form.attr('action');
                                 if (!action) return;
 
-                                // Prevent default submission for specific quick-add forms
-                                if (action.indexOf('admin/projects/saved_project') !== -1 || 
+                                if (action.indexOf('admin/projects/saved_project') !== -1 ||
                                     action.indexOf('admin/client/save_client') !== -1 ||
                                     action.indexOf('admin/server_management/add_nameserver') !== -1 ||
                                     action.indexOf('admin/server_management/add_provider') !== -1 ||
                                     action.indexOf('admin/server_management/add_domain_type') !== -1 ||
                                     action.indexOf('admin/server_management/add_domain_status') !== -1 ||
                                     action.indexOf('admin/server_management/add_hosting_type') !== -1) {
-                                    
+
                                     e.preventDefault();
-                                    
+
                                     var submitBtn = form.find('button[type="submit"]');
                                     var originalBtnText = submitBtn.text();
                                     submitBtn.prop('disabled', true).text('Saving...');
@@ -641,7 +859,6 @@
                                             if (response.status === 'success') {
                                                 var select = currentTargetSelect;
                                                 if (!select || !select.length) {
-                                                    // Fallback to finding by type if currentTargetSelect is lost
                                                     if (action.indexOf('projects') !== -1) select = $('#project_id_select');
                                                     else if (action.indexOf('client') !== -1) select = $('#client_id_select');
                                                     else if (action.indexOf('nameserver') !== -1) select = $('select[name="nameservers[]"]');
@@ -674,6 +891,7 @@
                                     });
                                 }
                             });
+
                             // Custom Fields Logic
                             $('#add_custom_field').click(function() {
                                 var row = `
@@ -685,7 +903,7 @@
                                             <input type="text" name="custom_field_value[]" class="form-control" placeholder="Value">
                                         </div>
                                         <div class="col-md-1">
-                                            <button type="button" class="btn btn-danger remove-custom-field"><i class="fa fa-trash"></i></button>
+                                            <button type="button" class="btn btn-danger remove-custom-field w-100" tabindex="-1"><i class="fa fa-trash"></i></button>
                                         </div>
                                     </div>`;
                                 $('#custom_fields_container').append(row);
@@ -700,12 +918,6 @@
                             });
                         });
                     </script>
-
-                    <!-- Footer -->
-                    <div class="card-footer text-left">
-                        <a href="<?= base_url('admin/server_management/domain') ?>" class="btn btn-link">Cancel</a>
-                        <button type="submit" class="btn btn-success">Save</button>
-                    </div>
                 </form>
             </div>
         </div>
