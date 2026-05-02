@@ -6,6 +6,12 @@ class Domain_model extends CI_Model {
 
     public function __construct() {
         parent::__construct();
+        
+        // Automatically update expired domains
+        $today = date('Y-m-d');
+        $this->db->where('expiry_date <', $today);
+        $this->db->where('status !=', 'Expired');
+        $this->db->update('tbldomains', array('status' => 'Expired'));
     }
 
     public function insert_domain($data) {

@@ -6,6 +6,12 @@ class Hosting_model extends CI_Model {
 
     public function __construct() {
         parent::__construct();
+        
+        // Automatically update expired hostings
+        $today = date('Y-m-d');
+        $this->db->where('expiry_date <', $today);
+        $this->db->where('status !=', 'Expired');
+        $this->db->update('tblserver_hostings', array('status' => 'Expired'));
     }
 
     public function insert_hosting($data) {
