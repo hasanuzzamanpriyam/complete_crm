@@ -75,6 +75,7 @@
     .select2-container--bootstrap .select2-selection--single .select2-selection__arrow { height: 32px; }
     .select2-container--bootstrap .select2-selection--multiple .select2-selection__choice { margin-top: 4px; font-size: 12px; background-color: #e4e4e4; border: 1px solid #ccc; color: #333;}
     .select2-container--bootstrap.select2-container--focus .select2-selection, .select2-container--bootstrap.select2-container--open .select2-selection { border-color: #3c8dbc; box-shadow: none; }
+    .datepicker, .ui-datepicker { z-index: 9999 !important; }
 </style>
 
 <div class="row">
@@ -702,6 +703,34 @@ $(document).ready(function() {
                     $('#universalQuickAddModal .modal-body').html('<div class="alert alert-danger">Failed to load form</div>');
                 }
             }
+            
+            // Initialize plugins for dynamically loaded form
+            setTimeout(function() {
+                if ($.fn.datepicker) {
+                    $('#universalQuickAddModal .modal-body').find('[data-provide="datepicker"]').each(function() {
+                        var fmt = $(this).attr('data-date-format');
+                        // Fix invalid formats that might cause "Invalid date format" error
+                        if (!fmt || fmt.trim() === '' || fmt.indexOf('Y') !== -1) {
+                            $(this).attr('data-date-format', 'yyyy-mm-dd');
+                        }
+                        try {
+                            $(this).datepicker({
+                                format: $(this).attr('data-date-format') || 'yyyy-mm-dd',
+                                autoclose: true,
+                                todayHighlight: true
+                            });
+                        } catch (e) {
+                            console.error('Datepicker initialization error on element:', this, e);
+                        }
+                    });
+                }
+                if ($.fn.select2) {
+                    $('#universalQuickAddModal .modal-body').find('.select_box').select2({
+                        theme: 'bootstrap',
+                        width: '100%'
+                    });
+                }
+            }, 100);
         }).fail(function(xhr) {
             $('#universalQuickAddModal .modal-body').html('<div class="alert alert-danger">Error: Not Found</div>');
         });
