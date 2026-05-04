@@ -1,20 +1,33 @@
 <?php
-define('BASEPATH', '1');
-require 'application/config/database.php';
-$db_info = $db['default'];
-$conn = new mysqli($db_info['hostname'], $db_info['username'], $db_info['password'], $db_info['database']);
-if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
+define('BASEPATH', 'dummy');
+define('ENVIRONMENT', 'development');
+include 'application/config/database.php';
 
-echo "--- EMPLOYEE MAPPING ---\n";
-$res = $conn->query("SELECT * FROM biometric_employee_mapping");
-while($row = $res->fetch_assoc()) {
-    print_r($row);
+$db_config = $db['default'];
+$mysqli = new mysqli($db_config['hostname'], $db_config['username'], $db_config['password'], $db_config['database']);
+
+if ($mysqli->connect_error) {
+    die("Connection failed: " . $mysqli->connect_error);
 }
 
-echo "\n--- LATEST 5 RAW LOGS ---\n";
-$res = $conn->query("SELECT * FROM biometric_attendance_logs ORDER BY id DESC LIMIT 5");
-while($row = $res->fetch_assoc()) {
-    print_r($row);
+function dump_table($mysqli, $table) {
+    echo "Structure for $table:\n";
+    $result = $mysqli->query("DESCRIBE $table");
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            echo "Field: " . $row['Field'] . " | Type: " . $row['Type'] . "\n";
+        }
+    } else {
+        echo "Table $table does not exist or error: " . $mysqli->error . "\n";
+    }
+    echo "\n";
 }
 
-$conn->close();
+dump_table($mysqli, 'tbldomains');
+dump_table($mysqli, 'tblserver_hostings');
+dump_table($mysqli, 'tblproviders');
+dump_table($mysqli, 'tbl_domain_status');
+dump_table($mysqli, 'tbl_domain_types');
+dump_table($mysqli, 'tblhostings');
+
+$mysqli->close();

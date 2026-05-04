@@ -249,7 +249,8 @@ class Server_management extends Admin_Controller
             'search'    => $this->input->get('search', TRUE)
         );
 
-        $limit = 10;
+        $limit = $this->input->get('limit', TRUE) ?: 10;
+        $filters['limit'] = $limit;
         $total_rows = $this->hosting_model->get_hostings_count($filters);
         $offset = $this->uri->segment(4) ? $this->uri->segment(4) : 0;
 
@@ -326,7 +327,8 @@ class Server_management extends Admin_Controller
             'search'    => $this->input->get('search', TRUE)
         );
 
-        $limit = 10;
+        $limit = $this->input->get('limit', TRUE) ?: 10;
+        $filters['limit'] = $limit;
         $total_rows = $this->domain_model->get_domains_count($filters);
         $offset = $this->uri->segment(4) ? $this->uri->segment(4) : 0;
 

@@ -184,34 +184,35 @@
         <div class="card shadow-sm">
             <div class="card-body">
 
+                <form id="filterForm" method="GET" action="<?= base_url('admin/server_management/hosting') ?>">
                 <div class="row mb-4 align-items-end">
                     <div class="col-md-3">
                         <label class="text-muted small mb-1">Expiry Period</label>
                         <div class="input-group">
-                            <input type="date" id="start_date" class="form-control form-control-sm">
+                            <input type="date" name="start_date" id="start_date" class="form-control form-control-sm" value="<?= $filters['start_date'] ?>">
                             <span class="input-group-addon" style="padding: 4px 8px; background: #f8f9fa; border: 1px solid #ccc; border-left: none; border-right: none;"><i class="fa fa-minus text-muted" style="font-size:10px;"></i></span>
-                            <input type="date" id="end_date" class="form-control form-control-sm">
+                            <input type="date" name="end_date" id="end_date" class="form-control form-control-sm" value="<?= $filters['end_date'] ?>">
                         </div>
                     </div>
                     <div class="col-md-2 ml-lg">
                         <label class="text-muted small mb-1 ">Status</label>
-                        <select id="filter_status" class="form-control form-control-sm">
-                            <option value="">All</option>
-                            <option value="Active">Active</option>
-                            <option value="Expiring">Expiring</option>
-                            <option value="Suspended">Suspended</option>
-                            <option value="Pending">Pending</option>
-                            <option value="Cancelled">Cancelled</option>
-                            <option value="Expired">Expired</option>
+                        <select name="status" id="filter_status" class="form-control form-control-sm">
+                            <option value="All" <?= $filters['status'] == 'All' ? 'selected' : '' ?>>All Status</option>
+                            <option value="Active" <?= $filters['status'] == 'Active' ? 'selected' : '' ?>>Active</option>
+                            <option value="Expiring" <?= $filters['status'] == 'Expiring' ? 'selected' : '' ?>>Expiring</option>
+                            <option value="Suspended" <?= $filters['status'] == 'Suspended' ? 'selected' : '' ?>>Suspended</option>
+                            <option value="Pending" <?= $filters['status'] == 'Pending' ? 'selected' : '' ?>>Pending</option>
+                            <option value="Cancelled" <?= $filters['status'] == 'Cancelled' ? 'selected' : '' ?>>Cancelled</option>
+                            <option value="Expired" <?= $filters['status'] == 'Expired' ? 'selected' : '' ?>>Expired</option>
                         </select>
                     </div>
                     <div class="col-md-2">
                         <label class="text-muted small mb-1">Provider Name</label>
-                        <select id="filter_provider" class="form-control form-control-sm">
-                            <option value="">All</option>
+                        <select name="provider_id" id="filter_provider" class="form-control form-control-sm">
+                            <option value="All" <?= $filters['provider_id'] == 'All' ? 'selected' : '' ?>>All Providers</option>
                             <?php if (!empty($providers)): ?>
                                 <?php foreach ($providers as $provider): ?>
-                                    <option value="<?= htmlspecialchars($provider['provider_name']) ?>"><?= htmlspecialchars($provider['provider_name']) ?></option>
+                                    <option value="<?= $provider['id'] ?>" <?= $filters['provider_id'] == $provider['id'] ? 'selected' : '' ?>><?= htmlspecialchars($provider['provider_name']) ?></option>
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </select>
@@ -219,11 +220,12 @@
                     <div class="col-md-5">
                         <label class="text-muted small mb-1">&nbsp;</label>
                         <div class="input-group">
-                            <input type="text" id="customSearch" class="form-control form-control-sm" placeholder="Start typing to search hostings...">
-                            <span class="input-group-addon" style="padding: 4px 10px; background: #fff;"><i class="fa fa-search text-muted"></i></span>
+                            <input type="text" name="search" id="customSearch" class="form-control form-control-sm" value="<?= htmlspecialchars($filters['search']) ?>" placeholder="Start typing to search hostings...">
+                            <span class="input-group-addon" style="padding: 4px 10px; background: #fff;"><button type="submit" style="border:none; background:none; padding:0;"><i class="fa fa-search text-muted"></i></button></span>
                         </div>
                     </div>
                 </div>
+                </form>
 
                 <div class="row mb-3 align-items-center">
                     <div class="col-md-6">
@@ -320,15 +322,19 @@
                 <div class="row mt-4 align-items-center">
                     <div class="col-md-4">
                         <div class="d-flex align-items-center">
+                            <span class="text-muted small mr-3">
+                                Showing <?= ($total_rows > 0) ? $offset + 1 : 0 ?> to <?= min($offset + $filters['limit'], $total_rows) ?> of <?= $total_rows ?> entries
+                            </span>
                             <select id="changeRowLimit" class="form-control form-control-sm" style="width: 60px;">
-                                <option value="10">10</option>
-                                <option value="25">25</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
+                                <option value="10" <?= $filters['limit'] == 10 ? 'selected' : '' ?>>10</option>
+                                <option value="25" <?= $filters['limit'] == 25 ? 'selected' : '' ?>>25</option>
+                                <option value="50" <?= $filters['limit'] == 50 ? 'selected' : '' ?>>50</option>
+                                <option value="100" <?= $filters['limit'] == 100 ? 'selected' : '' ?>>100</option>
                             </select>
                         </div>
                     </div>
                     <div class="col-md-8 text-right" id="paginationContainer">
+                        <?= $pagination ?>
                     </div>
                 </div>
 
@@ -689,57 +695,36 @@
 
         // Initialize DataTables
         var table = $('#hostingDataTable').DataTable({
-            "dom": "itp",
-            "pageLength": 10,
-            "order": [
-                [1, "asc"]
-            ], // Sort by Title by default
+            "dom": "t",
+            "pageLength": -1,
+            "order": [[1, "asc"]],
             "columnDefs": [{
-                    "orderable": false,
-                    "targets": [0, 6, 7]
-                } // Disable sorting for checkbox, days remaining, and action columns
-            ],
-            "language": {
-                "info": "Showing _START_ to _END_ of _TOTAL_ entries",
-                "paginate": {
-                    "previous": "Previous",
-                    "next": "Next"
-                }
-            },
-            "drawCallback": function() {
-                var $paginate = $('.dataTables_paginate').detach();
-                var $info = $('.dataTables_info').detach();
-
-                $('#paginationContainer').empty().append($info).append($paginate);
-
-                $('#paginationContainer .pagination').addClass('pagination-sm mb-0 justify-content-end pagination-custom');
-                $info.css({
-                    'display': 'inline-block',
-                    'margin-right': '20px',
-                    'padding-top': '0'
-                });
-            }
+                "orderable": false,
+                "targets": [0, 6, 7]
+            }]
         });
 
         // Search & Filters
-        $('#customSearch').on('keyup', function() {
-            table.search(this.value).draw();
+        $('#filter_status, #filter_provider, #start_date, #end_date').on('change', function() {
+            $('#filterForm').submit();
         });
 
-        $('#filter_status').on('change', function() {
-            table.column(4).search(this.value).draw(); // Index 4 is Status
-        });
-
-        $('#filter_provider').on('change', function() {
-            table.column(2).search(this.value).draw(); // Index 2 is Provider Name
-        });
-
-        $('#start_date, #end_date').on('change', function() {
-            table.draw();
+        // Search trigger on Enter
+        $('#customSearch').on('keypress', function(e) {
+            if (e.which == 13) {
+                e.preventDefault();
+                $('#filterForm').submit();
+            }
         });
 
         $('#changeRowLimit').on('change', function() {
-            table.page.len(this.value).draw();
+            var limit = $(this).val();
+            // Add limit as a hidden input to filterForm and submit
+            if ($('#limit_hidden').length == 0) {
+                $('#filterForm').append('<input type="hidden" name="limit" id="limit_hidden">');
+            }
+            $('#limit_hidden').val(limit);
+            $('#filterForm').submit();
         });
 
         // ----------------------------------------------------
