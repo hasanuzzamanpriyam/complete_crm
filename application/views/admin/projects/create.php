@@ -99,8 +99,7 @@ if (!empty($created) || !empty($edited)) {
                                         <div class="input-group-addon"
                                             title="<?= lang('new') . ' ' . lang('categories') ?>" data-toggle="tooltip"
                                             data-placement="top">
-                                            <a data-toggle="modal" data-target="#myModal"
-                                                href="<?= base_url() ?>admin/projects/new_category"><i
+                                            <a href="javascript:void(0);" class="quick-add-btn" data-type="category" data-url="<?= base_url() ?>admin/projects/new_category"><i
                                                     class="fa fa-plus"></i></a>
                                         </div>
                                         <?php } ?>
@@ -139,8 +138,7 @@ if (!empty($created) || !empty($edited)) {
                                         <?php if (!empty($acreated)) { ?>
                                         <div class="input-group-addon" title="<?= lang('new') . ' ' . lang('client') ?>"
                                             data-toggle="tooltip" data-placement="top">
-                                            <a data-toggle="modal" data-target="#myModal"
-                                                href="<?= base_url() ?>admin/client/new_client"><i
+                                            <a href="javascript:void(0);" class="quick-add-btn" data-type="client" data-url="<?= base_url() ?>admin/client/new_client"><i
                                                     class="fa fa-plus"></i></a>
                                         </div>
                                         <?php } ?>

@@ -11,42 +11,36 @@ $search_by = $this->uri->segment(4);
 $created = can_action('4', 'created');
 $edited = can_action('4', 'edited');
 $deleted = can_action('4', 'deleted');
-?>
+
+if ($this->input->is_ajax_request()) { ?>
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+    <h4 class="modal-title" id="myModalLabel"><?= lang('new_client') ?></h4>
+</div>
+<form role="form" enctype="multipart/form-data" id="form" data-parsley-validate="" novalidate=""
+      action="<?php echo base_url(); ?>admin/client/save_client/<?php if (!empty($client_info)) { echo $client_info->client_id; } ?>"
+      method="post" class="form-horizontal">
+    <div class="modal-body">
+<?php } else { ?>
 <div class="row">
     <div class="col-sm-12">
-
-        <?php
-
-        if (!empty($created) || !empty($edited)) { ?>
+        <?php if (!empty($created) || !empty($edited)) { ?>
         <div class="nav-tabs-custom">
             <!-- Tabs within a box -->
             <ul class="nav nav-tabs">
-                <li class="<?= $active == 1 ? 'active' : '' ?>"><a
-                            href="<?= base_url('admin/client/manage_client') ?>"><?= lang('client_list') ?></a></li>
-                <li class="<?= $active == 2 ? 'active' : '' ?>"><a
-                            href="<?= base_url('admin/client/create_client') ?>"><?= lang('new_client') ?></a></li>
-                <li><a class="import"
-                       href="<?= base_url() ?>admin/client/import"><?= lang('import') . ' ' . lang('client') ?></a>
-                </li>
+                <li class="<?= $active == 1 ? 'active' : '' ?>"><a href="<?= base_url('admin/client/manage_client') ?>"><?= lang('client_list') ?></a></li>
+                <li class="<?= $active == 2 ? 'active' : '' ?>"><a href="<?= base_url('admin/client/create_client') ?>"><?= lang('new_client') ?></a></li>
+                <li><a class="import" href="<?= base_url() ?>admin/client/import"><?= lang('import') . ' ' . lang('client') ?></a></li>
             </ul>
-            <style type="text/css">
-                .custom-bulk-button {
-                    display: initial;
-                }
-            </style>
             <div class="tab-content bg-white">
-
                 <div class="tab-pane <?= $active == 2 ? 'active' : '' ?>" id="new_client" style="position: relative;">
                     <form role="form" enctype="multipart/form-data" id="form" data-parsley-validate="" novalidate=""
-                          action="<?php echo base_url(); ?>admin/client/save_client/<?php
-                          if (!empty($client_info)) {
-                              echo $client_info->client_id;
-                          }
-                          ?>"
-                          method="post" class="form-horizontal  ">
+                          action="<?php echo base_url(); ?>admin/client/save_client/<?php if (!empty($client_info)) { echo $client_info->client_id; } ?>"
+                          method="post" class="form-horizontal">
+        <?php }
+} ?>
                         <div class="panel-body">
-                            <label class="control-label col-sm-3"></label
-                            <div class="col-sm-6">
+                            <div class="<?= $this->input->is_ajax_request() ? 'col-sm-12' : 'col-sm-6' ?>">
                                 <div class="nav-tabs-custom">
                                     <!-- Tabs within a box -->
                                     <ul class="nav nav-tabs">
@@ -66,7 +60,7 @@ $deleted = can_action('4', 'deleted');
                                             <div class="form-group">
                                                 <label class="col-lg-3 control-label"><?= lang('company_name') ?>
                                                     <span class="text-danger"> *</span></label>
-                                                <div class="col-lg-5">
+                                                <div class="col-lg-7">
                                                     <input type="text" class="form-control" required="" value="<?php
                                                     if (!empty($client_info->name)) {
                                                         echo $client_info->name;
@@ -78,7 +72,7 @@ $deleted = can_action('4', 'deleted');
                                             <div class="form-group">
                                                 <label class="col-lg-3 control-label"><?= lang('company_email') ?>
                                                     <span class="text-danger"> *</span></label>
-                                                <div class="col-lg-5">
+                                                <div class="col-lg-7">
                                                     <input type="email" class="form-control" required="" value="<?php
                                                     if (!empty($client_info->email)) {
                                                         echo $client_info->email;
@@ -89,7 +83,7 @@ $deleted = can_action('4', 'deleted');
                                             </div>
                                             <div class="form-group">
                                                 <label class="col-lg-3 control-label"><?= lang('company_vat') ?></label>
-                                                <div class="col-lg-5">
+                                                <div class="col-lg-7">
                                                     <input type="text" class="form-control" value="<?php
                                                     if (!empty($client_info->vat)) {
                                                         echo $client_info->vat;
@@ -99,7 +93,7 @@ $deleted = can_action('4', 'deleted');
                                             </div>
                                             <div class="form-group">
                                                 <label class="col-sm-3 control-label"><?= lang('customer_group') ?></label>
-                                                <div class="col-sm-5">
+                                                <div class="col-sm-7">
                                                     <div class="input-group">
                                                         <select name="customer_group_id" class="form-control select_box"
                                                                 style="width: 100%">
@@ -131,7 +125,7 @@ $deleted = can_action('4', 'deleted');
                                             </div>
                                             <div class="form-group">
                                                 <label class="col-sm-3 control-label"><?= lang('language') ?></label>
-                                                <div class="col-sm-5">
+                                                <div class="col-sm-7">
                                                     <select name="language" class="form-control select_box"
                                                             style="width: 100%">
                                                         <?php
@@ -150,7 +144,7 @@ $deleted = can_action('4', 'deleted');
                                             </div>
                                             <div class="form-group">
                                                 <label class="col-lg-3 control-label"><?= lang('currency') ?></label>
-                                                <div class="col-lg-5">
+                                                <div class="col-lg-7">
                                                     <select name="currency" class="form-control select_box"
                                                             style="width: 100%">
 
@@ -174,7 +168,7 @@ $deleted = can_action('4', 'deleted');
                                                        class="col-sm-3 control-label"><?= lang('received') . ' ' . lang('sms') . ' ' . lang('notification') ?>
                                                     :</label>
 
-                                                <div class="col-sm-5">
+                                                <div class="col-sm-7">
                                                     <input data-toggle="toggle" name="sms_notification" value="1" <?php
                                                     if (!empty($client_info)) {
                                                         $sms_notification = $client_info->sms_notification;
@@ -199,7 +193,7 @@ $deleted = can_action('4', 'deleted');
                                             <?php do_action('client_form', $client_info); ?>
                                             <div class="form-group">
                                                 <label class="col-lg-3 control-label"><?= lang('short_note') ?></label>
-                                                <div class="col-lg-5">
+                                                <div class="col-lg-7">
                                                 <textarea class="form-control" name="short_note"><?php
                                                     if (!empty($client_info->short_note)) {
                                                         echo $client_info->short_note;
@@ -215,7 +209,13 @@ $deleted = can_action('4', 'deleted');
                                                 $permissionL = null;
                                             }
                                             ?>
-                                            <?= get_permission(3, 5, $assign_user, $permissionL, ''); ?>
+                                            <?php
+                                            if ($this->input->is_ajax_request()) {
+                                                echo get_permission_modal(3, 7, $assign_user, $permissionL, '');
+                                            } else {
+                                                echo get_permission(3, 7, $assign_user, $permissionL, '');
+                                            }
+                                            ?>
 
 
 
@@ -234,7 +234,7 @@ $deleted = can_action('4', 'deleted');
                                         <div class="chart tab-pane" id="contact_compnay">
                                             <div class="form-group">
                                                 <label class="col-lg-3 control-label"><?= lang('company_phone') ?></label>
-                                                <div class="col-lg-5">
+                                                <div class="col-lg-7">
                                                     <input type="text" class="form-control" value="<?php
                                                     if (!empty($client_info->phone)) {
                                                         echo $client_info->phone;
@@ -244,7 +244,7 @@ $deleted = can_action('4', 'deleted');
                                             </div>
                                             <div class="form-group">
                                                 <label class="col-lg-3 control-label"><?= lang('company_mobile') ?></label>
-                                                <div class="col-lg-5">
+                                                <div class="col-lg-7">
                                                     <input type="text" class="form-control" value="<?php
                                                     if (!empty($client_info->mobile)) {
                                                         echo $client_info->mobile;
@@ -255,7 +255,7 @@ $deleted = can_action('4', 'deleted');
 
                                             <div class="form-group">
                                                 <label class="col-lg-3 control-label"><?= lang('zipcode') ?></label>
-                                                <div class="col-lg-5">
+                                                <div class="col-lg-7">
                                                     <input type="text" class="form-control" value="<?php
                                                     if (!empty($client_info->zipcode)) {
                                                         echo $client_info->zipcode;
@@ -266,7 +266,7 @@ $deleted = can_action('4', 'deleted');
 
                                             <div class="form-group">
                                                 <label class="col-lg-3 control-label"><?= lang('company_city') ?></label>
-                                                <div class="col-lg-5">
+                                                <div class="col-lg-7">
                                                     <input type="text" class="form-control" value="<?php
                                                     if (!empty($client_info->city)) {
                                                         echo $client_info->city;
@@ -277,7 +277,7 @@ $deleted = can_action('4', 'deleted');
 
                                             <div class="form-group">
                                                 <label class="col-lg-3 control-label"><?= lang('company_country') ?></label>
-                                                <div class="col-lg-5">
+                                                <div class="col-lg-7">
                                                     <select name="country" class="form-control select_box"
                                                             style="width: 100%">
                                                         <optgroup label="Default Country">
@@ -300,7 +300,7 @@ $deleted = can_action('4', 'deleted');
                                             </div>
                                             <div class="form-group">
                                                 <label class="col-lg-3 control-label"><?= lang('company_fax') ?></label>
-                                                <div class="col-lg-5">
+                                                <div class="col-lg-7">
                                                     <input type="text" class="form-control" value="<?php
                                                     if (!empty($client_info->fax)) {
                                                         echo $client_info->fax;
@@ -310,7 +310,7 @@ $deleted = can_action('4', 'deleted');
                                             </div>
                                             <div class="form-group">
                                                 <label class="col-lg-3 control-label"><?= lang('company_address') ?></label>
-                                                <div class="col-lg-5">
+                                                <div class="col-lg-7">
                                                 <textarea class="form-control" name="address"><?php
                                                     if (!empty($client_info->address)) {
                                                         echo $client_info->address;
@@ -328,7 +328,7 @@ $deleted = can_action('4', 'deleted');
                                                                 aria-hidden="true"></i></a>
                                                     <?= lang('latitude') . '( ' . lang('google_map') . ' )' ?>
                                                 </label>
-                                                <div class="col-lg-5">
+                                                <div class="col-lg-7">
                                                     <input type="text" class="form-control" value="<?php
                                                     if (!empty($client_info->latitude)) {
                                                         echo $client_info->latitude;
@@ -340,7 +340,7 @@ $deleted = can_action('4', 'deleted');
                                             <div class="form-group">
                                                 <label
                                                         class="col-lg-3 control-label"><?= lang('longitude') . '( ' . lang('google_map') . ' )' ?></label>
-                                                <div class="col-lg-5">
+                                                <div class="col-lg-7">
                                                     <input type="text" class="form-control" value="<?php
                                                     if (!empty($client_info->longitude)) {
                                                         echo $client_info->longitude;
@@ -354,7 +354,7 @@ $deleted = can_action('4', 'deleted');
                                         <div class="chart tab-pane" id="web_compnay">
                                             <div class="form-group">
                                                 <label class="col-lg-3 control-label"><?= lang('company_domain') ?></label>
-                                                <div class="col-lg-5">
+                                                <div class="col-lg-7">
                                                     <input type="text" class="form-control" value="<?php
                                                     if (!empty($client_info->website)) {
                                                         echo $client_info->website;
@@ -364,7 +364,7 @@ $deleted = can_action('4', 'deleted');
                                             </div>
                                             <div class="form-group">
                                                 <label class="col-lg-3 control-label"><?= lang('skype_id') ?></label>
-                                                <div class="col-lg-5">
+                                                <div class="col-lg-7">
                                                     <input type="text" class="form-control" value="<?php
                                                     if (!empty($client_info->skype_id)) {
                                                         echo $client_info->skype_id;
@@ -376,7 +376,7 @@ $deleted = can_action('4', 'deleted');
                                             <div class="form-group">
                                                 <label
                                                         class="col-lg-3 control-label"><?= lang('facebook_profile_link') ?></label>
-                                                <div class="col-lg-5">
+                                                <div class="col-lg-7">
                                                     <input type="text" class="form-control" value="<?php
                                                     if (!empty($client_info->facebook)) {
                                                         echo $client_info->facebook;
@@ -388,7 +388,7 @@ $deleted = can_action('4', 'deleted');
                                             <div class="form-group">
                                                 <label
                                                         class="col-lg-3 control-label"><?= lang('twitter_profile_link') ?></label>
-                                                <div class="col-lg-5">
+                                                <div class="col-lg-7">
                                                     <input type="text" class="form-control" value="<?php
                                                     if (!empty($client_info->twitter)) {
                                                         echo $client_info->twitter;
@@ -399,7 +399,7 @@ $deleted = can_action('4', 'deleted');
                                             <div class="form-group">
                                                 <label
                                                         class="col-lg-3 control-label"><?= lang('linkedin_profile_link') ?></label>
-                                                <div class="col-lg-5">
+                                                <div class="col-lg-7">
                                                     <input type="text" class="form-control" value="<?php
                                                     if (!empty($client_info->linkedin)) {
                                                         echo $client_info->linkedin;
@@ -413,7 +413,7 @@ $deleted = can_action('4', 'deleted');
                                         <div class="chart tab-pane" id="hosting_compnay">
                                             <div class="form-group">
                                                 <label class="col-lg-3 control-label"><?= lang('hosting_company') ?></label>
-                                                <div class="col-lg-5">
+                                                <div class="col-lg-7">
                                                     <input type="text" class="form-control" value="<?php
                                                     if (!empty($client_info->hosting_company)) {
                                                         echo $client_info->hosting_company;
@@ -424,7 +424,7 @@ $deleted = can_action('4', 'deleted');
                                             </div>
                                             <div class="form-group">
                                                 <label class="col-lg-3 control-label"><?= lang('hostname') ?></label>
-                                                <div class="col-lg-5">
+                                                <div class="col-lg-7">
                                                     <input type="text" class="form-control" value="<?php
                                                     if (!empty($client_info->hostname)) {
                                                         echo $client_info->hostname;
@@ -435,7 +435,7 @@ $deleted = can_action('4', 'deleted');
                                             </div>
                                             <div class="form-group">
                                                 <label class="col-lg-3 control-label"><?= lang('username') ?> </label>
-                                                <div class="col-lg-5">
+                                                <div class="col-lg-7">
                                                     <input type="text" class="form-control" value="<?php
                                                     if (!empty($client_info->username)) {
                                                         echo $client_info->username;
@@ -447,7 +447,7 @@ $deleted = can_action('4', 'deleted');
 
                                             <div class="form-group">
                                                 <label class="col-lg-3 control-label"><?= lang('password') ?></label>
-                                                <div class="col-lg-5">
+                                                <div class="col-lg-7">
                                                     <?php
                                                     if (!empty($client_info->password)) {
                                                         $password = strlen(decrypt($client_info->password));
@@ -474,7 +474,7 @@ $deleted = can_action('4', 'deleted');
                                             </div>
                                             <div class="form-group">
                                                 <label class="col-lg-3 control-label"><?= lang('port') ?></label>
-                                                <div class="col-lg-5">
+                                                <div class="col-lg-7">
                                                     <input type="text" class="form-control" value="<?php
                                                     if (!empty($client_info->port)) {
                                                         echo $client_info->port;
@@ -486,28 +486,33 @@ $deleted = can_action('4', 'deleted');
                                     </div>
                                 </div><!-- /.nav-tabs-custom -->
 
-                                <div class="btn-bottom-toolbar text-right">
-                                    <?php
-                                    if (!empty($client_info)) { ?>
-                                        <button type="submit"
-                                                class="btn btn-sm btn-primary"><?= lang('updates') ?></button>
-                                        <button type="button" onclick="goBack()"
-                                                class="btn btn-sm btn-danger"><?= lang('cancel') ?></button>
-                                    <?php } else {
-                                        ?>
-                                        <button type="submit"
-                                                class="btn btn-sm btn-primary"><?= lang('save') ?></button>
-
-                                        <button type="submit" name="save_and_create_contact" value="1"
-                                                class="btn btn-sm btn-warning"><?= lang('save_and_create_contact') ?></button>
-                                    <?php }
-                                    ?>
-                                </div>
-
+                                <?php if (!$this->input->is_ajax_request()) { ?>
+                                    <div class="btn-bottom-toolbar text-right">
+                                        <?php if (!empty($client_info)) { ?>
+                                            <button type="submit" class="btn btn-sm btn-primary"><?= lang('updates') ?></button>
+                                            <button type="button" onclick="goBack()" class="btn btn-sm btn-danger"><?= lang('cancel') ?></button>
+                                        <?php } else { ?>
+                                            <button type="submit" class="btn btn-sm btn-primary"><?= lang('save') ?></button>
+                                            <button type="submit" name="save_and_create_contact" value="1" class="btn btn-sm btn-warning"><?= lang('save_and_create_contact') ?></button>
+                                        <?php } ?>
+                                    </div>
+                                <?php } ?>
                             </div>
-                    </form>
-                    <?php } else { ?>
-                </div>
-                <?php } ?>
-            </div>
-        </div>
+                        </div>
+                        <?php if ($this->input->is_ajax_request()) { ?>
+                            </div> <!-- /.modal-body -->
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal"><?= lang('close') ?></button>
+                                <button type="submit" class="btn btn-primary"><?= strtoupper(lang('save')) ?></button>
+                            </div>
+                            </form>
+                        <?php } else { ?>
+                            </form>
+                            <?php if (!empty($created) || !empty($edited)) { ?>
+                                </div> <!-- tab-pane -->
+                                </div> <!-- tab-content -->
+                                </div> <!-- nav-tabs-custom -->
+                            <?php } ?>
+                            </div> <!-- col-sm-12 -->
+                        </div> <!-- row -->
+                        <?php } ?>

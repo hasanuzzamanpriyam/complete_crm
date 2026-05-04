@@ -218,6 +218,11 @@
         box-shadow: none;
     }
 
+    /* Fix Select2 dropdown z-index for modals */
+    .select2-container--open {
+        z-index: 1060 !important;
+    }
+
     .remove-custom-field {
         height: 30px;
         display: flex;
@@ -466,15 +471,19 @@
                             <div class="form-group">
                                 <label>Project</label>
                                 <div class="input-group">
-                                    <select name="project_id" id="project_id_select" class="form-control">
-                                        <option value="">Select Project</option>
-                                        <?php if (!empty($projects)): ?>
-                                            <?php foreach ($projects as $project): ?>
-                                                <option value="<?= $project['project_id'] ?>" <?= !empty($domain_info) && $domain_info->project_id == $project['project_id'] ? 'selected' : '' ?>>
+                                    <select name="project_id[]" id="project_id_select" class="form-control select_box" multiple="multiple" data-placeholder="Select Projects">
+                                        <?php 
+                                        $selected_projects = !empty($domain_info->project_id) ? explode(',', $domain_info->project_id) : array();
+                                        if (!empty($projects)): 
+                                            foreach ($projects as $project): 
+                                        ?>
+                                                <option value="<?= $project['project_id'] ?>" <?= in_array($project['project_id'], $selected_projects) ? 'selected' : '' ?>>
                                                     <?= htmlspecialchars($project['project_name']) ?>
                                                 </option>
-                                            <?php endforeach; ?>
-                                        <?php endif; ?>
+                                        <?php 
+                                            endforeach; 
+                                        endif; 
+                                        ?>
                                     </select>
                                     <div class="input-group-append">
                                         <button type="button" class="btn quick-add-btn" data-type="project" data-url="<?= base_url('admin/projects/create') ?>" title="Add New Project" tabindex="-1">
@@ -488,15 +497,19 @@
                             <div class="form-group">
                                 <label>Client</label>
                                 <div class="input-group">
-                                    <select name="client_id" id="client_id_select" class="form-control">
-                                        <option value="">Select Client</option>
-                                        <?php if (!empty($clients)): ?>
-                                            <?php foreach ($clients as $client): ?>
-                                                <option value="<?= $client['client_id'] ?>" <?= !empty($domain_info) && $domain_info->client_id == $client['client_id'] ? 'selected' : '' ?>>
+                                    <select name="client_id[]" id="client_id_select" class="form-control select_box" multiple="multiple" data-placeholder="Select Clients">
+                                        <?php 
+                                        $selected_clients = !empty($domain_info->client_id) ? explode(',', $domain_info->client_id) : array();
+                                        if (!empty($clients)): 
+                                            foreach ($clients as $client): 
+                                        ?>
+                                                <option value="<?= $client['client_id'] ?>" <?= in_array($client['client_id'], $selected_clients) ? 'selected' : '' ?>>
                                                     <?= htmlspecialchars($client['name']) ?>
                                                 </option>
-                                            <?php endforeach; ?>
-                                        <?php endif; ?>
+                                        <?php 
+                                            endforeach; 
+                                        endif; 
+                                        ?>
                                     </select>
                                     <div class="input-group-append">
                                         <button type="button" class="btn quick-add-btn" data-type="client" data-url="<?= base_url('admin/client/create_client') ?>" title="Add New Client" tabindex="-1">
@@ -658,6 +671,18 @@
                         $(document).ready(function() {
                             var csrfToken = '<?= $this->security->get_csrf_hash() ?>';
 
+                            // Initialize Select2
+                            if ($.fn.select2) {
+                                $('.select_box').select2({
+                                    theme: 'bootstrap',
+                                    width: '100%',
+                                    placeholder: function() {
+                                        return $(this).data('placeholder');
+                                    },
+                                    allowClear: true
+                                });
+                            }
+
                             // Toggle notification fields based on expiry_notification checkbox
                             function toggleNotificationFields() {
                                 if ($('#expiry_notification').is(':checked')) {
@@ -786,10 +811,23 @@
                                 $(this).find('i').toggleClass('fa-eye fa-eye-slash');
                             });
 
+                            // Fix Select2 focus issue in Bootstrap modals
+                            if ($.fn.modal && $.fn.modal.Constructor) {
+                                $.fn.modal.Constructor.prototype.enforceFocus = function() {};
+                            }
+
                             $('#myModal').on('shown.bs.modal', function() {
+                                // Remove tabindex to prevent focus issues with Select2 search
+                                $(this).removeAttr('tabindex');
+                                
                                 if ($.fn.select2) {
-                                    $(this).find('.select_box').select2({
-                                        dropdownParent: $('#myModal')
+                                    $(this).find('.select_box').each(function() {
+                                        if (!$(this).hasClass('select2-hidden-accessible')) {
+                                            $(this).select2({
+                                                theme: 'bootstrap',
+                                                width: '100%'
+                                            });
+                                        }
                                     });
                                 }
                                 if (typeof initdatepicker === 'function') {
@@ -820,6 +858,7 @@
                                 var titleMap = {
                                     'provider': 'Add New Provider',
                                     'project': 'Add New Project',
+                                    'category': 'Add New Category',
                                     'client': 'Add New Client',
                                     'nameserver': 'Add New Nameserver',
                                     'type': 'Add New Domain Type',
@@ -832,6 +871,27 @@
 
                                 $.get(url, function(response) {
                                     $('#myModal .modal-content').html(response);
+                                    // Re-initialize Select2 for the new content
+                                    if ($.fn.select2) {
+                                        $('#myModal').find('.select_box').each(function() {
+                                            if ($(this).data('select2')) {
+                                                $(this).select2('destroy');
+                                            }
+                                            $(this).select2({
+                                                theme: 'bootstrap',
+                                                width: '100%'
+                                            });
+                                        });
+                                    }
+                                    // Re-initialize datepicker if needed
+                                    if (typeof initdatepicker === 'function') {
+                                        initdatepicker();
+                                    }
+                                    $('#myModal').find('.start_date, .end_date, .datepicker').datepicker({
+                                        autoclose: true,
+                                        format: 'yyyy-mm-dd',
+                                        todayBtn: "linked"
+                                    });
                                 }).fail(function() {
                                     $('#myModal .modal-body').html('<div class="alert alert-danger">Error: Not Found</div>');
                                 });
@@ -844,7 +904,9 @@
                                 if (!action) return;
 
                                 if (action.indexOf('admin/projects/saved_project') !== -1 ||
+                                    action.indexOf('admin/projects/update_category') !== -1 ||
                                     action.indexOf('admin/client/save_client') !== -1 ||
+                                    action.indexOf('admin/client/update_client') !== -1 ||
                                     action.indexOf('admin/server_management/add_nameserver') !== -1 ||
                                     action.indexOf('admin/server_management/add_provider') !== -1 ||
                                     action.indexOf('admin/server_management/add_domain_type') !== -1 ||
@@ -876,7 +938,7 @@
                                                 }
 
                                                 if (select && select.length) {
-                                                    var newOption = new Option(response.text || response.name, response.id, true, true);
+                                                    var newOption = new Option(response.text || response.name || response.group, response.id, true, true);
                                                     select.append(newOption).trigger('change');
                                                 }
 
@@ -921,6 +983,25 @@
                                 $(this).closest('.custom-field-row').remove();
                                 if ($('#custom_fields_container .custom-field-row').length === 0) {
                                     $('#no_custom_fields_msg').show();
+                                }
+                            });
+
+                            // Permission toggle logic for modals (Delegated)
+                            $(document).on('change', '.permission_user_modal', function() {
+                                var val = $(this).val();
+                                if (val == 'custom_permission') {
+                                    $('#permission_user_modal').show();
+                                } else {
+                                    $('#permission_user_modal').hide();
+                                }
+                            });
+
+                            $(document).on('change', '.assigned_to_modal', function() {
+                                var user_id = $(this).val();
+                                if (this.checked) {
+                                    $("#action_u_modal_" + user_id).show();
+                                } else {
+                                    $("#action_u_modal_" + user_id).hide();
                                 }
                             });
                         });

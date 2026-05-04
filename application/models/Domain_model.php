@@ -144,16 +144,40 @@ class Domain_model extends CI_Model {
     }
 
     public function get_domain_info($id) {
-        $this->db->select('d.*, p.provider_name as provider, h.hosting_name as hosting, pr.project_name as project, c.name as client_name');
+        $this->db->select('d.*, p.provider_name as provider, h.hosting_name as hosting');
         $this->db->from('tbldomains d');
         $this->db->join('tblproviders p', 'd.provider_id = p.id', 'left');
         $this->db->join('tblhostings h', 'd.hosting_id = h.id', 'left');
-        $this->db->join('tbl_project pr', 'd.project_id = pr.project_id', 'left');
-        $this->db->join('tbl_client c', 'd.client_id = c.client_id', 'left');
         $this->db->where('d.id', $id);
         $query = $this->db->get();
         if ($query) {
-            return $query->row();
+            $row = $query->row();
+            if ($row) {
+                // Fetch projects
+                $row->project = '';
+                if (!empty($row->project_id)) {
+                    $project_ids = explode(',', $row->project_id);
+                    $this->db->select('project_name');
+                    $this->db->where_in('project_id', $project_ids);
+                    $projects = $this->db->get('tbl_project')->result_array();
+                    if (!empty($projects)) {
+                        $row->project = implode(', ', array_column($projects, 'project_name'));
+                    }
+                }
+                
+                // Fetch clients
+                $row->client_name = '';
+                if (!empty($row->client_id)) {
+                    $client_ids = explode(',', $row->client_id);
+                    $this->db->select('name');
+                    $this->db->where_in('client_id', $client_ids);
+                    $clients = $this->db->get('tbl_client')->result_array();
+                    if (!empty($clients)) {
+                        $row->client_name = implode(', ', array_column($clients, 'name'));
+                    }
+                }
+            }
+            return $row;
         }
         return NULL;
     }
