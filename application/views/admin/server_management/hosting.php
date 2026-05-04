@@ -198,6 +198,7 @@
                         <select id="filter_status" class="form-control form-control-sm">
                             <option value="">All</option>
                             <option value="Active">Active</option>
+                            <option value="Expiring">Expiring</option>
                             <option value="Suspended">Suspended</option>
                             <option value="Pending">Pending</option>
                             <option value="Cancelled">Cancelled</option>
@@ -258,7 +259,14 @@
                                         <td>
                                             <?php
                                             $badge_class = '';
-                                            switch ($hosting['status']) {
+                                            $current_status = $hosting['status'];
+
+                                            // Fallback/Safety: Force Expired status in view if date has passed
+                                            if ($hosting['days_remaining'] < 0) {
+                                                $current_status = 'Expired';
+                                            }
+
+                                            switch ($current_status) {
                                                 case 'Cancelled':
                                                     $badge_class = 'badge-cancelled';
                                                     break;
@@ -268,15 +276,21 @@
                                                 case 'Active':
                                                     $badge_class = 'badge-active';
                                                     break;
+                                                case 'Expiring':
+                                                    $badge_class = 'badge-suspended'; // Using yellow/orange for expiring
+                                                    break;
                                                 case 'Suspended':
                                                     $badge_class = 'badge-suspended';
                                                     break;
                                                 case 'Expired':
                                                     $badge_class = 'badge-expired';
                                                     break;
+                                                default:
+                                                    $badge_class = 'badge-secondary';
+                                                    break;
                                             }
                                             ?>
-                                            <span class="badge badge-pill <?= $badge_class ?>"><?= htmlspecialchars($hosting['status']) ?></span>
+                                            <span class="badge badge-pill <?= $badge_class ?>"><?= htmlspecialchars($current_status) ?></span>
                                         </td>
                                         <td><?= $hosting['expiry_date'] ?></td>
                                         <td>
@@ -404,7 +418,23 @@
                                 <table class="table table-borderless table-sm mb-0">
                                     <tr>
                                         <th style="width: 40%;">Status</th>
-                                        <td>: <span class="badge badge-pill <?= $badge_class ?>"><?= htmlspecialchars($hosting['status']) ?></span></td>
+                                        <td>: 
+                                            <?php
+                                            $modal_status = $hosting['status'];
+                                            if ($hosting['days_remaining'] < 0) $modal_status = 'Expired';
+                                            $modal_badge = '';
+                                            switch ($modal_status) {
+                                                case 'Active': $modal_badge = 'badge-active'; break;
+                                                case 'Expiring': $modal_badge = 'badge-suspended'; break;
+                                                case 'Expired': $modal_badge = 'badge-expired'; break;
+                                                case 'Suspended': $modal_badge = 'badge-suspended'; break;
+                                                case 'Pending': $modal_badge = 'badge-pending'; break;
+                                                case 'Cancelled': $modal_badge = 'badge-cancelled'; break;
+                                                default: $modal_badge = 'badge-secondary';
+                                            }
+                                            ?>
+                                            <span class="badge badge-pill <?= $modal_badge ?>"><?= htmlspecialchars($modal_status) ?></span>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <th>Date</th>

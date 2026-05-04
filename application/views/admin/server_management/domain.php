@@ -232,9 +232,19 @@
                                         <td>
                                             <?php
                                             $badge_class = '';
-                                            switch ($domain['status']) {
+                                            $current_status = $domain['status'];
+                                            
+                                            // Fallback/Safety: Force Expired status in view if date has passed
+                                            if ($domain['days_remaining'] < 0) {
+                                                $current_status = 'Expired';
+                                            }
+
+                                            switch ($current_status) {
                                                 case 'Expired':
                                                     $badge_class = 'badge-expired';
+                                                    break;
+                                                case 'Expiring':
+                                                    $badge_class = 'badge-pending';
                                                     break;
                                                 case 'Pending':
                                                     $badge_class = 'badge-pending';
@@ -250,7 +260,7 @@
                                                     break;
                                             }
                                             ?>
-                                            <span class="badge <?= $badge_class ?>"><?= htmlspecialchars($domain['status']) ?></span>
+                                            <span class="badge <?= $badge_class ?>"><?= htmlspecialchars($current_status) ?></span>
                                         </td>
                                         <td><?= $domain['expiry_date'] ?></td>
                                         <td>

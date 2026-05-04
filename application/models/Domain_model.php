@@ -7,11 +7,25 @@ class Domain_model extends CI_Model {
     public function __construct() {
         parent::__construct();
         
-        // Automatically update expired domains
+        // Automatically update expired and expiring domains
         $today = date('Y-m-d');
+        $expiring_soon = date('Y-m-d', strtotime('+30 days'));
+
+        // 1. Mark as Expired if date passed
         $this->db->where('expiry_date <', $today);
         $this->db->where('status !=', 'Expired');
         $this->db->update('tbldomains', array('status' => 'Expired'));
+
+        // 2. Mark as Expiring if within 30 days and currently Active
+        $this->db->where('expiry_date >=', $today);
+        $this->db->where('expiry_date <=', $expiring_soon);
+        $this->db->where('status', 'Active');
+        $this->db->update('tbldomains', array('status' => 'Expiring'));
+
+        // 3. Mark as Active if not expired/expiring but marked otherwise (optional sync back)
+        $this->db->where('expiry_date >', $expiring_soon);
+        $this->db->where('status', 'Expiring');
+        $this->db->update('tbldomains', array('status' => 'Active'));
     }
 
     public function insert_domain($data) {
