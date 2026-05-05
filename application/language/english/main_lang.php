@@ -665,11 +665,25 @@ $lang['server_dashboard'] = 'Server Dashboard';
 $lang['hosting_management'] = 'Hosting Management';
 $lang['domain_management'] = 'Domain Management';
 $lang['provider_management'] = 'Provider Management';
+$lang['billing_order'] = 'Billing Order';
 
 // Breadcrumb fallbacks
 $lang['domain'] = 'Domain Management';
 $lang['hosting'] = 'Hosting Management';
 $lang['provider'] = 'Provider Management';
+$lang['billing'] = 'Billing Order';
 $lang['add_hosting'] = 'Add Hosting';
 $lang['add_domain'] = 'Add Domain';
 $lang['add_provider'] = 'Add Provider';
+$lang['existing_billing'] = 'Existing Billing Orders';
+$lang['add_billing_item'] = 'Add New Billing Items';
+$lang['billing_label'] = 'Label';
+$lang['billing_value'] = 'Value';
+$lang['billing_type'] = 'Type';
+$lang['currency'] = 'Currency';
+$lang['renewal_date'] = 'Renewal Date';
+$lang['expiry_date'] = 'Expiry Date';
+$lang['duration'] = 'Duration';
+$lang['time_unit'] = 'Time Unit';
+$lang['renew'] = 'Renew';
+$lang['remaining'] = 'Remaining';

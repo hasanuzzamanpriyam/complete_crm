@@ -96,6 +96,15 @@ class Menu
                     'parent' => '111122222223',
                     'sort' => '4',
                     'time' => date('Y-m-d h:i:s'),
+                ],
+                [
+                    'menu_id' => '1111222222235',
+                    'label' => 'billing_order',
+                    'link' => 'admin/server_management/billing',
+                    'icon' => 'fa fa-shopping-cart',
+                    'parent' => '111122222223',
+                    'sort' => '5',
+                    'time' => date('Y-m-d h:i:s'),
                 ]
             ];
             $module_menu = json_decode(json_encode(array_merge($module, $server_management)));
