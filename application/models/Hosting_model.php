@@ -202,7 +202,7 @@ class Hosting_model extends CI_Model {
     public function get_expired_hostings() {
         $today = date('Y-m-d');
         $this->db->reset_query();
-        $this->db->select('id, title as name, expiry_date, status');
+        $this->db->select('id, title as name, expiry_date, status, renew');
         $this->db->from('tblserver_hostings');
         $this->db->where("(status = 'Expired' OR status = 'Cancelled' OR expiry_date < '" . $today . "')", NULL, FALSE);
         $this->db->order_by('expiry_date', 'DESC');
@@ -225,7 +225,7 @@ class Hosting_model extends CI_Model {
         $end_date = date('Y-m-d', strtotime("+{$days} days"));
         
         $this->db->reset_query();
-        $this->db->select('id, title as name, expiry_date, status');
+        $this->db->select('id, title as name, expiry_date, status, renew');
         $this->db->from('tblserver_hostings');
         $this->db->where('expiry_date >=', $today);
         $this->db->where('expiry_date <=', $end_date);
@@ -253,8 +253,9 @@ class Hosting_model extends CI_Model {
         $expired = $this->get_expired_hostings();
         
         foreach ($expiring as $hosting) {
+            $renew_type = (isset($hosting['renew']) && $hosting['renew'] == 'automatic') ? ' (Auto)' : ' (Manual)';
             $events[] = array(
-                'title' => '[HST] ' . $hosting['name'],
+                'title' => '[HST] ' . $hosting['name'] . $renew_type,
                 'start' => $hosting['expiry_date'],
                 'end' => $hosting['expiry_date'],
                 'color' => config_item('hosting_color') ?: '#ffd93d',
@@ -266,8 +267,9 @@ class Hosting_model extends CI_Model {
         }
         
         foreach ($expired as $hosting) {
+            $renew_type = (isset($hosting['renew']) && $hosting['renew'] == 'automatic') ? ' (Auto)' : ' (Manual)';
             $events[] = array(
-                'title' => '[HST] ' . $hosting['name'],
+                'title' => '[HST] ' . $hosting['name'] . $renew_type,
                 'start' => date('Y-m-d'),
                 'end' => date('Y-m-d'),
                 'color' => '#ff6b6b',

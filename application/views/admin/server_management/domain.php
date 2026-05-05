@@ -421,38 +421,108 @@
         });
 
         // Initialize DataTables
-        var table = $('#domainDataTable').DataTable({
-            "dom": "t",
-            "pageLength": -1,
-            "order": [[1, "asc"]],
-            "columnDefs": [{
-                "orderable": false,
-                "targets": [0, 6, 8]
-            }]
-        });
+        var table;
+        function initDataTable() {
+            if ($.fn.DataTable.isDataTable('#domainDataTable')) {
+                $('#domainDataTable').DataTable().destroy();
+            }
+            table = $('#domainDataTable').DataTable({
+                "dom": "t",
+                "pageLength": -1,
+                "order": [[1, "asc"]],
+                "columnDefs": [{
+                    "orderable": false,
+                    "targets": [0, 6, 8]
+                }]
+            });
+        }
+        initDataTable();
+
+        // AJAX Loading Function
+        function loadDomainData(url) {
+            url = url || $('#filterForm').attr('action');
+            var formData = $('#filterForm').serialize();
+            var limit = $('#changeRowLimit').val();
+            
+            // Ensure limit is included
+            if (formData.indexOf('limit=') === -1) {
+                formData += '&limit=' + limit;
+            }
+
+            // Show loading state
+            $('.table-responsive').css('opacity', '0.5');
+            
+            $.ajax({
+                url: url,
+                type: 'GET',
+                data: formData,
+                success: function(response) {
+                    // Extract only the parts we need from the response
+                    var $html = $($.parseHTML(response));
+                    var newTable = $html.find('.table-responsive').html();
+                    var newPagination = $html.find('#paginationContainer').html();
+                    var newInfo = $html.find('.text-muted.small.mr-3').first().html();
+
+                    $('.table-responsive').html(newTable);
+                    $('#paginationContainer').html(newPagination);
+                    $('.text-muted.small.mr-3').first().html(newInfo);
+                    
+                    $('.table-responsive').css('opacity', '1');
+                    
+                    // Re-initialize DataTable and Bulk Actions
+                    initDataTable();
+                    $('#selectAll').prop('checked', false);
+                    updateBulkBtn();
+                },
+                error: function() {
+                    $('.table-responsive').css('opacity', '1');
+                    alert('Error loading data');
+                }
+            });
+        }
 
         // Search & Filters
-        // Handle Filters - Submit form on change
+        // Handle Filters - Use AJAX instead of submit
         $('#filter_status, #filter_provider, #start_date, #end_date').on('change', function() {
-            $('#filterForm').submit();
+            loadDomainData();
+        });
+
+        // Auto-search with debounce
+        var searchTimer;
+        $('#customSearch').on('input', function() {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(function() {
+                loadDomainData();
+            }, 600);
         });
 
         // Search trigger on Enter
         $('#customSearch').on('keypress', function(e) {
             if (e.which == 13) {
                 e.preventDefault();
-                $('#filterForm').submit();
+                clearTimeout(searchTimer);
+                loadDomainData();
             }
         });
 
+        // Prevent form submission
+        $('#filterForm').on('submit', function(e) {
+            e.preventDefault();
+            loadDomainData();
+        });
+
+        // Handle Row Limit Change
         $('#changeRowLimit').on('change', function() {
-            var limit = $(this).val();
-            // Add limit as a hidden input to filterForm and submit
-            if ($('#limit_hidden').length == 0) {
-                $('#filterForm').append('<input type="hidden" name="limit" id="limit_hidden">');
+            loadDomainData();
+        });
+
+        // Handle Pagination Click
+        $(document).on('click', '#paginationContainer .page-link', function(e) {
+            var href = $(this).attr('href');
+            if (href && href !== '#' && !$(this).parent().hasClass('active')) {
+                e.preventDefault();
+                loadDomainData(href);
             }
-            $('#limit_hidden').val(limit);
-            $('#filterForm').submit();
         });
 
         // ----------------------------------------------------
@@ -462,7 +532,8 @@
         var $bulkDeleteBtn = $('#bulkDeleteBtn');
 
         function updateBulkBtn() {
-            var checkedCount = table.$('.row-checkbox:checked').length;
+            if (!table) return;
+            var checkedCount = $('.row-checkbox:checked').length;
             var totalCount = table.rows({
                 search: 'applied'
             }).count();
@@ -479,31 +550,31 @@
             }
         }
 
-        $selectAll.on('click', function() {
-            var rows = table.rows({
-                search: 'applied'
-            }).nodes();
-            $('.row-checkbox', rows).prop('checked', this.checked);
+        $(document).on('click', '#selectAll', function() {
+            var checked = this.checked;
+            $('.row-checkbox').each(function() {
+                if (!$(this).prop('disabled')) {
+                    $(this).prop('checked', checked);
+                }
+            });
             updateBulkBtn();
         });
 
-        $('#domainDataTable tbody').on('change', '.row-checkbox', function() {
-            var checkedCount = table.$('.row-checkbox:checked').length;
-            var totalCount = table.rows({
-                search: 'applied'
-            }).count();
+        $(document).on('change', '.row-checkbox', function() {
+            var totalAvailable = $('.row-checkbox:not(:disabled)').length;
+            var checkedCount = $('.row-checkbox:checked').length;
 
-            if (checkedCount === totalCount && totalCount > 0) {
-                $selectAll.prop('checked', true);
+            if (checkedCount === totalAvailable && totalAvailable > 0) {
+                $('#selectAll').prop('checked', true);
             } else {
-                $selectAll.prop('checked', false);
+                $('#selectAll').prop('checked', false);
             }
             updateBulkBtn();
         });
 
         $bulkDeleteBtn.on('click', function() {
             var selectedIds = [];
-            table.$('.row-checkbox:checked').each(function() {
+            $('.row-checkbox:checked').each(function() {
                 selectedIds.push($(this).val());
             });
 

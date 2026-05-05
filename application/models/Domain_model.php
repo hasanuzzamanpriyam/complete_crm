@@ -252,7 +252,7 @@ class Domain_model extends CI_Model {
     public function get_expired_domains() {
         $today = date('Y-m-d');
         $this->db->reset_query();
-        $this->db->select('id, domain_name as name, expiry_date, status');
+        $this->db->select('id, domain_name as name, expiry_date, status, auto_renewal');
         $this->db->from('tbldomains');
         $this->db->where("(status = 'Expired' OR expiry_date < '" . $today . "')", NULL, FALSE);
         $this->db->order_by('expiry_date', 'DESC');
@@ -275,7 +275,7 @@ class Domain_model extends CI_Model {
         $end_date = date('Y-m-d', strtotime("+{$days} days"));
         
         $this->db->reset_query();
-        $this->db->select('id, domain_name as name, expiry_date, status');
+        $this->db->select('id, domain_name as name, expiry_date, status, auto_renewal');
         $this->db->from('tbldomains');
         $this->db->where('expiry_date >=', $today);
         $this->db->where('expiry_date <=', $end_date);
@@ -303,8 +303,9 @@ class Domain_model extends CI_Model {
         $expired = $this->get_expired_domains();
         
         foreach ($expiring as $domain) {
+            $renew_type = ($domain['auto_renewal'] == 1) ? ' (Auto)' : ' (Manual)';
             $events[] = array(
-                'title' => '[DOM] ' . $domain['name'],
+                'title' => '[DOM] ' . $domain['name'] . $renew_type,
                 'start' => $domain['expiry_date'],
                 'end' => $domain['expiry_date'],
                 'color' => config_item('domain_color') ?: '#ffd93d',
@@ -316,8 +317,9 @@ class Domain_model extends CI_Model {
         }
         
         foreach ($expired as $domain) {
+            $renew_type = ($domain['auto_renewal'] == 1) ? ' (Auto)' : ' (Manual)';
             $events[] = array(
-                'title' => '[DOM] ' . $domain['name'],
+                'title' => '[DOM] ' . $domain['name'] . $renew_type,
                 'start' => date('Y-m-d'),
                 'end' => date('Y-m-d'),
                 'color' => '#ff6b6b',

@@ -525,6 +525,16 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" name="create_calendar_task" class="custom-control-input" id="create_calendar_task" value="1">
+                                    <label class="custom-control-label" for="create_calendar_task" style="text-transform: none; font-size: 13px;">Create Task in Calendar for Renewal</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="erp-section-title">Description</div>
                     

@@ -295,6 +295,10 @@ class Server_management extends Admin_Controller
         $data['pagination'] = $this->pagination->create_links();
 
         $data['subview'] = $this->load->view('admin/server_management/hosting', $data, TRUE);
+        if ($this->input->is_ajax_request()) {
+            echo $data['subview'];
+            return;
+        }
         $this->load->view('admin/_layout_main', $data);
     }
 
@@ -372,6 +376,10 @@ class Server_management extends Admin_Controller
         $data['pagination'] = $this->pagination->create_links();
 
         $data['subview'] = $this->load->view('admin/server_management/domain', $data, TRUE);
+        if ($this->input->is_ajax_request()) {
+            echo $data['subview'];
+            return;
+        }
         $this->load->view('admin/_layout_main', $data);
     }
 
@@ -560,6 +568,10 @@ class Server_management extends Admin_Controller
                     if ($this->hosting_model->update_hosting($id, $data_save)) {
                         $this->log_activity('server_management', 'Updated hosting "' . $data_save['title'] . '"', 'fa-pencil', 'admin/server_management/add_hosting/' . $id, $data_save['status']);
 
+                        if ($this->input->post('create_calendar_task')) {
+                            $this->create_renewal_task('server_hosting', $id, $data_save['title'], $data_save['expiry_date']);
+                        }
+
                         $notify_data = array(
                             'description' => 'hosting_updated',
                             'icon' => 'fa-server',
@@ -576,6 +588,10 @@ class Server_management extends Admin_Controller
                     $new_id = $this->hosting_model->insert_hosting($data_save);
                     if ($new_id) {
                         $this->log_activity('server_management', 'Added new hosting "' . $data_save['title'] . '"', 'fa-plus', 'admin/server_management/add_hosting/' . $new_id, $data_save['status']);
+
+                        if ($this->input->post('create_calendar_task')) {
+                            $this->create_renewal_task('server_hosting', $new_id, $data_save['title'], $data_save['expiry_date']);
+                        }
 
                         $notify_data = array(
                             'description' => 'new_hosting_added',
@@ -743,6 +759,10 @@ class Server_management extends Admin_Controller
                     $this->domain_model->update_domain($id, $data_save);
                     $this->log_activity('server_management', 'Updated domain "' . $data_save['domain_name'] . '"', 'fa-pencil', 'admin/server_management/add_domain/' . $id, $data_save['status']);
 
+                    if ($this->input->post('create_calendar_task')) {
+                        $this->create_renewal_task('domain', $id, $data_save['domain_name'], $data_save['expiry_date']);
+                    }
+
                     $notify_data = array(
                         'description' => 'domain_updated',
                         'icon' => 'fa-globe',
@@ -755,6 +775,10 @@ class Server_management extends Admin_Controller
                 } else {
                     $new_id = $this->domain_model->insert_domain($data_save);
                     $this->log_activity('server_management', 'Added new domain "' . $data_save['domain_name'] . '"', 'fa-plus', 'admin/server_management/add_domain/' . $new_id, $data_save['status']);
+
+                    if ($this->input->post('create_calendar_task')) {
+                        $this->create_renewal_task('domain', $new_id, $data_save['domain_name'], $data_save['expiry_date']);
+                    }
 
                     $notify_data = array(
                         'description' => 'new_domain_added',
@@ -1398,5 +1422,21 @@ class Server_management extends Admin_Controller
             set_message('error', 'Nothing to delete!');
         }
         redirect('admin/server_management/billing');
+    }
+
+    private function create_renewal_task($module, $module_id, $module_name, $expiry_date)
+    {
+        $task_data = array(
+            'task_name' => 'Renewal: ' . $module_name,
+            'task_description' => 'Automatic task for ' . $module . ' renewal. Expiry date: ' . $expiry_date,
+            'task_start_date' => date('Y-m-d'),
+            'due_date' => $expiry_date,
+            'task_status' => 'not_started',
+            'created_by' => $this->session->userdata('user_id'),
+            'permission' => 'all',
+            'module' => $module,
+            'module_field_id' => $module_id
+        );
+        $this->db->insert('tbl_task', $task_data);
     }
 }

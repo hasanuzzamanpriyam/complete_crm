@@ -251,7 +251,7 @@
                             <div class="form-group">
                                 <label>Provider <span class="text-danger">*</span></label>
                                 <div class="input-group">
-                                    <select name="provider_id" id="provider_id" class="form-control" required>
+                                    <select name="provider_id" id="domain_provider_id" class="form-control" required>
                                         <option value="">Select Provider</option>
                                         <?php if (!empty($providers)): ?>
                                             <?php foreach ($providers as $provider): ?>
@@ -272,7 +272,7 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Provider URL</label>
-                                <input type="text" name="provider_url" id="provider_url" class="form-control" value="<?= !empty($domain_info) ? htmlspecialchars($domain_info->provider_url) : '' ?>">
+                                <input type="text" name="provider_url" id="domain_provider_url" class="form-control" value="<?= !empty($domain_info) ? htmlspecialchars($domain_info->provider_url) : '' ?>">
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -375,25 +375,25 @@
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Renewal Date <span class="text-danger">*</span></label>
-                                <input type="date" name="purchase_date" id="purchase_date" class="form-control" value="<?= !empty($domain_info) ? $domain_info->purchase_date : '' ?>" required>
+                                <input type="date" name="purchase_date" id="domain_purchase_date" class="form-control" value="<?= !empty($domain_info) ? $domain_info->purchase_date : '' ?>" required>
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Expiry Date <span class="text-danger">*</span></label>
-                                <input type="date" name="expiry_date" id="expiry_date" class="form-control" value="<?= !empty($domain_info) ? $domain_info->expiry_date : '' ?>" required readonly>
+                                <input type="date" name="expiry_date" id="domain_expiry_date" class="form-control" value="<?= !empty($domain_info) ? $domain_info->expiry_date : '' ?>" required readonly>
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Duration <span class="text-danger">*</span></label>
-                                <input type="number" name="days" id="duration" class="form-control" value="<?= !empty($domain_info) ? $domain_info->days : '' ?>" placeholder="Enter duration" required>
+                                <input type="number" name="days" id="domain_duration" class="form-control" value="<?= !empty($domain_info) ? $domain_info->days : '' ?>" placeholder="Enter duration" required>
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Plan Mode <span class="text-danger">*</span></label>
-                                <select name="time_unit" id="time_unit" class="form-control" required>
+                                <select name="time_unit" id="domain_time_unit" class="form-control" required>
                                     <option value="Days" <?= !empty($domain_info) && $domain_info->time_unit == 'Days' ? 'selected' : '' ?>>Days</option>
                                     <option value="Weeks" <?= !empty($domain_info) && $domain_info->time_unit == 'Weeks' ? 'selected' : '' ?>>Weeks</option>
                                     <option value="Months" <?= !empty($domain_info) && $domain_info->time_unit == 'Months' ? 'selected' : '' ?>>Months</option>
@@ -409,7 +409,7 @@
                                 <label>Price</label>
                                 <div class="input-group price-group">
                                     <div class="input-group-prepend">
-                                        <select name="currency_id" class="form-control" id="currency_id">
+                                        <select name="currency_id" class="form-control" id="domain_currency_id">
                                             <option value="">Currency</option>
                                             <?php if (!empty($currencies)): ?>
                                                 <?php foreach ($currencies as $currency): ?>
@@ -420,9 +420,9 @@
                                             <?php endif; ?>
                                         </select>
                                     </div>
-                                    <input type="number" name="price" id="price_input" step="0.01" class="form-control" value="<?= !empty($domain_info) ? $domain_info->price : '' ?>">
+                                    <input type="number" name="price" id="domain_price_input" step="0.01" class="form-control" value="<?= !empty($domain_info) ? $domain_info->price : '' ?>">
                                 </div>
-                                <small class="text-muted d-block mt-1" id="conversion_result" style="font-size: 10px;"></small>
+                                <small class="text-muted d-block mt-1" id="domain_conversion_result" style="font-size: 10px;"></small>
                             </div>
                         </div>
                     </div>
@@ -591,18 +591,18 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <div class="custom-control custom-checkbox" style="margin-top: 30px;">
-                                    <input type="checkbox" name="expiry_notification" class="custom-control-input" id="expiry_notification" value="1" <?= !empty($domain_info) && $domain_info->expiry_notification == 1 ? 'checked' : '' ?>>
-                                    <label class="custom-control-label" for="expiry_notification" style="text-transform: none; font-size: 13px;">Enable Expiry Notification</label>
+                                    <input type="checkbox" name="expiry_notification" class="custom-control-input" id="domain_expiry_notification" value="1" <?= !empty($domain_info) && $domain_info->expiry_notification == 1 ? 'checked' : '' ?>>
+                                    <label class="custom-control-label" for="domain_expiry_notification" style="text-transform: none; font-size: 13px;">Enable Expiry Notification</label>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4" id="notification_days_wrapper">
+                        <div class="col-md-4" id="domain_notification_days_wrapper">
                             <div class="form-group">
                                 <label>Notification Days Before</label>
                                 <input type="number" name="notification_days" class="form-control" value="<?= !empty($domain_info) ? $domain_info->notification_days : 7 ?>">
                             </div>
                         </div>
-                        <div class="col-md-5" id="notification_unit_wrapper">
+                        <div class="col-md-5" id="domain_notification_unit_wrapper">
                             <div class="form-group">
                                 <label>Notification Time Unit</label>
                                 <select name="notification_time_unit" class="form-control">
@@ -610,6 +610,16 @@
                                     <option value="Weeks" <?= !empty($domain_info) && $domain_info->notification_time_unit == 'Weeks' ? 'selected' : '' ?>>Weeks</option>
                                     <option value="Months" <?= !empty($domain_info) && $domain_info->notification_time_unit == 'Months' ? 'selected' : '' ?>>Months</option>
                                 </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" name="create_calendar_task" class="custom-control-input" id="create_calendar_task" value="1">
+                                    <label class="custom-control-label" for="create_calendar_task" style="text-transform: none; font-size: 13px;">Create Task in Calendar for Renewal</label>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -685,12 +695,12 @@
 
                             // Toggle notification fields based on expiry_notification checkbox
                             function toggleNotificationFields() {
-                                if ($('#expiry_notification').is(':checked')) {
-                                    $('#notification_days_wrapper').show();
-                                    $('#notification_unit_wrapper').show();
+                                if ($('#domain_expiry_notification').is(':checked')) {
+                                    $('#domain_notification_days_wrapper').show();
+                                    $('#domain_notification_unit_wrapper').show();
                                 } else {
-                                    $('#notification_days_wrapper').hide();
-                                    $('#notification_unit_wrapper').hide();
+                                    $('#domain_notification_days_wrapper').hide();
+                                    $('#domain_notification_unit_wrapper').hide();
                                 }
                             }
 
@@ -698,12 +708,12 @@
                             toggleNotificationFields();
 
                             // Toggle on change
-                            $('#expiry_notification').change(function() {
+                            $('#domain_expiry_notification').change(function() {
                                 toggleNotificationFields();
                             });
 
                             // Provider change handler
-                            $('#provider_id').change(function() {
+                            $('#domain_provider_id').change(function() {
                                 var provider_id = $(this).val();
                                 if (provider_id) {
                                     $.ajax({
@@ -716,7 +726,7 @@
                                         dataType: 'json',
                                         success: function(response) {
                                             if (response.status === 'success') {
-                                                $('#provider_url').val(response.provider_url);
+                                                $('#domain_provider_url').val(response.provider_url);
                                             }
                                         },
                                         error: function() {
@@ -724,15 +734,15 @@
                                         }
                                     });
                                 } else {
-                                    $('#provider_url').val('');
+                                    $('#domain_provider_url').val('');
                                 }
                             });
 
                             // Expiry Date Calculation
-                            function calculateExpiryDate() {
-                                var purchaseDate = $('#purchase_date').val();
-                                var duration = $('#duration').val();
-                                var timeUnit = $('#time_unit').val();
+                             function calculateExpiryDate() {
+                                var purchaseDate = $('#domain_purchase_date').val();
+                                var duration = $('#domain_duration').val();
+                                var timeUnit = $('#domain_time_unit').val();
 
                                 if (purchaseDate && duration && timeUnit) {
                                     var date = new Date(purchaseDate);
@@ -765,43 +775,43 @@
                                     var month = ('0' + (date.getMonth() + 1)).slice(-2);
                                     var day = ('0' + date.getDate()).slice(-2);
 
-                                    $('#expiry_date').val(year + '-' + month + '-' + day);
+                                    $('#domain_expiry_date').val(year + '-' + month + '-' + day);
                                 }
                             }
 
-                            $('#purchase_date, #duration, #time_unit').on('change keyup', calculateExpiryDate);
+                            $('#domain_purchase_date, #domain_duration, #domain_time_unit').on('change keyup', calculateExpiryDate);
                             calculateExpiryDate();
 
                             // Currency Conversion
                             function updateConversion() {
-                                var price = $('#price_input').val();
-                                var currency = $('#currency_id').val();
+                                var price = $('#domain_price_input').val();
+                                var currency = $('#domain_currency_id').val();
 
                                 if (price && currency) {
                                     if (currency === 'BDT') {
-                                        $('#conversion_result').text('');
+                                        $('#domain_conversion_result').text('');
                                         return;
                                     }
 
-                                    $('#conversion_result').html('<i class="fa fa-spinner fa-spin"></i> Converting...');
+                                    $('#domain_conversion_result').html('<i class="fa fa-spinner fa-spin"></i> Converting...');
 
                                     $.getJSON('https://api.exchangerate-api.com/v4/latest/' + currency, function(data) {
                                         if (data && data.rates && data.rates.BDT) {
                                             var rate = data.rates.BDT;
                                             var converted = (price * rate).toFixed(2);
-                                            $('#conversion_result').text('≈ ' + converted + ' BDT');
+                                            $('#domain_conversion_result').text('≈ ' + converted + ' BDT');
                                         } else {
-                                            $('#conversion_result').text('Rate unavailable');
+                                            $('#domain_conversion_result').text('Rate unavailable');
                                         }
                                     }).fail(function() {
-                                        $('#conversion_result').text('API Error');
+                                        $('#domain_conversion_result').text('API Error');
                                     });
                                 } else {
-                                    $('#conversion_result').text('');
+                                    $('#domain_conversion_result').text('');
                                 }
                             }
 
-                            $('#price_input, #currency_id').on('change keyup', updateConversion);
+                            $('#domain_price_input, #domain_currency_id').on('change keyup', updateConversion);
                             updateConversion();
 
                             $('.toggle-password').click(function() {
