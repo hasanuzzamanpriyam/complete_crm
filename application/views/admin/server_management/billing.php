@@ -233,6 +233,9 @@
                             <button class="btn btn-erp-info" type="button" data-toggle="collapse" data-target="#addNewBillingCollapse" aria-expanded="false" aria-controls="addNewBillingCollapse">
                                 <i class="fa fa-plus"></i> <?= lang('add_billing_item') ?: 'ADD NEW BILLING ITEMS' ?>
                             </button>
+                            <button class="btn btn-erp-danger mr-2" id="bulk_delete_billing" style="display: none;">
+                                <i class="fa fa-trash"></i> DELETE SELECTED
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -349,6 +352,7 @@
                     <table id="billingDataTable" class="table table-hover erp-table">
                         <thead>
                             <tr>
+                                <th style="width: 30px;"><input type="checkbox" id="select_all_billing"></th>
                                 <th><?= lang('billing_label') ?: 'LABEL' ?></th>
                                 <th><?= lang('billing_value') ?: 'VALUE' ?></th>
                                 <th><?= lang('billing_type') ?: 'BILLING TYPE' ?></th>
@@ -365,6 +369,7 @@
                             <?php if (!empty($billings)): ?>
                                 <?php foreach ($billings as $billing): ?>
                                     <tr>
+                                        <td><input type="checkbox" class="billing_checkbox" value="<?= $billing['id'] ?>"></td>
                                         <td><?= htmlspecialchars($billing['label']) ?></td>
                                         <td><?= htmlspecialchars($billing['value']) ?></td>
                                         <td><?= ucfirst($billing['type']) ?></td>
@@ -416,7 +421,7 @@
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="10" class="text-center erp-table-empty">No billing orders found.</td>
+                                    <td colspan="11" class="text-center erp-table-empty">No billing orders found.</td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>
@@ -762,7 +767,7 @@ $(document).ready(function() {
     });
 
     // Initialize DataTables
-    $('#billingDataTable').DataTable({
+    var table = $('#billingDataTable').DataTable({
         "order": [], // Initial order
         "pageLength": 10,
         "pagingType": "simple_numbers",
@@ -777,8 +782,53 @@ $(document).ready(function() {
         },
         "columnDefs": [{
             "orderable": false,
-            "targets": [9] // Action column
+            "targets": [0, 10] // Checkbox and Action columns
         }]
+    });
+
+    // Bulk Delete Action
+    $('#select_all_billing').click(function() {
+        $('.billing_checkbox').prop('checked', this.checked);
+        toggleBulkDeleteBtn();
+    });
+
+    $(document).on('change', '.billing_checkbox', function() {
+        if ($('.billing_checkbox:checked').length === $('.billing_checkbox').length) {
+            $('#select_all_billing').prop('checked', true);
+        } else {
+            $('#select_all_billing').prop('checked', false);
+        }
+        toggleBulkDeleteBtn();
+    });
+
+    function toggleBulkDeleteBtn() {
+        if ($('.billing_checkbox:checked').length > 0) {
+            $('#bulk_delete_billing').fadeIn();
+        } else {
+            $('#bulk_delete_billing').fadeOut();
+        }
+    }
+
+    $('#bulk_delete_billing').click(function() {
+        var selectedIds = [];
+        $('.billing_checkbox:checked').each(function() {
+            selectedIds.push($(this).val());
+        });
+
+        if (selectedIds.length > 0) {
+            if (confirm('Are you sure you want to delete ' + selectedIds.length + ' selected items?')) {
+                var form = $('<form action="<?= base_url('admin/server_management/delete_billing') ?>" method="post">' +
+                    '<input type="hidden" name="<?= $this->security->get_csrf_token_name(); ?>" value="<?= $this->security->get_csrf_hash(); ?>">' +
+                    '</form>');
+                
+                $.each(selectedIds, function(index, value) {
+                    form.append('<input type="hidden" name="ids[]" value="' + value + '">');
+                });
+                
+                $('body').append(form);
+                form.submit();
+            }
+        }
     });
 });
 </script>

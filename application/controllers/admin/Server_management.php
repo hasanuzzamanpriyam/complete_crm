@@ -1355,11 +1355,19 @@ class Server_management extends Admin_Controller
             echo json_encode(['status' => 'success', 'message' => 'Billing item updated successfully!']);
         }
     }
-    public function delete_billing($id)
+    public function delete_billing($id = NULL)
     {
-        if ($id) {
+        $ids = $this->input->post('ids', TRUE);
+        if (!empty($ids)) {
+            $this->billing_model->delete_billing($ids);
+            $this->log_activity('server_management', 'Deleted ' . count($ids) . ' billing item(s)', 'fa-trash');
+            set_message('success', 'Selected billing items deleted successfully!');
+        } elseif ($id) {
             $this->billing_model->delete_billing($id);
+            $this->log_activity('server_management', 'Deleted billing item ID: ' . $id, 'fa-trash');
             set_message('success', 'Billing item deleted successfully!');
+        } else {
+            set_message('error', 'Nothing to delete!');
         }
         redirect('admin/server_management/billing');
     }

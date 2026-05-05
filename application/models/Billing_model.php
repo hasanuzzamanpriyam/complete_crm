@@ -68,7 +68,11 @@ class Billing_model extends CI_Model
 
     public function delete_billing($id)
     {
-        $this->db->where('id', $id);
+        if (is_array($id)) {
+            $this->db->where_in('id', $id);
+        } else {
+            $this->db->where('id', $id);
+        }
         return $this->db->delete('tbl_billing_orders');
     }
 
