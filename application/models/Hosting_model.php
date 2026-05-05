@@ -214,7 +214,7 @@ class Hosting_model extends CI_Model {
             $hosting['type'] = 'hosting';
             $days_expired = ($today_timestamp - strtotime($hosting['expiry_date'])) / (60 * 60 * 24);
             $hosting['days_expired'] = is_float($days_expired) ? ceil($days_expired) : intval($days_expired);
-            $hosting['link'] = 'admin/server_management/add_hosting/' . $hosting['id'];
+            $hosting['link'] = 'admin/server_management/view_hosting/' . $hosting['id'];
         }
         
         return $hostings;
@@ -239,7 +239,7 @@ class Hosting_model extends CI_Model {
             $hosting['type'] = 'hosting';
             $days_left = (strtotime($hosting['expiry_date']) - $today_timestamp) / (60 * 60 * 24);
             $hosting['days_left'] = is_float($days_left) ? ceil($days_left) : intval($days_left);
-            $hosting['link'] = 'admin/server_management/add_hosting/' . $hosting['id'];
+            $hosting['link'] = 'admin/server_management/view_hosting/' . $hosting['id'];
         }
         
         return $hostings;

@@ -264,7 +264,7 @@ class Domain_model extends CI_Model {
             $domain['type'] = 'domain';
             $days_expired = ($today_timestamp - strtotime($domain['expiry_date'])) / (60 * 60 * 24);
             $domain['days_expired'] = is_float($days_expired) ? ceil($days_expired) : intval($days_expired);
-            $domain['link'] = 'admin/server_management/add_domain/' . $domain['id'];
+            $domain['link'] = 'admin/server_management/view_domain/' . $domain['id'];
         }
         
         return $domains;
@@ -289,7 +289,7 @@ class Domain_model extends CI_Model {
             $domain['type'] = 'domain';
             $days_left = (strtotime($domain['expiry_date']) - $today_timestamp) / (60 * 60 * 24);
             $domain['days_left'] = is_float($days_left) ? ceil($days_left) : intval($days_left);
-            $domain['link'] = 'admin/server_management/add_domain/' . $domain['id'];
+            $domain['link'] = 'admin/server_management/view_domain/' . $domain['id'];
         }
         
         return $domains;

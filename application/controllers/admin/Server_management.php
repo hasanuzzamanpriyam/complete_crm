@@ -396,6 +396,34 @@ class Server_management extends Admin_Controller
         }
     }
 
+    public function view_hosting($id = NULL)
+    {
+        try {
+            if (!$id) {
+                echo "Invalid Hosting ID";
+                return;
+            }
+
+            $data['hosting'] = $this->hosting_model->get_hosting_by_id($id);
+            if (empty($data['hosting'])) {
+                echo "Hosting not found";
+                return;
+            }
+
+            // Fetch related data
+            $this->db->where('id', $data['hosting']->provider_id);
+            $data['provider'] = $this->db->get('tblproviders')->row();
+            
+            $this->db->where('id', $data['hosting']->currency_id);
+            $data['currency'] = $this->db->get('tbl_currencies')->row();
+
+            $this->load->view('admin/server_management/view_hosting', $data);
+        } catch (Exception $e) {
+            log_message('error', $e->getMessage());
+            echo "Error: " . $e->getMessage();
+        }
+    }
+
     public function delete_domain($id = NULL)
     {
         $ids = $this->input->post('ids', TRUE);

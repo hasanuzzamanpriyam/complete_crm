@@ -18,7 +18,7 @@ $gcal_id = config_item('gcal_id');
             var calendar = $('#my_calendar').fullCalendar({
                 googleCalendarApiKey: '<?= $gcal_api_key ?>',
                 eventAfterRender: function(event, element, view) {
-                    if (event.type == 'fo') {
+                    if (event.type == 'fo' || event.type == 'domain' || event.type == 'hosting') {
                         $(element).attr('data-toggle', 'ajaxModal').addClass('ajaxModal');
                     }
                 },
@@ -164,7 +164,15 @@ $gcal_id = config_item('gcal_id');
                         events: [<?php
                                     if (config_item('tasks_on_calendar') == 'on') {
                                         if (!empty($searchType) && ($searchType == 'tasks' || $searchType == 'all')) {
-                                            $task_info = $this->admin_model->get_permission('tbl_task');
+                                            $task_info = $this->admin_model->get_permission('tbl_task', array('tbl_task.task_status !=' => 'completed'));
+                                            // Status colors mapping
+                                            $status_colors = [
+                                                'not_started'         => '#23b7e5', // Info
+                                                'in_progress'         => '#337ab7', // Primary/Blue
+                                                'deferred'            => '#f05050', // Danger
+                                                'waiting_for_someone' => '#ff902b', // Warning
+                                                'completed'           => '#27c24c', // Success
+                                            ];
                                         }
                                         if (!empty($task_info)) {
                                             foreach ($task_info as $v_task) :
@@ -187,7 +195,7 @@ $gcal_id = config_item('gcal_id');
                                                     title: "<?php echo clear_textarea_breaks($v_task->task_name) ?>",
                                                     start: '<?= $event_date_str ?>',
                                                     end: '<?= $event_date_str ?>',
-                                                    color: '<?= config_item('tasks_color') ?>',
+                                                    color: '<?= $status_colors[$v_task->task_status] ?? config_item('tasks_color') ?>',
                                                     url: '<?= base_url() ?>admin/tasks/details/<?= $v_task->task_id ?>'
                                                 },
                                             <?php
@@ -228,7 +236,7 @@ $gcal_id = config_item('gcal_id');
                                                 title: "<?php echo clear_textarea_breaks($v_task->task_name) ?>",
                                                 start: '<?= date('Y-m-d', strtotime($v_task->due_date)) ?>',
                                                 end: '<?= date('Y-m-d', strtotime($v_task->due_date)) ?>',
-                                                color: '<?= config_item('tasks_color') ?>',
+                                                color: '<?= $status_colors[$v_task->task_status] ?? config_item('tasks_color') ?>',
                                                 url: '<?= base_url() ?>admin/tasks/details/<?= $v_task->task_id ?>'
                                             },
                             <?php }
@@ -531,7 +539,8 @@ $gcal_id = config_item('gcal_id');
                                         start: "<?= $domain_event['start'] ?>",
                                         end: "<?= $domain_event['end'] ?>",
                                         color: "<?= $domain_event['color'] ?>",
-                                        url: "<?= $domain_event['url'] ?>"
+                                        url: "<?= $domain_event['url'] ?>",
+                                        type: "domain"
                                     },
                                     <?php }
                             }
@@ -546,7 +555,8 @@ $gcal_id = config_item('gcal_id');
                                         start: "<?= $hosting_event['start'] ?>",
                                         end: "<?= $hosting_event['end'] ?>",
                                         color: "<?= $hosting_event['color'] ?>",
-                                        url: "<?= $hosting_event['url'] ?>"
+                                        url: "<?= $hosting_event['url'] ?>",
+                                        type: "hosting"
                                     },
                         <?php }
                                 }
