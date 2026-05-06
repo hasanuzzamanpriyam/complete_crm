@@ -218,7 +218,7 @@ if (!empty($created) || !empty($edited)) {
                                             </div>
                                         </div>
                                     </div>
-                                    <?= get_permission(3, 8, $assign_user, $permissionL, lang('assined_to')); ?>
+                                    <?= get_permission(3, 8, $assign_user, $permissionL, lang('assigned_to')); ?>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">

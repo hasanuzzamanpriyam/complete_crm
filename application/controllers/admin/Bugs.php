@@ -40,6 +40,7 @@ class Bugs extends Admin_Controller
         $data['title'] = lang('all_bugs');
         // get permission user by menu id
         $data['assign_user'] = $this->bugs_model->allowed_user('58');
+        $data['permissionL'] = null;
         if ($id) { // retrive data from db by id
             $data['active'] = 2;
             $can_edit = $this->bugs_model->can_action('tbl_bug', 'edit', array('bug_id' => $id));
@@ -65,6 +66,9 @@ class Bugs extends Admin_Controller
                     if (is_numeric($id)) {
                         // get all bug information
                         $data['bug_info'] = $this->db->where('bug_id', $id)->get('tbl_bug')->row();
+                        if (!empty($data['bug_info'])) {
+                            $data['permissionL'] = $data['bug_info']->permission;
+                        }
                     }
                 }
             }
