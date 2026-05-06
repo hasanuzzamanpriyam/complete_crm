@@ -26,8 +26,16 @@ $deleted = can_action('24', 'deleted');
                 <label class="col-sm-4 control-label"><?= lang('resume') ?> : </label>
                 <div class="col-sm-8">
                     <p class="form-control-static">
-                        <a href="<?php echo base_url() . $document_info->resume; ?>" target="_blank"
-                           style="text-decoration: underline;"><?= lang('view') . ' ' . lang('resume') ?></a>
+                        <?php if (!empty($document_info->resume)) : ?>
+                            <?php if (file_exists($document_info->resume)) : ?>
+                                <a href="<?php echo base_url() . $document_info->resume; ?>" target="_blank"
+                                   style="text-decoration: underline;"><?= lang('view') . ' ' . lang('resume') ?></a>
+                            <?php else : ?>
+                                <span class="text-danger"><?= lang('view') . ' ' . lang('resume') ?> (<?= lang('file_not_found') ?>)</span>
+                            <?php endif; ?>
+                        <?php else : ?>
+                            <?= lang('n_a') ?>
+                        <?php endif; ?>
                         <a href="<?= base_url('admin/user/delete_documents/resume/' . $document_info->document_id) ?>"
                            class="btn btn-xs" title="" data-toggle="tooltip" data-placement="top"
                            onclick="return confirm('You are about to delete a record. This cannot be undone. Are you sure?');"
@@ -41,8 +49,16 @@ $deleted = can_action('24', 'deleted');
                 <label class="col-sm-4 control-label"><?= lang('offer_latter') ?> : </label>
                 <div class="col-sm-8">
                     <p class="form-control-static">
-                        <a href="<?php echo base_url() . $document_info->offer_letter; ?>" target="_blank"
-                           style="text-decoration: underline;"><?= lang('view') . ' ' . lang('offer_latter') ?></a>
+                        <?php if (!empty($document_info->offer_letter)) : ?>
+                            <?php if (file_exists($document_info->offer_letter)) : ?>
+                                <a href="<?php echo base_url() . $document_info->offer_letter; ?>" target="_blank"
+                                   style="text-decoration: underline;"><?= lang('view') . ' ' . lang('offer_latter') ?></a>
+                            <?php else : ?>
+                                <span class="text-danger"><?= lang('view') . ' ' . lang('offer_latter') ?> (<?= lang('file_not_found') ?>)</span>
+                            <?php endif; ?>
+                        <?php else : ?>
+                            <?= lang('n_a') ?>
+                        <?php endif; ?>
                         <a href="<?= base_url('admin/user/delete_documents/offer_letter/' . $document_info->document_id) ?>"
                            class="btn btn-xs" title="" data-toggle="tooltip" data-placement="top"
                            onclick="return confirm('You are about to delete a record. This cannot be undone. Are you sure?');"
@@ -57,8 +73,16 @@ $deleted = can_action('24', 'deleted');
                     : </label>
                 <div class="col-sm-8">
                     <p class="form-control-static">
-                        <a href="<?php echo base_url() . $document_info->joining_letter; ?>" target="_blank"
-                           style="text-decoration: underline;"><?= lang('view') . ' ' . lang('joining_latter') ?></a>
+                        <?php if (!empty($document_info->joining_letter)) : ?>
+                            <?php if (file_exists($document_info->joining_letter)) : ?>
+                                <a href="<?php echo base_url() . $document_info->joining_letter; ?>" target="_blank"
+                                   style="text-decoration: underline;"><?= lang('view') . ' ' . lang('joining_latter') ?></a>
+                            <?php else : ?>
+                                <span class="text-danger"><?= lang('view') . ' ' . lang('joining_latter') ?> (<?= lang('file_not_found') ?>)</span>
+                            <?php endif; ?>
+                        <?php else : ?>
+                            <?= lang('n_a') ?>
+                        <?php endif; ?>
                         <a href="<?= base_url('admin/user/delete_documents/joining_letter/' . $document_info->document_id) ?>"
                            class="btn btn-xs" title="" data-toggle="tooltip" data-placement="top"
                            onclick="return confirm('You are about to delete a record. This cannot be undone. Are you sure?');"
@@ -73,8 +97,16 @@ $deleted = can_action('24', 'deleted');
                     : </label>
                 <div class="col-sm-8">
                     <p class="form-control-static">
-                        <a href="<?php echo base_url() . $document_info->contract_paper; ?>" target="_blank"
-                           style="text-decoration: underline;"><?= lang('view') . ' ' . lang('contract_paper') ?></a>
+                        <?php if (!empty($document_info->contract_paper)) : ?>
+                            <?php if (file_exists($document_info->contract_paper)) : ?>
+                                <a href="<?php echo base_url() . $document_info->contract_paper; ?>" target="_blank"
+                                   style="text-decoration: underline;"><?= lang('view') . ' ' . lang('contract_paper') ?></a>
+                            <?php else : ?>
+                                <span class="text-danger"><?= lang('view') . ' ' . lang('contract_paper') ?> (<?= lang('file_not_found') ?>)</span>
+                            <?php endif; ?>
+                        <?php else : ?>
+                            <?= lang('n_a') ?>
+                        <?php endif; ?>
                         <a href="<?= base_url('admin/user/delete_documents/contract_paper/' . $document_info->document_id) ?>"
                            class="btn btn-xs" title="" data-toggle="tooltip" data-placement="top"
                            onclick="return confirm('You are about to delete a record. This cannot be undone. Are you sure?');"
@@ -88,8 +120,16 @@ $deleted = can_action('24', 'deleted');
                 <label class="col-sm-4 control-label"><?= lang('id_prof') ?> : </label>
                 <div class="col-sm-8">
                     <p class="form-control-static">
-                        <a href="<?php echo base_url() . $document_info->id_proff; ?>" target="_blank"
-                           style="text-decoration: underline;"><?= lang('view') . ' ' . lang('id_prof') ?></a>
+                        <?php if (!empty($document_info->id_proff)) : ?>
+                            <?php if (file_exists($document_info->id_proff)) : ?>
+                                <a href="<?php echo base_url() . $document_info->id_proff; ?>" target="_blank"
+                                   style="text-decoration: underline;"><?= lang('view') . ' ' . lang('id_prof') ?></a>
+                            <?php else : ?>
+                                <span class="text-danger"><?= lang('view') . ' ' . lang('id_prof') ?> (<?= lang('file_not_found') ?>)</span>
+                            <?php endif; ?>
+                        <?php else : ?>
+                            <?= lang('n_a') ?>
+                        <?php endif; ?>
                         <a href="<?= base_url('admin/user/delete_documents/id_proff/' . $document_info->document_id) ?>"
                            class="btn btn-xs" title="" data-toggle="tooltip" data-placement="top"
                            onclick="return confirm('You are about to delete a record. This cannot be undone. Are you sure?');"
@@ -111,11 +151,20 @@ $deleted = can_action('24', 'deleted');
                             
                             if (!empty($v_files)) :
                                 ?>
-                                <p class="form-control-static">
+                                <?php if (!empty($v_files)) : ?>
+                                <?php if (file_exists('uploads/' . $v_files->fileName)) : ?>
+                                    <p class="form-control-static">
                                     <a href="<?php echo base_url() . 'uploads/' . $v_files->fileName; ?>"
                                        target="_blank"
                                        style="text-decoration: underline;"><?= $sl + 1 . '. ' . lang('view') . ' ' . lang('other_document') ?></a>
-                                </p>
+                                    </p>
+                                <?php else : ?>
+                                    <p class="form-control-static">
+                                    <span class="text-danger"><?= $sl + 1 . '. ' . lang('view') . ' ' . lang('other_document') ?> (<?= lang('file_not_found') ?>)</span>
+                                    </p>
+                                <?php endif; ?>
+                                <br/>
+                            <?php endif; ?>
                             <?php
                             endif;
                         endforeach;

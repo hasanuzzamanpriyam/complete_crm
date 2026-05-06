@@ -105,7 +105,7 @@
                                                value="<?php echo $document_info->joining_letter ?>">
                                         <input type="file" name="joining_letter">
                                     </span>
-                            <span class="fileinput-filename"> <?php echo $document_info->offer_letter_filename ?></span>
+                            <span class="fileinput-filename"> <?php echo $document_info->joining_letter_filename ?></span>
                         <?php else: ?>
                             <span class="btn btn-default btn-file"><span
                                     class="fileinput-new"><?= lang('select_file') ?></span>
@@ -141,7 +141,7 @@
                                                value="<?php echo $document_info->contract_paper ?>">
                                         <input type="file" name="contract_paper">
                                     </span>
-                            <span class="fileinput-filename"> <?php echo $document_info->offer_letter_filename ?></span>
+                            <span class="fileinput-filename"> <?php echo $document_info->contract_paper_filename ?></span>
                         <?php else: ?>
                             <span class="btn btn-default btn-file"><span
                                     class="fileinput-new"><?= lang('select_file') ?></span>
@@ -177,7 +177,7 @@
                                                value="<?php echo $document_info->id_proff ?>">
                                         <input type="file" name="id_proff">
                                     </span>
-                            <span class="fileinput-filename"> <?php echo $document_info->offer_letter_filename ?></span>
+                            <span class="fileinput-filename"> <?php echo $document_info->id_proff_filename ?></span>
                         <?php else: ?>
                             <span class="btn btn-default btn-file"><span
                                     class="fileinput-new"><?= lang('select_file') ?></span>
