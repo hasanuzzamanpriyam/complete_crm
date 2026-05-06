@@ -60,7 +60,7 @@ $lang['in_progress'] = 'In Progress';
 $lang['completed'] = 'Completed';
 $lang['deferred'] = 'Deferred';
 $lang['waiting_for_someone'] = 'Waiting For Someone';
-$lang['participants'] = 'Participants';
+$lang['participants'] = 'Assigned To';
 $lang['select_users'] = 'Select Users';
 $lang['related_to'] = 'Related To';
 $lang['to_do'] = 'To Do';
@@ -85,4 +85,11 @@ $lang['annually'] = 'Annually';
 $lang['update_opportunity'] = 'Update Opportunity';
 $lang['activity_new_tasks_attachment'] = 'Activity New Tasks Attachment';
 $lang['activity_new_tasks_comment'] = 'Activity New Tasks Comment';
+$lang['low'] = 'Low';
+$lang['medium'] = 'Medium';
+$lang['high'] = 'High';
+$lang['urgent'] = 'Urgent';
+$lang['reporting_to'] = 'Reporting To';
+$lang['reporting_to_help'] = 'Select who the task will be reported to after completion';
+
 

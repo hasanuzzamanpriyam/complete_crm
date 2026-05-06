@@ -269,7 +269,7 @@ if ($tasks == 'kanban') {
                                                 <span class="required">*</span></label>
                                             <div class="col-sm-8">
                                                 <select name="milestones_id" id="milestone"
-                                                        class="form-control company">
+                                                        class="form-control selectpicker company">
                                                     <?php
                                                     if (!empty($project_id)) {
                                                         $all_milestones_info = $this->db->where('project_id', $project_id)->get('tbl_milestones')->result();
@@ -334,7 +334,7 @@ if ($tasks == 'kanban') {
                                                 <span class="required">*</span></label>
                                             <div class="col-sm-8">
                                                 <select name="milestones_id" id="milestone"
-                                                        class="form-control <?= $project_id ? 'milestone_module' : 'company' ?>">
+                                                        class="form-control selectpicker <?= $project_id ? 'milestone_module' : 'company' ?>">
                                                     <option><?= lang('none') ?></option>
                                                     <?php
                                                     $all_milestones_info = $this->db->where('project_id', $project_id)->get('tbl_milestones')->result();
@@ -885,6 +885,39 @@ if ($tasks == 'kanban') {
                                                     <?= lang('waiting_for_someone') ?> </option>
                                             </select>
                                         </div>
+                                    <div class="form-group">
+                                        <label for="field-1" class="col-sm-4 control-label"><?= lang('priority') ?>
+                                            <span class="required">*</span></label>
+                                        <div class="col-sm-8">
+                                            <select name="priority" class="form-control" required>
+                                                <option value="low"
+                                                    <?= (!empty($task_info->priority) && $task_info->priority == 'low' ? 'selected' : '') ?>>
+                                                    <?= lang('low') ?> </option>
+                                                <option value="medium"
+                                                    <?= (!empty($task_info->priority) && $task_info->priority == 'medium' ? 'selected' : '') ?>>
+                                                    <?= lang('medium') ?> </option>
+                                                <option value="high"
+                                                    <?= (!empty($task_info->priority) && $task_info->priority == 'high' ? 'selected' : '') ?>>
+                                                    <?= lang('high') ?> </option>
+                                                <option value="urgent"
+                                                    <?= (!empty($task_info->priority) && $task_info->priority == 'urgent' ? 'selected' : '') ?>>
+                                                    <?= lang('urgent') ?> </option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="field-1" class="col-sm-4 control-label"><?= lang('reporting_to') ?>
+                                            <span class="required">*</span></label>
+                                        <div class="col-sm-8">
+                                            <select name="report_to" class="form-control select_box" style="width: 100%" required>
+                                                <option value=""><?= lang('select') . ' ' . lang('reporting_to') ?></option>
+                                                <?php if (!empty($assign_user)) : foreach ($assign_user as $key => $v_user) : ?>
+                                                    <option value="<?= $v_user->user_id ?>" <?= (!empty($task_info->report_to) && $task_info->report_to == $v_user->user_id ? 'selected' : '') ?>>
+                                                        <?= fullname($v_user->user_id) ?> (<?= designation($v_user->user_id) ?>)
+                                                    </option>
+                                                <?php endforeach; endif; ?>
+                                            </select>
+                                        </div>
                                     </div>
 
                                     <div class="form-group">
@@ -937,7 +970,7 @@ if ($tasks == 'kanban') {
                                     </label>
                                     <div class="col-sm-8">
                                         <textarea class="form-control textarea"
-                                                  name="task_description"><?php if (!empty($task_info->task_description)) echo $task_info->task_description; ?></textarea>
+                                        name="task_description"><?php if (!empty($task_info->task_description)) echo $task_info->task_description; ?></textarea>
                                     </div>
                                 </div>
 

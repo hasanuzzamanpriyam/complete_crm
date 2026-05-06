@@ -166,6 +166,7 @@
                         $("#milestone").append(result);
                         $("#milestone_show").show();
                         $("#milestone").show();
+                        $("#milestone").selectpicker('refresh');
 
                         document.getElementById('milestone').disabled = false;
                     } else {
@@ -218,6 +219,10 @@
                             $('.milestone_module').prop("disabled", false);
                             $('.project_module').show();
                             $('.project_module').prop("disabled", false);
+                            var project_id = $('#related_to_id').val();
+                            if (project_id) {
+                                get_milestone_by_id(project_id);
+                            }
                             $('.sub_task').hide();
                             $('.sub_task').prop("disabled", true);
                             $('.expenses').hide();

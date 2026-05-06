@@ -48,9 +48,8 @@ if (!defined('BASEPATH'))
     public function get_milestone_by_project_id($project_id)
     {
         $milestone_info = $this->db->where(array('project_id' => $project_id))->get('tbl_milestones')->result();
-        $HTML = null;
+        $HTML = "<option value='" . 0 . "'>" . lang('none') . "</option>";
         if (!empty($milestone_info)) {
-            $HTML .= "<option value='" . 0 . "'>" . lang('none') . "</option>";
             foreach ($milestone_info as $v_milestone) {
                 $HTML .= "<option value='" . $v_milestone->milestones_id . "'>" . $v_milestone->milestone_name . "</option>";
             }
@@ -65,7 +64,7 @@ if (!defined('BASEPATH'))
             $all_project_info = $this->admin_model->get_permission('tbl_project');
             $HTML = null;
             if ($all_project_info) {
-                $HTML .= '<div class="col-sm-5"><select onchange="get_milestone_by_id(this.value)" name="' . $val . '_id" id="related_to"  class="form-control selectpicker m0 " data-live-search="true" >';
+                $HTML .= '<div class="col-sm-5"><select onchange="get_milestone_by_id(this.value)" name="' . $val . '_id" id="related_to_id"  class="form-control selectpicker m0 " data-live-search="true" >';
                 foreach ($all_project_info as $v_project) {
                     $HTML .= "<option value='" . $v_project->project_id . "'>" . $v_project->project_name . "</option>";
                 }
@@ -78,7 +77,7 @@ if (!defined('BASEPATH'))
             $all_opp_info = $this->admin_model->get_permission('tbl_opportunities');
             if ($all_opp_info) {
 
-                $HTML .= '<div class="col-sm-5"><select name="' . $val . '_id" id="related_to"  class="form-control selectpicker m0 " data-live-search="true">';
+                $HTML .= '<div class="col-sm-5"><select name="' . $val . '_id" id="related_to_id"  class="form-control selectpicker m0 " data-live-search="true">';
                 foreach ($all_opp_info as $v_opp) {
                     $HTML .= "<option value='" . $v_opp->opportunities_id . "'>" . $v_opp->opportunity_name . "</option>";
                 }
@@ -91,7 +90,7 @@ if (!defined('BASEPATH'))
             $HTML = null;
             if ($all_leads_info) {
 
-                $HTML .= '<div class="col-sm-5"><select name="' . $val . '_id" id="related_to"  class="form-control selectpicker m0 " data-live-search="true">';
+                $HTML .= '<div class="col-sm-5"><select name="' . $val . '_id" id="related_to_id"  class="form-control selectpicker m0 " data-live-search="true">';
                 foreach ($all_leads_info as $v_leads) {
                     $HTML .= "<option value='" . $v_leads->leads_id . "'>" . $v_leads->lead_name . "</option>";
                 }
@@ -111,7 +110,7 @@ if (!defined('BASEPATH'))
             $all_client_info = $this->db->get('tbl_client')->result();
             $HTML = null;
             if ($all_client_info) {
-                $HTML .= '<div class="col-sm-7"><select name="' . $val . '_id" id="related_to"  class="form-control selectpicker m0 " data-live-search="true" required>';
+                $HTML .= '<div class="col-sm-7"><select name="' . $val . '_id" id="related_to_id"  class="form-control selectpicker m0 " data-live-search="true" required>';
                 $HTML .= "<option value=''>" . lang('none') . "</option>";
                 foreach ($all_client_info as $v_client) {
                     $HTML .= "<option value='" . $v_client->client_id . "'>" . $v_client->name . "</option>";
@@ -124,7 +123,7 @@ if (!defined('BASEPATH'))
             $all_supplier = $this->db->get('tbl_suppliers')->result();
             $HTML = null;
             if ($all_supplier) {
-                $HTML .= '<div class="col-sm-7"><select  name="' . $val . '_id" id="related_to"  data-live-search="true" class="form-control selectpicker m0 ">';
+                $HTML .= '<div class="col-sm-7"><select  name="' . $val . '_id" id="related_to_id"  data-live-search="true" class="form-control selectpicker m0 ">';
                 $HTML .= "<option value=''>" . lang('none') . "</option>";
                 foreach ($all_supplier as $v_supplier) {
                     $HTML .= "<option value='" . $v_supplier->supplier_id . "'>" . $v_supplier->name . "</option>";
@@ -138,7 +137,7 @@ if (!defined('BASEPATH'))
             $HTML = null;
             if ($all_bugs_info) {
 
-                $HTML .= '<div class="col-sm-5"><select name="' . $val . '_id" id="related_to"  class="form-control selectpicker m0 " data-live-search="true">';
+                $HTML .= '<div class="col-sm-5"><select name="' . $val . '_id" id="related_to_id"  class="form-control selectpicker m0 " data-live-search="true">';
                 foreach ($all_bugs_info as $v_bugs) {
                     $HTML .= "<option value='" . $v_bugs->bug_id . "'>" . $v_bugs->bug_title . "</option>";
                 }
@@ -151,7 +150,7 @@ if (!defined('BASEPATH'))
             $HTML = null;
             if ($all_goal_info) {
 
-                $HTML .= '<div class="col-sm-5"><select name="' . $val . '_tracking_id" id="related_to"  class="form-control selectpicker m0 " data-live-search="true">';
+                $HTML .= '<div class="col-sm-5"><select name="' . $val . '_tracking_id" id="related_to_id"  class="form-control selectpicker m0 " data-live-search="true">';
                 foreach ($all_goal_info as $v_goal) {
                     $HTML .= "<option value='" . $v_goal->goal_tracking_id . "'>" . $v_goal->subject . "</option>";
                 }
@@ -164,7 +163,7 @@ if (!defined('BASEPATH'))
             $HTML = null;
             if ($all_task_info) {
 
-                $HTML .= '<div class="col-sm-5"><select name="' . $val . '_id" id="related_to"  class="form-control selectpicker m0 " data-live-search="true">';
+                $HTML .= '<div class="col-sm-5"><select name="' . $val . '_id" id="related_to_id"  class="form-control selectpicker m0 " data-live-search="true">';
                 foreach ($all_task_info as $v_task) {
                     $HTML .= "<option value='" . $v_task->task_id . "'>" . $v_task->task_name . "</option>";
                 }
@@ -177,7 +176,7 @@ if (!defined('BASEPATH'))
             $HTML = null;
             if ($all_expenses) {
                 $val = 'transactions_id';
-                $HTML .= '<div class="col-sm-5"><select name="' . $val . '_id" id="related_to"  class="form-control selectpicker m0 " data-live-search="true">';
+                $HTML .= '<div class="col-sm-5"><select name="' . $val . '_id" id="related_to_id"  class="form-control selectpicker m0 " data-live-search="true">';
                 foreach ($all_expenses as $expenses) {
                     $HTML .= "<option value='" . $expenses->transactions_id . "'>" . $expenses->name . (!empty($expenses->reference) ? '#' . $expenses->reference : '') . "</option>";
                 }
@@ -189,7 +188,7 @@ if (!defined('BASEPATH'))
             $all_domains = $this->db->get('tbldomains')->result();
             $HTML = null;
             if ($all_domains) {
-                $HTML .= '<div class="col-sm-5"><select name="domain_id" id="related_to" class="form-control selectpicker m0" data-live-search="true">';
+                $HTML .= '<div class="col-sm-5"><select name="domain_id" id="related_to_id" class="form-control selectpicker m0" data-live-search="true">';
                 foreach ($all_domains as $domain) {
                     $HTML .= "<option value='" . $domain->id . "'>" . $domain->domain_name . "</option>";
                 }
@@ -201,7 +200,7 @@ if (!defined('BASEPATH'))
             $all_hostings = $this->db->get('tblserver_hostings')->result();
             $HTML = null;
             if ($all_hostings) {
-                $HTML .= '<div class="col-sm-5"><select name="server_hosting_id" id="related_to" class="form-control selectpicker m0" data-live-search="true">';
+                $HTML .= '<div class="col-sm-5"><select name="server_hosting_id" id="related_to_id" class="form-control selectpicker m0" data-live-search="true">';
                 foreach ($all_hostings as $hosting) {
                     $HTML .= "<option value='" . $hosting->id . "'>" . $hosting->title . "</option>";
                 }

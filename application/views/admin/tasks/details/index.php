@@ -276,6 +276,34 @@ if (!empty($check_existing)) {
                                 <?php } ?>
                             </div>
                         </div>
+                        <?php
+                        $priority_label = 'info';
+                        if ($task_details->priority == 'medium') {
+                            $priority_label = 'primary';
+                        } elseif ($task_details->priority == 'high') {
+                            $priority_label = 'warning';
+                        } elseif ($task_details->priority == 'urgent') {
+                            $priority_label = 'danger';
+                        }
+                        ?>
+                        <div class="form-group">
+                            <div class="col-sm-4"><strong><?= lang('priority') ?>
+                                    :</strong></div>
+                            <div class="col-sm-8">
+                                <span class="label label-<?= $priority_label ?>"><?= lang($task_details->priority) ?></span>
+                            </div>
+                        </div>
+                        <?php if (!empty($task_details->report_to)) :
+                            $report_to_info = $this->db->where('user_id', $task_details->report_to)->get('tbl_account_details')->row();
+                            ?>
+                            <div class="form-group">
+                                <div class="col-sm-4"><strong><?= lang('reporting_to') ?>
+                                        :</strong></div>
+                                <div class="col-sm-8">
+                                    <?= fullname($task_details->report_to) ?>
+                                </div>
+                            </div>
+                        <?php endif ?>
                     </form>
                 </div>
                 
@@ -320,7 +348,7 @@ if (!empty($check_existing)) {
                             <div class="col-sm-8">
                                 <?php
                                 if (!empty($task_details->created_by)) {
-                                    echo $this->db->where('user_id', $task_details->created_by)->get('tbl_account_details')->row()->fullname;
+                                    echo fullname($task_details->created_by);
                                 }
                                 ?>
                             </div>
@@ -601,6 +629,37 @@ if (!empty($check_existing)) {
                         </div>
                     </div>
                 <?php } ?>
+            </div>
+            <div class="form-group  col-sm-6">
+                <label class="control-label col-sm-5"><strong><?= lang('priority') ?>
+                        :</strong></label>
+                <div class="col-sm-7 mt">
+                    <?php
+                    $priority_label = 'info';
+                    if ($task_details->priority == 'medium') {
+                        $priority_label = 'primary';
+                    } elseif ($task_details->priority == 'high') {
+                        $priority_label = 'warning';
+                    } elseif ($task_details->priority == 'urgent') {
+                        $priority_label = 'danger';
+                    }
+                    ?>
+                    <span class="label label-<?= $priority_label ?>"><?= lang($task_details->priority) ?></span>
+                </div>
+            </div>
+            <div class="form-group  col-sm-6">
+                <label class="control-label col-sm-4"><strong><?= lang('reporting_to') ?>
+                        :</strong></label>
+                <div class="col-sm-8 ">
+                    <p class="form-control-static"><?php
+                        if (!empty($task_details->report_to)) {
+                            $report_to_info = $this->db->where('user_id', $task_details->report_to)->get('tbl_account_details')->row();
+                            echo (!empty($report_to_info->fullname) ? $report_to_info->fullname : '-');
+                        } else {
+                            echo '-';
+                        }
+                        ?></p>
+                </div>
             </div>
             <div class="form-group  col-sm-6">
                 <label class="control-label col-sm-4"><strong><?= lang('timer_status') ?>

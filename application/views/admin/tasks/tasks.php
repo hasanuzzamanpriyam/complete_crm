@@ -183,6 +183,7 @@ if ($tasks == 'kanban') {
                                         <th><?= lang('task_name') ?></th>
                                         <th><?= lang('categories') ?></th>
                                         <th><?= lang('tags') ?></th>
+                                        <th><?= lang('priority') ?></th>
                                         <th><?= lang('due_date') ?></th>
                                         <th><?= lang('status') ?></th>
                                         <th><?= lang('assigned_to') ?></th>

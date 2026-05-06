@@ -135,7 +135,7 @@ class Tasks extends Admin_Controller
             $this->datatables->table = 'tbl_task';
             $this->datatables->join_table = array('tbl_customer_group');
             $this->datatables->join_where = array('tbl_task.category_id=tbl_customer_group.customer_group_id');
-            $main_column = array('task_id', 'task_name', 'tbl_customer_group.customer_group', 'tbl_task.tags', 'due_date', 'task_status', 'billable');
+            $main_column = array('task_id', 'task_name', 'tbl_customer_group.customer_group', 'tbl_task.tags', 'priority', 'due_date', 'task_status', 'billable');
             $action_array = array('task_id');
             $result = array_merge($main_column, $custom_field, $action_array);
             $this->datatables->column_order = $result;
@@ -265,6 +265,16 @@ class Tasks extends Admin_Controller
                         $change_status .= '<li><a href="' . $ch_url . $v_task->task_id . '/' . ($v_status['value']) . '">' . lang($v_status['value']) . '</a></li>';
                     }
                     $change_status .= '</ul></div>';
+
+                    $priority_label = 'info';
+                    if ($v_task->priority == 'medium') {
+                        $priority_label = 'primary';
+                    } elseif ($v_task->priority == 'high') {
+                        $priority_label = 'warning';
+                    } elseif ($v_task->priority == 'urgent') {
+                        $priority_label = 'danger';
+                    }
+                    $sub_array[] = '<span class="label label-' . $priority_label . '">' . lang($v_task->priority) . '</span>';
 
                     $sub_array[] = strftime(config_item('date_format'), strtotime($v_task->due_date));
                     $sub_array[] = '<span class="label label-' . $label . '">' . lang($v_task->task_status) . '</span>' . ' ' . $change_status;
@@ -444,7 +454,9 @@ class Tasks extends Admin_Controller
                 'task_status',
                 'hourly_rate',
                 'tags',
-                'billable'
+                'billable',
+                'priority',
+                'report_to'
             ));
 
             $estimate_hours = $this->input->post('task_hour', true);
