@@ -193,10 +193,10 @@ class Domain_model extends CI_Model {
     }
 
     public function get_domain_info($id) {
-        $this->db->select('d.*, p.provider_name as provider, h.hosting_name as hosting');
+        $this->db->select('d.*, p.provider_name as provider, h.title as hosting');
         $this->db->from('tbldomains d');
         $this->db->join('tblproviders p', 'd.provider_id = p.id', 'left');
-        $this->db->join('tblhostings h', 'd.hosting_id = h.id', 'left');
+        $this->db->join('tblserver_hostings h', 'd.hosting_id = h.id', 'left');
         $this->db->where('d.id', $id);
         $query = $this->db->get();
         if ($query) {

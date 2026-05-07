@@ -23,11 +23,11 @@
                         </tr>
                         <tr>
                             <td class="text-muted border-none p-v-xs">Domain Type</td>
-                            <td class="border-none p-v-xs"><span class="badge badge-info"><?= htmlspecialchars($domain->domain_type) ?></span></td>
+                            <td class="border-none p-v-xs text-dark"><span class="badge badge-info"><?= htmlspecialchars($domain->domain_type) ?></span></td>
                         </tr>
                         <tr>
                             <td class="text-muted border-none p-v-xs">Status</td>
-                            <td class="border-none p-v-xs">
+                            <td class="border-none p-v-xs text-dark">
                                 <?php
                                 $badge_class = 'badge-secondary';
                                 switch ($domain->status) {
@@ -283,6 +283,13 @@
     .mb-2 { margin-bottom: 10px; }
     .xsmall { font-size: 10px; }
     .m-v-xs { margin-top: 5px; margin-bottom: 5px; }
+
+    /* Badge Visibility Fix */
+    .badge-info { background-color: #23b7e5 !important; color: #fff !important; }
+    .badge-success { background-color: #27c24c !important; color: #fff !important; }
+    .badge-danger { background-color: #f05050 !important; color: #fff !important; }
+    .badge-warning { background-color: #fad733 !important; color: #fff !important; }
+    .badge-secondary { background-color: #7266ba !important; color: #fff !important; }
 </style>
 
 <script>
