@@ -243,7 +243,9 @@
                                 <th style="width: 30px;"><input type="checkbox" id="selectAll"></th>
                                 <th>Title</th>
                                 <th>Provider Name</th>
-                                <th>Server Type</th>
+                                <th>Username</th>
+                                <th>IP Address</th>
+                                <th>Price</th>
                                 <th>Status</th>
                                 <th>Expiry Date</th>
                                 <th>Days Remaining</th>
@@ -257,7 +259,9 @@
                                         <td><input type="checkbox" class="row-checkbox" value="<?= $hosting['id'] ?>"></td>
                                         <td><span class="font-weight-bold"><?= htmlspecialchars($hosting['title']) ?></span></td>
                                         <td><?= htmlspecialchars($hosting['provider_name']) ?></td>
-                                        <td><?= htmlspecialchars($hosting['server_type']) ?></td>
+                                        <td><span class="text-muted small"><?= htmlspecialchars($hosting['username'] ?? 'N/A') ?></span></td>
+                                        <td><code class="small"><?= htmlspecialchars($hosting['ip_address'] ?? 'N/A') ?></code></td>
+                                        <td class="font-weight-bold"><?= htmlspecialchars($hosting['price']) ?> <small class="text-muted"><?= htmlspecialchars($hosting['currency_id'] ?? '') ?></small></td>
                                         <td>
                                             <?php
                                             $badge_class = '';
@@ -673,7 +677,7 @@
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
             var min = $('#start_date').val();
             var max = $('#end_date').val();
-            var rowDate = new Date(data[5]); // Index 5 is Expiry Date
+            var rowDate = new Date(data[7]); // Index 7 is Expiry Date (Updated from 5 after adding Username, IP, Price and removing Server Type)
 
             if (!min && !max) {
                 return true;
@@ -705,7 +709,7 @@
                 "order": [[1, "asc"]],
                 "columnDefs": [{
                     "orderable": false,
-                    "targets": [0, 6, 7]
+                    "targets": [0, 8, 9]
                 }]
             });
         }
