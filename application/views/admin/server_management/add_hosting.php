@@ -337,7 +337,7 @@
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
-                                <label>Renewal Date <span class="text-danger">*</span></label>
+                                <label>Exp Date <span class="text-danger">*</span></label>
                                 <input type="date" name="purchase_date" class="form-control" value="<?= isset($hosting_info) ? $hosting_info->purchase_date : '' ?>" required>
                             </div>
                         </div>
@@ -362,7 +362,7 @@
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
-                                <label>Expiry Date <span class="text-danger">*</span></label>
+                                <label>Future Exp Date <span class="text-danger">*</span></label>
                                 <input readonly type="date" name="expiry_date" class="form-control" value="<?= isset($hosting_info) ? $hosting_info->expiry_date : '' ?>" required>
                             </div>
                         </div>

@@ -300,12 +300,6 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <label>Date</label>
-                                <input type="date" name="date" class="form-control" value="<?= !empty($domain_info) ? $domain_info->date : '' ?>">
-                            </div>
-                        </div>
                     </div>
 
                     <div class="erp-section-title">Hosting & Credentials</div>
@@ -377,14 +371,14 @@
                     <div class="row">
                         <div class="col-md-2">
                             <div class="form-group">
-                                <label>Renewal Date <span class="text-danger">*</span></label>
-                                <input type="date" name="purchase_date" id="domain_purchase_date" class="form-control" value="<?= !empty($domain_info) ? $domain_info->purchase_date : '' ?>" required>
+                                <label>Registered Date</label>
+                                <input type="date" name="date" class="form-control" value="<?= !empty($domain_info) ? $domain_info->date : '' ?>">
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
-                                <label>Expiry Date <span class="text-danger">*</span></label>
-                                <input type="date" name="expiry_date" id="domain_expiry_date" class="form-control" value="<?= !empty($domain_info) ? $domain_info->expiry_date : '' ?>" required readonly>
+                                <label>Exp Date <span class="text-danger">*</span></label>
+                                <input type="date" name="purchase_date" id="domain_purchase_date" class="form-control" value="<?= !empty($domain_info) ? $domain_info->purchase_date : '' ?>" required>
                             </div>
                         </div>
                         <div class="col-md-2">
@@ -404,6 +398,12 @@
                                     <option value="Decade" <?= !empty($domain_info) && $domain_info->time_unit == 'Decade' ? 'selected' : '' ?>>Decade</option>
                                     <option value="Century" <?= !empty($domain_info) && $domain_info->time_unit == 'Century' ? 'selected' : '' ?>>Century</option>
                                 </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Future Exp Date <span class="text-danger">*</span></label>
+                                <input type="date" name="expiry_date" id="domain_expiry_date" class="form-control" value="<?= !empty($domain_info) ? $domain_info->expiry_date : '' ?>" required readonly>
                             </div>
                         </div>
 
