@@ -453,7 +453,7 @@ class Server_management extends Admin_Controller
         $data['plans'] = $this->db->get('tbl_hosting_plans')->result_array();
 
         if ($this->input->post()) {
-            $this->form_validation->set_rules('title', 'Title', 'required|trim');
+            $this->form_validation->set_rules('title', 'Title', 'required|trim|callback_check_hosting_title_unique');
             $this->form_validation->set_rules('provider_id', 'Provider', 'required|trim');
             $this->form_validation->set_rules('server_type', 'Server Type', 'required|trim');
             $this->form_validation->set_rules('purchase_date', 'Purchase Date', 'required|trim');
@@ -672,7 +672,7 @@ class Server_management extends Admin_Controller
         $data['title'] = lang('add_domain');
 
         if ($this->input->post()) {
-            $this->form_validation->set_rules('domain_name', 'Domain Name', 'required|trim');
+            $this->form_validation->set_rules('domain_name', 'Domain Name', 'required|trim|callback_check_domain_unique');
             $this->form_validation->set_rules('provider_id', 'Provider', 'required|trim');
             $this->form_validation->set_rules('domain_type', 'Type', 'required|trim');
             $this->form_validation->set_rules('status', 'Status', 'required|trim');
@@ -1099,6 +1099,36 @@ class Server_management extends Admin_Controller
             return FALSE;
         }
 
+        return TRUE;
+    }
+
+    public function check_domain_unique($domain_name)
+    {
+        $id = $this->uri->segment(4);
+        $this->db->where('domain_name', $domain_name);
+        if ($id) {
+            $this->db->where('id !=', $id);
+        }
+        $query = $this->db->get('tbldomains');
+        if ($query->num_rows() > 0) {
+            $this->form_validation->set_message('check_domain_unique', 'The {field} already exists in the system.');
+            return FALSE;
+        }
+        return TRUE;
+    }
+
+    public function check_hosting_title_unique($title)
+    {
+        $id = $this->uri->segment(4);
+        $this->db->where('title', $title);
+        if ($id) {
+            $this->db->where('id !=', $id);
+        }
+        $query = $this->db->get('tblserver_hostings');
+        if ($query->num_rows() > 0) {
+            $this->form_validation->set_message('check_hosting_title_unique', 'The {field} already exists in the system.');
+            return FALSE;
+        }
         return TRUE;
     }
 

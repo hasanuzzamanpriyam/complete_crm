@@ -1,5 +1,8 @@
 <?php echo message_box('success'); ?>
 <?php echo message_box('error'); ?>
+<?php if (validation_errors()) { ?>
+    <div class="alert alert-danger"><?= validation_errors() ?></div>
+<?php } ?>
 
 <style>
     .datepicker {

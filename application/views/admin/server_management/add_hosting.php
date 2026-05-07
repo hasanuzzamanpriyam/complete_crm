@@ -1,5 +1,8 @@
 <?php echo message_box('success'); ?>
 <?php echo message_box('error'); ?>
+<?php if (validation_errors()) { ?>
+    <div class="alert alert-danger"><?= validation_errors() ?></div>
+<?php } ?>
 
 <?php $hosting_id = isset($hosting_info) ? $hosting_info->id : ''; ?>
 <?php $action = $hosting_id ? 'admin/server_management/add_hosting/' . $hosting_id : 'admin/server_management/add_hosting'; ?>
