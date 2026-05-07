@@ -220,7 +220,10 @@
 
     /* Fix Select2 dropdown z-index for modals */
     .select2-container--open {
-        z-index: 1060 !important;
+        z-index: 9999999 !important;
+    }
+    .select2-dropdown {
+        z-index: 9999999 !important;
     }
 
     .remove-custom-field {
@@ -857,8 +860,8 @@
                                 });
                             });
 
-                            // Quick Add Modal Logic
-                            $('.quick-add-btn').click(function(e) {
+                            // Use delegated event with namespacing to prevent double-binding
+                            $(document).off('click.quickAdd').on('click.quickAdd', '.quick-add-btn', function(e) {
                                 e.preventDefault();
                                 var btn = $(this);
                                 currentTargetSelect = btn.closest('.input-group').find('select');
@@ -875,40 +878,66 @@
                                     'status': 'Add New Domain Status',
                                     'hosting': 'Add New Hosting'
                                 };
+                                
+                                // Reset and show modal with loading
                                 $('#myModal .modal-title').text(titleMap[type] || 'Add New');
                                 $('#myModal .modal-body').html('<div class="text-center mt-3 mb-3"><i class="fa fa-spinner fa-spin fa-2x"></i> Loading...</div>');
                                 $('#myModal').modal('show');
 
                                 $.get(url, function(response) {
-                                    $('#myModal .modal-content').html(response);
-                                    // Re-initialize Select2 for the new content
-                                    if ($.fn.select2) {
-                                        $('#myModal').find('.select_box').each(function() {
-                                            if ($(this).data('select2')) {
-                                                $(this).select2('destroy');
-                                            }
-                                            $(this).select2({
-                                                theme: 'bootstrap',
-                                                width: '100%'
+                                    var wrapper = $('<div>').html(response);
+                                    var form = wrapper.find('form').first();
+                                    
+                                    if (form.length > 0) {
+                                        // Remove duplicate footers/buttons from the loaded form content
+                                        form.find('.modal-footer, .card-footer, .panel-footer, .btn-bottom-toolbar').remove();
+                                        // Remove any panel headers/titles inside the body
+                                        form.find('.panel-heading, .card-header').remove();
+                                        
+                                        // We want to put just the form inside modal-content or modal-body?
+                                        // In add_domain.php, the success handler puts response into .modal-content
+                                        // But it's better to put it into modal-content and let the response provide the structure
+                                        // if it's a full modal response.
+                                        
+                                        // Actually, let's keep it consistent with the existing logic but clean it up.
+                                        $('#myModal .modal-content').html(response);
+                                    } else {
+                                        $('#myModal .modal-content').html(response);
+                                    }
+
+                                    // Re-initialize UI components
+                                    setTimeout(function() {
+                                        var container = $('#myModal');
+                                        if ($.fn.select2) {
+                                            container.find('.select_box, .select_multi, .select2, .select2-tags').each(function() {
+                                                if ($(this).data('select2')) {
+                                                    $(this).select2('destroy');
+                                                }
+                                                var options = {
+                                                    theme: 'bootstrap',
+                                                    width: '100%'
+                                                };
+                                                if ($(this).hasClass('select2-tags')) {
+                                                    options.tags = true;
+                                                }
+                                                $(this).select2(options);
                                             });
-                                        });
-                                    }
-                                    // Re-initialize datepicker if needed
-                                    if (typeof initdatepicker === 'function') {
-                                        initdatepicker();
-                                    }
-                                    $('#myModal').find('.start_date, .end_date, .datepicker').datepicker({
-                                        autoclose: true,
-                                        format: 'yyyy-mm-dd',
-                                        todayBtn: "linked"
-                                    });
+                                        }
+                                        if ($.fn.datepicker) {
+                                            container.find('.datepicker, .start_date, .end_date').datepicker({
+                                                autoclose: true,
+                                                format: 'yyyy-mm-dd',
+                                                todayBtn: "linked"
+                                            });
+                                        }
+                                    }, 100);
                                 }).fail(function() {
-                                    $('#myModal .modal-body').html('<div class="alert alert-danger">Error: Not Found</div>');
+                                    $('#myModal .modal-content').html('<div class="modal-header"><button type="button" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Error</h4></div><div class="modal-body"><div class="alert alert-danger">Error: Not Found</div></div>');
                                 });
                             });
 
-                            // Handle modal form submissions via AJAX
-                            $(document).on('submit', '#myModal form', function(e) {
+                            // Handle modal form submissions via AJAX with namespacing
+                            $(document).off('submit.quickAdd').on('submit.quickAdd', '#myModal form', function(e) {
                                 var form = $(this);
                                 var action = form.attr('action');
                                 if (!action) return;

@@ -70,12 +70,38 @@
     .erp-form .btn-cancel:hover { text-decoration: underline; color: #005384; }
 
     /* Select2 Overrides */
-    .select2-container--bootstrap .select2-selection { border: 1px solid #d2d6de; min-height: 34px; font-size: 13px; box-shadow: none; }
-    .select2-container--bootstrap .select2-selection--single .select2-selection__rendered { padding-top: 4px; color: #333; }
-    .select2-container--bootstrap .select2-selection--single .select2-selection__arrow { height: 32px; }
-    .select2-container--bootstrap .select2-selection--multiple .select2-selection__choice { margin-top: 4px; font-size: 12px; background-color: #e4e4e4; border: 1px solid #ccc; color: #333;}
-    .select2-container--bootstrap.select2-container--focus .select2-selection, .select2-container--bootstrap.select2-container--open .select2-selection { border-color: #3c8dbc; box-shadow: none; }
+    .select2-container--bootstrap .select2-selection--multiple .select2-selection__choice { 
+        margin-top: 5px !important; 
+        margin-right: 5px !important; 
+        font-size: 12px !important; 
+        background-color: #f0f0f0 !important; 
+        border: 1px solid #ccc !important; 
+        color: #333 !important; 
+        padding: 2px 10px !important; 
+        border-radius: 3px !important;
+        line-height: 1.4 !important;
+    }
+    .select2-container--bootstrap .select2-selection--multiple { 
+        min-height: 34px !important; 
+        height: auto !important; 
+        padding-bottom: 5px !important;
+        border-radius: 2px !important;
+    }
+    .select2-container--bootstrap .select2-selection--multiple .select2-search--inline .select2-search__field {
+        margin-top: 5px !important;
+        height: 24px !important;
+    }
     .datepicker, .ui-datepicker { z-index: 9999 !important; }
+    
+    /* Select2 Dropdown Z-Index Fix for Modals */
+    .select2-container--open { z-index: 9999999 !important; }
+    .select2-dropdown { z-index: 9999999 !important; }
+    
+    /* Ensure input-group doesn't collapse Select2 */
+    .erp-form .input-group .select2-container--bootstrap {
+        flex: 1 1 auto !important;
+        width: 1% !important;
+    }
 </style>
 
 <div class="row">
@@ -671,84 +697,81 @@ $(document).ready(function() {
     });
 
     // Quick Add Modal Logic
-    $('.quick-add-btn').click(function(e) {
+    // Use delegated event with namespacing to prevent double-binding
+    $(document).off('click.quickAdd').on('click.quickAdd', '.quick-add-btn', function(e) {
         e.preventDefault();
         var btn = $(this);
-        currentTargetSelect = btn.closest('.input-group').find('select');
-        currentType = btn.data('type');
+        var type = btn.data('type');
         var url = btn.data('url');
         
+        // Cache the select element related to this button
+        currentTargetSelect = btn.closest('.input-group').find('select');
+        currentType = type;
+
         var titleMap = {
             'provider': 'Add New Provider',
             'server_type': 'Add New Server Type',
-            'plan': 'Add New Plan',
-            'project': 'Add New Project',
-            'client': 'Add New Client',
-            'currency': 'Add New Currency',
             'domain': 'Add New Domain',
             'nameserver': 'Add New Nameserver',
-            'dns_provider': 'Add New DNS Provider'
+            'dns_provider': 'Add New DNS Provider',
+            'currency': 'Add New Currency',
+            'project': 'Add New Project',
+            'client': 'Add New Client'
         };
-        $('#universalQuickAddModalLabel').text(titleMap[currentType] || 'Add New');
-        
-        $('#universalQuickAddModal .modal-body').html('<div class="text-center mt-3 mb-3"><i class="fa fa-spinner fa-spin fa-2x"></i> Loading...</div>');
+
+        $('#universalQuickAddModalLabel').text(titleMap[type] || 'Add New');
+        $('#universalQuickAddModal .modal-body').html('<div class="text-center mt-4 mb-4"><i class="fa fa-spinner fa-spin fa-2x"></i><br>Loading...</div>');
         $('#universalQuickAddModal').modal('show');
-        
+
         $.get(url, function(response) {
             var wrapper = $('<div>').html(response);
             var form = wrapper.find('form').first();
-            if (!form.length) {
-                form = wrapper.filter('form').first();
-            }
-            if (form.length) {
-                // Remove duplicate footers/buttons from the loaded form content
-                form.find('.modal-footer, .card-footer, .panel-footer, .btn-bottom-toolbar').remove();
+            
+            if (form.length > 0) {
+                // Remove ALL buttons and footers from the loaded form content aggressively
+                form.find('.modal-footer, .card-footer, .panel-footer, .btn-bottom-toolbar, button[type="submit"], button.btn-success, .text-left').remove();
                 
-                var formAction = form.attr('action');
-                if (formAction && formAction.indexOf('http') === -1 && formAction.indexOf(base_url) === -1) {
-                    formAction = base_url + formAction;
-                }
-                form.removeAttr('action').data('action', formAction);
-                form.addClass('quick-add-form');
+                // Remove any panel headers/titles inside the body to avoid double titles
+                form.find('.panel-heading, .card-header').remove();
+                
                 $('#universalQuickAddModal .modal-body').html(form);
             } else {
-                // If it's just a raw form string (like from our new views)
-                if (response.indexOf('<form') !== -1) {
-                    $('#universalQuickAddModal .modal-body').html(response);
-                } else {
-                    $('#universalQuickAddModal .modal-body').html('<div class="alert alert-danger">Failed to load form</div>');
-                }
+                // If it's just a raw form string or something else
+                $('#universalQuickAddModal .modal-body').html(response);
             }
             
-            // Initialize plugins for dynamically loaded form
+            // Re-initialize UI components in the new content after a short delay
             setTimeout(function() {
-                if ($.fn.datepicker) {
-                    $('#universalQuickAddModal .modal-body').find('[data-provide="datepicker"]').each(function() {
-                        var fmt = $(this).attr('data-date-format');
-                        // Fix invalid formats that might cause "Invalid date format" error
-                        if (!fmt || fmt.trim() === '' || fmt.indexOf('Y') !== -1) {
-                            $(this).attr('data-date-format', 'yyyy-mm-dd');
+                var container = $('#universalQuickAddModal');
+                // Re-initialize Select2
+                if ($.fn.select2) {
+                    container.find('.select_box, .select_multi, .select2, .select2-tags').each(function() {
+                        if ($(this).data('select2')) {
+                            $(this).select2('destroy');
                         }
-                        try {
-                            $(this).datepicker({
-                                format: $(this).attr('data-date-format') || 'yyyy-mm-dd',
-                                autoclose: true,
-                                todayHighlight: true
-                            });
-                        } catch (e) {
-                            console.error('Datepicker initialization error on element:', this, e);
+                        var options = {
+                            theme: 'bootstrap',
+                            width: '100%'
+                        };
+                        if ($(this).hasClass('select2-tags')) {
+                            options.tags = true;
                         }
+                        $(this).select2(options);
                     });
                 }
-                if ($.fn.select2) {
-                    $('#universalQuickAddModal .modal-body').find('.select_box').select2({
-                        theme: 'bootstrap',
-                        width: '100%'
+                
+                // Re-initialize Datepickers
+                if ($.fn.datepicker) {
+                    container.find('.datepicker, .start_date, .end_date').datepicker({
+                        autoclose: true,
+                        format: 'yyyy-mm-dd',
+                        todayBtn: "linked"
                     });
                 }
             }, 100);
-        }).fail(function(xhr) {
-            $('#universalQuickAddModal .modal-body').html('<div class="alert alert-danger">Error: Not Found</div>');
+            
+        }).fail(function() {
+            $('#universalQuickAddModal .modal-body').html('<div class="alert alert-danger">Error: Could not load the form.</div>');
         });
     });
 
@@ -756,12 +779,13 @@ $(document).ready(function() {
     $('#universalModalSubmitBtn').off('click').on('click', function() {
         var form = $('#universalQuickAddModal .modal-body').find('form');
         if (form.length) {
-            form.submit();
+            // Use trigger('submit') to ensure jQuery submit handlers are fired
+            form.trigger('submit');
         }
     });
     
     // Modal Form Submission via AJAX
-    $(document).off('submit', '#universalQuickAddModal form').on('submit', '#universalQuickAddModal form', function(e) {
+    $(document).off('submit.quickAdd', '#universalQuickAddModal form').on('submit.quickAdd', '#universalQuickAddModal form', function(e) {
         e.preventDefault();
         var form = $(this);
         var action = form.data('action') || form.attr('action');
@@ -781,11 +805,8 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 if (response.status === 'success' && currentTargetSelect) {
-                    currentTargetSelect.append($('<option>', {
-                        value: response.id,
-                        text: response.text || response.name,
-                        selected: true
-                    }));
+                    var newOption = new Option(response.text || response.name, response.id, true, true);
+                    currentTargetSelect.append(newOption).trigger('change');
                     $('#universalQuickAddModal').modal('hide');
                 } else {
                     alert(response.message || 'Error adding record');
