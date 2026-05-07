@@ -17,7 +17,7 @@
                             <td class="col-xs-7 font-bold border-none p-v-xs">
                                 <?= !empty($hosting->provider) ? htmlspecialchars($hosting->provider) : '<span class="text-muted">-</span>' ?>
                                 <?php if (!empty($hosting->provider_url)): ?>
-                                    <a href="<?= $hosting->provider_url ?>" target="_blank" class="ml-2 text-info"><i class="fa fa-external-link"></i></a>
+                                    <a href="<?= (preg_match('#^[^/:]+://#', $hosting->provider_url)) ? $hosting->provider_url : 'http://' . $hosting->provider_url ?>" target="_blank" class="ml-2 text-info"><i class="fa fa-external-link"></i></a>
                                 <?php endif; ?>
                             </td>
                         </tr>
@@ -173,7 +173,7 @@
                     <div class="mb-2 small">
                         <span class="text-muted">cPanel URL:</span> 
                         <?php if (!empty($hosting->cpanel_url)): ?>
-                            <a href="<?= $hosting->cpanel_url ?>" target="_blank" class="text-info"><?= $hosting->cpanel_url ?></a>
+                            <a href="<?= (preg_match('#^[^/:]+://#', $hosting->cpanel_url)) ? $hosting->cpanel_url : 'http://' . $hosting->cpanel_url ?>" target="_blank" class="text-info"><?= $hosting->cpanel_url ?></a>
                         <?php else: ?>
                             <span class="text-muted">-</span>
                         <?php endif; ?>

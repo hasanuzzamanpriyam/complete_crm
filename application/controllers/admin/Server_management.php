@@ -523,6 +523,11 @@ class Server_management extends Admin_Controller
                 // We are no longer connecting this to tblproviders as requested.
                 // It will just be stored as a string in the hosting record.
 
+                $provider_url = $this->input->post('provider_url', TRUE);
+                if (!empty($provider_url) && !preg_match('#^[^/:]+://#', $provider_url)) {
+                    $provider_url = 'http://' . $provider_url;
+                }
+
                 $data_save = array(
                     'title' => $this->input->post('title', TRUE),
                     'server_name' => $this->input->post('server_name', TRUE),
@@ -530,7 +535,7 @@ class Server_management extends Admin_Controller
                     'main_domain' => is_array($this->input->post('main_domain')) ? implode(',', $this->input->post('main_domain')) : $this->input->post('main_domain', TRUE),
                     'nameservers' => is_array($this->input->post('nameservers')) ? implode(',', $this->input->post('nameservers')) : $this->input->post('nameservers', TRUE),
                     'provider_id' => $this->input->post('provider_id', TRUE),
-                    'provider_url' => $this->input->post('provider_url', TRUE),
+                    'provider_url' => $provider_url,
                     'server_type' => $this->input->post('server_type', TRUE),
                     'server_location' => $this->input->post('server_location', TRUE),
                     'ip_address' => $this->input->post('ip_address', TRUE),
@@ -739,10 +744,15 @@ class Server_management extends Admin_Controller
                     }
                 }
 
+                $provider_url = $this->input->post('provider_url', TRUE);
+                if (!empty($provider_url) && !preg_match('#^[^/:]+://#', $provider_url)) {
+                    $provider_url = 'http://' . $provider_url;
+                }
+
                 $data_save = array(
                     'domain_name'             => $this->input->post('domain_name', TRUE),
                     'provider_id'           => $this->input->post('provider_id', TRUE),
-                    'provider_url'         => $this->input->post('provider_url', TRUE),
+                    'provider_url'         => $provider_url,
                     'domain_type'           => $this->input->post('domain_type', TRUE),
                     'hosting_id'            => $this->input->post('hosting_id', TRUE),
                     'username'              => $this->input->post('username', TRUE),
@@ -903,9 +913,14 @@ class Server_management extends Admin_Controller
                 $data['subview'] = $this->load->view('admin/server_management/add_provider', $data, TRUE);
                 $this->load->view('admin/_layout_main', $data);
             } else {
+                $provider_url = $this->input->post('provider_url', TRUE);
+                if (!empty($provider_url) && !preg_match('#^[^/:]+://#', $provider_url)) {
+                    $provider_url = 'http://' . $provider_url;
+                }
+
                 $data_save = array(
                     'provider_name' => $this->input->post('provider_name', TRUE),
-                    'provider_url'  => $this->input->post('provider_url', TRUE),
+                    'provider_url'  => $provider_url,
                     'provider_type' => $this->input->post('provider_type', TRUE),
                     'status'        => $this->input->post('status', TRUE),
                     'description'  => $this->input->post('description', TRUE)
@@ -1084,19 +1099,20 @@ class Server_management extends Admin_Controller
 
     public function valid_url($url)
     {
-        if (!filter_var($url, FILTER_VALIDATE_URL) || !preg_match('/^https?:\/\//', $url)) {
-            $this->form_validation->set_message('valid_url', 'The {field} field must be a valid URL (e.g., https://example.com)');
-            return FALSE;
+        if (empty($url)) {
+            return TRUE;
         }
 
-        $valid_tlds = ['com', 'org', 'net', 'io', 'dev', 'tech', 'co', 'info', 'biz', 'edu', 'gov', 'app', 'cloud', 'ai', 'io', 'me', 'us', 'uk', 'ca', 'au'];
-        $parsed = parse_url($url, PHP_URL_HOST);
-        $parts = preg_split('/\./', $parsed);
-        $tld = strtolower(end($parts));
-
-        if (!in_array($tld, $valid_tlds)) {
-            $this->form_validation->set_message('valid_url', 'The {field} must have a valid domain extension (.com, .org, .net, etc.)');
-            return FALSE;
+        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+            // Try adding http:// if missing and check again
+            if (!preg_match('#^[^/:]+://#', $url)) {
+                $url = 'http://' . $url;
+            }
+            
+            if (!filter_var($url, FILTER_VALIDATE_URL)) {
+                $this->form_validation->set_message('valid_url', 'The {field} field must be a valid URL (e.g., https://example.com)');
+                return FALSE;
+            }
         }
 
         return TRUE;

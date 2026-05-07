@@ -181,7 +181,7 @@
                                     <tr>
                                         <td><input type="checkbox" class="row-checkbox" value="<?= $provider['id'] ?>"></td>
                                         <td><span class="font-weight-bold"><?= $provider['provider_name'] ?></span></td>
-                                        <td><a href="<?= $provider['provider_url'] ?>" target="_blank" class="text-info"><?= $provider['provider_url'] ?></a></td>
+                                        <td><a href="<?= (preg_match('#^[^/:]+://#', $provider['provider_url'])) ? $provider['provider_url'] : 'http://' . $provider['provider_url'] ?>" target="_blank" class="text-info"><?= $provider['provider_url'] ?></a></td>
                                         <td><span class="badge <?= $type_class ?>"><?= $provider['provider_type'] ?></span></td>
                                         <td><span class="badge <?= $status_class ?>"><?= $provider['status'] ?></span></td>
                                         <td class="text-center">

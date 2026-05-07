@@ -17,7 +17,7 @@
                             <td class="col-xs-7 font-bold border-none p-v-xs">
                                 <?= !empty($domain->provider) ? htmlspecialchars($domain->provider) : '<span class="text-muted">-</span>' ?>
                                 <?php if (!empty($domain->provider_url)): ?>
-                                    <a href="<?= $domain->provider_url ?>" target="_blank" class="ml-2 text-info"><i class="fa fa-external-link"></i></a>
+                                    <a href="<?= (preg_match('#^[^/:]+://#', $domain->provider_url)) ? $domain->provider_url : 'http://' . $domain->provider_url ?>" target="_blank" class="ml-2 text-info"><i class="fa fa-external-link"></i></a>
                                 <?php endif; ?>
                             </td>
                         </tr>
@@ -129,7 +129,7 @@
                     <div class="mb-3 small">
                         <span class="text-muted">URL:</span> 
                         <?php if (!empty($domain->registrar_url)): ?>
-                            <a href="<?= $domain->registrar_url ?>" target="_blank" class="text-info"><?= $domain->registrar_url ?></a>
+                            <a href="<?= (preg_match('#^[^/:]+://#', $domain->registrar_url)) ? $domain->registrar_url : 'http://' . $domain->registrar_url ?>" target="_blank" class="text-info"><?= $domain->registrar_url ?></a>
                         <?php else: ?>
                             <span class="text-muted">-</span>
                         <?php endif; ?>
