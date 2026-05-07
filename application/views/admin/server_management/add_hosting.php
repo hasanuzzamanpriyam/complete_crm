@@ -338,19 +338,19 @@
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Exp Date <span class="text-danger">*</span></label>
-                                <input type="date" name="purchase_date" class="form-control" value="<?= isset($hosting_info) ? $hosting_info->purchase_date : '' ?>" required>
+                                <input type="date" name="purchase_date" id="h_purchase_date" class="form-control" value="<?= isset($hosting_info) ? $hosting_info->purchase_date : '' ?>" required>
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Duration <span class="text-danger">*</span></label>
-                                <input type="number" name="days" class="form-control" value="<?= isset($hosting_info) ? $hosting_info->days : '' ?>" placeholder="Enter duration" required>
+                                <input type="number" name="days" id="h_days" class="form-control" value="<?= isset($hosting_info) ? $hosting_info->days : '' ?>" placeholder="Enter duration" required>
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Time Unit <span class="text-danger">*</span></label>
-                                <select name="time_unit" class="form-control" id="time_unit" required>
+                                <select name="time_unit" class="form-control" id="h_time_unit" required>
                                     <option value="Days" <?= isset($hosting_info) && $hosting_info->time_unit == 'Days' ? 'selected' : '' ?>>Days</option>
                                     <option value="Weeks" <?= isset($hosting_info) && $hosting_info->time_unit == 'Weeks' ? 'selected' : '' ?>>Weeks</option>
                                     <option value="Months" <?= isset($hosting_info) && $hosting_info->time_unit == 'Months' ? 'selected' : '' ?>>Months</option>
@@ -363,7 +363,7 @@
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Future Exp Date <span class="text-danger">*</span></label>
-                                <input readonly type="date" name="expiry_date" class="form-control" value="<?= isset($hosting_info) ? $hosting_info->expiry_date : '' ?>" required>
+                                <input readonly type="date" name="expiry_date" id="h_expiry_date" class="form-control" value="<?= isset($hosting_info) ? $hosting_info->expiry_date : '' ?>" required>
                             </div>
                         </div>
                         <div class="col-md-2">
@@ -871,9 +871,9 @@ $(document).ready(function() {
 
     // Auto-calculate expiry date
     function calculateExpiryDate() {
-        var purchaseDate = $('input[name="purchase_date"]').val();
-        var duration = $('input[name="days"]').val();
-        var timeUnit = $('select[name="time_unit"]').val();
+        var purchaseDate = $('#h_purchase_date').val();
+        var duration = $('#h_days').val();
+        var timeUnit = $('#h_time_unit').val();
         
         if (purchaseDate && duration && timeUnit) {
             var date = new Date(purchaseDate);
@@ -901,11 +901,12 @@ $(document).ready(function() {
             }
             
             var expiryDate = date.toISOString().split('T')[0];
-            $('input[name="expiry_date"]').val(expiryDate);
+            $('#h_expiry_date').val(expiryDate);
         }
     }
     
-    $('input[name="purchase_date"], input[name="days"], select[name="time_unit"]').on('change', calculateExpiryDate);
-    $('input[name="days"]').on('keyup', calculateExpiryDate);
+    $('#h_purchase_date, #h_days, #h_time_unit').on('change', calculateExpiryDate);
+    $('#h_days').on('keyup', calculateExpiryDate);
+    calculateExpiryDate();
 });
 </script>

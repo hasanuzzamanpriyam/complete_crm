@@ -158,6 +158,45 @@ class Hosting_model extends CI_Model {
         return $query->row();
     }
 
+    public function get_hosting_info($id) {
+        $this->db->select('sh.*, p.provider_name as provider, c.symbol as currency_symbol');
+        $this->db->from('tblserver_hostings sh');
+        $this->db->join('tblproviders p', 'sh.provider_id = p.id', 'left');
+        $this->db->join('tbl_currencies c', 'sh.currency_id = c.code', 'left');
+        $this->db->where('sh.id', $id);
+        $query = $this->db->get();
+        if ($query) {
+            $row = $query->row();
+            if ($row) {
+                // Fetch projects
+                $row->projects_names = '';
+                if (!empty($row->project_id)) {
+                    $project_ids = explode(',', $row->project_id);
+                    $this->db->select('project_name');
+                    $this->db->where_in('project_id', $project_ids);
+                    $projects = $this->db->get('tbl_project')->result_array();
+                    if (!empty($projects)) {
+                        $row->projects_names = implode(', ', array_column($projects, 'project_name'));
+                    }
+                }
+                
+                // Fetch clients
+                $row->clients_names = '';
+                if (!empty($row->client_id)) {
+                    $client_ids = explode(',', $row->client_id);
+                    $this->db->select('name');
+                    $this->db->where_in('client_id', $client_ids);
+                    $clients = $this->db->get('tbl_client')->result_array();
+                    if (!empty($clients)) {
+                        $row->clients_names = implode(', ', array_column($clients, 'name'));
+                    }
+                }
+            }
+            return $row;
+        }
+        return NULL;
+    }
+
     public function get_stats() {
         $stats = [];
         $stats['total'] = $this->db->count_all('tblserver_hostings');
@@ -297,6 +336,14 @@ class Hosting_model extends CI_Model {
         $this->db->where('dns_provider_name IS NOT NULL');
         $this->db->where('dns_provider_name !=', '');
         $this->db->order_by('dns_provider_name', 'ASC');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    public function get_all_active_hostings() {
+        $this->db->select('id, title as hosting_name');
+        $this->db->from('tblserver_hostings');
+        $this->db->where('status', 'Active');
+        $this->db->order_by('title', 'ASC');
         $query = $this->db->get();
         return $query->result_array();
     }

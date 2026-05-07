@@ -206,12 +206,14 @@
                             <tr>
                                 <th style="width: 30px;"><input type="checkbox" id="selectAll"></th>
                                 <th>Domain Name</th>
+                                <th>Reg. User</th>
+                                <th>Reg. Status</th>
+                                <th>Age</th>
+                                <th>Price</th>
                                 <th>Provider</th>
-                                <th>Domain Type</th>
                                 <th>Status</th>
                                 <th>Expiry Date</th>
                                 <th>Days Remaining</th>
-                                <th>Hosting</th>
                                 <th class="text-center" style="width: 80px;">Action</th>
                             </tr>
                         </thead>
@@ -221,16 +223,18 @@
                                     <tr>
                                         <td><input type="checkbox" class="row-checkbox" value="<?= $domain['id'] ?>" <?= !empty($domain['is_locked']) ? 'disabled' : '' ?>></td>
                                         <td>
-                                            <span class="font-weight-bold"><?= htmlspecialchars($domain['domain_name']) ?></span>
+                                            <span class="font-weight-bold" title="<?= htmlspecialchars($domain['domain_name']) ?>"><?= htmlspecialchars($domain['domain_name']) ?></span>
                                             <?php if (!empty($domain['is_locked'])): ?>
                                                 <i class="fa fa-lock text-danger ml-1" title="Locked"></i>
                                             <?php endif; ?>
-                                            <?php if (!empty($domain['is_for_sale'])): ?>
-                                                <span class="badge badge-warning ml-1" style="background-color: #ffc107; color: #212529; font-size: 9px; padding: 2px 5px;">FOR SALE</span>
-                                            <?php endif; ?>
+                                        </td>
+                                        <td><span class="text-muted small"><?= !empty($domain['registrar_username']) ? htmlspecialchars($domain['registrar_username']) : '-' ?></span></td>
+                                        <td><span class="badge badge-secondary"><?= !empty($domain['registrar_status']) ? htmlspecialchars($domain['registrar_status']) : '-' ?></span></td>
+                                        <td><span class="text-info"><?= $domain['running_for'] ?></span></td>
+                                        <td class="font-weight-bold text-success">
+                                            <?= !empty($domain['price']) ? ($domain['currency_symbol'] ?: '$') . number_format($domain['price'], 2) : '-' ?>
                                         </td>
                                         <td><?= !empty($domain['provider_name']) ? htmlspecialchars($domain['provider_name']) : '-' ?></td>
-                                        <td><span class="badge badge-domain-type"><?= htmlspecialchars($domain['domain_type']) ?></span></td>
                                         <td>
                                             <?php
                                             $badge_class = '';
@@ -264,20 +268,19 @@
                                             ?>
                                             <span class="badge <?= $badge_class ?>"><?= htmlspecialchars($current_status) ?></span>
                                         </td>
-                                        <td><?= $domain['expiry_date'] ?></td>
+                                        <td class="small"><?= $domain['expiry_date'] ?></td>
                                         <td>
                                             <?php
                                             $days = $domain['days_remaining'];
                                             if ($days > 0):
                                             ?>
-                                                <span class="badge badge-pill badge-active"><?= $days ?> days left</span>
+                                                <span class="badge badge-pill badge-active"><?= $days ?>d</span>
                                             <?php elseif ($days == 0): ?>
-                                                <span class="badge badge-pill badge-pending">Expires today</span>
+                                                <span class="badge badge-pill badge-pending">Today</span>
                                             <?php else: ?>
-                                                <span class="badge badge-pill badge-expired">Expired <?= abs($days) ?> days ago</span>
+                                                <span class="badge badge-pill badge-expired"><?= abs($days) ?>d ago</span>
                                             <?php endif; ?>
                                         </td>
-                                        <td><?= !empty($domain['hosting_name']) ? htmlspecialchars($domain['hosting_name']) : '-' ?></td>
                                         <td class="text-center">
                                             <div class="btn-group">
                                                 <a href="<?= base_url('admin/server_management/view_domain/' . $domain['id']) ?>" 
@@ -432,7 +435,7 @@
                 "order": [[1, "asc"]],
                 "columnDefs": [{
                     "orderable": false,
-                    "targets": [0, 6, 8]
+                    "targets": [0, 10]
                 }]
             });
         }

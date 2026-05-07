@@ -412,18 +412,11 @@ class Server_management extends Admin_Controller
                 return;
             }
 
-            $data['hosting'] = $this->hosting_model->get_hosting_by_id($id);
+            $data['hosting'] = $this->hosting_model->get_hosting_info($id);
             if (empty($data['hosting'])) {
                 echo "Hosting not found";
                 return;
             }
-
-            // Fetch related data
-            $this->db->where('id', $data['hosting']->provider_id);
-            $data['provider'] = $this->db->get('tblproviders')->row();
-            
-            $this->db->where('id', $data['hosting']->currency_id);
-            $data['currency'] = $this->db->get('tbl_currencies')->row();
 
             $this->load->view('admin/server_management/view_hosting', $data);
         } catch (Exception $e) {
@@ -470,6 +463,13 @@ class Server_management extends Admin_Controller
             $this->form_validation->set_rules('status', 'Status', 'required|trim');
 
             if ($this->form_validation->run() === FALSE) {
+                if ($this->input->is_ajax_request()) {
+                    $response = array('status' => 'error', 'message' => validation_errors());
+                    $this->output
+                        ->set_content_type('application/json')
+                        ->set_output(json_encode($response));
+                    return;
+                }
                 if ($id) {
                     $data['hosting_info'] = $this->hosting_model->get_hosting_by_id($id);
                 }
@@ -580,6 +580,18 @@ class Server_management extends Admin_Controller
                         );
                         add_notification($notify_data);
 
+                        if ($this->input->is_ajax_request()) {
+                            $response = array(
+                                'status' => 'success',
+                                'id' => $id,
+                                'text' => $data_save['title'],
+                                'message' => 'Hosting updated successfully!'
+                            );
+                            $this->output
+                                ->set_content_type('application/json')
+                                ->set_output(json_encode($response));
+                            return;
+                        }
                         set_message('success', 'Hosting updated successfully!');
                     } else {
                         set_message('error', 'Failed to update hosting. Database error.');
@@ -601,6 +613,18 @@ class Server_management extends Admin_Controller
                         );
                         add_notification($notify_data);
 
+                        if ($this->input->is_ajax_request()) {
+                            $response = array(
+                                'status' => 'success',
+                                'id' => $new_id,
+                                'text' => $data_save['title'],
+                                'message' => 'Hosting added successfully!'
+                            );
+                            $this->output
+                                ->set_content_type('application/json')
+                                ->set_output(json_encode($response));
+                            return;
+                        }
                         set_message('success', 'Hosting added successfully!');
                     } else {
                         set_message('error', 'Failed to add hosting. Database error.');
@@ -618,6 +642,10 @@ class Server_management extends Admin_Controller
             $data['domains'] = $this->domain_model->get_all_domains();
             $data['nameservers'] = $this->db->get('tbl_nameservers')->result_array();
             $data['dns_providers'] = $this->db->order_by('name', 'ASC')->get('tbl_dns_providers')->result_array();
+            if ($this->input->is_ajax_request()) {
+                $this->load->view('admin/server_management/add_hosting', $data);
+                return;
+            }
             $data['subview'] = $this->load->view('admin/server_management/add_hosting', $data, TRUE);
             $this->load->view('admin/_layout_main', $data);
         }
@@ -665,7 +693,7 @@ class Server_management extends Admin_Controller
                     $data['domain_info'] = $this->domain_model->get_domain_by_id($id);
                 }
                 $data['providers'] = $this->domain_model->get_all_providers();
-                $data['hostings'] = $this->domain_model->get_all_hostings();
+                $data['hostings'] = $this->hosting_model->get_all_active_hostings();
                 $data['clients'] = $this->domain_model->get_all_clients();
                 $data['projects'] = $this->domain_model->get_all_projects();
                 $data['domain_types'] = $this->domain_model->get_domain_types();
@@ -821,7 +849,7 @@ class Server_management extends Admin_Controller
             $data['providers'] = $this->domain_model->get_all_providers();
             $data['clients'] = $this->domain_model->get_all_clients();
             $data['projects'] = $this->domain_model->get_all_projects();
-            $data['hostings'] = $this->domain_model->get_all_hostings();
+            $data['hostings'] = $this->hosting_model->get_all_active_hostings();
             $data['domain_types'] = $this->domain_model->get_domain_types();
             $data['domain_statuses'] = $this->domain_model->get_domain_statuses();
             $data['currencies'] = $this->db->get('tbl_currencies')->result_array();

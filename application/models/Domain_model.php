@@ -36,10 +36,11 @@ class Domain_model extends CI_Model {
     }
 
     public function get_domains($limit, $start, $filters = array()) {
-        $this->db->select('d.*, p.provider_name, h.hosting_name');
+        $this->db->select('d.*, p.provider_name, h.hosting_name, c.symbol as currency_symbol');
         $this->db->from('tbldomains d');
         $this->db->join('tblproviders p', 'd.provider_id = p.id', 'left');
         $this->db->join('tblhostings h', 'd.hosting_id = h.id', 'left');
+        $this->db->join('tbl_currencies c', 'd.currency_id = c.code', 'left');
 
         if (!empty($filters)) {
             if (!empty($filters['start_date']) && !empty($filters['end_date'])) {
@@ -77,6 +78,40 @@ class Domain_model extends CI_Model {
         foreach ($domains as &$domain) {
             $expiry = strtotime($domain['expiry_date']);
             $domain['days_remaining'] = ceil(($expiry - $today) / 86400);
+
+            // Calculate Age
+            $start_date = !empty($domain['date']) ? $domain['date'] : $domain['purchase_date'];
+            
+            if (!empty($start_date)) {
+                $start_timestamp = strtotime($start_date);
+                $diff = $today - $start_timestamp;
+                $days_running = floor($diff / (60 * 60 * 24));
+                
+                if ($days_running < 0) {
+                    $domain['running_for'] = 'Not started';
+                } else {
+                    $years = floor($days_running / 365);
+                    $remaining_days = $days_running % 365;
+                    $months = floor($remaining_days / 30);
+
+                    if ($years > 0) {
+                        $domain['running_for'] = $years . 'y';
+                        if ($months > 0) {
+                            $domain['running_for'] .= ' ' . $months . 'm';
+                        }
+                    } elseif ($months > 0) {
+                        $domain['running_for'] = $months . 'm';
+                        $days = $remaining_days % 30;
+                        if ($days > 0) {
+                            $domain['running_for'] .= ' ' . $days . 'd';
+                        }
+                    } else {
+                        $domain['running_for'] = $days_running . 'd';
+                    }
+                }
+            } else {
+                $domain['running_for'] = '-';
+            }
         }
         return $domains;
     }

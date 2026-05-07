@@ -319,7 +319,7 @@
                                         <?php endif; ?>
                                     </select>
                                     <div class="input-group-append">
-                                        <button type="button" class="btn quick-add-btn" data-type="hosting" data-url="<?= base_url('admin/server_management/add_hosting_type') ?>" title="Add New Hosting" tabindex="-1">
+                                        <button type="button" class="btn quick-add-btn" data-type="hosting" data-url="<?= base_url('admin/server_management/add_hosting') ?>" title="Add New Hosting" tabindex="-1">
                                             <i class="fa fa-plus"></i>
                                         </button>
                                     </div>
@@ -950,7 +950,8 @@
                                     action.indexOf('admin/server_management/add_provider') !== -1 ||
                                     action.indexOf('admin/server_management/add_domain_type') !== -1 ||
                                     action.indexOf('admin/server_management/add_domain_status') !== -1 ||
-                                    action.indexOf('admin/server_management/add_hosting_type') !== -1) {
+                                    action.indexOf('admin/server_management/add_hosting_type') !== -1 ||
+                                    action.indexOf('admin/server_management/add_hosting') !== -1) {
 
                                     e.preventDefault();
 
@@ -974,6 +975,7 @@
                                                     else if (action.indexOf('add_domain_type') !== -1) select = $('#domain_type_select');
                                                     else if (action.indexOf('add_domain_status') !== -1) select = $('#domain_status_select');
                                                     else if (action.indexOf('add_hosting_type') !== -1) select = $('#hosting_id_select');
+                                                    else if (action.indexOf('admin/server_management/add_hosting') !== -1) select = $('#hosting_id_select');
                                                 }
 
                                                 if (select && select.length) {

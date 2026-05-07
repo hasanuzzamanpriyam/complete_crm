@@ -64,19 +64,19 @@
                     <div class="row">
                         <div class="col-xs-4">
                             <div class="p-3 bg-light rounded text-center">
-                                <div class="text-muted small text-uppercase">Date</div>
+                                <div class="text-muted small text-uppercase">Registered Date</div>
                                 <div class="font-bold h4 m-0"><?= !empty($domain->date) ? date('d M, Y', strtotime($domain->date)) : '-' ?></div>
                             </div>
                         </div>
                         <div class="col-xs-4">
                             <div class="p-3 bg-light rounded text-center">
-                                <div class="text-muted small text-uppercase">Renewal Date</div>
+                                <div class="text-muted small text-uppercase">Exp Date</div>
                                 <div class="font-bold h4 m-0"><?= date('d M, Y', strtotime($domain->purchase_date)) ?></div>
                             </div>
                         </div>
                         <div class="col-xs-4">
                             <div class="p-3 bg-light rounded text-center">
-                                <div class="text-muted small text-uppercase">Expiry Date</div>
+                                <div class="text-muted small text-uppercase">Future Exp Date</div>
                                 <div class="font-bold h4 m-0 text-danger"><?= date('d M, Y', strtotime($domain->expiry_date)) ?></div>
                             </div>
                         </div>
@@ -126,7 +126,7 @@
 
                     <h5 class="text-uppercase text-muted font-bold m-b-md" style="font-size: 11px; letter-spacing: 1px;">Registrar Info</h5>
                     
-                    <div class="mb-2 small">
+                    <div class="mb-3 small">
                         <span class="text-muted">URL:</span> 
                         <?php if (!empty($domain->registrar_url)): ?>
                             <a href="<?= $domain->registrar_url ?>" target="_blank" class="text-info"><?= $domain->registrar_url ?></a>
@@ -134,8 +134,30 @@
                             <span class="text-muted">-</span>
                         <?php endif; ?>
                     </div>
+
+                    <div class="mb-3">
+                        <label class="text-muted small m-0">Registrar Username</label>
+                        <div class="input-group input-group-sm">
+                            <input type="text" class="form-control bg-white" value="<?= htmlspecialchars($domain->registrar_username) ?>" readonly id="view_reg_user_<?= $domain->id ?>">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default copy-btn" data-clipboard-target="#view_reg_user_<?= $domain->id ?>" type="button"><i class="fa fa-copy"></i></button>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="text-muted small m-0">Registrar Password</label>
+                        <div class="input-group input-group-sm">
+                            <input type="password" class="form-control bg-white" value="<?= htmlspecialchars($domain->registrar_password) ?>" readonly id="view_reg_pass_<?= $domain->id ?>">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default toggle-view-pass" type="button"><i class="fa fa-eye"></i></button>
+                                <button class="btn btn-default copy-btn" data-clipboard-target="#view_reg_pass_<?= $domain->id ?>" type="button"><i class="fa fa-copy"></i></button>
+                            </span>
+                        </div>
+                    </div>
+
                     <div class="mb-2 small">
-                        <span class="text-muted">Status:</span> 
+                        <span class="text-muted">Registrar Status:</span> 
                         <span class="label label-default"><?= $domain->registrar_status ?: 'N/A' ?></span>
                     </div>
                 </div>
@@ -143,7 +165,7 @@
 
             <div class="panel panel-default border-none shadow-none mt-4">
                 <div class="panel-heading bg-white border-none p-0 mb-2">
-                    <h5 class="text-uppercase text-muted font-bold m-0" style="font-size: 11px; letter-spacing: 1px;">System Status</h5>
+                    <h5 class="text-uppercase text-muted font-bold m-0" style="font-size: 11px; letter-spacing: 1px;">System Status & Notifications</h5>
                 </div>
                 <div class="panel-body p-0">
                     <div class="d-flex align-items-center mb-2">
@@ -158,14 +180,25 @@
                         <div class="w-10 text-center"><i class="fa <?= $domain->is_for_sale ? 'fa-tag text-warning' : 'fa-circle-o text-muted' ?>"></i></div>
                         <div class="ml-2 small text-muted">For Sale: <span class="font-bold text-dark"><?= $domain->is_for_sale ? 'Yes' : 'No' ?></span></div>
                     </div>
-                    <div class="d-flex align-items-center">
+                    <div class="d-flex align-items-center mb-2">
                         <div class="w-10 text-center"><i class="fa <?= $domain->whois_protection ? 'fa-shield text-info' : 'fa-times-circle text-muted' ?>"></i></div>
                         <div class="ml-2 small text-muted">WHOIS Privacy: <span class="font-bold text-dark"><?= $domain->whois_protection ? 'Protected' : 'No' ?></span></div>
+                    </div>
+                    <hr class="m-v-xs" style="border-top-color: rgba(0,0,0,0.05)">
+                    <div class="d-flex align-items-center">
+                        <div class="w-10 text-center"><i class="fa <?= $domain->expiry_notification ? 'fa-bell text-warning' : 'fa-bell-slash-o text-muted' ?>"></i></div>
+                        <div class="ml-2 small text-muted">
+                            Notification: <span class="font-bold text-dark"><?= $domain->expiry_notification ? 'Enabled' : 'Disabled' ?></span>
+                            <?php if ($domain->expiry_notification): ?>
+                                <div class="mt-1 xsmall text-muted">(<?= $domain->notification_days ?> <?= $domain->notification_time_unit ?> before expiry)</div>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
 
     <!-- Name Servers -->
     <div class="row mt-4">
@@ -197,7 +230,7 @@
                 <?php foreach ($custom_fields as $field): ?>
                     <div class="col-md-4 mb-3">
                         <div class="bg-white border rounded p-2">
-                            <label class="text-muted small m-0 d-block"><?= htmlspecialchars($field['label']) ?></label>
+                            <label class="text-muted small m-0 d-block"><?= htmlspecialchars($field['label']) ?>:</label>
                             <span class="font-bold"><?= htmlspecialchars($field['value']) ?></span>
                         </div>
                     </div>
@@ -248,6 +281,8 @@
     .mt-3 { margin-top: 15px; }
     .mb-3 { margin-bottom: 15px; }
     .mb-2 { margin-bottom: 10px; }
+    .xsmall { font-size: 10px; }
+    .m-v-xs { margin-top: 5px; margin-bottom: 5px; }
 </style>
 
 <script>
