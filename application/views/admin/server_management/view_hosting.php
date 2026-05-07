@@ -65,6 +65,10 @@
                             <td class="text-muted border-none p-v-xs">Clients</td>
                             <td class="border-none p-v-xs small"><?= !empty($hosting->clients_names) ? htmlspecialchars($hosting->clients_names) : '<span class="text-muted">-</span>' ?></td>
                         </tr>
+                        <tr>
+                            <td class="text-muted border-none p-v-xs">Registered Date</td>
+                            <td class="border-none p-v-xs font-bold"><?= !empty($hosting->date) ? date('d M, Y', strtotime($hosting->date)) : '<span class="text-muted">-</span>' ?></td>
+                        </tr>
                     </table>
                 </div>
             </div>
@@ -77,13 +81,13 @@
                     <div class="row">
                         <div class="col-xs-4">
                             <div class="p-3 bg-light rounded text-center">
-                                <div class="text-muted small text-uppercase">Purchased</div>
+                                <div class="text-muted small text-uppercase">Exp Date</div>
                                 <div class="font-bold h4 m-0"><?= !empty($hosting->purchase_date) ? date('d M, Y', strtotime($hosting->purchase_date)) : '-' ?></div>
                             </div>
                         </div>
                         <div class="col-xs-4">
                             <div class="p-3 bg-light rounded text-center">
-                                <div class="text-muted small text-uppercase">Expiry Date</div>
+                                <div class="text-muted small text-uppercase">Future Exp Date</div>
                                 <div class="font-bold h4 m-0 text-danger"><?= date('d M, Y', strtotime($hosting->expiry_date)) ?></div>
                             </div>
                         </div>

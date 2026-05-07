@@ -247,7 +247,7 @@
                                 <th>IP Address</th>
                                 <th>Price</th>
                                 <th>Status</th>
-                                <th>Expiry Date</th>
+                                <th>Future Exp Date</th>
                                 <th>Days Remaining</th>
                                 <th class="text-center" style="width: 110px;">Action</th>
                             </tr>
@@ -447,15 +447,15 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <th>Date</th>
+                                        <th style="width: 40%;">Registered Date</th>
                                         <td>: <?= !empty($hosting['date']) ? $hosting['date'] : '-' ?></td>
                                     </tr>
                                     <tr>
-                                        <th>Renewal Date</th>
+                                        <th>Exp Date</th>
                                         <td>: <?= $hosting['purchase_date'] ?></td>
                                     </tr>
                                     <tr>
-                                        <th>Expiry Date</th>
+                                        <th>Future Exp Date</th>
                                         <td>: <?= $hosting['expiry_date'] ?></td>
                                     </tr>
                                     <tr>
