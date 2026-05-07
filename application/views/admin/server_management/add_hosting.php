@@ -238,12 +238,6 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <label>Date</label>
-                                <input type="date" name="date" class="form-control" value="<?= isset($hosting_info) ? $hosting_info->date : '' ?>">
-                            </div>
-                        </div>
                     </div>
 
                     <div class="erp-section-title">DNS Provider Credentials</div>
@@ -311,14 +305,14 @@
                     <div class="row">
                         <div class="col-md-2">
                             <div class="form-group">
-                                <label>Renewal Date <span class="text-danger">*</span></label>
-                                <input type="date" name="purchase_date" class="form-control" value="<?= isset($hosting_info) ? $hosting_info->purchase_date : '' ?>" required>
+                                <label>Registration Date</label>
+                                <input type="date" name="date" class="form-control" value="<?= isset($hosting_info) ? $hosting_info->date : '' ?>">
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
-                                <label>Expiry Date <span class="text-danger">*</span></label>
-                                <input readonly type="date" name="expiry_date" class="form-control" value="<?= isset($hosting_info) ? $hosting_info->expiry_date : '' ?>" required>
+                                <label>Renewal Date <span class="text-danger">*</span></label>
+                                <input type="date" name="purchase_date" class="form-control" value="<?= isset($hosting_info) ? $hosting_info->purchase_date : '' ?>" required>
                             </div>
                         </div>
                         <div class="col-md-2">
@@ -338,6 +332,12 @@
                                     <option value="Decade" <?= isset($hosting_info) && $hosting_info->time_unit == 'Decade' ? 'selected' : '' ?>>Decade</option>
                                     <option value="Century" <?= isset($hosting_info) && $hosting_info->time_unit == 'Century' ? 'selected' : '' ?>>Century</option>
                                 </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Expiry Date <span class="text-danger">*</span></label>
+                                <input readonly type="date" name="expiry_date" class="form-control" value="<?= isset($hosting_info) ? $hosting_info->expiry_date : '' ?>" required>
                             </div>
                         </div>
                         <div class="col-md-2">

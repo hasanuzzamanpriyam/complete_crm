@@ -629,11 +629,14 @@ class Server_management extends Admin_Controller
 
         if ($provider_id) {
             $url = $this->hosting_model->get_provider_url($provider_id);
-            echo json_encode(array('status' => 'success', 'provider_url' => $url));
+            $response = array('status' => 'success', 'provider_url' => $url);
         } else {
-            echo json_encode(array('status' => 'error', 'message' => 'Invalid provider'));
+            $response = array('status' => 'error', 'message' => 'Invalid provider');
         }
-        exit;
+        $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode($response));
+        return;
     }
 
     public function add_domain($id = NULL)
@@ -652,7 +655,10 @@ class Server_management extends Admin_Controller
 
             if ($this->form_validation->run() === FALSE) {
                 if ($this->input->is_ajax_request()) {
-                    echo json_encode(array('status' => 'error', 'message' => validation_errors()));
+                    $response = array('status' => 'error', 'message' => validation_errors());
+                    $this->output
+                        ->set_content_type('application/json')
+                        ->set_output(json_encode($response));
                     return;
                 }
                 if ($id) {
@@ -792,11 +798,14 @@ class Server_management extends Admin_Controller
                 }
 
                 if ($this->input->is_ajax_request()) {
-                    echo json_encode(array(
+                    $response = array(
                         'status' => 'success',
-                        'id' => $id ? $id : $this->db->insert_id(),
+                        'id' => $id ? $id : $new_id,
                         'text' => $data_save['domain_name']
-                    ));
+                    );
+                    $this->output
+                        ->set_content_type('application/json')
+                        ->set_output(json_encode($response));
                     return;
                 }
                 redirect('admin/server_management/domain');
@@ -833,13 +842,14 @@ class Server_management extends Admin_Controller
 
         if ($provider_id) {
             $url = $this->domain_model->get_provider_url($provider_id);
-            echo json_encode(array('status' => 'success', 'provider_url' => $url));
+            $response = array('status' => 'success', 'provider_url' => $url);
         } else {
-            echo json_encode(array('status' => 'error', 'message' => 'Invalid provider'));
+            $response = array('status' => 'error', 'message' => 'Invalid provider');
         }
-
-        // Prevent any extra output
-        exit;
+        $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode($response));
+        return;
     }
 
     public function add_provider($id = NULL)
@@ -929,15 +939,19 @@ class Server_management extends Admin_Controller
                             'id' => $name,
                             'text' => $name
                         );
-                        echo json_encode($response);
                     } else {
                         $response = array('status' => 'error', 'message' => 'Database error: ' . $this->db->error()['message']);
-                        echo json_encode($response);
                     }
-                    exit;
+                    $this->output
+                        ->set_content_type('application/json')
+                        ->set_output(json_encode($response));
+                    return;
                 }
-                echo json_encode(array('status' => 'error', 'message' => 'Invalid input'));
-                exit;
+                $response = array('status' => 'error', 'message' => 'Invalid input');
+                $this->output
+                    ->set_content_type('application/json')
+                    ->set_output(json_encode($response));
+                return;
             }
             redirect('admin/server_management/hosting');
         }
@@ -967,18 +981,22 @@ class Server_management extends Admin_Controller
                             'id' => $insert_id,
                             'text' => $name
                         );
-                        echo json_encode($response);
                     } else {
                         $response = array(
                             'status' => 'error',
                             'message' => 'Database error: ' . $this->db->error()['message']
                         );
-                        echo json_encode($response);
                     }
-                    exit;
+                    $this->output
+                        ->set_content_type('application/json')
+                        ->set_output(json_encode($response));
+                    return;
                 }
-                echo json_encode(array('status' => 'error', 'message' => 'Invalid input'));
-                exit;
+                $response = array('status' => 'error', 'message' => 'Invalid input');
+                $this->output
+                    ->set_content_type('application/json')
+                    ->set_output(json_encode($response));
+                return;
             }
             redirect('admin/server_management/hosting');
         }
@@ -1008,18 +1026,22 @@ class Server_management extends Admin_Controller
                             'id' => $insert_id,
                             'text' => $name
                         );
-                        echo json_encode($response);
                     } else {
                         $response = array(
                             'status' => 'error',
                             'message' => 'Database error: ' . $this->db->error()['message']
                         );
-                        echo json_encode($response);
                     }
-                    exit;
+                    $this->output
+                        ->set_content_type('application/json')
+                        ->set_output(json_encode($response));
+                    return;
                 }
-                echo json_encode(array('status' => 'error', 'message' => 'Invalid input'));
-                exit;
+                $response = array('status' => 'error', 'message' => 'Invalid input');
+                $this->output
+                    ->set_content_type('application/json')
+                    ->set_output(json_encode($response));
+                return;
             }
             redirect('admin/server_management/hosting');
         }
@@ -1109,15 +1131,16 @@ class Server_management extends Admin_Controller
                             'id' => $name,
                             'text' => $name
                         );
-                        echo json_encode($response);
                     } else {
                         $response = array('status' => 'error', 'message' => 'Database error: ' . $this->db->error()['message']);
-                        echo json_encode($response);
                     }
-                    exit;
+                } else {
+                    $response = array('status' => 'error', 'message' => 'Invalid input');
                 }
-                echo json_encode(array('status' => 'error', 'message' => 'Invalid input'));
-                exit;
+                $this->output
+                    ->set_content_type('application/json')
+                    ->set_output(json_encode($response));
+                return;
             }
             redirect('admin/server_management/hosting');
         }
@@ -1162,21 +1185,24 @@ class Server_management extends Admin_Controller
                     );
                     if ($this->domain_model->insert_hosting_type($data)) {
                         $new_id = $this->db->insert_id();
-                        echo json_encode(array(
+                        $response = array(
                             'status' => 'success',
                             'id' => $new_id,
                             'text' => $hosting_name
-                        ));
+                        );
                     } else {
-                        echo json_encode(array('status' => 'error', 'message' => 'Database error'));
+                        $response = array('status' => 'error', 'message' => 'Database error');
                     }
                 } else {
-                    echo json_encode(array('status' => 'error', 'message' => 'Hosting already exists'));
+                    $response = array('status' => 'error', 'message' => 'Hosting already exists');
                 }
             } else {
-                echo json_encode(array('status' => 'error', 'message' => 'Invalid input'));
+                $response = array('status' => 'error', 'message' => 'Invalid input');
             }
-            exit;
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode($response));
+            return;
         }
 
         if ($this->input->is_ajax_request()) {
@@ -1199,21 +1225,24 @@ class Server_management extends Admin_Controller
                     );
                     if ($this->db->insert('tbl_domain_types', $data)) {
                         $new_id = $this->db->insert_id();
-                        echo json_encode(array(
+                        $response = array(
                             'status' => 'success',
                             'id' => strtoupper($domain_type),
                             'text' => strtoupper($domain_type)
-                        ));
+                        );
                     } else {
-                        echo json_encode(array('status' => 'error', 'message' => 'Database error'));
+                        $response = array('status' => 'error', 'message' => 'Database error');
                     }
                 } else {
-                    echo json_encode(array('status' => 'error', 'message' => 'Type already exists'));
+                    $response = array('status' => 'error', 'message' => 'Type already exists');
                 }
             } else {
-                echo json_encode(array('status' => 'error', 'message' => 'Invalid input'));
+                $response = array('status' => 'error', 'message' => 'Invalid input');
             }
-            exit;
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode($response));
+            return;
         }
 
         if ($this->input->is_ajax_request()) {
@@ -1236,21 +1265,24 @@ class Server_management extends Admin_Controller
                     );
                     if ($this->domain_model->insert_domain_status($data)) {
                         $new_id = $this->db->insert_id();
-                        echo json_encode(array(
+                        $response = array(
                             'status' => 'success',
                             'id' => $status_name,
                             'text' => $status_name
-                        ));
+                        );
                     } else {
-                        echo json_encode(array('status' => 'error', 'message' => 'Database error'));
+                        $response = array('status' => 'error', 'message' => 'Database error');
                     }
                 } else {
-                    echo json_encode(array('status' => 'error', 'message' => 'Status already exists'));
+                    $response = array('status' => 'error', 'message' => 'Status already exists');
                 }
             } else {
-                echo json_encode(array('status' => 'error', 'message' => 'Invalid input'));
+                $response = array('status' => 'error', 'message' => 'Invalid input');
             }
-            exit;
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode($response));
+            return;
         }
 
         if ($this->input->is_ajax_request()) {
@@ -1270,18 +1302,21 @@ class Server_management extends Admin_Controller
                 );
                 if ($this->db->insert('tbl_project', $data)) {
                     $new_id = $this->db->insert_id();
-                    echo json_encode(array(
+                    $response = array(
                         'status' => 'success',
                         'id' => $new_id,
                         'text' => $project_name
-                    ));
+                    );
                 } else {
-                    echo json_encode(array('status' => 'error', 'message' => 'Database error'));
+                    $response = array('status' => 'error', 'message' => 'Database error');
                 }
             } else {
-                echo json_encode(array('status' => 'error', 'message' => 'Invalid input'));
+                $response = array('status' => 'error', 'message' => 'Invalid input');
             }
-            exit;
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode($response));
+            return;
         }
 
         if ($this->input->is_ajax_request()) {
@@ -1302,18 +1337,21 @@ class Server_management extends Admin_Controller
                 );
                 if ($this->db->insert('tbl_client', $data)) {
                     $new_id = $this->db->insert_id();
-                    echo json_encode(array(
+                    $response = array(
                         'status' => 'success',
                         'id' => $new_id,
                         'text' => $name
-                    ));
+                    );
                 } else {
-                    echo json_encode(array('status' => 'error', 'message' => 'Database error'));
+                    $response = array('status' => 'error', 'message' => 'Database error');
                 }
             } else {
-                echo json_encode(array('status' => 'error', 'message' => 'Invalid input'));
+                $response = array('status' => 'error', 'message' => 'Invalid input');
             }
-            exit;
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode($response));
+            return;
         }
 
         if ($this->input->is_ajax_request()) {
@@ -1329,8 +1367,10 @@ class Server_management extends Admin_Controller
         $this->log_activity('server_management', ($status ? 'Locked' : 'Unlocked') . ' domain "' . $domain->domain_name . '"', 'fa-lock');
         
         $response = array('status' => 'success', 'message' => 'Domain ' . ($status ? 'locked' : 'unlocked') . ' successfully');
-        echo json_encode($response);
-        exit;
+        $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode($response));
+        return;
     }
     public function billing()
     {
@@ -1386,7 +1426,10 @@ class Server_management extends Admin_Controller
         if ($this->input->is_ajax_request()) {
             $id = $this->input->post('id', TRUE);
             if (!$id) {
-                echo json_encode(['status' => 'error', 'message' => 'ID is required']);
+                $response = array('status' => 'error', 'message' => 'ID is required');
+                $this->output
+                    ->set_content_type('application/json')
+                    ->set_output(json_encode($response));
                 return;
             }
 
@@ -1404,7 +1447,11 @@ class Server_management extends Admin_Controller
             );
 
             $this->billing_model->save_billing($data);
-            echo json_encode(['status' => 'success', 'message' => 'Billing item updated successfully!']);
+            $response = array('status' => 'success', 'message' => 'Billing item updated successfully!');
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode($response));
+            return;
         }
     }
     public function delete_billing($id = NULL)
