@@ -34,6 +34,7 @@ $inactive_all = ($stats['inactive_providers'] ?? 0);
         display: flex;
         flex-direction: column;
         height: 100%;
+        cursor: pointer;
     }
     .stat-box:hover {
         box-shadow: 0 5px 15px rgba(0,0,0,0.08);
@@ -101,6 +102,16 @@ $inactive_all = ($stats['inactive_providers'] ?? 0);
         flex: 1;
         text-align: center;
         border: 1px solid #eee;
+        transition: all 0.2s;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .mini-pill:hover {
+        background: #e9ecef;
+        border-color: #ddd;
+        color: #212529;
     }
     .mini-pill i { margin-right: 3px; opacity: 0.7; }
 
@@ -162,7 +173,7 @@ $inactive_all = ($stats['inactive_providers'] ?? 0);
 
 <div class="five-column-grid">
     
-    <div class="stat-box">
+    <div class="stat-box" onclick="location.href='<?= base_url('admin/server_management/hosting') ?>'">
         <div class="stat-main">
             <div class="stat-icon-wrapper bg-light-blue"><i class="fa fa-cubes"></i></div>
             <div class="stat-info">
@@ -171,13 +182,13 @@ $inactive_all = ($stats['inactive_providers'] ?? 0);
             </div>
         </div>
         <div class="stat-breakdown">
-            <div class="mini-pill"><i class="fa fa-server text-info"></i> <?= $stats['total_hostings'] ?? 0 ?> Host</div>
-            <div class="mini-pill"><i class="fa fa-globe text-info"></i> <?= $stats['total_domains'] ?? 0 ?> Dom</div>
-            <div class="mini-pill"><i class="fa fa-briefcase text-info"></i> <?= $stats['total_providers'] ?? 0 ?> Prov</div>
+            <div class="mini-pill" onclick="event.stopPropagation(); location.href='<?= base_url('admin/server_management/hosting') ?>'"><i class="fa fa-server text-info"></i> <?= $stats['total_hostings'] ?? 0 ?> Host</div>
+            <div class="mini-pill" onclick="event.stopPropagation(); location.href='<?= base_url('admin/server_management/domain') ?>'"><i class="fa fa-globe text-info"></i> <?= $stats['total_domains'] ?? 0 ?> Dom</div>
+            <div class="mini-pill" onclick="event.stopPropagation(); location.href='<?= base_url('admin/server_management/provider') ?>'"><i class="fa fa-briefcase text-info"></i> <?= $stats['total_providers'] ?? 0 ?> Prov</div>
         </div>
     </div>
     
-    <div class="stat-box">
+    <div class="stat-box" onclick="location.href='<?= base_url('admin/server_management/hosting?status=Active') ?>'">
         <div class="stat-main">
             <div class="stat-icon-wrapper bg-light-green"><i class="fa fa-check-circle"></i></div>
             <div class="stat-info">
@@ -186,13 +197,13 @@ $inactive_all = ($stats['inactive_providers'] ?? 0);
             </div>
         </div>
         <div class="stat-breakdown">
-            <div class="mini-pill"><i class="fa fa-server text-success"></i> <?= $stats['active_hostings'] ?? 0 ?> Host</div>
-            <div class="mini-pill"><i class="fa fa-globe text-success"></i> <?= $stats['active_domains'] ?? 0 ?> Dom</div>
-            <div class="mini-pill"><i class="fa fa-briefcase text-success"></i> <?= $stats['active_providers'] ?? 0 ?> Prov</div>
+            <div class="mini-pill" onclick="event.stopPropagation(); location.href='<?= base_url('admin/server_management/hosting?status=Active') ?>'"><i class="fa fa-server text-success"></i> <?= $stats['active_hostings'] ?? 0 ?> Host</div>
+            <div class="mini-pill" onclick="event.stopPropagation(); location.href='<?= base_url('admin/server_management/domain?status=Active') ?>'"><i class="fa fa-globe text-success"></i> <?= $stats['active_domains'] ?? 0 ?> Dom</div>
+            <div class="mini-pill" onclick="event.stopPropagation(); location.href='<?= base_url('admin/server_management/provider?status=Active') ?>'"><i class="fa fa-briefcase text-success"></i> <?= $stats['active_providers'] ?? 0 ?> Prov</div>
         </div>
     </div>
     
-    <div class="stat-box">
+    <div class="stat-box" onclick="location.href='<?= base_url('admin/server_management/hosting?status=Pending') ?>'">
         <div class="stat-main">
             <div class="stat-icon-wrapper bg-light-yellow"><i class="fa fa-clock-o"></i></div>
             <div class="stat-info">
@@ -201,12 +212,12 @@ $inactive_all = ($stats['inactive_providers'] ?? 0);
             </div>
         </div>
         <div class="stat-breakdown">
-            <div class="mini-pill"><i class="fa fa-server text-warning"></i> <?= $stats['pending_hostings'] ?? 0 ?> Host</div>
-            <div class="mini-pill"><i class="fa fa-globe text-warning"></i> <?= $stats['pending_domains'] ?? 0 ?> Dom</div>
+            <div class="mini-pill" onclick="event.stopPropagation(); location.href='<?= base_url('admin/server_management/hosting?status=Pending') ?>'"><i class="fa fa-server text-warning"></i> <?= $stats['pending_hostings'] ?? 0 ?> Host</div>
+            <div class="mini-pill" onclick="event.stopPropagation(); location.href='<?= base_url('admin/server_management/domain?status=Pending') ?>'"><i class="fa fa-globe text-warning"></i> <?= $stats['pending_domains'] ?? 0 ?> Dom</div>
         </div>
     </div>
     
-    <div class="stat-box" style="border-top: 3px solid #fd7e14;">
+    <div class="stat-box" style="border-top: 3px solid #fd7e14;" onclick="location.href='<?= base_url('admin/server_management/hosting?status=Expiring') ?>'">
         <div class="stat-main">
             <div class="stat-icon-wrapper bg-light-orange"><i class="fa fa-exclamation-triangle"></i></div>
             <div class="stat-info">
@@ -215,12 +226,12 @@ $inactive_all = ($stats['inactive_providers'] ?? 0);
             </div>
         </div>
         <div class="stat-breakdown">
-            <div class="mini-pill"><i class="fa fa-server text-warning"></i> <?= $stats['expiring_hostings'] ?? 0 ?> Host</div>
-            <div class="mini-pill"><i class="fa fa-globe text-warning"></i> <?= $stats['expiring_domains'] ?? 0 ?> Dom</div>
+            <div class="mini-pill" onclick="event.stopPropagation(); location.href='<?= base_url('admin/server_management/hosting?status=Expiring') ?>'"><i class="fa fa-server text-warning"></i> <?= $stats['expiring_hostings'] ?? 0 ?> Host</div>
+            <div class="mini-pill" onclick="event.stopPropagation(); location.href='<?= base_url('admin/server_management/domain?status=Expiring') ?>'"><i class="fa fa-globe text-warning"></i> <?= $stats['expiring_domains'] ?? 0 ?> Dom</div>
         </div>
     </div>
     
-    <div class="stat-box" style="border-top: 3px solid #dc3545;">
+    <div class="stat-box" style="border-top: 3px solid #dc3545;" onclick="location.href='<?= base_url('admin/server_management/hosting?status=Expired') ?>'">
         <div class="stat-main">
             <div class="stat-icon-wrapper bg-light-red"><i class="fa fa-times-circle"></i></div>
             <div class="stat-info">
@@ -229,9 +240,9 @@ $inactive_all = ($stats['inactive_providers'] ?? 0);
             </div>
         </div>
         <div class="stat-breakdown">
-            <div class="mini-pill"><i class="fa fa-server text-danger"></i> <?= $stats['expired_hostings'] ?? 0 ?> Host</div>
-            <div class="mini-pill"><i class="fa fa-globe text-danger"></i> <?= $stats['expired_domains'] ?? 0 ?> Dom</div>
-            <div class="mini-pill"><i class="fa fa-briefcase text-danger"></i> <?= $stats['inactive_providers'] ?? 0 ?> Prov</div>
+            <div class="mini-pill" onclick="event.stopPropagation(); location.href='<?= base_url('admin/server_management/hosting?status=Expired') ?>'"><i class="fa fa-server text-danger"></i> <?= $stats['expired_hostings'] ?? 0 ?> Host</div>
+            <div class="mini-pill" onclick="event.stopPropagation(); location.href='<?= base_url('admin/server_management/domain?status=Expired') ?>'"><i class="fa fa-globe text-danger"></i> <?= $stats['expired_domains'] ?? 0 ?> Dom</div>
+            <div class="mini-pill" onclick="event.stopPropagation(); location.href='<?= base_url('admin/server_management/provider?status=Inactive') ?>'"><i class="fa fa-briefcase text-danger"></i> <?= $stats['inactive_providers'] ?? 0 ?> Prov</div>
         </div>
     </div>
 
