@@ -11,6 +11,7 @@ class Server_management extends Admin_Controller
         $this->load->model('provider_model');
         $this->load->model('domain_model');
         $this->load->model('hosting_model');
+        $this->load->model('billing_model');
 
 
         $method = $this->router->fetch_method();
@@ -20,6 +21,8 @@ class Server_management extends Admin_Controller
             $this->session->set_userdata('menu_active_id', array('111122222223', '1111222222232'));
         } elseif ($method == 'provider' || $method == 'add_provider') {
             $this->session->set_userdata('menu_active_id', array('111122222223', '1111222222234'));
+        } elseif ($method == 'billing' || $method == 'add_billing') {
+            $this->session->set_userdata('menu_active_id', array('111122222223', '11112222222341'));
         } else {
             $this->session->set_userdata('menu_active_id', array('111122222223', '1111222222231'));
         }
@@ -1451,6 +1454,62 @@ class Server_management extends Admin_Controller
         return;
     }
 
+
+    public function billing()
+    {
+        $data['title'] = lang('billing_order');
+        $data['all_billing'] = $this->billing_model->get_all_billing();
+        $data['subview'] = $this->load->view('admin/server_management/billing', $data, TRUE);
+        $this->load->view('admin/_layout_main', $data);
+    }
+
+    public function add_billing($id = NULL)
+    {
+        $data['title'] = lang('add_billing_item');
+        if ($this->input->post()) {
+            $id = $this->input->post('id', TRUE);
+            
+            $data_save = array(
+                'label'         => $this->input->post('label', TRUE),
+                'value'         => $this->input->post('value', TRUE),
+                'type'          => $this->input->post('type', TRUE),
+                'currency'      => $this->input->post('currency', TRUE),
+                'renewal_date'  => $this->input->post('renewal_date', TRUE),
+                'expiry_date'   => $this->input->post('expiry_date', TRUE),
+                'duration'      => $this->input->post('duration', TRUE),
+                'time_unit'     => $this->input->post('time_unit', TRUE),
+                'renew'         => $this->input->post('renew', TRUE),
+            );
+
+            if ($id) {
+                $data_save['updated_at'] = date('Y-m-d H:i:s');
+                $this->billing_model->save($data_save, $id);
+                set_message('success', 'Billing order updated successfully!');
+            } else {
+                $data_save['created_at'] = date('Y-m-d H:i:s');
+                $data_save['updated_at'] = date('Y-m-d H:i:s');
+                $this->billing_model->save($data_save);
+                set_message('success', 'Billing order added successfully!');
+            }
+            redirect('admin/server_management/billing');
+        } else {
+            if ($id) {
+                $data['billing_info'] = $this->billing_model->get($id, TRUE);
+            }
+            $data['currencies'] = $this->db->get('tbl_currencies')->result_array();
+            $data['subview'] = $this->load->view('admin/server_management/add_billing', $data, TRUE);
+            $this->load->view('admin/_layout_main', $data);
+        }
+    }
+
+    public function delete_billing($id)
+    {
+        if ($id) {
+            $this->billing_model->delete($id);
+            set_message('success', 'Billing order deleted successfully!');
+        }
+        redirect('admin/server_management/billing');
+    }
 
     private function create_renewal_task($module, $module_id, $module_name, $expiry_date, $permission = 'all')
     {

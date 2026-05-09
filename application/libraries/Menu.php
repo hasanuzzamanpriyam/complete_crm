@@ -97,6 +97,15 @@ class Menu
                     'sort' => '4',
                     'time' => date('Y-m-d h:i:s'),
                 ],
+                [
+                    'menu_id' => '11112222222341',
+                    'label' => 'billing_order',
+                    'link' => 'admin/server_management/billing',
+                    'icon' => 'fa fa-money',
+                    'parent' => '111122222223',
+                    'sort' => '5',
+                    'time' => date('Y-m-d h:i:s'),
+                ],
 
             ];
             $module_menu = json_decode(json_encode(array_merge($module, $server_management)));
