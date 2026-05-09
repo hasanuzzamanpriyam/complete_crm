@@ -1,15 +1,66 @@
 <?php echo message_box('success'); ?>
 <?php echo message_box('error'); ?>
 
+<link rel="stylesheet" href="<?= base_url() ?>assets/plugins/select2/dist/css/select2.min.css">
+<link rel="stylesheet" href="<?= base_url() ?>assets/plugins/select2/dist/css/select2-bootstrap.min.css">
+<script src="<?= base_url() ?>assets/plugins/select2/dist/js/select2.min.js"></script>
+
+<style>
+    /* ERP Style Redesign */
+    .erp-card { border: none; border-radius: 4px; box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important; background-color: #fff; margin-bottom: 20px; }
+    .erp-card .card-body { padding: 25px; }
+    
+    .erp-form label { font-size: 11px; font-weight: 600; color: #666; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.3px; display: block; }
+    .erp-form .form-control { border-radius: 2px; border: 1px solid #d2d6de; font-size: 13px; height: 34px; box-shadow: none; padding: 6px 10px; color: #333; transition: border-color .15s ease-in-out; width: 100%;}
+    .erp-form .form-control:focus { border-color: #3c8dbc; box-shadow: none; }
+    .erp-form textarea.form-control { height: auto; }
+    
+    .erp-form .input-group { display: flex; flex-wrap: nowrap; align-items: stretch; width: 100%; }
+    .erp-form .input-group > .form-control:not(select),
+    .erp-form .input-group .select2-container { flex: 1 1 auto; width: 1% !important; margin-bottom: 0; }
+    
+    .erp-form .input-group > .form-control,
+    .erp-form .input-group > select.form-control:not(.select2-hidden-accessible),
+    .erp-form .input-group .select2-container--bootstrap .select2-selection { border-radius: 2px 0 0 2px; border-right: none; }
+
+    .erp-form .input-group-append { display: flex; margin-left: 0; }
+    
+    .erp-form .input-group-append .btn.quick-add-btn {
+        border-radius: 0 2px 2px 0;
+        height: 34px;
+        background-color: #f4f4f4;
+        border: 1px solid #d2d6de;
+        color: #555;
+        padding: 4px 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2;
+        transition: background-color 0.15s ease;
+    }
+    .erp-form .input-group-append .btn:hover { background-color: #e0e0e0; color: #333; }
+    
+    .erp-section-title { font-size: 12px; font-weight: bold; color: #333; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-top: 25px; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .erp-form .form-group { margin-bottom: 18px; }
+    
+    .erp-form .btn-success { background-color: #00a65a; border-color: #008d4c; font-size: 12px; font-weight: 600; padding: 8px 30px; border-radius: 2px; box-shadow: none; text-transform: uppercase; }
+    .erp-form .btn-success:hover { background-color: #008d4c; }
+    .erp-form .btn-cancel { font-size: 12px; font-weight: 500; padding: 8px 15px; color: #0073b7; background: transparent; border: none; text-decoration: none; margin-left: 10px; display: inline-block;}
+    .erp-form .btn-cancel:hover { text-decoration: underline; color: #005384; }
+
+    .select2-container--bootstrap .select2-selection { border-radius: 2px !important; border: 1px solid #d2d6de !important; height: 34px !important; }
+    .input-group .select2-container--bootstrap .select2-selection { border-radius: 2px 0 0 2px !important; border-right: none !important; }
+</style>
+
 <div class="row">
     <div class="col-md-12">
-        <div class="card shadow-sm">
+        <div class="card erp-card shadow-sm">
             <div class="card-body">
-                <form action="<?= base_url('admin/server_management/add_billing') ?>" method="post" class="form-horizontal">
+                <form action="<?= base_url('admin/server_management/add_billing') ?>" method="post" class="erp-form">
                     <input type="hidden" name="id" value="<?= !empty($billing_info->id) ? $billing_info->id : '' ?>">
 
-                    <!-- COMMON DETAILS -->
-                    <div class="row mb-3">
+                    <div class="erp-section-title" style="margin-top: 0;">General Information</div>
+                    <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label><?= lang('subject') ?>/Title <span class="text-danger">*</span></label>
@@ -19,44 +70,66 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label><?= lang('related') ?> <span class="text-danger">*</span></label>
-                                <select name="type" class="form-control select_box" style="width: 100%" required>
-                                    <option value="Domain" <?= (!empty($billing_info->type) && $billing_info->type == 'Domain') ? 'selected' : '' ?>>Domain</option>
-                                    <option value="Hosting" <?= (!empty($billing_info->type) && $billing_info->type == 'Hosting') ? 'selected' : '' ?>>Hosting</option>
-                                    <option value="SSL" <?= (!empty($billing_info->type) && $billing_info->type == 'SSL') ? 'selected' : '' ?>>SSL</option>
-                                    <option value="Other" <?= (!empty($billing_info->type) && $billing_info->type == 'Other') ? 'selected' : '' ?>>Other</option>
-                                </select>
+                                <div class="input-group">
+                                    <select name="type" class="form-control select_box" required>
+                                        <option value="">Select Type</option>
+                                        <?php if (!empty($billing_types)) foreach ($billing_types as $type): ?>
+                                            <option value="<?= $type['name'] ?>" <?= (!empty($billing_info->type) && $billing_info->type == $type['name']) ? 'selected' : '' ?>><?= $type['name'] ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn quick-add-btn" data-type="billing_type" data-url="<?= base_url('admin/ajax_api/add_billing_type') ?>" tabindex="-1">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label><?= lang('provider') ?>*</label>
-                                <select name="provider_id" class="form-control select_box" style="width: 100%">
-                                    <option value=""><?= lang('select_provider') ?></option>
-                                    <?php if (!empty($providers)) foreach ($providers as $provider): ?>
-                                        <option value="<?= $provider['id'] ?>" <?= (!empty($billing_info->provider_id) && $billing_info->provider_id == $provider['id']) ? 'selected' : '' ?>><?= $provider['provider_name'] ?></option>
-                                    <?php endforeach; ?>
-                                </select>
+                                <div class="input-group">
+                                    <select name="provider_id" class="form-control select_box">
+                                        <option value=""><?= lang('select_provider') ?></option>
+                                        <?php if (!empty($providers)) foreach ($providers as $provider): ?>
+                                            <option value="<?= $provider['id'] ?>" <?= (!empty($billing_info->provider_id) && $billing_info->provider_id == $provider['id']) ? 'selected' : '' ?>><?= $provider['provider_name'] ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn quick-add-btn" data-type="provider" data-url="<?= base_url('admin/server_management/add_provider') ?>" tabindex="-1">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Flag*</label>
-                                <select name="flag" class="form-control select_box" style="width: 100%">
-                                    <option value="None" <?= (!empty($billing_info->flag) && $billing_info->flag == 'None') ? 'selected' : '' ?>>None</option>
-                                    <option value="Flag 1" <?= (!empty($billing_info->flag) && $billing_info->flag == 'Flag 1') ? 'selected' : '' ?>>Flag 1</option>
-                                    <option value="Flag 2" <?= (!empty($billing_info->flag) && $billing_info->flag == 'Flag 2') ? 'selected' : '' ?>>Flag 2</option>
-                                </select>
+                                <div class="input-group">
+                                    <select name="flag" class="form-control select_box">
+                                        <option value="None">None</option>
+                                        <?php if (!empty($billing_flags)) foreach ($billing_flags as $flag): ?>
+                                            <?php if ($flag['name'] == 'None') continue; ?>
+                                            <option value="<?= $flag['name'] ?>" <?= (!empty($billing_info->flag) && $billing_info->flag == $flag['name']) ? 'selected' : '' ?>><?= $flag['name'] ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn quick-add-btn" data-type="billing_flag" data-url="<?= base_url('admin/ajax_api/add_billing_flag') ?>" tabindex="-1">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- CONTACTS & ADDRESS DETAILS -->
-                    <p class="text-muted text-uppercase mb-2" style="font-size: 11px; border-bottom: 1px solid #eee;">Contacts & Address Details</p>
-                    <div class="row mb-3">
+                    <div class="erp-section-title">Contacts & Address</div>
+                    <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label>Contact*</label>
-                                <select name="contact_id" class="form-control select_box" style="width: 100%">
+                                <label>Contact Person*</label>
+                                <select name="contact_id" class="form-control select_box">
                                     <option value=""><?= lang('select_contact') ?></option>
                                     <?php if (!empty($staff_members)) foreach ($staff_members as $user): ?>
                                         <option value="<?= $user->user_id ?>" <?= (!empty($billing_info->contact_id) && $billing_info->contact_id == $user->user_id) ? 'selected' : '' ?>><?= $user->username ?></option>
@@ -84,89 +157,77 @@
                         </div>
                     </div>
 
-                    <!-- DATES & BILLING PERIODS -->
-                    <p class="text-muted text-uppercase mb-2" style="font-size: 11px; border-bottom: 1px solid #eee;">Dates & Billing Periods</p>
-                    <div class="row mb-3">
+                    <div class="erp-section-title">Dates & Periods</div>
+                    <div class="row">
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Registration Date*</label>
-                                <div class="input-group">
-                                    <input type="text" name="registration_date" class="form-control datepicker" value="<?= !empty($billing_info->registration_date) ? $billing_info->registration_date : '' ?>">
-                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                </div>
-                            </div>
+                                <input type="date" name="registration_date" class="form-control" value="<?= !empty($billing_info->registration_date) ? $billing_info->registration_date : '' ?>">
+                        </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Buy Date*</label>
-                                <div class="input-group">
-                                    <input type="text" name="buy_date" class="form-control datepicker" value="<?= !empty($billing_info->buy_date) ? $billing_info->buy_date : '' ?>">
-                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                </div>
+                                <input type="date" name="buy_date" class="form-control" value="<?= !empty($billing_info->buy_date) ? $billing_info->buy_date : '' ?>">
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Duration*</label>
-                                <div class="row">
-                                    <div class="col-md-6 pr-0">
-                                        <input type="number" name="duration" class="form-control" value="<?= !empty($billing_info->duration) ? $billing_info->duration : '' ?>">
-                                    </div>
-                                    <div class="col-md-6 pl-0">
-                                        <select name="time_unit" class="form-control">
-                                            <option value="Days" <?= (!empty($billing_info->time_unit) && $billing_info->time_unit == 'Days') ? 'selected' : '' ?>>Days</option>
-                                            <option value="Months" <?= (!empty($billing_info->time_unit) && $billing_info->time_unit == 'Months') ? 'selected' : '' ?>>Months</option>
-                                            <option value="Years" <?= (!empty($billing_info->time_unit) && $billing_info->time_unit == 'Years') ? 'selected' : '' ?>>Years</option>
-                                        </select>
-                                    </div>
+                                <div class="input-group">
+                                    <input type="number" name="duration" class="form-control" style="width: 40% !important; flex: none !important;" value="<?= !empty($billing_info->duration) ? $billing_info->duration : '' ?>">
+                                    <select name="time_unit" class="form-control" style="border-left: none;">
+                                        <option value="Days" <?= (!empty($billing_info->time_unit) && $billing_info->time_unit == 'Days') ? 'selected' : '' ?>>Days</option>
+                                        <option value="Months" <?= (!empty($billing_info->time_unit) && $billing_info->time_unit == 'Months') ? 'selected' : '' ?>>Months</option>
+                                        <option value="Years" <?= (!empty($billing_info->time_unit) && $billing_info->time_unit == 'Years') ? 'selected' : '' ?>>Years</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Status*</label>
-                                <select name="status" class="form-control select_box" style="width: 100%">
-                                    <option value="Active" <?= (!empty($billing_info->status) && $billing_info->status == 'Active') ? 'selected' : '' ?>>Active</option>
-                                    <option value="Pending" <?= (!empty($billing_info->status) && $billing_info->status == 'Pending') ? 'selected' : '' ?>>Pending</option>
-                                    <option value="Expired" <?= (!empty($billing_info->status) && $billing_info->status == 'Expired') ? 'selected' : '' ?>>Expired</option>
-                                </select>
+                                <div class="input-group">
+                                    <select name="status" class="form-control select_box">
+                                        <?php if (!empty($billing_status_list)) foreach ($billing_status_list as $status): ?>
+                                            <option value="<?= $status['name'] ?>" <?= (!empty($billing_info->status) && $billing_info->status == $status['name']) ? 'selected' : '' ?>><?= $status['name'] ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn quick-add-btn" data-type="billing_status" data-url="<?= base_url('admin/ajax_api/add_billing_status') ?>" tabindex="-1">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Next Renew Date*</label>
-                                <div class="input-group">
-                                    <input type="text" name="renewal_date" class="form-control datepicker" value="<?= !empty($billing_info->renewal_date) ? $billing_info->renewal_date : '' ?>">
-                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                </div>
+                                <input type="date" name="renewal_date" class="form-control" value="<?= !empty($billing_info->renewal_date) ? $billing_info->renewal_date : '' ?>">
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Price</label>
-                                <div class="row">
-                                    <div class="col-md-7 pr-0">
-                                        <input type="number" step="0.01" name="value" class="form-control" value="<?= !empty($billing_info->value) ? $billing_info->value : '' ?>">
-                                    </div>
-                                    <div class="col-md-5 pl-0">
-                                        <select name="currency" class="form-control">
-                                            <?php foreach ($currencies as $currency): ?>
-                                                <option value="<?= $currency['code'] ?>" <?= (!empty($billing_info->currency) && $billing_info->currency == $currency['code']) ? 'selected' : '' ?>><?= $currency['code'] ?></option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </div>
+                                <div class="input-group">
+                                    <input type="number" step="0.01" name="value" class="form-control" style="width: 50% !important; flex: none !important;" value="<?= !empty($billing_info->value) ? $billing_info->value : '' ?>">
+                                    <select name="currency" class="form-control" style="border-left: none;">
+                                        <?php foreach ($currencies as $currency): ?>
+                                            <option value="<?= $currency['code'] ?>" <?= (!empty($billing_info->currency) && $billing_info->currency == $currency['code']) ? 'selected' : '' ?>><?= $currency['code'] ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- BILLING DETAILS -->
-                    <p class="text-muted text-uppercase mb-2" style="font-size: 11px; border-bottom: 1px solid #eee;">Billing Details</p>
-                    <div class="row mb-3">
+                    <div class="erp-section-title">Billing Details</div>
+                    <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Billing Cycle</label>
-                                <select name="billing_cycle" class="form-control select_box" style="width: 100%">
+                                <select name="billing_cycle" class="form-control select_box">
                                     <option value="One Time" <?= (!empty($billing_info->billing_cycle) && $billing_info->billing_cycle == 'One Time') ? 'selected' : '' ?>>One Time</option>
                                     <option value="Recurring" <?= (!empty($billing_info->billing_cycle) && $billing_info->billing_cycle == 'Recurring') ? 'selected' : '' ?>>Recurring</option>
                                 </select>
@@ -175,83 +236,123 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Last Billed Date</label>
-                                <div class="input-group">
-                                    <input type="text" name="last_billed_date" class="form-control datepicker" value="<?= !empty($billing_info->last_billed_date) ? $billing_info->last_billed_date : '' ?>">
-                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                </div>
+                                <input type="date" name="last_billed_date" class="form-control" value="<?= !empty($billing_info->last_billed_date) ? $billing_info->last_billed_date : '' ?>">
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Billing End Date</label>
-                                <div class="input-group">
-                                    <input type="text" name="billing_end_date" class="form-control datepicker" value="<?= !empty($billing_info->billing_end_date) ? $billing_info->billing_end_date : '' ?>">
-                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                </div>
+                                <input type="date" name="billing_end_date" class="form-control" value="<?= !empty($billing_info->billing_end_date) ? $billing_info->billing_end_date : '' ?>">
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Bill Status</label>
-                                <select name="bill_status" class="form-control select_box" style="width: 100%">
-                                    <option value="Billed" <?= (!empty($billing_info->bill_status) && $billing_info->bill_status == 'Billed') ? 'selected' : '' ?>>Billed</option>
-                                    <option value="Unbilled" <?= (!empty($billing_info->bill_status) && $billing_info->bill_status == 'Unbilled') ? 'selected' : '' ?>>Unbilled</option>
-                                </select>
+                                <div class="input-group">
+                                    <select name="bill_status" class="form-control select_box">
+                                        <?php if (!empty($billing_bill_status_list)) foreach ($billing_bill_status_list as $bs): ?>
+                                            <option value="<?= $bs['name'] ?>" <?= (!empty($billing_info->bill_status) && $billing_info->bill_status == $bs['name']) ? 'selected' : '' ?>><?= $bs['name'] ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn quick-add-btn" data-type="billing_bill_status" data-url="<?= base_url('admin/ajax_api/add_billing_bill_status') ?>" tabindex="-1">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- ASSIGNMENTS & RECURRING -->
-                    <p class="text-muted text-uppercase mb-2" style="font-size: 11px; border-bottom: 1px solid #eee;">Assignments & Recurring</p>
-                    <div class="row mb-3">
-                        <div class="col-md-4">
+                    <div class="erp-section-title">Assignments & Infrastructure</div>
+                    <div class="row">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label>Project</label>
-                                <select name="project_id" class="form-control select_box" style="width: 100%">
-                                    <option value=""><?= lang('select_project') ?></option>
-                                    <?php if (!empty($projects)) foreach ($projects as $project): ?>
-                                        <option value="<?= $project['project_id'] ?>" <?= (!empty($billing_info->project_id) && $billing_info->project_id == $project['project_id']) ? 'selected' : '' ?>><?= $project['project_name'] ?></option>
-                                    <?php endforeach; ?>
-                                </select>
+                                <div class="input-group">
+                                    <select name="project_id" class="form-control select_box">
+                                        <option value=""><?= lang('select_project') ?></option>
+                                        <?php if (!empty($projects)) foreach ($projects as $project): ?>
+                                            <option value="<?= $project['project_id'] ?>" <?= (!empty($billing_info->project_id) && $billing_info->project_id == $project['project_id']) ? 'selected' : '' ?>><?= $project['project_name'] ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn quick-add-btn" data-type="project" data-url="<?= base_url('admin/ajax_api/add_project') ?>" tabindex="-1">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label>Client</label>
-                                <select name="client_id" class="form-control select_box" style="width: 100%">
-                                    <option value=""><?= lang('select_client') ?></option>
-                                    <?php if (!empty($clients)) foreach ($clients as $client): ?>
-                                        <option value="<?= $client['client_id'] ?>" <?= (!empty($billing_info->client_id) && $billing_info->client_id == $client['client_id']) ? 'selected' : '' ?>><?= $client['name'] ?></option>
-                                    <?php endforeach; ?>
-                                </select>
+                                <div class="input-group">
+                                    <select name="client_id" class="form-control select_box">
+                                        <option value=""><?= lang('select_client') ?></option>
+                                        <?php if (!empty($clients)) foreach ($clients as $client): ?>
+                                            <option value="<?= $client['client_id'] ?>" <?= (!empty($billing_info->client_id) && $billing_info->client_id == $client['client_id']) ? 'selected' : '' ?>><?= $client['name'] ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn quick-add-btn" data-type="client" data-url="<?= base_url('admin/ajax_api/add_client') ?>" tabindex="-1">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Store Name</label>
+                                <div class="input-group">
+                                    <select name="store_id" class="form-control select_box">
+                                        <option value="">Select Store</option>
+                                        <?php if (!empty($stores)) foreach ($stores as $store): ?>
+                                            <option value="<?= $store['store_id'] ?>" <?= (!empty($billing_info->store_id) && $billing_info->store_id == $store['store_id']) ? 'selected' : '' ?>><?= $store['store_name'] ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn quick-add-btn" data-type="store" data-url="<?= base_url('admin/ajax_api/add_store') ?>" tabindex="-1">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Manage</label>
+                                <div class="input-group">
+                                    <select name="manage" class="form-control select_box">
+                                        <?php if (!empty($billing_manage_list)) foreach ($billing_manage_list as $m): ?>
+                                            <option value="<?= $m['name'] ?>" <?= (!empty($billing_info->manage) && $billing_info->manage == $m['name']) ? 'selected' : '' ?>><?= $m['name'] ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn quick-add-btn" data-type="billing_manage" data-url="<?= base_url('admin/ajax_api/add_billing_manage') ?>" tabindex="-1">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label>Server Details</label>
                                 <input type="text" name="server_details" class="form-control" value="<?= !empty($billing_info->server_details) ? $billing_info->server_details : '' ?>">
                             </div>
                         </div>
-                    </div>
-
-                    <!-- LOGIN DETAILS -->
-                    <div class="row mb-3">
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>Manage</label>
-                                <select name="manage" class="form-control">
-                                    <option value="Internal" <?= (!empty($billing_info->manage) && $billing_info->manage == 'Internal') ? 'selected' : '' ?>>Internal</option>
-                                    <option value="Client" <?= (!empty($billing_info->manage) && $billing_info->manage == 'Client') ? 'selected' : '' ?>>Client</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label>Login Details</label>
-                                <input type="text" name="login_details" class="form-control" value="<?= !empty($billing_info->login_details) ? $billing_info->login_details : '' ?>">
+                                <textarea name="login_details" class="form-control" rows="2"><?= !empty($billing_info->login_details) ? $billing_info->login_details : '' ?></textarea>
                             </div>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-1">
                             <div class="form-group">
                                 <label>Port</label>
                                 <input type="text" name="port" class="form-control" value="<?= !empty($billing_info->port) ? $billing_info->port : '' ?>">
@@ -259,33 +360,28 @@
                         </div>
                         <div class="col-md-2">
                             <div class="form-group pt-4">
-                                <label class="checkbox-inline">
-                                    <input type="checkbox" name="secure_protocol" value="1" <?= (!empty($billing_info->secure_protocol) && $billing_info->secure_protocol == 1) ? 'checked' : '' ?>> Secure Protocol
+                                <label class="checkbox-inline" style="text-transform: none; font-weight: normal;">
+                                    <input type="checkbox" name="secure_protocol" value="1" <?= (!empty($billing_info->secure_protocol) && $billing_info->secure_protocol == 1) ? 'checked' : '' ?>> Secure
                                 </label>
                             </div>
                         </div>
                     </div>
 
-                    <!-- NOTIFICATION SETTINGS -->
-                    <p class="text-muted text-uppercase mb-2" style="font-size: 11px; border-bottom: 1px solid #eee;">Notification Settings</p>
-                    <div class="row mb-3">
+                    <div class="erp-section-title">Notification & Tags</div>
+                    <div class="row">
                         <div class="col-md-6">
-                            <div class="checkbox">
-                                <label>
+                            <div class="checkbox" style="margin-bottom: 10px;">
+                                <label style="text-transform: none; font-weight: normal;">
                                     <input type="checkbox" name="enable_expiry_notification" value="1" <?= (!empty($billing_info->enable_expiry_notification) && $billing_info->enable_expiry_notification == 1) ? 'checked' : '' ?>> Enable Expiry Notification
                                 </label>
                             </div>
                             <div class="checkbox">
-                                <label>
+                                <label style="text-transform: none; font-weight: normal;">
                                     <input type="checkbox" name="enable_reminders_weekend" value="1" <?= (!empty($billing_info->enable_reminders_weekend) && $billing_info->enable_reminders_weekend == 1) ? 'checked' : '' ?>> Enable Reminders for Weekend
                                 </label>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- CUSTOM FIELDS -->
-                    <div class="row mb-3">
-                        <div class="col-md-12">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label>Server Tags</label>
                                 <input type="text" name="server_tags" class="form-control" value="<?= !empty($billing_info->server_tags) ? $billing_info->server_tags : '' ?>" placeholder="Tag1, Tag2">
@@ -293,19 +389,20 @@
                         </div>
                     </div>
 
-                    <!-- DESCRIPTION -->
-                    <div class="row mb-3">
+                    <div class="erp-section-title">Description</div>
+                    <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label>Description</label>
                                 <textarea name="description" class="form-control" rows="3"><?= !empty($billing_info->description) ? $billing_info->description : '' ?></textarea>
                             </div>
                         </div>
                     </div>
 
-                    <div class="card-footer bg-light pl0">
-                        <button type="submit" class="btn btn-success">SAVE</button>
-                        <a href="<?= base_url('admin/server_management/billing') ?>" class="btn btn-default">Cancel</a>
+                    <div class="row mt-4 mb-4">
+                        <div class="col-md-12 text-left">
+                            <button type="submit" class="btn btn-success">SAVE BILLING</button>
+                            <a href="<?= base_url('admin/server_management/billing') ?>" class="btn-cancel">Cancel</a>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -313,12 +410,69 @@
     </div>
 </div>
 
+<!-- Modal Structure -->
+<div class="modal fade" id="universalQuickAddModal" tabindex="-1" role="dialog" aria-labelledby="universalQuickAddModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content" style="border-radius: 4px;">
+            <div class="modal-header" style="background-color: #f8f9fa; border-bottom: 1px solid #dee2e6;">
+                <h5 class="modal-title" id="universalQuickAddModalLabel" style="font-size: 14px; font-weight: bold; color: #333; text-transform: uppercase;">Add New</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center" id="modalLoader">
+                    <i class="fa fa-spinner fa-spin fa-2x"></i> Loading...
+                </div>
+            </div>
+            <div class="modal-footer" style="border-top: 1px solid #dee2e6; background-color: #f8f9fa;">
+                <button type="button" class="btn btn-default" data-dismiss="modal" style="font-size: 12px; font-weight: 600;">Close</button>
+                <button type="button" class="btn btn-primary" id="universalModalSubmitBtn" style="font-size: 12px; font-weight: 600; background-color: #3c8dbc; border-color: #367fa9;">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script type="text/javascript">
     $(document).ready(function() {
-        $('.datepicker').datepicker({
-            format: 'yyyy-mm-dd',
-            autoclose: true
+        $('.select_box').select2({
+            theme: 'bootstrap',
+            width: '100%'
         });
-        $('.select_box').select2();
+
+        // Quick Add Modal Logic
+        var currentTargetSelect = null;
+        var csrfHash = '<?= $this->security->get_csrf_hash() ?>';
+
+        $('.quick-add-btn').on('click', function() {
+            var url = $(this).data('url');
+            currentTargetSelect = $(this).closest('.form-group').find('select');
+            
+            $('#modalLoader').show();
+            $('#universalQuickAddModal .modal-body').html('<div class="text-center" id="modalLoader"><i class="fa fa-spinner fa-spin fa-2x"></i> Loading...</div>');
+            $('#universalQuickAddModal').modal('show');
+
+            $.get(url, function(data) {
+                $('#universalQuickAddModal .modal-body').html(data);
+            }).fail(function() {
+                $('#universalQuickAddModal .modal-body').html('<div class="alert alert-danger">Error loading content. Please try again.</div>');
+            });
+        });
+
+        $('#universalModalSubmitBtn').on('click', function() {
+            var form = $('#universalQuickAddModal form');
+            var url = form.attr('action');
+            var formData = form.serialize();
+
+            $.post(url, formData, function(response) {
+                if (response.status === 'success') {
+                    var newOption = new Option(response.text, response.id, true, true);
+                    currentTargetSelect.append(newOption).trigger('change');
+                    $('#universalQuickAddModal').modal('hide');
+                } else {
+                    alert(response.message || 'An error occurred');
+                }
+            }, 'json');
+        });
     });
 </script>

@@ -1,5 +1,5 @@
 <?php
-class Ajax_api extends CI_Controller {
+class Ajax_api extends Admin_Controller {
     public function __construct() {
         parent::__construct();
     }
@@ -217,6 +217,120 @@ class Ajax_api extends CI_Controller {
         }
 
         $this->load->view('admin/server_management/add_currency');
+    }
+
+    public function add_billing_type() {
+        if (!$this->input->post()) {
+            $this->load->view('admin/server_management/add_billing_type');
+            return;
+        }
+        $name = $this->input->post('name', TRUE);
+        if ($name) {
+            $data = array('name' => $name, 'created_at' => date('Y-m-d H:i:s'));
+            if ($this->db->insert('tbl_billing_types', $data)) {
+                $response = array('status' => 'success', 'id' => $name, 'text' => $name);
+            } else {
+                $response = array('status' => 'error', 'message' => 'Database error');
+            }
+        } else {
+            $response = array('status' => 'error', 'message' => 'Invalid input');
+        }
+        $this->output->set_content_type('application/json')->set_output(json_encode($response));
+    }
+
+    public function add_billing_flag() {
+        if (!$this->input->post()) {
+            $this->load->view('admin/server_management/add_billing_flag');
+            return;
+        }
+        $name = $this->input->post('name', TRUE);
+        if ($name) {
+            $data = array('name' => $name, 'created_at' => date('Y-m-d H:i:s'));
+            if ($this->db->insert('tbl_billing_flags', $data)) {
+                $response = array('status' => 'success', 'id' => $name, 'text' => $name);
+            } else {
+                $response = array('status' => 'error', 'message' => 'Database error');
+            }
+        } else {
+            $response = array('status' => 'error', 'message' => 'Invalid input');
+        }
+        $this->output->set_content_type('application/json')->set_output(json_encode($response));
+    }
+
+    public function add_billing_status() {
+        if (!$this->input->post()) {
+            $this->load->view('admin/server_management/add_billing_status');
+            return;
+        }
+        $name = $this->input->post('name', TRUE);
+        if ($name) {
+            $data = array('name' => $name, 'created_at' => date('Y-m-d H:i:s'));
+            if ($this->db->insert('tbl_billing_status', $data)) {
+                $response = array('status' => 'success', 'id' => $name, 'text' => $name);
+            } else {
+                $response = array('status' => 'error', 'message' => 'Database error');
+            }
+        } else {
+            $response = array('status' => 'error', 'message' => 'Invalid input');
+        }
+        $this->output->set_content_type('application/json')->set_output(json_encode($response));
+    }
+
+    public function add_billing_bill_status() {
+        if (!$this->input->post()) {
+            $this->load->view('admin/server_management/add_billing_bill_status');
+            return;
+        }
+        $name = $this->input->post('name', TRUE);
+        if ($name) {
+            $data = array('name' => $name, 'created_at' => date('Y-m-d H:i:s'));
+            if ($this->db->insert('tbl_billing_bill_status', $data)) {
+                $response = array('status' => 'success', 'id' => $name, 'text' => $name);
+            } else {
+                $response = array('status' => 'error', 'message' => 'Database error');
+            }
+        } else {
+            $response = array('status' => 'error', 'message' => 'Invalid input');
+        }
+        $this->output->set_content_type('application/json')->set_output(json_encode($response));
+    }
+
+    public function add_billing_manage() {
+        if (!$this->input->post()) {
+            $this->load->view('admin/server_management/add_billing_manage');
+            return;
+        }
+        $name = $this->input->post('name', TRUE);
+        if ($name) {
+            $data = array('name' => $name, 'created_at' => date('Y-m-d H:i:s'));
+            if ($this->db->insert('tbl_billing_manage', $data)) {
+                $response = array('status' => 'success', 'id' => $name, 'text' => $name);
+            } else {
+                $response = array('status' => 'error', 'message' => 'Database error');
+            }
+        } else {
+            $response = array('status' => 'error', 'message' => 'Invalid input');
+        }
+        $this->output->set_content_type('application/json')->set_output(json_encode($response));
+    }
+
+    public function add_store() {
+        if (!$this->input->post()) {
+            $this->load->view('admin/server_management/add_store');
+            return;
+        }
+        $name = $this->input->post('store_name', TRUE);
+        if ($name) {
+            $data = array('store_name' => $name, 'date_created' => date('Y-m-d H:i:s'));
+            if ($this->db->insert('tbl_woocommerce_stores', $data)) {
+                $response = array('status' => 'success', 'id' => $this->db->insert_id(), 'text' => $name);
+            } else {
+                $response = array('status' => 'error', 'message' => 'Database error');
+            }
+        } else {
+            $response = array('status' => 'error', 'message' => 'Invalid input');
+        }
+        $this->output->set_content_type('application/json')->set_output(json_encode($response));
     }
 }
 ?>

@@ -1492,6 +1492,7 @@ class Server_management extends Admin_Controller
                 'bill_status'                   => $this->input->post('bill_status', TRUE),
                 'project_id'                    => is_array($this->input->post('project_id')) ? implode(',', $this->input->post('project_id')) : $this->input->post('project_id', TRUE),
                 'client_id'                     => is_array($this->input->post('client_id')) ? implode(',', $this->input->post('client_id')) : $this->input->post('client_id', TRUE),
+                'store_id'                      => $this->input->post('store_id', TRUE),
                 'server_details'                => $this->input->post('server_details', TRUE),
                 'manage'                        => $this->input->post('manage', TRUE),
                 'login_details'                 => $this->input->post('login_details', TRUE),
@@ -1524,6 +1525,14 @@ class Server_management extends Admin_Controller
             $data['clients'] = $this->hosting_model->get_all_clients();
             $data['projects'] = $this->hosting_model->get_all_projects();
             $data['staff_members'] = $this->db->where('activated', 1)->get('tbl_users')->result();
+            
+            // New dynamic options
+            $data['billing_types'] = $this->db->get('tbl_billing_types')->result_array();
+            $data['billing_flags'] = $this->db->get('tbl_billing_flags')->result_array();
+            $data['billing_status_list'] = $this->db->get('tbl_billing_status')->result_array();
+            $data['billing_bill_status_list'] = $this->db->get('tbl_billing_bill_status')->result_array();
+            $data['billing_manage_list'] = $this->db->get('tbl_billing_manage')->result_array();
+            $data['stores'] = $this->db->get('tbl_woocommerce_stores')->result_array();
             
             $data['subview'] = $this->load->view('admin/server_management/add_billing', $data, TRUE);
             $this->load->view('admin/_layout_main', $data);
