@@ -1470,15 +1470,38 @@ class Server_management extends Admin_Controller
             $id = $this->input->post('id', TRUE);
             
             $data_save = array(
-                'label'         => $this->input->post('label', TRUE),
-                'value'         => $this->input->post('value', TRUE),
-                'type'          => $this->input->post('type', TRUE),
-                'currency'      => $this->input->post('currency', TRUE),
-                'renewal_date'  => $this->input->post('renewal_date', TRUE),
-                'expiry_date'   => $this->input->post('expiry_date', TRUE),
-                'duration'      => $this->input->post('duration', TRUE),
-                'time_unit'     => $this->input->post('time_unit', TRUE),
-                'renew'         => $this->input->post('renew', TRUE),
+                'label'                         => $this->input->post('label', TRUE),
+                'type'                          => $this->input->post('type', TRUE),
+                'provider_id'                   => $this->input->post('provider_id', TRUE),
+                'flag'                          => $this->input->post('flag', TRUE),
+                'contact_id'                    => $this->input->post('contact_id', TRUE),
+                'address'                       => $this->input->post('address', TRUE),
+                'contact_phone'                 => $this->input->post('contact_phone', TRUE),
+                'contact_email'                 => $this->input->post('contact_email', TRUE),
+                'registration_date'             => $this->input->post('registration_date', TRUE),
+                'buy_date'                      => $this->input->post('buy_date', TRUE),
+                'duration'                      => $this->input->post('duration', TRUE),
+                'time_unit'                     => $this->input->post('time_unit', TRUE),
+                'status'                        => $this->input->post('status', TRUE),
+                'renewal_date'                  => $this->input->post('renewal_date', TRUE),
+                'value'                         => $this->input->post('value', TRUE),
+                'currency'                      => $this->input->post('currency', TRUE),
+                'billing_cycle'                 => $this->input->post('billing_cycle', TRUE),
+                'last_billed_date'              => $this->input->post('last_billed_date', TRUE),
+                'billing_end_date'              => $this->input->post('billing_end_date', TRUE),
+                'bill_status'                   => $this->input->post('bill_status', TRUE),
+                'project_id'                    => is_array($this->input->post('project_id')) ? implode(',', $this->input->post('project_id')) : $this->input->post('project_id', TRUE),
+                'client_id'                     => is_array($this->input->post('client_id')) ? implode(',', $this->input->post('client_id')) : $this->input->post('client_id', TRUE),
+                'server_details'                => $this->input->post('server_details', TRUE),
+                'manage'                        => $this->input->post('manage', TRUE),
+                'login_details'                 => $this->input->post('login_details', TRUE),
+                'port'                          => $this->input->post('port', TRUE),
+                'secure_protocol'               => $this->input->post('secure_protocol') ? 1 : 0,
+                'enable_expiry_notification'    => $this->input->post('enable_expiry_notification') ? 1 : 0,
+                'enable_reminders_weekend'      => $this->input->post('enable_reminders_weekend') ? 1 : 0,
+                'server_tags'                   => $this->input->post('server_tags', TRUE),
+                'description'                   => $this->input->post('description', TRUE),
+                'renew'                         => $this->input->post('renew', TRUE),
             );
 
             if ($id) {
@@ -1497,9 +1520,20 @@ class Server_management extends Admin_Controller
                 $data['billing_info'] = $this->billing_model->get($id, TRUE);
             }
             $data['currencies'] = $this->db->get('tbl_currencies')->result_array();
+            $data['providers'] = $this->hosting_model->get_all_providers();
+            $data['clients'] = $this->hosting_model->get_all_clients();
+            $data['projects'] = $this->hosting_model->get_all_projects();
+            $data['staff_members'] = $this->db->where('activated', 1)->get('tbl_users')->result();
+            
             $data['subview'] = $this->load->view('admin/server_management/add_billing', $data, TRUE);
             $this->load->view('admin/_layout_main', $data);
         }
+    }
+
+    public function view_billing($id)
+    {
+        $data['billing_info'] = $this->billing_model->get_billing_info($id);
+        $this->load->view('admin/server_management/view_billing', $data);
     }
 
     public function delete_billing($id)

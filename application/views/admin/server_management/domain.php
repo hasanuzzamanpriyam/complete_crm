@@ -132,11 +132,12 @@
         content: "\f0dd";
         opacity: 1;
     }
+
     @media (min-width: 992px) {
-    .col-md-2 {
-        padding-left: 7%;
+        .col-md-2 {
+            padding-left: 7%;
+        }
     }
-}
 </style>
 
 <div class="row mb-lg">
@@ -145,49 +146,49 @@
             <div class="card-body">
 
                 <form id="filterForm" method="GET" action="<?= base_url('admin/server_management/domain') ?>">
-                <div class="row mb-4 align-items-end">
-                    <div class="col-md-3">
-                        <label class="text-muted small mb-1">Expiry Period</label>
-                        <div class="input-group">
-                            <input type="date" name="start_date" id="start_date" class="form-control form-control-sm" value="<?= $filters['start_date'] ?>">
-                            <span class="input-group-addon" style="padding: 4px 8px; background: #eee; border: 1px solid #ccc; border-left: none; border-right: none;"><i class="fa fa-minus text-muted" style="font-size:10px;"></i></span>
-                            <input type="date" name="end_date" id="end_date" class="form-control form-control-sm" value="<?= $filters['end_date'] ?>">
+                    <div class="row mb-4 align-items-end">
+                        <div class="col-md-3">
+                            <label class="text-muted small mb-1">Expiry Period</label>
+                            <div class="input-group">
+                                <input type="date" name="start_date" id="start_date" class="form-control form-control-sm" value="<?= $filters['start_date'] ?>">
+                                <span class="input-group-addon" style="padding: 4px 8px; background: #eee; border: 1px solid #ccc; border-left: none; border-right: none;"><i class="fa fa-minus text-muted" style="font-size:10px;"></i></span>
+                                <input type="date" name="end_date" id="end_date" class="form-control form-control-sm" value="<?= $filters['end_date'] ?>">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="text-muted small mb-1">Status</label>
+                            <select name="status" id="filter_status" class="form-control form-control-sm">
+                                <option value="All" <?= $filters['status'] == 'All' ? 'selected' : '' ?>>All Status</option>
+                                <?php if (!empty($domain_statuses)): ?>
+                                    <?php foreach ($domain_statuses as $status): ?>
+                                        <option value="<?= htmlspecialchars($status['status_name']) ?>" <?= $filters['status'] == $status['status_name'] ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($status['status_name']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="text-muted small mb-1">Provider</label>
+                            <select name="provider_id" id="filter_provider" class="form-control form-control-sm">
+                                <option value="All" <?= $filters['provider_id'] == 'All' ? 'selected' : '' ?>>All Providers</option>
+                                <?php if (!empty($providers)): ?>
+                                    <?php foreach ($providers as $provider): ?>
+                                        <option value="<?= $provider['id'] ?>" <?= $filters['provider_id'] == $provider['id'] ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($provider['provider_name']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="text-muted small mb-1">&nbsp;</label>
+                            <div class="input-group">
+                                <input type="text" name="search" id="customSearch" class="form-control form-control-sm" value="<?= htmlspecialchars($filters['search']) ?>" placeholder="Start typing to search domains...">
+                                <span class="input-group-addon" style="padding: 4px 10px; background: #fff;"><button type="submit" style="border:none; background:none; padding:0;"><i class="fa fa-search text-muted"></i></button></span>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-2">
-                        <label class="text-muted small mb-1">Status</label>
-                        <select name="status" id="filter_status" class="form-control form-control-sm">
-                            <option value="All" <?= $filters['status'] == 'All' ? 'selected' : '' ?>>All Status</option>
-                            <?php if (!empty($domain_statuses)): ?>
-                                <?php foreach ($domain_statuses as $status): ?>
-                                    <option value="<?= htmlspecialchars($status['status_name']) ?>" <?= $filters['status'] == $status['status_name'] ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($status['status_name']) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="text-muted small mb-1">Provider</label>
-                        <select name="provider_id" id="filter_provider" class="form-control form-control-sm">
-                            <option value="All" <?= $filters['provider_id'] == 'All' ? 'selected' : '' ?>>All Providers</option>
-                            <?php if (!empty($providers)): ?>
-                                <?php foreach ($providers as $provider): ?>
-                                    <option value="<?= $provider['id'] ?>" <?= $filters['provider_id'] == $provider['id'] ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($provider['provider_name']) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </select>
-                    </div>
-                    <div class="col-md-5">
-                        <label class="text-muted small mb-1">&nbsp;</label>
-                        <div class="input-group">
-                            <input type="text" name="search" id="customSearch" class="form-control form-control-sm" value="<?= htmlspecialchars($filters['search']) ?>" placeholder="Start typing to search domains...">
-                            <span class="input-group-addon" style="padding: 4px 10px; background: #fff;"><button type="submit" style="border:none; background:none; padding:0;"><i class="fa fa-search text-muted"></i></button></span>
-                        </div>
-                    </div>
-                </div>
                 </form>
 
                 <div class="row mb-3 align-items-center">
@@ -239,7 +240,7 @@
                                             <?php
                                             $badge_class = '';
                                             $current_status = $domain['status'];
-                                            
+
                                             // Fallback/Safety: Force Expired status in view if date has passed
                                             if ($domain['days_remaining'] < 0) {
                                                 $current_status = 'Expired';
@@ -283,26 +284,26 @@
                                         </td>
                                         <td class="text-center">
                                             <div class="btn-group">
-                                                <a href="<?= base_url('admin/server_management/view_domain/' . $domain['id']) ?>" 
-                                                   class="btn-action view-domain" 
-                                                   data-id="<?= $domain['id'] ?>" 
-                                                   title="View Details">
+                                                <a href="<?= base_url('admin/server_management/view_domain/' . $domain['id']) ?>"
+                                                    class="btn-action view-domain"
+                                                    data-id="<?= $domain['id'] ?>"
+                                                    title="View Details">
                                                     <i class="fa fa-eye"></i>
                                                 </a>
                                                 <a href="<?= base_url('admin/server_management/add_domain/' . $domain['id']) ?>" class="btn-action <?= !empty($domain['is_locked']) ? 'disabled' : '' ?>" title="<?= !empty($domain['is_locked']) ? 'Locked' : 'Edit' ?>"><i class="fa fa-pencil-square-o"></i></a>
-                                                
-                                                <a href="javascript:void(0)" 
-                                                   class="btn-action toggle-lock" 
-                                                   data-id="<?= $domain['id'] ?>" 
-                                                   data-status="<?= !empty($domain['is_locked']) ? 1 : 0 ?>"
-                                                   title="<?= !empty($domain['is_locked']) ? 'Unlock Domain' : 'Lock Domain' ?>">
+
+                                                <a href="javascript:void(0)"
+                                                    class="btn-action toggle-lock"
+                                                    data-id="<?= $domain['id'] ?>"
+                                                    data-status="<?= !empty($domain['is_locked']) ? 1 : 0 ?>"
+                                                    title="<?= !empty($domain['is_locked']) ? 'Unlock Domain' : 'Lock Domain' ?>">
                                                     <i class="fa <?= !empty($domain['is_locked']) ? 'fa-lock text-danger' : 'fa-unlock text-success' ?>"></i>
                                                 </a>
 
-                                                <a href="<?= base_url('admin/server_management/delete_domain/' . $domain['id']) ?>" 
-                                                   class="btn-action text-danger <?= !empty($domain['is_locked']) ? 'disabled' : '' ?>" 
-                                                   title="<?= !empty($domain['is_locked']) ? 'Locked' : 'Delete' ?>" 
-                                                   onclick="<?= !empty($domain['is_locked']) ? 'return false;' : "return confirm('Are you sure you want to delete this domain?')" ?>">
+                                                <a href="<?= base_url('admin/server_management/delete_domain/' . $domain['id']) ?>"
+                                                    class="btn-action text-danger <?= !empty($domain['is_locked']) ? 'disabled' : '' ?>"
+                                                    title="<?= !empty($domain['is_locked']) ? 'Locked' : 'Delete' ?>"
+                                                    onclick="<?= !empty($domain['is_locked']) ? 'return false;' : "return confirm('Are you sure you want to delete this domain?')" ?>">
                                                     <i class="fa fa-trash-o"></i>
                                                 </a>
                                             </div>
@@ -339,16 +340,16 @@
 
 <script type="text/javascript">
     $(document).ready(function() {
-        
+
         // Handle View Details
         $(document).on('click', '.view-domain', function(e) {
             e.preventDefault();
             var id = $(this).data('id');
             var url = $(this).attr('href');
-            
+
             $('#myModal').modal('show');
             $('#myModal .modal-content').html('<div class="modal-body text-center mt-3 mb-3"><i class="fa fa-spinner fa-spin fa-2x"></i> Loading Domain Details...</div>');
-            
+
             $.ajax({
                 url: url,
                 type: 'GET',
@@ -368,7 +369,7 @@
             var currentStatus = btn.data('status');
             var newStatus = currentStatus == 1 ? 0 : 1;
             var icon = btn.find('i');
-            
+
             $.ajax({
                 url: '<?= base_url('admin/server_management/change_domain_lock/') ?>' + id + '/' + newStatus,
                 type: 'GET',
@@ -390,7 +391,7 @@
                             btn.closest('tr').find('a[title="Delete"]').attr('title', 'Delete');
                             btn.closest('tr').find('.row-checkbox').prop('disabled', false);
                         }
-                        
+
                         if (typeof toastr !== 'undefined') {
                             toastr.success(response.message);
                         }
@@ -425,6 +426,7 @@
 
         // Initialize DataTables
         var table;
+
         function initDataTable() {
             if ($.fn.DataTable.isDataTable('#domainDataTable')) {
                 $('#domainDataTable').DataTable().destroy();
@@ -432,7 +434,9 @@
             table = $('#domainDataTable').DataTable({
                 "dom": "t",
                 "pageLength": -1,
-                "order": [[1, "asc"]],
+                "order": [
+                    [1, "asc"]
+                ],
                 "columnDefs": [{
                     "orderable": false,
                     "targets": [0, 10]
@@ -446,7 +450,7 @@
             url = url || $('#filterForm').attr('action');
             var formData = $('#filterForm').serialize();
             var limit = $('#changeRowLimit').val();
-            
+
             // Ensure limit is included
             if (formData.indexOf('limit=') === -1) {
                 formData += '&limit=' + limit;
@@ -454,7 +458,7 @@
 
             // Show loading state
             $('.table-responsive').css('opacity', '0.5');
-            
+
             $.ajax({
                 url: url,
                 type: 'GET',
@@ -469,9 +473,9 @@
                     $('.table-responsive').html(newTable);
                     $('#paginationContainer').html(newPagination);
                     $('.text-muted.small.mr-3').first().html(newInfo);
-                    
+
                     $('.table-responsive').css('opacity', '1');
-                    
+
                     // Re-initialize DataTable and Bulk Actions
                     initDataTable();
                     $('#selectAll').prop('checked', false);
