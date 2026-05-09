@@ -123,6 +123,8 @@ $inactive_all = ($stats['inactive_providers'] ?? 0);
         border: 1px solid #eaeaea;
         margin-bottom: 25px;
         height: 100%;
+        display: flex;
+        flex-direction: column;
     }
     .dashboard-panel .panel-heading {
         padding: 15px 20px;
@@ -136,6 +138,19 @@ $inactive_all = ($stats['inactive_providers'] ?? 0);
         font-weight: 600;
         color: #333;
     }
+
+    /* --- NEW SCROLLABLE AREA STYLES --- */
+    .panel-body-scroll {
+        max-height: 350px; /* Adjust this height if you want the box taller/shorter */
+        overflow-y: auto;
+        flex-grow: 1;
+    }
+    
+    /* Custom Scrollbar for better UI */
+    .panel-body-scroll::-webkit-scrollbar { width: 6px; }
+    .panel-body-scroll::-webkit-scrollbar-track { background: #f8f9fa; border-radius: 0 0 8px 0; }
+    .panel-body-scroll::-webkit-scrollbar-thumb { background: #cbd3da; border-radius: 10px; }
+    .panel-body-scroll::-webkit-scrollbar-thumb:hover { background: #adb5bd; }
 
     /* Activity Lists */
     .activity-feed { padding: 0; margin: 0; list-style: none; }
@@ -164,15 +179,20 @@ $inactive_all = ($stats['inactive_providers'] ?? 0);
     
     /* Empty State */
     .empty-state-box {
-        padding: 30px 20px;
+        padding: 40px 20px;
         text-align: center;
         color: #888;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
     }
     .empty-state-box i { font-size: 30px; color: #e0e0e0; margin-bottom: 10px; display: block; }
 </style>
 
+<!-- Top 5 Unified Cards -->
 <div class="five-column-grid">
-    
     <div class="stat-box" onclick="location.href='<?= base_url('admin/server_management/hosting') ?>'">
         <div class="stat-main">
             <div class="stat-icon-wrapper bg-light-blue"><i class="fa fa-cubes"></i></div>
@@ -245,159 +265,171 @@ $inactive_all = ($stats['inactive_providers'] ?? 0);
             <div class="mini-pill" onclick="event.stopPropagation(); location.href='<?= base_url('admin/server_management/provider?status=Inactive') ?>'"><i class="fa fa-briefcase text-danger"></i> <?= $stats['inactive_providers'] ?? 0 ?> Prov</div>
         </div>
     </div>
-
 </div>
 
+<!-- Row 1: Expiring & Expired Items -->
 <div class="row">
+    <!-- Expiring Panel -->
     <div class="col-md-6 mb-4">
         <div class="dashboard-panel">
             <div class="panel-heading">
                 <h5><i class="fa fa-exclamation-triangle mr-2 text-warning"></i> Expiring Within 30 Days</h5>
             </div>
             
-            <?php if (!empty($expiring_items)): ?>
-                <ul class="activity-feed">
-                    <?php foreach ($expiring_items as $item): ?>
-                        <li>
-                            <div class="activity-avatar bg-light">
-                                <i class="fa <?= $item['type'] === 'domain' ? 'fa-globe text-info' : 'fa-server text-success' ?>"></i>
-                            </div>
-                            <div class="activity-details">
-                                <strong><?= htmlspecialchars($item['name']) ?></strong><br>
-                                <small class="text-muted">Expires: <?= date('M j, Y', strtotime($item['expiry_date'])) ?></small>
-                            </div>
-                            <div class="activity-time">
-                                <?php
-                                $badge_class = 'badge-danger';
-                                if ($item['days_left'] > 21) { $badge_class = 'badge-warning'; } 
-                                elseif ($item['days_left'] > 7) { $badge_class = 'badge-info'; }
-                                ?>
-                                <span class="badge <?= $badge_class ?>"><?= $item['days_left'] ?> days left</span><br>
-                                <a href="<?= base_url($item['link']) ?>" class="text-primary" style="font-size: 11px;"><i class="fa fa-pencil"></i> edit</a>
-                            </div>
-                        </li>
-                    <?php endforeach; ?>
-                </ul>
-            <?php else: ?>
-                <div class="empty-state-box">
-                    <i class="fa fa-check-circle text-success"></i>
-                    <p>All clear! No items expiring soon.</p>
-                </div>
-            <?php endif; ?>
+            <div class="panel-body-scroll"> <!-- Scrollable Wrapper -->
+                <?php if (!empty($expiring_items)): ?>
+                    <ul class="activity-feed">
+                        <?php foreach ($expiring_items as $item): ?>
+                            <li>
+                                <div class="activity-avatar bg-light">
+                                    <i class="fa <?= $item['type'] === 'domain' ? 'fa-globe text-info' : 'fa-server text-success' ?>"></i>
+                                </div>
+                                <div class="activity-details">
+                                    <strong><?= htmlspecialchars($item['name']) ?></strong><br>
+                                    <small class="text-muted">Expires: <?= date('M j, Y', strtotime($item['expiry_date'])) ?></small>
+                                </div>
+                                <div class="activity-time">
+                                    <?php
+                                    $badge_class = 'badge-danger';
+                                    if ($item['days_left'] > 21) { $badge_class = 'badge-warning'; } 
+                                    elseif ($item['days_left'] > 7) { $badge_class = 'badge-info'; }
+                                    ?>
+                                    <span class="badge <?= $badge_class ?>"><?= $item['days_left'] ?> days left</span><br>
+                                    <a href="<?= base_url($item['link']) ?>" class="text-primary" style="font-size: 11px;"><i class="fa fa-pencil"></i> edit</a>
+                                </div>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php else: ?>
+                    <div class="empty-state-box">
+                        <i class="fa fa-check-circle text-success"></i>
+                        <p>All clear! No items expiring soon.</p>
+                    </div>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
     
+    <!-- Expired Panel -->
     <div class="col-md-6 mb-4">
         <div class="dashboard-panel">
             <div class="panel-heading">
                 <h5><i class="fa fa-times-circle mr-2 text-danger"></i> Expired / Inactive Items (<?= count($expired_items ?? []) ?> expired, <?= count($inactive_providers ?? []) ?> inactive)</h5>
             </div>
             
-            <?php $all_inactive = array_merge($expired_items ?? [], $inactive_providers ?? []); ?>
-            <?php if (is_array($all_inactive) && count($all_inactive) > 0): ?>
-                <ul class="activity-feed">
-                    <?php foreach ($all_inactive as $item): ?>
-                        <li>
-                            <div class="activity-avatar bg-light-red">
-                                <i class="fa <?= ($item['type'] ?? '') === 'provider' ? 'fa-briefcase' : (($item['type'] ?? '') === 'domain' ? 'fa-globe' : 'fa-server') ?>"></i>
-                            </div>
-                            <div class="activity-details">
-                                <strong><?= htmlspecialchars($item['name'] ?? '') ?></strong><br>
-                                <small class="text-muted">
-                                    <?php if (($item['type'] ?? '') === 'provider'): ?>
-                                        Status: <?= $item['status'] ?? 'Inactive' ?>
+            <div class="panel-body-scroll"> <!-- Scrollable Wrapper -->
+                <?php $all_inactive = array_merge($expired_items ?? [], $inactive_providers ?? []); ?>
+                <?php if (is_array($all_inactive) && count($all_inactive) > 0): ?>
+                    <ul class="activity-feed">
+                        <?php foreach ($all_inactive as $item): ?>
+                            <li>
+                                <div class="activity-avatar bg-light-red">
+                                    <i class="fa <?= ($item['type'] ?? '') === 'provider' ? 'fa-briefcase' : (($item['type'] ?? '') === 'domain' ? 'fa-globe' : 'fa-server') ?>"></i>
+                                </div>
+                                <div class="activity-details">
+                                    <strong><?= htmlspecialchars($item['name'] ?? '') ?></strong><br>
+                                    <small class="text-muted">
+                                        <?php if (($item['type'] ?? '') === 'provider'): ?>
+                                            Status: <?= $item['status'] ?? 'Inactive' ?>
+                                        <?php else: ?>
+                                            Expired: <?= date('M j, Y', strtotime($item['expiry_date'] ?? date('Y-m-d'))) ?>
+                                        <?php endif; ?>
+                                    </small>
+                                </div>
+                                <div class="activity-time">
+                                    <?php if (($item['type'] ?? '') !== 'provider'): ?>
+                                        <span class="badge badge-danger"><?= intval($item['days_expired'] ?? 0) ?> days ago</span><br>
                                     <?php else: ?>
-                                        Expired: <?= date('M j, Y', strtotime($item['expiry_date'] ?? date('Y-m-d'))) ?>
+                                        <span class="badge badge-secondary">Inactive</span><br>
                                     <?php endif; ?>
-                                </small>
-                            </div>
-                            <div class="activity-time">
-                                <?php if (($item['type'] ?? '') !== 'provider'): ?>
-                                    <span class="badge badge-danger"><?= intval($item['days_expired'] ?? 0) ?> days ago</span><br>
-                                <?php else: ?>
-                                    <span class="badge badge-secondary">Inactive</span><br>
-                                <?php endif; ?>
-                                <a href="<?= base_url($item['link'] ?? '#') ?>" class="text-primary" style="font-size: 11px;"><i class="fa fa-pencil"></i> View</a>
-                            </div>
-                        </li>
-                    <?php endforeach; ?>
-                </ul>
-            <?php else: ?>
-                <div class="empty-state-box">
-                    <i class="fa fa-check-circle text-success"></i>
-                    <p>Great! All items are active.</p>
-                </div>
-            <?php endif; ?>
+                                    <a href="<?= base_url($item['link'] ?? '#') ?>" class="text-primary" style="font-size: 11px;"><i class="fa fa-pencil"></i> View</a>
+                                </div>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php else: ?>
+                    <div class="empty-state-box">
+                        <i class="fa fa-check-circle text-success"></i>
+                        <p>Great! All items are active.</p>
+                    </div>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 </div>
 
+<!-- Row 2: Running Services & Recent Activities -->
 <div class="row">
-    <div class="col-md-12 mb-4">
+    <!-- Running Services Panel -->
+    <div class="col-md-6 mb-4">
         <div class="dashboard-panel">
             <div class="panel-heading">
                 <h5><i class="fa fa-play-circle mr-2 text-success"></i> Currently Running Services (<?= count($running_items ?? []) ?>)</h5>
             </div>
             
-            <?php if (!empty($running_items)): ?>
-                <ul class="activity-feed">
-                    <?php foreach ($running_items as $item): ?>
-                        <li>
-                            <div class="activity-avatar bg-light-green">
-                                <i class="fa <?= $item['type'] === 'domain' ? 'fa-globe text-success' : 'fa-server text-success' ?>"></i>
-                            </div>
-                            <div class="activity-details">
-                                <strong><?= htmlspecialchars($item['name']) ?></strong><br>
-                                <small class="text-muted">
-                                    Purchased: <?= date('M j, Y', strtotime($item['purchase_date'])) ?> • 
-                                    Expires: <?= date('M j, Y', strtotime($item['expiry_date'])) ?>
-                                </small>
-                            </div>
-                            <div class="activity-time">
-                                <span class="badge badge-success" style="color: #17a2b8;"><?= $item['running_for'] ?></span><br>                            </div>
-                        </li>
-                    <?php endforeach; ?>
-                </ul>
-            <?php else: ?>
-                <div class="empty-state-box">
-                    <i class="fa fa-stop-circle text-muted"></i>
-                    <p>No running services at the moment.</p>
-                </div>
-            <?php endif; ?>
+            <div class="panel-body-scroll"> <!-- Scrollable Wrapper -->
+                <?php if (!empty($running_items)): ?>
+                    <ul class="activity-feed">
+                        <?php foreach ($running_items as $item): ?>
+                            <li>
+                                <div class="activity-avatar bg-light-green">
+                                    <i class="fa <?= $item['type'] === 'domain' ? 'fa-globe text-success' : 'fa-server text-success' ?>"></i>
+                                </div>
+                                <div class="activity-details">
+                                    <strong><?= htmlspecialchars($item['name']) ?></strong><br>
+                                    <small class="text-muted">
+                                        Purchased: <?= date('M j, Y', strtotime($item['purchase_date'])) ?> • 
+                                        Expires: <?= date('M j, Y', strtotime($item['expiry_date'])) ?>
+                                    </small>
+                                </div>
+                                <div class="activity-time">
+                                    <span class="badge badge-success" style="color: #17a2b8;"><?= $item['running_for'] ?></span><br>
+                                </div>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php else: ?>
+                    <div class="empty-state-box">
+                        <i class="fa fa-stop-circle text-muted"></i>
+                        <p>No running services at the moment.</p>
+                    </div>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
-</div>
 
-<div class="row">
-    <div class="col-md-12">
+    <!-- Recent Activities Panel -->
+    <div class="col-md-6 mb-4">
         <div class="dashboard-panel">
             <div class="panel-heading">
                 <h5><i class="fa fa-history mr-2 text-muted"></i> Recent Activities</h5>
             </div>
             
-            <?php if (!empty($recent_activities)): ?>
-                <ul class="activity-feed">
-                    <?php foreach ($recent_activities as $activity): ?>
-                        <li>
-                            <div class="activity-avatar bg-light">
-                                <i class="fa <?= !empty($activity['icon']) ? htmlspecialchars($activity['icon']) : 'fa-user text-muted' ?>"></i>
-                            </div>
-                            <div class="activity-details">
-                                <strong><?= htmlspecialchars($activity['action']) ?></strong><br>
-                                <small class="text-muted">Action by <span class="text-info"><?= htmlspecialchars($activity['user']) ?></span></small>
-                            </div>
-                            <div class="activity-time text-muted">
-                                <i class="fa fa-clock-o"></i> <?= htmlspecialchars($activity['time']) ?>
-                            </div>
-                        </li>
-                    <?php endforeach; ?>
-                </ul>
-            <?php else: ?>
-                <div class="empty-state-box">
-                    <i class="fa fa-inbox"></i>
-                    <p>No recent activities recorded.</p>
-                </div>
-            <?php endif; ?>
+            <div class="panel-body-scroll"> <!-- Scrollable Wrapper -->
+                <?php if (!empty($recent_activities)): ?>
+                    <ul class="activity-feed">
+                        <?php foreach ($recent_activities as $activity): ?>
+                            <li>
+                                <div class="activity-avatar bg-light">
+                                    <i class="fa <?= !empty($activity['icon']) ? htmlspecialchars($activity['icon']) : 'fa-user text-muted' ?>"></i>
+                                </div>
+                                <div class="activity-details">
+                                    <strong><?= htmlspecialchars($activity['action']) ?></strong><br>
+                                    <small class="text-muted">Action by <span class="text-info"><?= htmlspecialchars($activity['user']) ?></span></small>
+                                </div>
+                                <div class="activity-time text-muted">
+                                    <i class="fa fa-clock-o"></i> <?= htmlspecialchars($activity['time']) ?>
+                                </div>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php else: ?>
+                    <div class="empty-state-box">
+                        <i class="fa fa-inbox"></i>
+                        <p>No recent activities recorded.</p>
+                    </div>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 </div>

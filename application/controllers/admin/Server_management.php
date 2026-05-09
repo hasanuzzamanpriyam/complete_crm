@@ -11,7 +11,7 @@ class Server_management extends Admin_Controller
         $this->load->model('provider_model');
         $this->load->model('domain_model');
         $this->load->model('hosting_model');
-        $this->load->model('billing_model');
+
 
         $method = $this->router->fetch_method();
         if ($method == 'domain' || $method == 'add_domain') {
@@ -20,8 +20,6 @@ class Server_management extends Admin_Controller
             $this->session->set_userdata('menu_active_id', array('111122222223', '1111222222232'));
         } elseif ($method == 'provider' || $method == 'add_provider') {
             $this->session->set_userdata('menu_active_id', array('111122222223', '1111222222234'));
-        } elseif ($method == 'billing') {
-            $this->session->set_userdata('menu_active_id', array('111122222223', '1111222222235'));
         } else {
             $this->session->set_userdata('menu_active_id', array('111122222223', '1111222222231'));
         }
@@ -1452,104 +1450,7 @@ class Server_management extends Admin_Controller
             ->set_output(json_encode($response));
         return;
     }
-    public function billing()
-    {
-        $data['title'] = lang('billing_order');
-        $data['billings'] = $this->billing_model->get_all_billing();
-        $data['currencies'] = $this->db->get('tbl_currencies')->result_array();
-        $data['subview'] = $this->load->view('admin/server_management/billing', $data, TRUE);
-        $this->load->view('admin/_layout_main', $data);
-    }
 
-    public function save_billing()
-    {
-        if ($this->input->is_ajax_request()) {
-            $labels = $this->input->post('label', TRUE);
-            $values = $this->input->post('value', TRUE);
-            $types = $this->input->post('type', TRUE);
-            $currencies = $this->input->post('currency', TRUE);
-            $renewal_dates = $this->input->post('renewal_date', TRUE);
-            $expiry_dates = $this->input->post('expiry_date', TRUE);
-            $durations = $this->input->post('duration', TRUE);
-            $time_units = $this->input->post('time_unit', TRUE);
-            $renews = $this->input->post('renew', TRUE);
-            
-            if (!empty($labels)) {
-                foreach ($labels as $index => $label) {
-                    if (!empty($label)) {
-                        $data = array(
-                            'label' => $label,
-                            'value' => isset($values[$index]) ? $values[$index] : '',
-                            'type' => isset($types[$index]) ? $types[$index] : 'text',
-                            'currency' => !empty($currencies[$index]) ? $currencies[$index] : NULL,
-                            'renewal_date' => !empty($renewal_dates[$index]) ? $renewal_dates[$index] : NULL,
-                            'expiry_date' => !empty($expiry_dates[$index]) ? $expiry_dates[$index] : NULL,
-                            'duration' => !empty($durations[$index]) ? $durations[$index] : NULL,
-                            'time_unit' => !empty($time_units[$index]) ? $time_units[$index] : NULL,
-                            'renew' => !empty($renews[$index]) ? $renews[$index] : NULL
-                        );
-                        $this->billing_model->save_billing($data);
-                    }
-                }
-                $response = array('status' => 'success', 'message' => 'Billing data saved successfully!');
-            } else {
-                $response = array('status' => 'error', 'message' => 'No data to save!');
-            }
-            $this->output
-                ->set_content_type('application/json')
-                ->set_output(json_encode($response));
-        }
-    }
-
-    public function edit_billing()
-    {
-        if ($this->input->is_ajax_request()) {
-            $id = $this->input->post('id', TRUE);
-            if (!$id) {
-                $response = array('status' => 'error', 'message' => 'ID is required');
-                $this->output
-                    ->set_content_type('application/json')
-                    ->set_output(json_encode($response));
-                return;
-            }
-
-            $data = array(
-                'id' => $id,
-                'label' => $this->input->post('label', TRUE),
-                'value' => $this->input->post('value', TRUE),
-                'type' => $this->input->post('type', TRUE),
-                'currency' => $this->input->post('currency', TRUE) ?: NULL,
-                'renewal_date' => $this->input->post('renewal_date', TRUE) ?: NULL,
-                'expiry_date' => $this->input->post('expiry_date', TRUE) ?: NULL,
-                'duration' => $this->input->post('duration', TRUE) ?: NULL,
-                'time_unit' => $this->input->post('time_unit', TRUE) ?: NULL,
-                'renew' => $this->input->post('renew', TRUE) ?: NULL
-            );
-
-            $this->billing_model->save_billing($data);
-            $response = array('status' => 'success', 'message' => 'Billing item updated successfully!');
-            $this->output
-                ->set_content_type('application/json')
-                ->set_output(json_encode($response));
-            return;
-        }
-    }
-    public function delete_billing($id = NULL)
-    {
-        $ids = $this->input->post('ids', TRUE);
-        if (!empty($ids)) {
-            $this->billing_model->delete_billing($ids);
-            $this->log_activity('server_management', 'Deleted ' . count($ids) . ' billing item(s)', 'fa-trash');
-            set_message('success', 'Selected billing items deleted successfully!');
-        } elseif ($id) {
-            $this->billing_model->delete_billing($id);
-            $this->log_activity('server_management', 'Deleted billing item ID: ' . $id, 'fa-trash');
-            set_message('success', 'Billing item deleted successfully!');
-        } else {
-            set_message('error', 'Nothing to delete!');
-        }
-        redirect('admin/server_management/billing');
-    }
 
     private function create_renewal_task($module, $module_id, $module_name, $expiry_date, $permission = 'all')
     {
