@@ -168,15 +168,15 @@
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Buy Date*</label>
-                                <input type="date" name="buy_date" class="form-control" value="<?= !empty($billing_info->buy_date) ? $billing_info->buy_date : '' ?>">
+                                <input type="date" name="buy_date" id="buy_date" class="form-control" value="<?= !empty($billing_info->buy_date) ? $billing_info->buy_date : '' ?>">
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Duration*</label>
                                 <div class="input-group">
-                                    <input type="number" name="duration" class="form-control" style="width: 40% !important; flex: none !important;" value="<?= !empty($billing_info->duration) ? $billing_info->duration : '' ?>">
-                                    <select name="time_unit" class="form-control" style="border-left: none;">
+                                    <input type="number" name="duration" id="duration" class="form-control" style="width: 40% !important; flex: none !important;" value="<?= !empty($billing_info->duration) ? $billing_info->duration : '' ?>">
+                                    <select name="time_unit" id="time_unit" class="form-control" style="border-left: none;">
                                         <option value="Days" <?= (!empty($billing_info->time_unit) && $billing_info->time_unit == 'Days') ? 'selected' : '' ?>>Days</option>
                                         <option value="Months" <?= (!empty($billing_info->time_unit) && $billing_info->time_unit == 'Months') ? 'selected' : '' ?>>Months</option>
                                         <option value="Years" <?= (!empty($billing_info->time_unit) && $billing_info->time_unit == 'Years') ? 'selected' : '' ?>>Years</option>
@@ -204,7 +204,7 @@
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Next Renew Date*</label>
-                                <input type="date" name="renewal_date" class="form-control" value="<?= !empty($billing_info->renewal_date) ? $billing_info->renewal_date : '' ?>">
+                                <input type="date" name="renewal_date" id="renewal_date" class="form-control" value="<?= !empty($billing_info->renewal_date) ? $billing_info->renewal_date : '' ?>">
                             </div>
                         </div>
                         <div class="col-md-2">
@@ -473,6 +473,78 @@
                     alert(response.message || 'An error occurred');
                 }
             }, 'json');
+        });
+
+        // Automatic Renewal Date Calculation
+        function calculateRenewalDate() {
+            var buyDateVal = $('#buy_date').val();
+            var duration = parseInt($('#duration').val());
+            var timeUnit = $('#time_unit').val();
+
+            if (buyDateVal && !isNaN(duration)) {
+                var buyDate = new Date(buyDateVal);
+                var renewalDate = new Date(buyDateVal);
+
+                if (timeUnit === 'Days') {
+                    renewalDate.setDate(buyDate.getDate() + duration);
+                } else if (timeUnit === 'Months') {
+                    renewalDate.setMonth(buyDate.getMonth() + duration);
+                } else if (timeUnit === 'Years') {
+                    renewalDate.setFullYear(buyDate.getFullYear() + duration);
+                }
+
+                var yyyy = renewalDate.getFullYear();
+                var mm = String(renewalDate.getMonth() + 1).padStart(2, '0');
+                var dd = String(renewalDate.getDate()).padStart(2, '0');
+                
+                $('#renewal_date').val(yyyy + '-' + mm + '-' + dd);
+            }
+        }
+
+        function calculateDuration() {
+            var buyDateVal = $('#buy_date').val();
+            var renewalDateVal = $('#renewal_date').val();
+
+            if (buyDateVal && renewalDateVal) {
+                var buyDate = new Date(buyDateVal);
+                var renewalDate = new Date(renewalDateVal);
+                
+                if (renewalDate <= buyDate) return;
+
+                // Try Years
+                var years = renewalDate.getFullYear() - buyDate.getFullYear();
+                var tempDate = new Date(buyDateVal);
+                tempDate.setFullYear(buyDate.getFullYear() + years);
+                if (tempDate.getTime() === renewalDate.getTime() && years > 0) {
+                    $('#duration').val(years);
+                    $('#time_unit').val('Years');
+                    return;
+                }
+
+                // Try Months
+                var months = (renewalDate.getFullYear() - buyDate.getFullYear()) * 12 + (renewalDate.getMonth() - buyDate.getMonth());
+                tempDate = new Date(buyDateVal);
+                tempDate.setMonth(buyDate.getMonth() + months);
+                if (tempDate.getTime() === renewalDate.getTime() && months > 0) {
+                    $('#duration').val(months);
+                    $('#time_unit').val('Months');
+                    return;
+                }
+
+                // Default to Days
+                var diffTime = renewalDate - buyDate;
+                var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                $('#duration').val(diffDays);
+                $('#time_unit').val('Days');
+            }
+        }
+
+        $('#buy_date, #duration, #time_unit').on('change input', function() {
+            calculateRenewalDate();
+        });
+
+        $('#renewal_date').on('change input', function() {
+            calculateDuration();
         });
     });
 </script>
