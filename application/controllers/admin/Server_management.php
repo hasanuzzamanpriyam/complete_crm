@@ -451,6 +451,7 @@ class Server_management extends Admin_Controller
         $data['currencies'] = $this->db->get('tbl_currencies')->result_array();
         $data['server_types'] = $this->db->get('tbl_server_types')->result_array();
         $data['plans'] = $this->db->get('tbl_hosting_plans')->result_array();
+        $data['staff_members'] = $this->db->where('activated', 1)->get('tbl_users')->result();
 
         if ($this->input->post()) {
             $this->form_validation->set_rules('title', 'Title', 'required|trim|callback_check_hosting_title_unique');
@@ -574,7 +575,8 @@ class Server_management extends Admin_Controller
                         $this->log_activity('server_management', 'Updated hosting "' . $data_save['title'] . '"', 'fa-pencil', 'admin/server_management/add_hosting/' . $id, $data_save['status']);
 
                         if ($this->input->post('create_calendar_task')) {
-                            $this->create_renewal_task('server_hosting', $id, $data_save['title'], $data_save['expiry_date']);
+                            $task_permission = $this->_build_task_permission();
+                            $this->create_renewal_task('server_hosting', $id, $data_save['title'], $data_save['expiry_date'], $task_permission);
                         }
 
                         $notify_data = array(
@@ -607,7 +609,8 @@ class Server_management extends Admin_Controller
                         $this->log_activity('server_management', 'Added new hosting "' . $data_save['title'] . '"', 'fa-plus', 'admin/server_management/add_hosting/' . $new_id, $data_save['status']);
 
                         if ($this->input->post('create_calendar_task')) {
-                            $this->create_renewal_task('server_hosting', $new_id, $data_save['title'], $data_save['expiry_date']);
+                            $task_permission = $this->_build_task_permission();
+                            $this->create_renewal_task('server_hosting', $new_id, $data_save['title'], $data_save['expiry_date'], $task_permission);
                         }
 
                         $notify_data = array(
@@ -675,6 +678,7 @@ class Server_management extends Admin_Controller
     public function add_domain($id = NULL)
     {
         $data['title'] = lang('add_domain');
+        $data['staff_members'] = $this->db->where('activated', 1)->get('tbl_users')->result();
 
         if ($this->input->post()) {
             $this->form_validation->set_rules('domain_name', 'Domain Name', 'required|trim|callback_check_domain_unique');
@@ -804,7 +808,8 @@ class Server_management extends Admin_Controller
                     $this->log_activity('server_management', 'Updated domain "' . $data_save['domain_name'] . '"', 'fa-pencil', 'admin/server_management/add_domain/' . $id, $data_save['status']);
 
                     if ($this->input->post('create_calendar_task')) {
-                        $this->create_renewal_task('domain', $id, $data_save['domain_name'], $data_save['expiry_date']);
+                        $task_permission = $this->_build_task_permission();
+                        $this->create_renewal_task('domain', $id, $data_save['domain_name'], $data_save['expiry_date'], $task_permission);
                     }
 
                     $notify_data = array(
@@ -821,7 +826,8 @@ class Server_management extends Admin_Controller
                     $this->log_activity('server_management', 'Added new domain "' . $data_save['domain_name'] . '"', 'fa-plus', 'admin/server_management/add_domain/' . $new_id, $data_save['status']);
 
                     if ($this->input->post('create_calendar_task')) {
-                        $this->create_renewal_task('domain', $new_id, $data_save['domain_name'], $data_save['expiry_date']);
+                        $task_permission = $this->_build_task_permission();
+                        $this->create_renewal_task('domain', $new_id, $data_save['domain_name'], $data_save['expiry_date'], $task_permission);
                     }
 
                     $notify_data = array(
@@ -1545,7 +1551,7 @@ class Server_management extends Admin_Controller
         redirect('admin/server_management/billing');
     }
 
-    private function create_renewal_task($module, $module_id, $module_name, $expiry_date)
+    private function create_renewal_task($module, $module_id, $module_name, $expiry_date, $permission = 'all')
     {
         $task_data = array(
             'task_name' => 'Renewal: ' . $module_name,
@@ -1554,10 +1560,34 @@ class Server_management extends Admin_Controller
             'due_date' => $expiry_date,
             'task_status' => 'not_started',
             'created_by' => $this->session->userdata('user_id'),
-            'permission' => 'all',
+            'permission' => $permission,
             'module' => $module,
             'module_field_id' => $module_id
         );
         $this->db->insert('tbl_task', $task_data);
+    }
+
+    /**
+     * Build task permission from POST data (Everyone or Custom)
+     */
+    private function _build_task_permission()
+    {
+        $permission_type = $this->input->post('task_permission', TRUE);
+        if ($permission_type === 'custom_permission') {
+            $assigned_to = $this->input->post('assigned_to', TRUE);
+            if (!empty($assigned_to) && is_array($assigned_to)) {
+                $permission_data = array();
+                foreach ($assigned_to as $user_id) {
+                    $actions = $this->input->post('action_' . $user_id, TRUE);
+                    if (!empty($actions)) {
+                        $permission_data[$user_id] = $actions;
+                    } else {
+                        $permission_data[$user_id] = array('view');
+                    }
+                }
+                return json_encode($permission_data);
+            }
+        }
+        return 'all';
     }
 }

@@ -238,6 +238,10 @@ class Domain_model extends CI_Model {
     }
 
     public function delete_domain($id) {
+        if (is_array($id)) {
+            $this->db->where_in('id', $id);
+            return $this->db->delete('tbldomains');
+        }
         return $this->db->where('id', $id)->delete('tbldomains');
     }
 

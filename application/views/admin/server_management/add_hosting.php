@@ -565,6 +565,75 @@
                         </div>
                     </div>
 
+                    <!-- RBAC Section (visible when Create Calendar Task is checked) -->
+                    <div id="task_rbac_section" style="display: none;">
+                        <div class="erp-section-title">Task Permission</div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <div class="checkbox c-radio needsclick" style="display: inline-block; margin-right: 20px;">
+                                        <label class="needsclick" style="text-transform: none; font-size: 13px; font-weight: normal;">
+                                            <input type="radio" name="task_permission" value="everyone" checked class="task_permission_radio">
+                                            <span class="fa fa-circle"></span> Everyone
+                                            <i title="All staff members can view and manage this task" class="fa fa-question-circle" data-toggle="tooltip" data-placement="top"></i>
+                                        </label>
+                                    </div>
+                                    <div class="checkbox c-radio needsclick" style="display: inline-block;">
+                                        <label class="needsclick" style="text-transform: none; font-size: 13px; font-weight: normal;">
+                                            <input type="radio" name="task_permission" value="custom_permission" class="task_permission_radio">
+                                            <span class="fa fa-circle"></span> Custom
+                                            <i title="Select specific users who can access this task" class="fa fa-question-circle" data-toggle="tooltip" data-placement="top"></i>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Custom Permission User List -->
+                        <div id="task_permission_users" style="display: none;">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>Select Users <span class="required text-danger">*</span></label>
+                                        <?php if (!empty($staff_members)): ?>
+                                            <?php foreach ($staff_members as $staff): ?>
+                                                <?php
+                                                $is_admin = ($staff->role_id == 1);
+                                                $role_badge = $is_admin
+                                                    ? '<strong class="badge" style="background-color:#dd4b39;color:#fff;margin-left:5px;">Admin</strong>'
+                                                    : '<strong class="badge" style="background-color:#3c8dbc;color:#fff;margin-left:5px;">Staff</strong>';
+                                                ?>
+                                                <div class="checkbox c-checkbox needsclick" style="margin-bottom: 5px;">
+                                                    <label class="needsclick" style="text-transform: none; font-size: 13px; font-weight: normal;">
+                                                        <input type="checkbox" value="<?= $staff->user_id ?>" name="assigned_to[]" class="needsclick assigned_to_task">
+                                                        <span class="fa fa-check"></span> <?= htmlspecialchars($staff->username) ?> <?= $role_badge ?>
+                                                    </label>
+                                                </div>
+                                                <div class="action_task_user" id="action_task_<?= $staff->user_id ?>" style="display: none; padding-left: 25px; margin-bottom: 10px;">
+                                                    <label class="checkbox-inline c-checkbox" style="text-transform: none; font-size: 12px; font-weight: normal;">
+                                                        <input checked type="checkbox" name="action_<?= $staff->user_id ?>[]" disabled value="view">
+                                                        <span class="fa fa-check"></span> Can View
+                                                    </label>
+                                                    <label class="checkbox-inline c-checkbox" style="text-transform: none; font-size: 12px; font-weight: normal;">
+                                                        <input type="checkbox" name="action_<?= $staff->user_id ?>[]" value="edit" <?= $is_admin ? 'disabled checked' : '' ?>>
+                                                        <span class="fa fa-check"></span> Can Edit
+                                                    </label>
+                                                    <label class="checkbox-inline c-checkbox" style="text-transform: none; font-size: 12px; font-weight: normal;">
+                                                        <input type="checkbox" name="action_<?= $staff->user_id ?>[]" value="delete" <?= $is_admin ? 'disabled checked' : '' ?>>
+                                                        <span class="fa fa-check"></span> Can Delete
+                                                    </label>
+                                                    <input type="hidden" name="action_<?= $staff->user_id ?>[]" value="view">
+                                                </div>
+                                            <?php endforeach; ?>
+                                        <?php else: ?>
+                                            <p class="text-muted" style="font-size: 12px;">No staff members found.</p>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="erp-section-title">Description</div>
                     
                     <div class="row">
@@ -659,6 +728,34 @@ $(document).ready(function() {
             $('#notification_days_wrapper, #notification_unit_wrapper').slideDown();
         } else {
             $('#notification_days_wrapper, #notification_unit_wrapper').slideUp();
+        }
+    });
+
+    // RBAC Section Toggle (show/hide when "Create Task in Calendar" is checked)
+    $('#create_calendar_task').change(function() {
+        if ($(this).is(':checked')) {
+            $('#task_rbac_section').slideDown();
+        } else {
+            $('#task_rbac_section').slideUp();
+        }
+    });
+
+    // Toggle custom permission user list based on radio selection
+    $('.task_permission_radio').on('click', function() {
+        if ($(this).val() === 'custom_permission') {
+            $('#task_permission_users').slideDown();
+        } else {
+            $('#task_permission_users').slideUp();
+        }
+    });
+
+    // Toggle per-user action checkboxes when user is assigned
+    $(document).on('change', '.assigned_to_task', function() {
+        var userId = $(this).val();
+        if (this.checked) {
+            $('#action_task_' + userId).slideDown();
+        } else {
+            $('#action_task_' + userId).slideUp();
         }
     });
 
