@@ -50,6 +50,28 @@
 
     .select2-container--bootstrap .select2-selection { border-radius: 2px !important; border: 1px solid #d2d6de !important; height: 34px !important; }
     .input-group .select2-container--bootstrap .select2-selection { border-radius: 2px 0 0 2px !important; border-right: none !important; }
+
+    /* Hide nested headers and footers in quick-add modal to prevent double buttons */
+    #universalQuickAddModal .modal-body .modal-footer,
+    #universalQuickAddModal .modal-body .modal-header,
+    #universalQuickAddModal .modal-body .panel-heading,
+    #universalQuickAddModal .modal-body .btn-bottom-toolbar,
+    #universalQuickAddModal .modal-body .card-header,
+    #universalQuickAddModal .modal-body .card-footer,
+    #universalQuickAddModal .modal-body .nav-tabs {
+        display: none !important;
+    }
+    #universalQuickAddModal .modal-body .panel-body,
+    #universalQuickAddModal .modal-body .card-body,
+    #universalQuickAddModal .modal-body .modal-body {
+        padding: 10px 0 !important;
+    }
+    #universalQuickAddModal .modal-body .panel,
+    #universalQuickAddModal .modal-body .card {
+        border: none !important;
+        box-shadow: none !important;
+        margin-bottom: 0 !important;
+    }
 </style>
 
 <div class="row">
@@ -377,7 +399,7 @@
                             </div>
                             <div class="checkbox">
                                 <label style="text-transform: none; font-weight: normal;">
-                                    <input type="checkbox" name="enable_reminders_weekend" value="1" <?= (!empty($billing_info->enable_reminders_weekend) && $billing_info->enable_reminders_weekend == 1) ? 'checked' : '' ?>> Enable Reminders for Weekend
+                                    <input type="checkbox" name="enable_reminders_weekend" value="1" <?= (!empty($billing_info->enable_reminders_weekend) && $billing_info->enable_reminders_weekend == 1) ? 'checked' : '' ?>> Enable Permissions
                                 </label>
                             </div>
                         </div>
