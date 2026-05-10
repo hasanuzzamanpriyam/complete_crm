@@ -40,8 +40,77 @@ class Billing_model extends MY_Model
         return $this->save($data, $id);
     }
 
-    public function delete_billing($id)
+    public function get_stats()
     {
-        return $this->delete($id);
+        $stats = [];
+        $stats['total'] = $this->db->count_all('tbl_billing_orders');
+
+        $this->db->where('status', 'Active');
+        $stats['active'] = $this->db->count_all_results('tbl_billing_orders');
+
+        $this->db->where('status', 'Pending');
+        $stats['pending'] = $this->db->count_all_results('tbl_billing_orders');
+
+        $this->db->where('status', 'Expired');
+        $stats['expired'] = $this->db->count_all_results('tbl_billing_orders');
+
+        $this->db->where('expiry_date <', date('Y-m-d'));
+        $this->db->where('status !=', 'Expired');
+        $stats['expired_auto'] = $this->db->count_all_results('tbl_billing_orders');
+
+        $stats['expired'] = ($stats['expired'] ?? 0) + ($stats['expired_auto'] ?? 0);
+
+        $this->db->where('expiry_date >=', date('Y-m-d'));
+        $this->db->where('expiry_date <=', date('Y-m-d', strtotime('+30 days')));
+        $this->db->where('status', 'Active');
+        $stats['expiring'] = $this->db->count_all_results('tbl_billing_orders');
+
+        return $stats;
+    }
+
+    public function get_expired_billing()
+    {
+        $today = date('Y-m-d');
+        $this->db->select('id, label as name, expiry_date, status');
+        $this->db->from('tbl_billing_orders');
+        $this->db->where("(status = 'Expired' OR expiry_date < '" . $today . "')", NULL, FALSE);
+        $this->db->order_by('expiry_date', 'DESC');
+        $query = $this->db->get();
+        $billings = $query->result_array();
+
+        $today_timestamp = strtotime($today);
+        foreach ($billings as &$billing) {
+            $billing['type'] = 'billing';
+            $days_expired = ($today_timestamp - strtotime($billing['expiry_date'])) / (60 * 60 * 24);
+            $billing['days_expired'] = is_float($days_expired) ? ceil($days_expired) : intval($days_expired);
+            $billing['link'] = 'admin/server_management/view_billing/' . $billing['id'];
+        }
+
+        return $billings;
+    }
+
+    public function get_expiring_billing($days = 7)
+    {
+        $today = date('Y-m-d');
+        $end_date = date('Y-m-d', strtotime("+{$days} days"));
+
+        $this->db->select('id, label as name, expiry_date, status');
+        $this->db->from('tbl_billing_orders');
+        $this->db->where('expiry_date >=', $today);
+        $this->db->where('expiry_date <=', $end_date);
+        $this->db->where('status', 'Active');
+        $this->db->order_by('expiry_date', 'ASC');
+        $query = $this->db->get();
+        $billings = $query->result_array();
+
+        $today_timestamp = strtotime($today);
+        foreach ($billings as &$billing) {
+            $billing['type'] = 'billing';
+            $days_left = (strtotime($billing['expiry_date']) - $today_timestamp) / (60 * 60 * 24);
+            $billing['days_left'] = is_float($days_left) ? ceil($days_left) : intval($days_left);
+            $billing['link'] = 'admin/server_management/view_billing/' . $billing['id'];
+        }
+
+        return $billings;
     }
 }

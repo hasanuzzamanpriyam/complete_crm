@@ -1,10 +1,10 @@
 <?php 
 // Calculate combined totals for the unified cards
-$total_all    = ($stats['total_hostings'] ?? 0) + ($stats['total_domains'] ?? 0) + ($stats['total_providers'] ?? 0);
-$active_all   = ($stats['active_hostings'] ?? 0) + ($stats['active_domains'] ?? 0) + ($stats['active_providers'] ?? 0);
-$pending_all  = ($stats['pending_hostings'] ?? 0) + ($stats['pending_domains'] ?? 0);
-$expiring_all = ($stats['expiring_hostings'] ?? 0) + ($stats['expiring_domains'] ?? 0);
-$expired_all = ($stats['expired_hostings'] ?? 0) + ($stats['expired_domains'] ?? 0);
+$total_all    = ($stats['total_hostings'] ?? 0) + ($stats['total_domains'] ?? 0) + ($stats['total_providers'] ?? 0) + ($stats['total_billing'] ?? 0);
+$active_all   = ($stats['active_hostings'] ?? 0) + ($stats['active_domains'] ?? 0) + ($stats['active_providers'] ?? 0) + ($stats['active_billing'] ?? 0);
+$pending_all  = ($stats['pending_hostings'] ?? 0) + ($stats['pending_domains'] ?? 0) + ($stats['pending_billing'] ?? 0);
+$expiring_all = ($stats['expiring_hostings'] ?? 0) + ($stats['expiring_domains'] ?? 0) + ($stats['expiring_billing'] ?? 0);
+$expired_all = ($stats['expired_hostings'] ?? 0) + ($stats['expired_domains'] ?? 0) + ($stats['expired_billing'] ?? 0);
 $inactive_all = ($stats['inactive_providers'] ?? 0);
 ?>
 
@@ -204,6 +204,7 @@ $inactive_all = ($stats['inactive_providers'] ?? 0);
         <div class="stat-breakdown">
             <div class="mini-pill" onclick="event.stopPropagation(); location.href='<?= base_url('admin/server_management/hosting') ?>'"><i class="fa fa-server text-info"></i> <?= $stats['total_hostings'] ?? 0 ?> Host</div>
             <div class="mini-pill" onclick="event.stopPropagation(); location.href='<?= base_url('admin/server_management/domain') ?>'"><i class="fa fa-globe text-info"></i> <?= $stats['total_domains'] ?? 0 ?> Dom</div>
+            <div class="mini-pill" onclick="event.stopPropagation(); location.href='<?= base_url('admin/server_management/billing') ?>'"><i class="fa fa-credit-card text-info"></i> <?= $stats['total_billing'] ?? 0 ?> Bill</div>
             <div class="mini-pill" onclick="event.stopPropagation(); location.href='<?= base_url('admin/server_management/provider') ?>'"><i class="fa fa-briefcase text-info"></i> <?= $stats['total_providers'] ?? 0 ?> Prov</div>
         </div>
     </div>
@@ -219,6 +220,7 @@ $inactive_all = ($stats['inactive_providers'] ?? 0);
         <div class="stat-breakdown">
             <div class="mini-pill" onclick="event.stopPropagation(); location.href='<?= base_url('admin/server_management/hosting?status=Active') ?>'"><i class="fa fa-server text-success"></i> <?= $stats['active_hostings'] ?? 0 ?> Host</div>
             <div class="mini-pill" onclick="event.stopPropagation(); location.href='<?= base_url('admin/server_management/domain?status=Active') ?>'"><i class="fa fa-globe text-success"></i> <?= $stats['active_domains'] ?? 0 ?> Dom</div>
+            <div class="mini-pill" onclick="event.stopPropagation(); location.href='<?= base_url('admin/server_management/billing?status=Active') ?>'"><i class="fa fa-credit-card text-success"></i> <?= $stats['active_billing'] ?? 0 ?> Bill</div>
             <div class="mini-pill" onclick="event.stopPropagation(); location.href='<?= base_url('admin/server_management/provider?status=Active') ?>'"><i class="fa fa-briefcase text-success"></i> <?= $stats['active_providers'] ?? 0 ?> Prov</div>
         </div>
     </div>
@@ -234,6 +236,7 @@ $inactive_all = ($stats['inactive_providers'] ?? 0);
         <div class="stat-breakdown">
             <div class="mini-pill" onclick="event.stopPropagation(); location.href='<?= base_url('admin/server_management/hosting?status=Pending') ?>'"><i class="fa fa-server text-warning"></i> <?= $stats['pending_hostings'] ?? 0 ?> Host</div>
             <div class="mini-pill" onclick="event.stopPropagation(); location.href='<?= base_url('admin/server_management/domain?status=Pending') ?>'"><i class="fa fa-globe text-warning"></i> <?= $stats['pending_domains'] ?? 0 ?> Dom</div>
+            <div class="mini-pill" onclick="event.stopPropagation(); location.href='<?= base_url('admin/server_management/billing?status=Pending') ?>'"><i class="fa fa-credit-card text-warning"></i> <?= $stats['pending_billing'] ?? 0 ?> Bill</div>
         </div>
     </div>
     
@@ -248,6 +251,7 @@ $inactive_all = ($stats['inactive_providers'] ?? 0);
         <div class="stat-breakdown">
             <div class="mini-pill" onclick="event.stopPropagation(); location.href='<?= base_url('admin/server_management/hosting?status=Expiring') ?>'"><i class="fa fa-server text-warning"></i> <?= $stats['expiring_hostings'] ?? 0 ?> Host</div>
             <div class="mini-pill" onclick="event.stopPropagation(); location.href='<?= base_url('admin/server_management/domain?status=Expiring') ?>'"><i class="fa fa-globe text-warning"></i> <?= $stats['expiring_domains'] ?? 0 ?> Dom</div>
+            <div class="mini-pill" onclick="event.stopPropagation(); location.href='<?= base_url('admin/server_management/billing?status=Expiring') ?>'"><i class="fa fa-credit-card text-warning"></i> <?= $stats['expiring_billing'] ?? 0 ?> Bill</div>
         </div>
     </div>
     
@@ -262,6 +266,7 @@ $inactive_all = ($stats['inactive_providers'] ?? 0);
         <div class="stat-breakdown">
             <div class="mini-pill" onclick="event.stopPropagation(); location.href='<?= base_url('admin/server_management/hosting?status=Expired') ?>'"><i class="fa fa-server text-danger"></i> <?= $stats['expired_hostings'] ?? 0 ?> Host</div>
             <div class="mini-pill" onclick="event.stopPropagation(); location.href='<?= base_url('admin/server_management/domain?status=Expired') ?>'"><i class="fa fa-globe text-danger"></i> <?= $stats['expired_domains'] ?? 0 ?> Dom</div>
+            <div class="mini-pill" onclick="event.stopPropagation(); location.href='<?= base_url('admin/server_management/billing?status=Expired') ?>'"><i class="fa fa-credit-card text-danger"></i> <?= $stats['expired_billing'] ?? 0 ?> Bill</div>
             <div class="mini-pill" onclick="event.stopPropagation(); location.href='<?= base_url('admin/server_management/provider?status=Inactive') ?>'"><i class="fa fa-briefcase text-danger"></i> <?= $stats['inactive_providers'] ?? 0 ?> Prov</div>
         </div>
     </div>
@@ -282,12 +287,19 @@ $inactive_all = ($stats['inactive_providers'] ?? 0);
                         <?php foreach ($expiring_items as $item): ?>
                             <li>
                                 <div class="activity-avatar bg-light">
-                                    <i class="fa <?= $item['type'] === 'domain' ? 'fa-globe text-info' : 'fa-server text-success' ?>"></i>
+                                    <i class="fa <?php 
+                                        if ($item['type'] === 'domain') echo 'fa-globe text-info';
+                                        elseif ($item['type'] === 'hosting') echo 'fa-server text-success';
+                                        else echo 'fa-credit-card text-warning';
+                                    ?>"></i>
                                 </div>
                                 <div class="activity-details">
-                                    <strong><?= htmlspecialchars($item['name']) ?></strong><br>
-                                    <small class="text-muted">Expires: <?= date('M j, Y', strtotime($item['expiry_date'])) ?></small>
-                                </div>
+                                     <strong><?= htmlspecialchars($item['name']) ?></strong><br>
+                                     <small class="text-muted">
+                                         <?= htmlspecialchars($item['provider_name'] ?? 'No Provider') ?> • 
+                                         Expires: <?= date('M j, Y', strtotime($item['expiry_date'])) ?>
+                                     </small>
+                                 </div>
                                 <div class="activity-time">
                                     <?php
                                     $badge_class = 'badge-danger';
@@ -304,6 +316,7 @@ $inactive_all = ($stats['inactive_providers'] ?? 0);
                     <div class="empty-state-box">
                         <i class="fa fa-check-circle text-success"></i>
                         <p>All clear! No items expiring soon.</p>
+                        <a href="<?= base_url('admin/server_management/hosting') ?>" class="btn btn-xs btn-outline-primary mt-2">Manage Services</a>
                     </div>
                 <?php endif; ?>
             </div>
@@ -324,7 +337,12 @@ $inactive_all = ($stats['inactive_providers'] ?? 0);
                         <?php foreach ($all_inactive as $item): ?>
                             <li>
                                 <div class="activity-avatar bg-light-red">
-                                    <i class="fa <?= ($item['type'] ?? '') === 'provider' ? 'fa-briefcase' : (($item['type'] ?? '') === 'domain' ? 'fa-globe' : 'fa-server') ?>"></i>
+                                    <i class="fa <?php 
+                                        if (($item['type'] ?? '') === 'provider') echo 'fa-briefcase';
+                                        elseif (($item['type'] ?? '') === 'domain') echo 'fa-globe';
+                                        elseif (($item['type'] ?? '') === 'hosting') echo 'fa-server';
+                                        else echo 'fa-credit-card';
+                                    ?>"></i>
                                 </div>
                                 <div class="activity-details">
                                     <strong><?= htmlspecialchars($item['name'] ?? '') ?></strong><br>
@@ -351,6 +369,7 @@ $inactive_all = ($stats['inactive_providers'] ?? 0);
                     <div class="empty-state-box">
                         <i class="fa fa-check-circle text-success"></i>
                         <p>Great! All items are active.</p>
+                        <a href="<?= base_url('admin/server_management/hosting') ?>" class="btn btn-xs btn-outline-primary mt-2">View All</a>
                     </div>
                 <?php endif; ?>
             </div>
@@ -373,15 +392,20 @@ $inactive_all = ($stats['inactive_providers'] ?? 0);
                         <?php foreach ($running_items as $item): ?>
                             <li>
                                 <div class="activity-avatar bg-light-green">
-                                    <i class="fa <?= $item['type'] === 'domain' ? 'fa-globe text-success' : 'fa-server text-success' ?>"></i>
+                                    <i class="fa <?php 
+                                        if ($item['type'] === 'domain') echo 'fa-globe text-success';
+                                        elseif ($item['type'] === 'hosting') echo 'fa-server text-success';
+                                        else echo 'fa-credit-card text-success';
+                                    ?>"></i>
                                 </div>
                                 <div class="activity-details">
-                                    <strong><?= htmlspecialchars($item['name']) ?></strong><br>
-                                    <small class="text-muted">
-                                        Purchased: <?= date('M j, Y', strtotime($item['purchase_date'])) ?> • 
-                                        Expires: <?= date('M j, Y', strtotime($item['expiry_date'])) ?>
-                                    </small>
-                                </div>
+                                     <strong><?= htmlspecialchars($item['name']) ?></strong><br>
+                                     <small class="text-muted">
+                                         <?= htmlspecialchars($item['provider_name'] ?? 'No Provider') ?> • 
+                                         Purchased: <?= date('M j, Y', strtotime($item['purchase_date'])) ?> • 
+                                         Expires: <?= date('M j, Y', strtotime($item['expiry_date'])) ?>
+                                     </small>
+                                 </div>
                                 <div class="activity-time">
                                     <span class="badge badge-success" style="color: #17a2b8;"><?= $item['running_for'] ?></span><br>
                                 </div>
@@ -392,6 +416,10 @@ $inactive_all = ($stats['inactive_providers'] ?? 0);
                     <div class="empty-state-box">
                         <i class="fa fa-stop-circle text-muted"></i>
                         <p>No running services at the moment.</p>
+                        <div class="mt-2">
+                            <a href="<?= base_url('admin/server_management/add_hosting') ?>" class="btn btn-xs btn-outline-success mr-1">Add Hosting</a>
+                            <a href="<?= base_url('admin/server_management/add_domain') ?>" class="btn btn-xs btn-outline-info">Add Domain</a>
+                        </div>
                     </div>
                 <?php endif; ?>
             </div>
@@ -427,6 +455,82 @@ $inactive_all = ($stats['inactive_providers'] ?? 0);
                     <div class="empty-state-box">
                         <i class="fa fa-inbox"></i>
                         <p>No recent activities recorded.</p>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Row 3: Billing Orders Section -->
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <div class="dashboard-panel">
+            <div class="panel-heading d-flex justify-content-between align-items-center">
+                <h5><i class="fa fa-credit-card mr-2 text-primary"></i> Billing Orders (<?= count($all_billings ?? []) ?>)</h5>
+                <a href="<?= base_url('admin/server_management/billing') ?>" class="btn btn-xs btn-primary">View All</a>
+            </div>
+            
+            <div class="panel-body-scroll" style="max-height: 400px;">
+                <?php if (!empty($all_billings)): ?>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0" style="font-size: 13px;">
+                            <thead>
+                                <tr>
+                                    <th>Label</th>
+                                    <th>Type</th>
+                                    <th>Client</th>
+                                    <th>Value</th>
+                                    <th>Expiry Date</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach (array_slice($all_billings, 0, 10) as $billing): ?>
+                                    <tr>
+                                        <td>
+                                            <strong><?= htmlspecialchars($billing->label) ?></strong><br>
+                                            <small class="text-muted"><?= htmlspecialchars($billing->provider_name ?? 'N/A') ?></small>
+                                        </td>
+                                        <td><span class="badge badge-secondary"><?= htmlspecialchars($billing->type) ?></span></td>
+                                        <td><?= htmlspecialchars($billing->client_name ?? 'N/A') ?></td>
+                                        <td><?= $billing->currency ?> <?= number_format($billing->value, 2) ?></td>
+                                        <td>
+                                            <?php if ($billing->expiry_date): ?>
+                                                <?= date('M j, Y', strtotime($billing->expiry_date)) ?>
+                                                <?php 
+                                                    $days_diff = (strtotime($billing->expiry_date) - time()) / 86400;
+                                                    if ($days_diff < 0) echo ' <span class="text-danger">(Expired)</span>';
+                                                    elseif ($days_diff < 30) echo ' <span class="text-warning">('.ceil($days_diff).'d left)</span>';
+                                                ?>
+                                            <?php else: ?>
+                                                -
+                                            <?php endif; ?>
+                                        </td>
+                                        <td>
+                                            <?php
+                                            $status_class = 'badge-secondary';
+                                            if ($billing->status === 'Active') $status_class = 'badge-success';
+                                            elseif ($billing->status === 'Expired') $status_class = 'badge-danger';
+                                            elseif ($billing->status === 'Pending') $status_class = 'badge-warning';
+                                            ?>
+                                            <span class="badge <?= $status_class ?>"><?= $billing->status ?></span>
+                                        </td>
+                                        <td>
+                                            <a href="<?= base_url('admin/server_management/add_billing/' . $billing->id) ?>" class="btn btn-xs btn-outline-info" title="Edit"><i class="fa fa-pencil"></i></a>
+                                            <a href="<?= base_url('admin/server_management/view_billing/' . $billing->id) ?>" class="btn btn-xs btn-outline-primary" title="View"><i class="fa fa-eye"></i></a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php else: ?>
+                    <div class="empty-state-box">
+                        <i class="fa fa-credit-card"></i>
+                        <p>No billing orders found.</p>
+                        <a href="<?= base_url('admin/server_management/add_billing') ?>" class="btn btn-sm btn-success mt-2">Add First Billing Order</a>
                     </div>
                 <?php endif; ?>
             </div>

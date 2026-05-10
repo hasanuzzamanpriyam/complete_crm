@@ -40,6 +40,7 @@ class Server_management extends Admin_Controller
         $domain_stats = $this->domain_model->get_stats();
         $hosting_stats = $this->hosting_model->get_stats();
         $provider_stats = $this->provider_model->get_stats();
+        $billing_stats = $this->billing_model->get_stats();
 
         $data['stats'] = [
             'total_hostings' => $hosting_stats['total'],
@@ -56,7 +57,12 @@ class Server_management extends Admin_Controller
             'total_providers' => $provider_stats['total'],
             'active_providers' => $provider_stats['active'],
             'inactive_providers' => $provider_stats['inactive'],
-            'running_count' => $hosting_stats['active'] + $domain_stats['active']
+            'total_billing' => $billing_stats['total'],
+            'active_billing' => $billing_stats['active'],
+            'pending_billing' => $billing_stats['pending'],
+            'expiring_billing' => $billing_stats['expiring'],
+            'expired_billing' => $billing_stats['expired'],
+            'running_count' => $hosting_stats['active'] + $domain_stats['active'] + $billing_stats['active']
         ];
 
         $data['recent_activities'] = $this->get_recent_activities();
@@ -64,6 +70,7 @@ class Server_management extends Admin_Controller
         $data['expired_items'] = $this->get_expired_items();
         $data['inactive_providers'] = $this->get_inactive_providers();
         $data['running_items'] = $this->get_running_items();
+        $data['all_billings'] = $this->billing_model->get_all_billing();
 
         $data['subview'] = $this->load->view('admin/server_management/dashboard', $data, TRUE);
         $this->load->view('admin/_layout_main', $data);
@@ -136,21 +143,30 @@ class Server_management extends Admin_Controller
         $end_date = date('Y-m-d', strtotime("+{$days} days"));
         $today = date('Y-m-d');
 
-        $this->db->select('id, domain_name as name, expiry_date, "domain" as type');
-        $this->db->from('tbldomains');
-        $this->db->where('expiry_date >=', $today);
-        $this->db->where('expiry_date <=', $end_date);
-        $this->db->where('status', 'Active');
+        $this->db->select('d.id, d.domain_name as name, d.expiry_date, "domain" as type, p.provider_name');
+        $this->db->from('tbldomains d');
+        $this->db->join('tblproviders p', 'd.provider_id = p.id', 'left');
+        $this->db->where('d.expiry_date >=', $today);
+        $this->db->where('d.expiry_date <=', $end_date);
+        $this->db->where('d.status', 'Active');
         $domains = $this->db->get()->result_array();
 
-        $this->db->select('id, title as name, expiry_date, "hosting" as type');
-        $this->db->from('tblserver_hostings');
-        $this->db->where('expiry_date >=', $today);
-        $this->db->where('expiry_date <=', $end_date);
-        $this->db->where('status', 'Active');
+        $this->db->select('h.id, h.title as name, h.expiry_date, "hosting" as type, p.provider_name');
+        $this->db->from('tblserver_hostings h');
+        $this->db->join('tblproviders p', 'h.provider_id = p.id', 'left');
+        $this->db->where('h.expiry_date >=', $today);
+        $this->db->where('h.expiry_date <=', $end_date);
+        $this->db->where('h.status', 'Active');
         $hostings = $this->db->get()->result_array();
+        $this->db->select('b.id, b.label as name, b.expiry_date, "billing" as type, p.provider_name');
+        $this->db->from('tbl_billing_orders b');
+        $this->db->join('tblproviders p', 'b.provider_id = p.id', 'left');
+        $this->db->where('b.expiry_date >=', $today);
+        $this->db->where('b.expiry_date <=', $end_date);
+        $this->db->where('b.status', 'Active');
+        $billings = $this->db->get()->result_array();
 
-        $items = array_merge($domains, $hostings);
+        $items = array_merge($domains, $hostings, $billings);
 
         usort($items, function ($a, $b) {
             return strtotime($a['expiry_date']) - strtotime($b['expiry_date']);
@@ -160,7 +176,7 @@ class Server_management extends Admin_Controller
             $item['days_left'] = (int)ceil((strtotime($item['expiry_date']) - strtotime($today)) / (60 * 60 * 24));
             $item['link'] = $item['type'] === 'domain'
                 ? 'admin/server_management/add_domain/' . $item['id']
-                : 'admin/server_management/add_hosting/' . $item['id'];
+                : ($item['type'] === 'hosting' ? 'admin/server_management/add_hosting/' . $item['id'] : 'admin/server_management/add_billing/' . $item['id']);
         }
 
         return $items;
@@ -170,8 +186,9 @@ class Server_management extends Admin_Controller
     {
         $expired_domains = $this->domain_model->get_expired_domains();
         $expired_hostings = $this->hosting_model->get_expired_hostings();
+        $expired_billings = $this->billing_model->get_expired_billing();
 
-        $items = array_merge($expired_domains, $expired_hostings);
+        $items = array_merge($expired_domains, $expired_hostings, $expired_billings);
 
         usort($items, function ($a, $b) {
             return strtotime($b['expiry_date']) - strtotime($a['expiry_date']);
@@ -191,20 +208,30 @@ class Server_management extends Admin_Controller
         $today = date('Y-m-d');
 
         // Get active domains that haven't expired
-        $this->db->select('id, domain_name as name, purchase_date, expiry_date, "domain" as type');
-        $this->db->from('tbldomains');
-        $this->db->where('status', 'Active');
-        $this->db->where('expiry_date >=', $today);
+        $this->db->select('d.id, d.domain_name as name, d.purchase_date, d.expiry_date, "domain" as type, p.provider_name');
+        $this->db->from('tbldomains d');
+        $this->db->join('tblproviders p', 'd.provider_id = p.id', 'left');
+        $this->db->where('d.status', 'Active');
+        $this->db->where('d.expiry_date >=', $today);
         $domains = $this->db->get()->result_array();
 
         // Get active hostings that haven't expired
-        $this->db->select('id, title as name, purchase_date, expiry_date, "hosting" as type');
-        $this->db->from('tblserver_hostings');
-        $this->db->where('status', 'Active');
-        $this->db->where('expiry_date >=', $today);
+        $this->db->select('h.id, h.title as name, h.purchase_date, h.expiry_date, "hosting" as type, p.provider_name');
+        $this->db->from('tblserver_hostings h');
+        $this->db->join('tblproviders p', 'h.provider_id = p.id', 'left');
+        $this->db->where('h.status', 'Active');
+        $this->db->where('h.expiry_date >=', $today);
         $hostings = $this->db->get()->result_array();
 
-        $items = array_merge($domains, $hostings);
+        // Get active billings that haven't expired
+        $this->db->select('b.id, b.label as name, b.buy_date as purchase_date, b.expiry_date, "billing" as type, p.provider_name');
+        $this->db->from('tbl_billing_orders b');
+        $this->db->join('tblproviders p', 'b.provider_id = p.id', 'left');
+        $this->db->where('b.status', 'Active');
+        $this->db->where('b.expiry_date >=', $today);
+        $billings = $this->db->get()->result_array();
+
+        $items = array_merge($domains, $hostings, $billings);
 
         // Sort by oldest purchase_date (longest running first)
         usort($items, function ($a, $b) {
@@ -235,7 +262,7 @@ class Server_management extends Admin_Controller
             $item['days_running'] = $days_running;
             $item['link'] = $item['type'] === 'domain'
                 ? 'admin/server_management/add_domain/' . $item['id']
-                : 'admin/server_management/add_hosting/' . $item['id'];
+                : ($item['type'] === 'hosting' ? 'admin/server_management/add_hosting/' . $item['id'] : 'admin/server_management/add_billing/' . $item['id']);
         }
 
         return $items;
@@ -1550,11 +1577,13 @@ class Server_management extends Admin_Controller
             if ($id) {
                 $data_save['updated_at'] = date('Y-m-d H:i:s');
                 $this->billing_model->save($data_save, $id);
+                $this->log_activity('server_management', 'Updated billing order "' . $data_save['label'] . '"', 'fa-credit-card', 'admin/server_management/add_billing/' . $id, $data_save['status']);
                 set_message('success', 'Billing order updated successfully!');
             } else {
                 $data_save['created_at'] = date('Y-m-d H:i:s');
                 $data_save['updated_at'] = date('Y-m-d H:i:s');
-                $this->billing_model->save($data_save);
+                $new_id = $this->billing_model->save($data_save);
+                $this->log_activity('server_management', 'Added new billing order "' . $data_save['label'] . '"', 'fa-credit-card', 'admin/server_management/add_billing/' . $new_id, $data_save['status']);
                 set_message('success', 'Billing order added successfully!');
             }
             redirect('admin/server_management/billing');
@@ -1612,7 +1641,11 @@ class Server_management extends Admin_Controller
                 set_message('error', 'You do not have permission to delete this record!');
                 redirect('admin/server_management/billing');
             }
+            $billing = $this->billing_model->get($id, TRUE);
             $this->billing_model->delete($id);
+            if ($billing) {
+                $this->log_activity('server_management', 'Deleted billing order "' . $billing->label . '"', 'fa-trash');
+            }
             set_message('success', 'Billing order deleted successfully!');
         }
         redirect('admin/server_management/billing');
