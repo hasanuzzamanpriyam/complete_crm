@@ -91,5 +91,7 @@ $lang['high'] = 'High';
 $lang['urgent'] = 'Urgent';
 $lang['reporting_to'] = 'Reporting To';
 $lang['reporting_to_help'] = 'Select who the task will be reported to after completion';
-
-
+$lang['chat'] = 'Chat';
+$lang['not_new_chat_message'] = 'posted a new chat message on - %s';
+$lang['type_your_message_here'] = 'Type your message here...';
+$lang['send'] = 'Send';

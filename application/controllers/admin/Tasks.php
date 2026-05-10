@@ -11,6 +11,15 @@ class Tasks extends Admin_Controller
     {
         parent::__construct();
         $this->load->model('tasks_model');
+        if (!$this->db->table_exists('tbl_task_chat')) {
+            $this->db->query("CREATE TABLE IF NOT EXISTS tbl_task_chat (
+                task_chat_id INT AUTO_INCREMENT PRIMARY KEY,
+                task_id INT NOT NULL,
+                user_id INT NOT NULL,
+                message TEXT NOT NULL,
+                message_datetime DATETIME NOT NULL
+            )");
+        }
     }
 
     public function all_task()
@@ -644,6 +653,7 @@ class Tasks extends Admin_Controller
             $this->tasks_model->_table_name = "tbl_task"; // table name
             $this->tasks_model->_primary_key = "task_id"; // $id
             $id = $this->tasks_model->save($data, $id);
+            $this->check_task_timer($id, $data['task_status']);
 
             $this->tasks_model->set_task_progress($id);
 
@@ -891,15 +901,18 @@ class Tasks extends Admin_Controller
                 $this->tasks_model->set_progress($tasks_info->project_id);
             }
 
-            if ($status == 'not_started') {
-                $data['task_progress'] = 0;
-            }
+            $this->check_task_timer($tasks_id, $status);
+
             if ($status == 'completed') {
                 $data['task_progress'] = 100;
                 $data['task_status'] = $status;
-                $this->tasks_timer('off', $tasks_id, true);
+            } elseif ($status == 'in_progress') {
+                $data['task_status'] = $status;
             } else {
                 $data['task_status'] = $status;
+                if ($status == 'not_started') {
+                    $data['task_progress'] = 0;
+                }
             }
             $this->tasks_model->_table_name = "tbl_task"; // table name
             $this->tasks_model->_primary_key = "task_id"; // $id
@@ -949,6 +962,7 @@ class Tasks extends Admin_Controller
             //save data into table.
             $this->tasks_model->_table_name = "tbl_task"; // table name
             $this->tasks_model->_primary_key = "task_id"; // $id
+            $this->check_task_timer($id, $data['task_status']);
             $id = $this->tasks_model->save($data, $id);
 
             $tasks_info = $this->tasks_model->check_by(array('task_id' => $id), 'tbl_task');
@@ -2157,6 +2171,7 @@ class Tasks extends Admin_Controller
             $this->tasks_model->_table_name = "tbl_task"; // table name
             $this->tasks_model->_primary_key = "task_id"; // $id
             $id = $this->tasks_model->save($data, $id);
+            $this->check_task_timer($id, $data['task_status']);
         }
         // save into activities
         $activities = array(
@@ -2311,6 +2326,95 @@ class Tasks extends Admin_Controller
             $this->db->update('tbl_checklists', [
                 'description' => nl2br($description),
             ]);
+        }
+    }
+    public function save_chat()
+    {
+        $task_id = $this->input->post('task_id', TRUE);
+        $message = $this->input->post('message', TRUE);
+        $user_id = $this->session->userdata('user_id');
+
+        if (!empty($task_id) && !empty($message)) {
+            if (!$this->db->table_exists('tbl_task_chat')) {
+                $this->db->query("CREATE TABLE IF NOT EXISTS tbl_task_chat (
+                    task_chat_id INT AUTO_INCREMENT PRIMARY KEY,
+                    task_id INT NOT NULL,
+                    user_id INT NOT NULL,
+                    message TEXT NOT NULL,
+                    message_datetime DATETIME NOT NULL
+                )");
+            }
+            $data = array(
+                'task_id' => $task_id,
+                'user_id' => $user_id,
+                'message' => $message,
+                'message_datetime' => date('Y-m-d H:i:s')
+            );
+            $this->db->insert('tbl_task_chat', $data);
+            $chat_id = $this->db->insert_id();
+
+            if ($chat_id) {
+                $tasks_info = $this->tasks_model->check_by(array('task_id' => $task_id), 'tbl_task');
+                $notifiedUsers = array();
+                if (!empty($tasks_info->permission) && $tasks_info->permission != 'all') {
+                    $permissionUsers = json_decode($tasks_info->permission);
+                    foreach ($permissionUsers as $user => $v_permission) {
+                        array_push($notifiedUsers, $user);
+                    }
+                } else {
+                    $notifiedUsers = $this->tasks_model->allowed_user_id('54');
+                }
+                
+                if (!empty($notifiedUsers)) {
+                    foreach ($notifiedUsers as $users) {
+                        if ($users != $user_id) {
+                            add_notification(array(
+                                'to_user_id' => $users,
+                                'from_user_id' => true,
+                                'description' => 'not_new_chat_message',
+                                'link' => 'admin/tasks/details/' . $task_id . '/chat',
+                                'value' => lang('task') . ' ' . $tasks_info->task_name,
+                            ));
+                        }
+                    }
+                    show_notification($notifiedUsers);
+                }
+                echo json_encode(array('status' => 'success'));
+            } else {
+                echo json_encode(array('status' => 'error', 'message' => 'Failed to save message'));
+            }
+        } else {
+            echo json_encode(array('status' => 'error', 'message' => 'Missing data'));
+        }
+        exit();
+    }
+
+    public function get_chat_messages($task_id)
+    {
+        $messages = $this->db->where('task_id', $task_id)->order_by('message_datetime', 'ASC')->get('tbl_task_chat')->result();
+        $html = '';
+        $my_id = $this->session->userdata('user_id');
+        foreach ($messages as $msg) {
+            $class = ($msg->user_id == $my_id) ? 'me' : 'others';
+            $user_name = fullname($msg->user_id);
+            $image = staffImage($msg->user_id);
+            $html .= '<div class="chat-message ' . $class . '">';
+            $html .= '<span class="chat-user">' . $user_name . '</span>';
+            $html .= '<div class="chat-content">' . nl2br($msg->message) . '</div>';
+            $html .= '<span class="chat-time">' . display_datetime($msg->message_datetime) . '</span>';
+            $html .= '</div>';
+        }
+        echo json_encode(array('html' => $html));
+        exit();
+    }
+    private function check_task_timer($task_id, $status)
+    {
+        if ($status == 'completed') {
+            $this->tasks_timer('off', $task_id, true);
+        } elseif ($status == 'in_progress') {
+            if (!timer_status('tasks', $task_id, 'on')) {
+                $this->tasks_timer('on', $task_id, true);
+            }
         }
     }
 }

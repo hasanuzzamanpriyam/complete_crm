@@ -4241,6 +4241,7 @@ function tab_load_view($all_tab, $active)
 function tasks_details_tabs($id)
 {
     // make details tab array and assign order,name,url,count
+    $CI = &get_instance();
     $url = 'admin/tasks/details/';
     $tabs = array(
         'details' => [
@@ -4257,36 +4258,43 @@ function tasks_details_tabs($id)
             'count' => total_rows('tbl_task_comment', array('module' => 'tasks', 'module_field_id' => $id)),
             'view' => 'admin/common/comments'
         ],
-        'attachments' => [
+        'chat' => [
             'position' => 3,
+            'name' => 'chat',
+            'url' => $url . $id . '/chat',
+            'count' => ($CI->db->table_exists('tbl_task_chat') ? total_rows('tbl_task_chat', array('task_id' => $id)) : 0),
+            'view' => 'admin/tasks/details/chat'
+        ],
+        'attachments' => [
+            'position' => 4,
             'name' => 'attachments',
             'url' => $url . $id . '/attachments',
             'count' => total_rows('tbl_attachments', array('module' => 'tasks', 'module_field_id' => $id)),
             'view' => 'admin/common/attachments'
         ],
         'timesheets' => [
-            'position' => 4,
+            'position' => 5,
             'name' => 'timesheets',
             'url' => $url . $id . '/timesheets',
             'count' => total_rows('tbl_tasks_timer', array('task_id' => $id, 'start_time !=' => 0, 'end_time !=' => 0)),
             'view' => $url . 'timesheets'
         ],
         'notes' => [
-            'position' => 5,
+            'position' => 6,
             'name' => 'notes',
             'url' => $url . $id . '/notes',
             'count' => '',
             'view' => $url . 'notes'
         ],
         'sub_tasks' => [
-            'position' => 6,
+            'position' => 7,
             'name' => 'sub_tasks',
             'url' => $url . $id . '/sub_tasks',
             'count' => total_rows('tbl_task', array('sub_task_id' => $id)),
             'view' => $url . 'sub_tasks'
         ],
         'activites' => [
-            'position' => 7,
+            'position' => 8,
             'name' => 'activites',
             'url' => $url . $id . '/activites',
             'count' => total_rows('tbl_activities', array('module' => 'tasks', 'module_field_id' => $id)),

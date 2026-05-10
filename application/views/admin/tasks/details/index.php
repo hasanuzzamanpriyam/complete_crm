@@ -12,6 +12,13 @@ if (!empty($check_existing)) {
     $btn = 'warning';
     $title = lang('add_todo_list');
 }
+
+$task_time = $this->tasks_model->task_spent_time_by_id($task_details->task_id);
+if ($task_details->timer_status == 'on') {
+    $task_time += (time() - $task_details->start_time);
+}
+$estimate_hours = $task_details->task_hour;
+$percentage = $this->tasks_model->get_estime_time($estimate_hours);
 ?>
 <div class="panel panel-custom">
     <div class="panel-heading">
@@ -478,10 +485,11 @@ if (!empty($check_existing)) {
                     <form class="form-horizontal p-20">
                         
                         <?php
-                        
-                        $task_time = $this->tasks_model->task_spent_time_by_id($task_details->task_id);
+                        // $task_time already calculated at top
                         ?>
-                        <?= $this->tasks_model->get_time_spent_result($task_time) ?>
+                        <div id="live_task_timer">
+                            <?= $this->tasks_model->get_time_spent_result($task_time) ?>
+                        </div>
                         <?php
                         if (!empty($task_details->billable) && $task_details->billable == 'Yes') {
                             $total_time = $task_time / 3600;
@@ -489,17 +497,17 @@ if (!empty($check_existing)) {
                             $currency = $this->db->where('code', config_item('default_currency'))->get('tbl_currencies')->row();
                             ?>
                             <h2 class="text-center"><?= lang('total_bill') ?>
-                                : <?= display_money($total_cost, $currency->symbol) ?></h2>
+                                : <span class="total_bill"><?= display_money($total_cost, $currency->symbol) ?></span></h2>
                         <?php }
                         $estimate_hours = $task_details->task_hour;
                         $percentage = $this->tasks_model->get_estime_time($estimate_hours);
                         
                         if ($task_time < $percentage) {
                             $total_time = $percentage - $task_time;
-                            $worked = '<storng style="font-size: 15px;"  class="required">' . lang('left_works') . '</storng>';
+                            $worked = '<storng style="font-size: 15px;"  class="required worked_status">' . lang('left_works') . '</storng>';
                         } else {
                             $total_time = $task_time - $percentage;
-                            $worked = '<storng style="font-size: 15px" class="required">' . lang('extra_works') . '</storng>';
+                            $worked = '<storng style="font-size: 15px" class="required worked_status">' . lang('extra_works') . '</storng>';
                         }
                         
                         ?>
@@ -507,7 +515,7 @@ if (!empty($check_existing)) {
                             <div class="">
                                 <?= $worked ?>
                             </div>
-                            <div class="">
+                            <div class="live_remaining_time">
                                 <?= $this->tasks_model->get_spent_time($total_time) ?>
                             </div>
                         </div>
@@ -991,9 +999,23 @@ if (!empty($check_existing)) {
                 }
                 ?>
                 
-                </div>
             </div>
-            
+
+            <?php if (!empty($task_details->task_description)) : ?>
+                <div class="form-group col-sm-12" style="margin-top: 15px; margin-bottom: 15px;">
+                    <div class="col-sm-12">
+                        <div style="background: #f9f9f9; border-left: 4px solid #5d9cec; padding: 15px; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                            <label style="display: block; margin-bottom: 10px; color: #5d9cec; font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px;">
+                                <i class="fa fa-align-left mr-sm"></i> <?= lang('description') ?>
+                            </label>
+                            <div style="font-size: 14px; line-height: 1.6; color: #444; word-wrap: break-word;">
+                                <?= $task_details->task_description ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+
             <div class="form-group  col-sm-10">
                 <label class="control-label col-sm-3 "><strong class="mr-sm"><?= lang('completed') ?>
                         :</strong></label>
@@ -1018,10 +1040,11 @@ if (!empty($check_existing)) {
             </div>
             <div class="form-group col-sm-12">
                 <?php
-                
-                $task_time = $this->tasks_model->task_spent_time_by_id($task_details->task_id);
+                // $task_time already calculated at top
                 ?>
-                <?= $this->tasks_model->get_time_spent_result($task_time) ?>
+                <div id="live_task_timer_2">
+                    <?= $this->tasks_model->get_time_spent_result($task_time) ?>
+                </div>
                 <?php
                 if (!empty($task_details->billable) && $task_details->billable == 'Yes') {
                     $total_time = $task_time / 3600;
@@ -1029,17 +1052,17 @@ if (!empty($check_existing)) {
                     $currency = $this->db->where('code', config_item('default_currency'))->get('tbl_currencies')->row();
                     ?>
                     <h2 class="text-center"><?= lang('total_bill') ?>
-                        : <?= display_money($total_cost, $currency->symbol) ?></h2>
+                        : <span class="total_bill"><?= display_money($total_cost, $currency->symbol) ?></span></h2>
                 <?php }
                 $estimate_hours = $task_details->task_hour;
                 $percentage = $this->tasks_model->get_estime_time($estimate_hours);
                 
                 if ($task_time < $percentage) {
                     $total_time = $percentage - $task_time;
-                    $worked = '<storng style="font-size: 15px;"  class="required">' . lang('left_works') . '</storng>';
+                    $worked = '<storng style="font-size: 15px;"  class="required worked_status">' . lang('left_works') . '</storng>';
                 } else {
                     $total_time = $task_time - $percentage;
-                    $worked = '<storng style="font-size: 15px" class="required">' . lang('extra_works') . '</storng>';
+                    $worked = '<storng style="font-size: 15px" class="required worked_status">' . lang('extra_works') . '</storng>';
                 }
                 
                 ?>
@@ -1047,18 +1070,71 @@ if (!empty($check_existing)) {
                     <div class="">
                         <?= $worked ?>
                     </div>
-                    <div class="">
+                    <div class="live_remaining_time">
                         <?= $this->tasks_model->get_spent_time($total_time) ?>
                     </div>
                 </div>
             
             </div>
-            <div class="col-sm-12">
-                <blockquote style="font-size: 12px; margin-top: 5px;word-wrap: break-word;width: 100%">
-                    <?php if (!empty($task_details->task_description)) echo $task_details->task_description; ?>
-                </blockquote>
-            </div>
+
         <?php } ?>
     
     </div>
 </div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        <?php if ($task_details->timer_status == 'on') : ?>
+        var timer_seconds = <?= $task_time ?>;
+        var percentage = <?= $percentage ?>;
+        var hourly_rate = <?= !empty($task_details->hourly_rate) ? $task_details->hourly_rate : 0 ?>;
+        var currency_symbol = '<?= !empty($currency->symbol) ? $currency->symbol : '$' ?>';
+        var lang_left_works = '<?= lang('left_works') ?>';
+        var lang_extra_works = '<?= lang('extra_works') ?>';
+        var lang_hours = '<?= lang('hours') ?>';
+        var lang_minutes = '<?= lang('minutes') ?>';
+        var lang_seconds = '<?= lang('seconds') ?>';
+
+        var timer_interval = setInterval(function () {
+            timer_seconds++;
+            
+            // Update Spent Time
+            var hours = Math.floor(timer_seconds / 3600);
+            var minutes = Math.floor((timer_seconds % 3600) / 60);
+            var seconds = timer_seconds % 60;
+
+            $('.timer').each(function () {
+                var $this = $(this);
+                $this.find('li:eq(0)').contents().first()[0].textContent = hours;
+                $this.find('li:eq(2)').contents().first()[0].textContent = minutes;
+                $this.find('li:eq(4)').contents().first()[0].textContent = seconds;
+            });
+
+            // Update Total Bill
+            if (hourly_rate > 0) {
+                var total_cost = (timer_seconds / 3600) * hourly_rate;
+                $('.total_bill').text(currency_symbol + total_cost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+            }
+
+            // Update Remaining/Extra Time
+            var total_time;
+            if (timer_seconds < percentage) {
+                total_time = percentage - timer_seconds;
+                $('.worked_status').text(lang_left_works);
+            } else {
+                total_time = timer_seconds - percentage;
+                $('.worked_status').text(lang_extra_works);
+            }
+
+            var r_hours = Math.floor(total_time / 3600);
+            var r_minutes = Math.floor((total_time % 3600) / 60);
+            var r_seconds = total_time % 60;
+
+            $('.live_remaining_time').each(function() {
+                $(this).html(r_hours + ' <strong> ' + lang_hours + ' </strong> : ' + r_minutes + ' <strong> ' + lang_minutes + ' </strong> : ' + r_seconds + ' <strong> ' + lang_seconds + ' </strong>');
+            });
+
+        }, 1000);
+        <?php endif; ?>
+    });
+</script>

@@ -23,7 +23,7 @@
     if (!empty($project_timers)):
         ?>
         <li class="nav-heading"><?= lang('project') . ' ' . lang('start') ?> </li>
-    <?php foreach ($project_timers as $p_timer) : if (!empty($role) && ($role->role_id == 1 || ($role->role_id == 2 && $user_id == $p_timer['user_id']))) : ?>
+    <?php foreach ($project_timers as $p_timer) : if (!empty($role) && ($role->role_id == 1 || $user_id == $p_timer['user_id'] || $this->admin_model->can_action('tbl_project', 'view', array('project_id' => $p_timer['project_id']), true))) : ?>
         <li class="active mb-sm" start="<?php echo $p_timer['timer_status']; ?>">
             <a title="<?php echo $p_timer['project_name'] . " (" . $p_timer['username'] . ")"; ?>"
                data-placement="top" data-toggle="tooltip"
@@ -104,7 +104,7 @@
         <li class="nav-heading"><?= lang('tasks') . ' ' . lang('start') ?> </li>
     <?php
     foreach ($task_timers as $v_task_timer):
-    if (!empty($role) && ($role->role_id == 1 || ($role->role_id == 2 && $user_id == $v_task_timer['user_id']))) :
+    if (!empty($role) && ($role->role_id == 1 || $user_id == $v_task_timer['user_id'] || (!empty($v_task_timer['report_to']) && $user_id == $v_task_timer['report_to']) || $this->admin_model->can_action('tbl_task', 'view', array('task_id' => $v_task_timer['task_id']), true))) :
     ?>
         <li class="mb-sm active" start="<?php echo $v_task_timer['timer_status']; ?>">
             <a title="<?php echo $v_task_timer['task_name'] . " (" . $v_task_timer['username'] . ")"; ?>"
