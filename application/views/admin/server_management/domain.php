@@ -233,7 +233,7 @@
                                         <td><span class="badge badge-secondary"><?= !empty($domain['registrar_status']) ? htmlspecialchars($domain['registrar_status']) : '-' ?></span></td>
                                         <td><span class="text-info"><?= $domain['running_for'] ?></span></td>
                                         <td class="font-weight-bold text-success">
-                                            <?= !empty($domain['price']) ? ($domain['currency_symbol'] ?: '$') . number_format($domain['price'], 2) : '-' ?>
+                                            <?= !empty($domain['price']) ? ($domain['currency_symbol'] ?: '$') . number_format((float)$domain['price'], 2) : '-' ?>
                                         </td>
                                         <td><?= !empty($domain['provider_name']) ? htmlspecialchars($domain['provider_name']) : '-' ?></td>
                                         <td>

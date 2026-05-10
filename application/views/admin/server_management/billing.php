@@ -59,7 +59,7 @@
                                             <span class="badge badge-<?= $status_class ?>"><?= $billing->status ?></span>
                                         </td>
                                         <td><?= $billing->renewal_date ?></td>
-                                        <td><?= $billing->currency ?> <?= number_format($billing->value, 2) ?></td>
+                                        <td><?= $billing->currency ?> <?= number_format((float)$billing->value, 2) ?></td>
                                         <td class="text-center">
                                             <a href="<?= base_url('admin/server_management/view_billing/' . $billing->id) ?>" class="btn btn-xs btn-outline-info" title="View Details" data-toggle="modal" data-target="#myModal"><i class="fa fa-list-alt"></i></a>
                                             <a href="<?= base_url('admin/server_management/add_billing/' . $billing->id) ?>" class="btn btn-xs btn-outline-primary" title="Edit"><i class="fa fa-pencil"></i></a>

@@ -143,7 +143,7 @@ class Server_management extends Admin_Controller
         $end_date = date('Y-m-d', strtotime("+{$days} days"));
         $today = date('Y-m-d');
 
-        $this->db->select('d.id, d.domain_name as name, d.expiry_date, "domain" as type, p.provider_name');
+        $this->db->select('d.id, d.domain_name as name, d.expiry_date, \'domain\' as type, p.provider_name');
         $this->db->from('tbldomains d');
         $this->db->join('tblproviders p', 'd.provider_id = p.id', 'left');
         $this->db->where('d.expiry_date >=', $today);
@@ -151,14 +151,14 @@ class Server_management extends Admin_Controller
         $this->db->where('d.status', 'Active');
         $domains = $this->db->get()->result_array();
 
-        $this->db->select('h.id, h.title as name, h.expiry_date, "hosting" as type, p.provider_name');
+        $this->db->select('h.id, h.title as name, h.expiry_date, \'hosting\' as type, p.provider_name');
         $this->db->from('tblserver_hostings h');
         $this->db->join('tblproviders p', 'h.provider_id = p.id', 'left');
         $this->db->where('h.expiry_date >=', $today);
         $this->db->where('h.expiry_date <=', $end_date);
         $this->db->where('h.status', 'Active');
         $hostings = $this->db->get()->result_array();
-        $this->db->select('b.id, b.label as name, b.expiry_date, "billing" as type, p.provider_name');
+        $this->db->select('b.id, b.label as name, b.expiry_date, \'billing\' as type, p.provider_name');
         $this->db->from('tbl_billing_orders b');
         $this->db->join('tblproviders p', 'b.provider_id = p.id', 'left');
         $this->db->where('b.expiry_date >=', $today);
@@ -208,7 +208,7 @@ class Server_management extends Admin_Controller
         $today = date('Y-m-d');
 
         // Get active domains that haven't expired
-        $this->db->select('d.id, d.domain_name as name, d.purchase_date, d.expiry_date, "domain" as type, p.provider_name');
+        $this->db->select('d.id, d.domain_name as name, d.purchase_date, d.expiry_date, \'domain\' as type, p.provider_name');
         $this->db->from('tbldomains d');
         $this->db->join('tblproviders p', 'd.provider_id = p.id', 'left');
         $this->db->where('d.status', 'Active');
@@ -216,7 +216,7 @@ class Server_management extends Admin_Controller
         $domains = $this->db->get()->result_array();
 
         // Get active hostings that haven't expired
-        $this->db->select('h.id, h.title as name, h.purchase_date, h.expiry_date, "hosting" as type, p.provider_name');
+        $this->db->select('h.id, h.title as name, h.purchase_date, h.expiry_date, \'hosting\' as type, p.provider_name');
         $this->db->from('tblserver_hostings h');
         $this->db->join('tblproviders p', 'h.provider_id = p.id', 'left');
         $this->db->where('h.status', 'Active');
@@ -224,7 +224,7 @@ class Server_management extends Admin_Controller
         $hostings = $this->db->get()->result_array();
 
         // Get active billings that haven't expired
-        $this->db->select('b.id, b.label as name, b.buy_date as purchase_date, b.expiry_date, "billing" as type, p.provider_name');
+        $this->db->select('b.id, b.label as name, b.buy_date as purchase_date, b.expiry_date, \'billing\' as type, p.provider_name');
         $this->db->from('tbl_billing_orders b');
         $this->db->join('tblproviders p', 'b.provider_id = p.id', 'left');
         $this->db->where('b.status', 'Active');

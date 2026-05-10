@@ -32,7 +32,7 @@
                 ?>
                 <span class="badge badge-<?= $status_class ?>"><?= $billing_info->status ?></span>
             </p>
-            <p><strong>Price:</strong> <?= $billing_info->currency ?> <?= number_format($billing_info->value, 2) ?></p>
+            <p><strong>Price:</strong> <?= $billing_info->currency ?> <?= number_format((float)$billing_info->value, 2) ?></p>
             <p><strong>Renew:</strong> <?= $billing_info->renew ?></p>
         </div>
     </div>

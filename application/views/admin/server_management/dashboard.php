@@ -495,7 +495,7 @@ $inactive_all = ($stats['inactive_providers'] ?? 0);
                                         </td>
                                         <td><span class="badge badge-secondary"><?= htmlspecialchars($billing->type) ?></span></td>
                                         <td><?= htmlspecialchars($billing->client_name ?? 'N/A') ?></td>
-                                        <td><?= $billing->currency ?> <?= number_format($billing->value, 2) ?></td>
+                                        <td><?= $billing->currency ?> <?= number_format((float)$billing->value, 2) ?></td>
                                         <td>
                                             <?php if ($billing->expiry_date): ?>
                                                 <?= date('M j, Y', strtotime($billing->expiry_date)) ?>
