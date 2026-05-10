@@ -70,7 +70,7 @@ class Domain_model extends CI_Model {
             }
         }
 
-        $this->db->order_by('d.id', 'DESC');
+        $this->db->order_by('d.domain_name', 'ASC');
         $this->db->limit($limit, $start);
         $query = $this->db->get();
         $domains = $query->result_array();
