@@ -399,8 +399,12 @@
                             </div>
                             <div class="checkbox">
                                 <label style="text-transform: none; font-weight: normal;">
-                                    <input type="checkbox" name="enable_reminders_weekend" value="1" <?= (!empty($billing_info->enable_reminders_weekend) && $billing_info->enable_reminders_weekend == 1) ? 'checked' : '' ?>> Enable Permissions
+                                    <input type="checkbox" id="enable_permission" name="enable_permission" value="1" <?= (!empty($permissionL) && $permissionL != 'all') ? 'checked' : '' ?>> Enable Permissions
                                 </label>
+                            </div>
+
+                            <div id="permission_settings" style="display: <?= (!empty($permissionL) && $permissionL != 'all') ? 'block' : 'none' ?>;">
+                                <?= get_permission(3, 9, $assign_user, $permissionL, lang('assined_to')); ?>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -408,6 +412,38 @@
                                 <label>Server Tags</label>
                                 <input type="text" name="server_tags" class="form-control" value="<?= !empty($billing_info->server_tags) ? $billing_info->server_tags : '' ?>" placeholder="Tag1, Tag2">
                             </div>
+                        </div>
+                    </div>
+
+                    <div class="erp-section-title">Additional Labels</div>
+                    <div id="custom_fields_container">
+                        <?php 
+                        $custom_fields = !empty($billing_info->custom_fields) ? json_decode($billing_info->custom_fields, true) : [];
+                        if (!empty($custom_fields)) {
+                            foreach ($custom_fields as $field) {
+                        ?>
+                            <div class="row custom-field-row" style="margin-bottom: 10px;">
+                                <div class="col-md-5">
+                                    <label>Label</label>
+                                    <input type="text" name="custom_field_label[]" class="form-control" placeholder="Label" value="<?= $field['label'] ?>">
+                                </div>
+                                <div class="col-md-5">
+                                    <label>Value</label>
+                                    <input type="text" name="custom_field_value[]" class="form-control" placeholder="Value" value="<?= $field['value'] ?>">
+                                </div>
+                                <div class="col-md-2">
+                                    <label>&nbsp;</label>
+                                    <button type="button" class="btn btn-danger btn-sm remove-custom-field" style="display: block;"><i class="fa fa-trash"></i></button>
+                                </div>
+                            </div>
+                        <?php 
+                            }
+                        }
+                        ?>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <button type="button" id="add_custom_field" class="btn btn-info btn-xs"><i class="fa fa-plus"></i> Add Label</button>
                         </div>
                     </div>
 
@@ -567,6 +603,58 @@
 
         $('#renewal_date').on('change input', function() {
             calculateDuration();
+        });
+
+        // Toggle permission settings
+        $('#enable_permission').on('change', function() {
+            if ($(this).is(':checked')) {
+                $('#permission_settings').slideDown();
+            } else {
+                $('#permission_settings').slideUp();
+                // Reset to everyone if unchecked
+                $('input[name="permission"][value="everyone"]').prop('checked', true).trigger('change');
+            }
+        });
+
+        // Sub-permission toggling (standard in this system)
+        $(document).on('change', 'input[name="permission"]', function() {
+            if ($(this).val() == 'custom_permission') {
+                $('#permission_user').show();
+            } else {
+                $('#permission_user').hide();
+            }
+        });
+
+        $(document).on('change', '.assigned_to_modal', function() {
+            var user_id = $(this).val();
+            if ($(this).is(':checked')) {
+                $('#action_1' + user_id).show();
+            } else {
+                $('#action_1' + user_id).hide();
+            }
+        });
+
+        // Custom Fields Logic
+        $('#add_custom_field').on('click', function() {
+            var html = '<div class="row custom-field-row" style="margin-bottom: 10px;">' +
+                       '    <div class="col-md-5">' +
+                       '        <label>Label</label>' +
+                       '        <input type="text" name="custom_field_label[]" class="form-control" placeholder="Label">' +
+                       '    </div>' +
+                       '    <div class="col-md-5">' +
+                       '        <label>Value</label>' +
+                       '        <input type="text" name="custom_field_value[]" class="form-control" placeholder="Value">' +
+                       '    </div>' +
+                       '    <div class="col-md-2">' +
+                       '        <label>&nbsp;</label>' +
+                       '        <button type="button" class="btn btn-danger btn-sm remove-custom-field" style="display: block;"><i class="fa fa-trash"></i></button>' +
+                       '    </div>' +
+                       '</div>';
+            $('#custom_fields_container').append(html);
+        });
+
+        $(document).on('click', '.remove-custom-field', function() {
+            $(this).closest('.custom-field-row').remove();
         });
     });
 </script>

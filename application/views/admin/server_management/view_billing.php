@@ -94,6 +94,24 @@
             </div>
         </div>
     </div>
+    <?php 
+    $custom_fields = !empty($billing_info->custom_fields) ? json_decode($billing_info->custom_fields, true) : [];
+    if (!empty($custom_fields)) {
+    ?>
+    <hr>
+    <div class="row">
+        <div class="col-md-12">
+            <h5 class="text-primary mt-0">Additional Labels</h5>
+            <div class="row">
+                <?php foreach ($custom_fields as $field) { ?>
+                    <div class="col-md-4">
+                        <p><strong><?= $field['label'] ?>:</strong> <?= $field['value'] ?></p>
+                    </div>
+                <?php } ?>
+            </div>
+        </div>
+    </div>
+    <?php } ?>
 </div>
 <div class="modal-footer">
     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

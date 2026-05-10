@@ -1463,6 +1463,31 @@ class Server_management extends Admin_Controller
         $this->load->view('admin/_layout_main', $data);
     }
 
+    /**
+     * Build permission from POST data
+     */
+    private function _build_permission()
+    {
+        $permission = $this->input->post('permission', TRUE);
+        if ($permission == 'custom_permission') {
+            $assigned_to = $this->input->post('assigned_to', TRUE);
+            $permission_data = array();
+            if (!empty($assigned_to)) {
+                foreach ($assigned_to as $user_id) {
+                    $actions = $this->input->post('action_' . $user_id, TRUE);
+                    if (!empty($actions)) {
+                        $permission_data[$user_id] = $actions;
+                    } else {
+                        $permission_data[$user_id] = array('view');
+                    }
+                }
+            }
+            return json_encode($permission_data);
+        } else {
+            return 'all';
+        }
+    }
+
     public function add_billing($id = NULL)
     {
         $data['title'] = lang('add_billing_item');
@@ -1503,7 +1528,24 @@ class Server_management extends Admin_Controller
                 'server_tags'                   => $this->input->post('server_tags', TRUE),
                 'description'                   => $this->input->post('description', TRUE),
                 'renew'                         => $this->input->post('renew', TRUE),
+                'permission'                    => $this->_build_permission(),
             );
+
+            // Handle Custom Fields
+            $labels = $this->input->post('custom_field_label', TRUE);
+            $values = $this->input->post('custom_field_value', TRUE);
+            $custom_fields = array();
+            if (!empty($labels)) {
+                foreach ($labels as $index => $label) {
+                    if (!empty($label)) {
+                        $custom_fields[] = array(
+                            'label' => $label,
+                            'value' => isset($values[$index]) ? $values[$index] : ''
+                        );
+                    }
+                }
+            }
+            $data_save['custom_fields'] = json_encode($custom_fields);
 
             if ($id) {
                 $data_save['updated_at'] = date('Y-m-d H:i:s');
@@ -1518,6 +1560,11 @@ class Server_management extends Admin_Controller
             redirect('admin/server_management/billing');
         } else {
             if ($id) {
+                $can_edit = $this->billing_model->can_action('tbl_billing_orders', 'edit', array('id' => $id));
+                if (!$can_edit) {
+                    set_message('error', 'You do not have permission to edit this record!');
+                    redirect('admin/server_management/billing');
+                }
                 $data['billing_info'] = $this->billing_model->get($id, TRUE);
             }
             $data['currencies'] = $this->db->get('tbl_currencies')->result_array();
@@ -1534,6 +1581,13 @@ class Server_management extends Admin_Controller
             $data['billing_manage_list'] = $this->db->get('tbl_billing_manage')->result_array();
             $data['stores'] = $this->db->get('tbl_woocommerce_stores')->result_array();
             
+            $data['assign_user'] = $this->db->where('activated', 1)->get('tbl_users')->result();
+            if (!empty($data['billing_info']->permission)) {
+                $data['permissionL'] = $data['billing_info']->permission;
+            } else {
+                $data['permissionL'] = 'all';
+            }
+            
             $data['subview'] = $this->load->view('admin/server_management/add_billing', $data, TRUE);
             $this->load->view('admin/_layout_main', $data);
         }
@@ -1541,6 +1595,11 @@ class Server_management extends Admin_Controller
 
     public function view_billing($id)
     {
+        $can_view = $this->billing_model->can_action('tbl_billing_orders', 'view', array('id' => $id));
+        if (!$can_view) {
+            set_message('error', 'You do not have permission to view this record!');
+            redirect('admin/server_management/billing');
+        }
         $data['billing_info'] = $this->billing_model->get_billing_info($id);
         $this->load->view('admin/server_management/view_billing', $data);
     }
@@ -1548,6 +1607,11 @@ class Server_management extends Admin_Controller
     public function delete_billing($id)
     {
         if ($id) {
+            $can_delete = $this->billing_model->can_action('tbl_billing_orders', 'delete', array('id' => $id));
+            if (!$can_delete) {
+                set_message('error', 'You do not have permission to delete this record!');
+                redirect('admin/server_management/billing');
+            }
             $this->billing_model->delete($id);
             set_message('success', 'Billing order deleted successfully!');
         }
