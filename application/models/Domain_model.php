@@ -1,16 +1,18 @@
 <?php
 
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class Domain_model extends MY_Model {
+class Domain_model extends MY_Model
+{
     public $_table_name = 'tbldomains';
     public $_primary_key = 'id';
     public $_order_by = 'id DESC';
 
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
-        
+
         // Automatically update expired and expiring domains
         $today = date('Y-m-d');
         $expiring_soon = date('Y-m-d', strtotime('+30 days'));
@@ -30,16 +32,43 @@ class Domain_model extends MY_Model {
         $this->db->where('expiry_date >', $expiring_soon);
         $this->db->where('status', 'Expiring');
         $this->db->update('tbldomains', array('status' => 'Active'));
+
+        // 4. Auto-complete renewal tasks for auto-renewal domains
+        $this->db->select('tbl_task.task_id, tbl_task.module_field_id, tbldomains.domain_name');
+        $this->db->from('tbl_task');
+        $this->db->join('tbldomains', 'tbl_task.module_field_id = tbldomains.id');
+        $this->db->where('tbl_task.module', 'domain');
+        $this->db->where('tbl_task.task_status !=', 'completed');
+        $this->db->where('tbl_task.due_date <=', $today);
+        $this->db->where('tbldomains.auto_renewal', 1);
+        $query = $this->db->get();
+        if ($query) {
+            $tasks_to_complete = $query->result();
+            foreach ($tasks_to_complete as $task) {
+                $this->db->where('task_id', $task->task_id);
+                $this->db->update('tbl_task', array('task_status' => 'completed'));
+
+                $notify_data = array(
+                    'description' => 'task_updated',
+                    'icon' => 'fa-check-circle',
+                    'link' => 'admin/tasks/view_details/' . $task->task_id,
+                    'value' => 'Renewal: ' . $task->domain_name
+                );
+                add_notification($notify_data);
+            }
+        }
     }
 
-    public function insert_domain($data) {
+    public function insert_domain($data)
+    {
         $data['created_at'] = date('Y-m-d H:i:s');
         $data['updated_at'] = date('Y-m-d H:i:s');
         $this->db->insert('tbldomains', $data);
         return $this->db->insert_id();
     }
 
-    public function get_domains($limit, $start, $filters = array()) {
+    public function get_domains($limit, $start, $filters = array())
+    {
         $this->db->select('d.*, p.provider_name, h.hosting_name, c.symbol as currency_symbol');
         $this->db->from('tbldomains d');
         $this->db->join('tblproviders p', 'd.provider_id = p.id', 'left');
@@ -86,12 +115,12 @@ class Domain_model extends MY_Model {
 
             // Calculate Age
             $start_date = !empty($domain['date']) ? $domain['date'] : $domain['purchase_date'];
-            
+
             if (!empty($start_date)) {
                 $start_timestamp = strtotime($start_date);
                 $diff = $today - $start_timestamp;
                 $days_running = floor($diff / (60 * 60 * 24));
-                
+
                 if ($days_running < 0) {
                     $domain['running_for'] = 'Not started';
                 } else {
@@ -121,7 +150,8 @@ class Domain_model extends MY_Model {
         return $domains;
     }
 
-    public function get_domains_count($filters = array()) {
+    public function get_domains_count($filters = array())
+    {
         $this->db->select('d.id');
         $this->db->from('tbldomains d');
         $this->db->join('tblproviders p', 'd.provider_id = p.id', 'left');
@@ -158,7 +188,8 @@ class Domain_model extends MY_Model {
         return $this->db->count_all_results();
     }
 
-    public function get_all_providers() {
+    public function get_all_providers()
+    {
         $this->db->select('id, provider_name');
         $this->db->from('tblproviders');
         $this->db->where('status', 'Active');
@@ -167,7 +198,8 @@ class Domain_model extends MY_Model {
         return $query->result_array();
     }
 
-    public function get_provider_url($provider_id) {
+    public function get_provider_url($provider_id)
+    {
         $this->db->select('provider_url');
         $this->db->from('tblproviders');
         $this->db->where('id', $provider_id);
@@ -176,7 +208,8 @@ class Domain_model extends MY_Model {
         return $row ? $row->provider_url : '';
     }
 
-    public function get_all_clients() {
+    public function get_all_clients()
+    {
         $this->db->select('client_id, name');
         $this->db->from('tbl_client');
         $this->db->order_by('name', 'ASC');
@@ -184,7 +217,8 @@ class Domain_model extends MY_Model {
         return $query->result_array();
     }
 
-    public function get_all_projects() {
+    public function get_all_projects()
+    {
         $this->db->select('project_id, project_name');
         $this->db->from('tbl_project');
         $this->db->order_by('project_name', 'ASC');
@@ -192,13 +226,15 @@ class Domain_model extends MY_Model {
         return $query->result_array();
     }
 
-    public function get_domain_by_id($id) {
+    public function get_domain_by_id($id)
+    {
         $this->db->where('id', $id);
         $query = $this->db->get('tbldomains');
         return $query->row();
     }
 
-    public function get_domain_info($id) {
+    public function get_domain_info($id)
+    {
         $this->db->select('d.*, p.provider_name as provider, h.title as hosting');
         $this->db->from('tbldomains d');
         $this->db->join('tblproviders p', 'd.provider_id = p.id', 'left');
@@ -219,7 +255,7 @@ class Domain_model extends MY_Model {
                         $row->project = implode(', ', array_column($projects, 'project_name'));
                     }
                 }
-                
+
                 // Fetch clients
                 $row->client_name = '';
                 if (!empty($row->client_id)) {
@@ -237,13 +273,15 @@ class Domain_model extends MY_Model {
         return NULL;
     }
 
-    public function update_domain($id, $data) {
+    public function update_domain($id, $data)
+    {
         $data['updated_at'] = date('Y-m-d H:i:s');
         $this->db->where('id', $id);
         return $this->db->update('tbldomains', $data);
     }
 
-    public function delete_domain($id) {
+    public function delete_domain($id)
+    {
         if (is_array($id)) {
             $this->db->where_in('id', $id);
             return $this->db->delete('tbldomains');
@@ -251,38 +289,41 @@ class Domain_model extends MY_Model {
         return $this->db->where('id', $id)->delete('tbldomains');
     }
 
-    public function get_all_domains() {
+    public function get_all_domains()
+    {
         return $this->db->get('tbldomains')->result_array();
     }
 
-    public function get_stats() {
+    public function get_stats()
+    {
         $stats = [];
         $stats['total'] = $this->db->count_all('tbldomains');
-        
+
         $this->db->where('status', 'Active');
         $stats['active'] = $this->db->count_all_results('tbldomains');
-        
+
         $this->db->where('status', 'Pending');
         $stats['pending'] = $this->db->count_all_results('tbldomains');
-        
+
         $this->db->where('status', 'Expired');
         $stats['expired'] = $this->db->count_all_results('tbldomains');
-        
+
         $this->db->where('expiry_date <', date('Y-m-d'));
         $this->db->where('status !=', 'Expired');
         $stats['expired_auto'] = $this->db->count_all_results('tbldomains');
-        
+
         $stats['expired'] = ($stats['expired'] ?? 0) + ($stats['expired_auto'] ?? 0);
-        
+
         $this->db->where('expiry_date >=', date('Y-m-d'));
         $this->db->where('expiry_date <=', date('Y-m-d', strtotime('+30 days')));
         $this->db->where('status', 'Active');
         $stats['expiring'] = $this->db->count_all_results('tbldomains');
-        
+
         return $stats;
     }
 
-    public function get_all_hostings() {
+    public function get_all_hostings()
+    {
         $this->db->select('id, hosting_name');
         $this->db->from('tblhostings');
         $this->db->order_by('hosting_name', 'ASC');
@@ -290,11 +331,13 @@ class Domain_model extends MY_Model {
         return $query->result_array();
     }
 
-    public function insert_hosting_type($data) {
+    public function insert_hosting_type($data)
+    {
         return $this->db->insert('tblhostings', $data);
     }
 
-    public function get_expired_domains() {
+    public function get_expired_domains()
+    {
         $today = date('Y-m-d');
         $this->db->reset_query();
         $this->db->select('id, domain_name as name, expiry_date, status, auto_renewal');
@@ -303,7 +346,7 @@ class Domain_model extends MY_Model {
         $this->db->order_by('expiry_date', 'DESC');
         $query = $this->db->get();
         $domains = $query->result_array();
-        
+
         $today_timestamp = strtotime($today);
         foreach ($domains as &$domain) {
             $domain['type'] = 'domain';
@@ -311,14 +354,15 @@ class Domain_model extends MY_Model {
             $domain['days_expired'] = is_float($days_expired) ? ceil($days_expired) : intval($days_expired);
             $domain['link'] = 'admin/server_management/view_domain/' . $domain['id'];
         }
-        
+
         return $domains;
     }
 
-    public function get_expiring_domains($days = 7) {
+    public function get_expiring_domains($days = 7)
+    {
         $today = date('Y-m-d');
         $end_date = date('Y-m-d', strtotime("+{$days} days"));
-        
+
         $this->db->reset_query();
         $this->db->select('id, domain_name as name, expiry_date, status, auto_renewal');
         $this->db->from('tbldomains');
@@ -328,7 +372,7 @@ class Domain_model extends MY_Model {
         $this->db->order_by('expiry_date', 'ASC');
         $query = $this->db->get();
         $domains = $query->result_array();
-        
+
         $today_timestamp = strtotime($today);
         foreach ($domains as &$domain) {
             $domain['type'] = 'domain';
@@ -336,17 +380,18 @@ class Domain_model extends MY_Model {
             $domain['days_left'] = is_float($days_left) ? ceil($days_left) : intval($days_left);
             $domain['link'] = 'admin/server_management/view_domain/' . $domain['id'];
         }
-        
+
         return $domains;
     }
 
-    public function get_calendar_events() {
+    public function get_calendar_events()
+    {
         $events = array();
         $upcoming_days = config_item('upcoming_expiry_days') ? config_item('upcoming_expiry_days') : 7;
-        
+
         $expiring = $this->get_expiring_domains($upcoming_days);
         $expired = $this->get_expired_domains();
-        
+
         foreach ($expiring as $domain) {
             $renew_type = ($domain['auto_renewal'] == 1) ? ' (Auto)' : ' (Manual)';
             $events[] = array(
@@ -360,7 +405,7 @@ class Domain_model extends MY_Model {
                 'days_left' => $domain['days_left']
             );
         }
-        
+
         foreach ($expired as $domain) {
             $renew_type = ($domain['auto_renewal'] == 1) ? ' (Auto)' : ' (Manual)';
             $events[] = array(
@@ -374,11 +419,12 @@ class Domain_model extends MY_Model {
                 'days_expired' => $domain['days_expired']
             );
         }
-        
+
         return $events;
     }
 
-    public function get_all_domains_for_notification() {
+    public function get_all_domains_for_notification()
+    {
         $this->db->select('id, domain_name, expiry_date, status');
         $this->db->from('tbldomains');
         $this->db->where('status !=', 'Expired');
@@ -386,15 +432,18 @@ class Domain_model extends MY_Model {
         return $query->result_array();
     }
 
-    public function get_domain_types() {
+    public function get_domain_types()
+    {
         return $this->db->get('tbl_domain_types')->result_array();
     }
 
-    public function get_domain_statuses() {
+    public function get_domain_statuses()
+    {
         return $this->db->get('tbl_domain_status')->result_array();
     }
 
-    public function insert_domain_status($data) {
+    public function insert_domain_status($data)
+    {
         return $this->db->insert('tbl_domain_status', $data);
     }
 }

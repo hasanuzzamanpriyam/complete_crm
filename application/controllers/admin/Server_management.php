@@ -646,7 +646,7 @@ class Server_management extends Admin_Controller
 
                         if ($this->input->post('create_calendar_task')) {
                             $task_permission = $this->_build_task_permission();
-                            $this->create_renewal_task('server_hosting', $id, $data_save['title'], $data_save['expiry_date'], $task_permission);
+                            $this->create_renewal_task('server_hosting', $id, $data_save['title'], $data_save['purchase_date'], $data_save['expiry_date'], $task_permission);
                         }
 
                         $notify_data = array(
@@ -680,7 +680,7 @@ class Server_management extends Admin_Controller
 
                         if ($this->input->post('create_calendar_task')) {
                             $task_permission = $this->_build_task_permission();
-                            $this->create_renewal_task('server_hosting', $new_id, $data_save['title'], $data_save['expiry_date'], $task_permission);
+                            $this->create_renewal_task('server_hosting', $new_id, $data_save['title'], $data_save['purchase_date'], $data_save['expiry_date'], $task_permission);
                         }
 
                         $notify_data = array(
@@ -897,7 +897,7 @@ class Server_management extends Admin_Controller
 
                     if ($this->input->post('create_calendar_task')) {
                         $task_permission = $this->_build_task_permission();
-                        $this->create_renewal_task('domain', $id, $data_save['domain_name'], $data_save['expiry_date'], $task_permission);
+                        $this->create_renewal_task('domain', $id, $data_save['domain_name'], $data_save['purchase_date'], $data_save['expiry_date'], $task_permission);
                     }
 
                     $notify_data = array(
@@ -915,7 +915,7 @@ class Server_management extends Admin_Controller
 
                     if ($this->input->post('create_calendar_task')) {
                         $task_permission = $this->_build_task_permission();
-                        $this->create_renewal_task('domain', $new_id, $data_save['domain_name'], $data_save['expiry_date'], $task_permission);
+                        $this->create_renewal_task('domain', $new_id, $data_save['domain_name'], $data_save['purchase_date'], $data_save['expiry_date'], $task_permission);
                     }
 
                     $notify_data = array(
@@ -1741,20 +1741,35 @@ class Server_management extends Admin_Controller
         redirect('admin/server_management/billing');
     }
 
-    private function create_renewal_task($module, $module_id, $module_name, $expiry_date, $permission = 'all')
+    private function create_renewal_task($module, $module_id, $module_name, $exp_date, $future_exp_date, $permission = 'all')
     {
-        $task_data = array(
-            'task_name' => 'Renewal: ' . $module_name,
-            'task_description' => 'Automatic task for ' . $module . ' renewal. Expiry date: ' . $expiry_date,
+        // Task 1: Recent Expiration (Exp Date)
+        $task_data1 = array(
+            'task_name' => 'Recent Expiration: ' . $module_name,
+            'task_description' => 'Automatic task for ' . $module . ' recent expiration. Date: ' . $exp_date,
             'task_start_date' => date('Y-m-d'),
-            'due_date' => $expiry_date,
+            'due_date' => $exp_date,
             'task_status' => 'not_started',
             'created_by' => $this->session->userdata('user_id'),
             'permission' => $permission,
             'module' => $module,
             'module_field_id' => $module_id
         );
-        $this->db->insert('tbl_task', $task_data);
+        $this->db->insert('tbl_task', $task_data1);
+
+        // Task 2: Future Expiration (Future Exp Date)
+        $task_data2 = array(
+            'task_name' => 'Future Expiration: ' . $module_name,
+            'task_description' => 'Automatic task for ' . $module . ' future expiration. Date: ' . $future_exp_date,
+            'task_start_date' => date('Y-m-d'),
+            'due_date' => $future_exp_date,
+            'task_status' => 'not_started',
+            'created_by' => $this->session->userdata('user_id'),
+            'permission' => $permission,
+            'module' => $module,
+            'module_field_id' => $module_id
+        );
+        $this->db->insert('tbl_task', $task_data2);
     }
 
     /**

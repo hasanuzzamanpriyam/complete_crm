@@ -1,16 +1,18 @@
 <?php
 
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class Hosting_model extends MY_Model {
+class Hosting_model extends MY_Model
+{
     public $_table_name = 'tblserver_hostings';
     public $_primary_key = 'id';
     public $_order_by = 'id DESC';
 
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
-        
+
         // Automatically update expired and expiring hostings
         $today = date('Y-m-d');
         $expiring_soon = date('Y-m-d', strtotime('+30 days'));
@@ -30,9 +32,35 @@ class Hosting_model extends MY_Model {
         $this->db->where('expiry_date >', $expiring_soon);
         $this->db->where('status', 'Expiring');
         $this->db->update('tblserver_hostings', array('status' => 'Active'));
+
+        // 4. Auto-complete renewal tasks for auto-renewal hostings
+        $this->db->select('tbl_task.task_id, tbl_task.module_field_id, tblserver_hostings.title');
+        $this->db->from('tbl_task');
+        $this->db->join('tblserver_hostings', 'tbl_task.module_field_id = tblserver_hostings.id');
+        $this->db->where('tbl_task.module', 'server_hosting');
+        $this->db->where('tbl_task.task_status !=', 'completed');
+        $this->db->where('tbl_task.due_date <=', $today);
+        $this->db->where('tblserver_hostings.renew', 'automatic');
+        $query = $this->db->get();
+        if ($query) {
+            $tasks_to_complete = $query->result();
+            foreach ($tasks_to_complete as $task) {
+                $this->db->where('task_id', $task->task_id);
+                $this->db->update('tbl_task', array('task_status' => 'completed'));
+
+                $notify_data = array(
+                    'description' => 'task_updated',
+                    'icon' => 'fa-check-circle',
+                    'link' => 'admin/tasks/view_details/' . $task->task_id,
+                    'value' => 'Renewal: ' . $task->title
+                );
+                add_notification($notify_data);
+            }
+        }
     }
 
-    public function insert_hosting($data) {
+    public function insert_hosting($data)
+    {
         $data['created_at'] = date('Y-m-d H:i:s');
         if ($this->db->insert('tblserver_hostings', $data)) {
             return $this->db->insert_id();
@@ -41,7 +69,8 @@ class Hosting_model extends MY_Model {
         return false;
     }
 
-    public function get_hostings($limit, $start, $filters = array()) {
+    public function get_hostings($limit, $start, $filters = array())
+    {
         $this->db->select('sh.*, p.provider_name');
         $this->db->from('tblserver_hostings sh');
         $this->db->join('tblproviders p', 'sh.provider_id = p.id', 'left');
@@ -87,7 +116,8 @@ class Hosting_model extends MY_Model {
         return $hostings;
     }
 
-    public function get_hostings_count($filters = array()) {
+    public function get_hostings_count($filters = array())
+    {
         $this->db->select('sh.id');
         $this->db->from('tblserver_hostings sh');
         $this->db->join('tblproviders p', 'sh.provider_id = p.id', 'left');
@@ -124,7 +154,8 @@ class Hosting_model extends MY_Model {
         return $this->db->count_all_results();
     }
 
-    public function get_all_providers() {
+    public function get_all_providers()
+    {
         $this->db->select('id, provider_name');
         $this->db->from('tblproviders');
         $this->db->where('status', 'Active');
@@ -133,7 +164,8 @@ class Hosting_model extends MY_Model {
         return $query->result_array();
     }
 
-    public function get_provider_url($provider_id) {
+    public function get_provider_url($provider_id)
+    {
         $this->db->select('provider_url');
         $this->db->from('tblproviders');
         $this->db->where('id', $provider_id);
@@ -142,7 +174,8 @@ class Hosting_model extends MY_Model {
         return $row ? $row->provider_url : '';
     }
 
-    public function get_all_projects() {
+    public function get_all_projects()
+    {
         $this->db->select('project_id, project_name');
         $this->db->from('tbl_project');
         $this->db->order_by('project_name', 'ASC');
@@ -150,7 +183,8 @@ class Hosting_model extends MY_Model {
         return $query->result_array();
     }
 
-    public function get_all_clients() {
+    public function get_all_clients()
+    {
         $this->db->select('client_id, name');
         $this->db->from('tbl_client');
         $this->db->order_by('name', 'ASC');
@@ -158,13 +192,15 @@ class Hosting_model extends MY_Model {
         return $query->result_array();
     }
 
-    public function get_hosting_by_id($id) {
+    public function get_hosting_by_id($id)
+    {
         $this->db->where('id', $id);
         $query = $this->db->get('tblserver_hostings');
         return $query->row();
     }
 
-    public function get_hosting_info($id) {
+    public function get_hosting_info($id)
+    {
         $this->db->select('sh.*, p.provider_name as provider, c.symbol as currency_symbol');
         $this->db->from('tblserver_hostings sh');
         $this->db->join('tblproviders p', 'sh.provider_id = p.id', 'left');
@@ -185,7 +221,7 @@ class Hosting_model extends MY_Model {
                         $row->projects_names = implode(', ', array_column($projects, 'project_name'));
                     }
                 }
-                
+
                 // Fetch clients
                 $row->clients_names = '';
                 if (!empty($row->client_id)) {
@@ -203,39 +239,42 @@ class Hosting_model extends MY_Model {
         return NULL;
     }
 
-    public function get_stats() {
+    public function get_stats()
+    {
         $stats = [];
         $stats['total'] = $this->db->count_all('tblserver_hostings');
-        
+
         $this->db->where('status', 'Active');
         $stats['active'] = $this->db->count_all_results('tblserver_hostings');
-        
+
         $this->db->where('status', 'Pending');
         $stats['pending'] = $this->db->count_all_results('tblserver_hostings');
-        
+
         $this->db->where('status', 'Suspended');
         $stats['suspended'] = $this->db->count_all_results('tblserver_hostings');
-        
+
         $this->db->where('status', 'Cancelled');
         $stats['cancelled'] = $this->db->count_all_results('tblserver_hostings');
-        
+
         $this->db->where('expiry_date >=', date('Y-m-d'));
         $this->db->where('expiry_date <=', date('Y-m-d', strtotime('+30 days')));
         $this->db->where('status', 'Active');
         $stats['expiring'] = $this->db->count_all_results('tblserver_hostings');
-        
+
         $this->db->where('expiry_date <', date('Y-m-d'));
         $stats['expired'] = $this->db->count_all_results('tblserver_hostings');
-        
+
         return $stats;
     }
 
-    public function update_hosting($id, $data) {
+    public function update_hosting($id, $data)
+    {
         $this->db->where('id', $id);
         return $this->db->update('tblserver_hostings', $data);
     }
 
-    public function delete_hosting($id) {
+    public function delete_hosting($id)
+    {
         if (is_array($id)) {
             $this->db->where_in('id', $id);
         } else {
@@ -244,7 +283,8 @@ class Hosting_model extends MY_Model {
         return $this->db->delete('tblserver_hostings');
     }
 
-    public function get_expired_hostings() {
+    public function get_expired_hostings()
+    {
         $today = date('Y-m-d');
         $this->db->reset_query();
         $this->db->select('id, title as name, expiry_date, status, renew');
@@ -253,7 +293,7 @@ class Hosting_model extends MY_Model {
         $this->db->order_by('expiry_date', 'DESC');
         $query = $this->db->get();
         $hostings = $query->result_array();
-        
+
         $today_timestamp = strtotime($today);
         foreach ($hostings as &$hosting) {
             $hosting['type'] = 'hosting';
@@ -261,14 +301,15 @@ class Hosting_model extends MY_Model {
             $hosting['days_expired'] = is_float($days_expired) ? ceil($days_expired) : intval($days_expired);
             $hosting['link'] = 'admin/server_management/view_hosting/' . $hosting['id'];
         }
-        
+
         return $hostings;
     }
 
-    public function get_expiring_hostings($days = 7) {
+    public function get_expiring_hostings($days = 7)
+    {
         $today = date('Y-m-d');
         $end_date = date('Y-m-d', strtotime("+{$days} days"));
-        
+
         $this->db->reset_query();
         $this->db->select('id, title as name, expiry_date, status, renew');
         $this->db->from('tblserver_hostings');
@@ -278,7 +319,7 @@ class Hosting_model extends MY_Model {
         $this->db->order_by('expiry_date', 'ASC');
         $query = $this->db->get();
         $hostings = $query->result_array();
-        
+
         $today_timestamp = strtotime($today);
         foreach ($hostings as &$hosting) {
             $hosting['type'] = 'hosting';
@@ -286,17 +327,18 @@ class Hosting_model extends MY_Model {
             $hosting['days_left'] = is_float($days_left) ? ceil($days_left) : intval($days_left);
             $hosting['link'] = 'admin/server_management/view_hosting/' . $hosting['id'];
         }
-        
+
         return $hostings;
     }
 
-    public function get_calendar_events() {
+    public function get_calendar_events()
+    {
         $events = array();
         $upcoming_days = config_item('upcoming_expiry_days') ? config_item('upcoming_expiry_days') : 7;
-        
+
         $expiring = $this->get_expiring_hostings($upcoming_days);
         $expired = $this->get_expired_hostings();
-        
+
         foreach ($expiring as $hosting) {
             $renew_type = (isset($hosting['renew']) && $hosting['renew'] == 'automatic') ? ' (Auto)' : ' (Manual)';
             $events[] = array(
@@ -310,7 +352,7 @@ class Hosting_model extends MY_Model {
                 'days_left' => $hosting['days_left']
             );
         }
-        
+
         foreach ($expired as $hosting) {
             $renew_type = (isset($hosting['renew']) && $hosting['renew'] == 'automatic') ? ' (Auto)' : ' (Manual)';
             $events[] = array(
@@ -324,11 +366,12 @@ class Hosting_model extends MY_Model {
                 'days_expired' => $hosting['days_expired']
             );
         }
-        
+
         return $events;
     }
 
-    public function get_all_hostings_for_notification() {
+    public function get_all_hostings_for_notification()
+    {
         $this->db->select('id, title, expiry_date, status');
         $this->db->from('tblserver_hostings');
         $this->db->where('status !=', 'Expired');
@@ -336,7 +379,8 @@ class Hosting_model extends MY_Model {
         return $query->result_array();
     }
 
-    public function get_distinct_dns_providers() {
+    public function get_distinct_dns_providers()
+    {
         $this->db->select('DISTINCT(dns_provider_name) as provider_name');
         $this->db->from('tblserver_hostings');
         $this->db->where('dns_provider_name IS NOT NULL');
@@ -345,7 +389,8 @@ class Hosting_model extends MY_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
-    public function get_all_active_hostings() {
+    public function get_all_active_hostings()
+    {
         $this->db->select('id, title as hosting_name');
         $this->db->from('tblserver_hostings');
         $this->db->where('status', 'Active');

@@ -347,6 +347,7 @@
     </div>
 </div>
 
+<div id="modalsContainer">
 <?php if (!empty($hostings)): ?>
     <?php foreach ($hostings as $hosting): ?>
         <?php
@@ -669,6 +670,7 @@
         </div>
     <?php endforeach; ?>
 <?php endif; ?>
+</div>
 
 <script type="text/javascript">
     $(document).ready(function() {
@@ -735,14 +737,16 @@
                 data: formData,
                 success: function(response) {
                     // Extract only the parts we need from the response
-                    var $html = $($.parseHTML(response));
+                    var $html = $('<div/>').append($.parseHTML(response));
                     var newTable = $html.find('.table-responsive').html();
                     var newPagination = $html.find('#paginationContainer').html();
                     var newInfo = $html.find('.text-muted.small.mr-3').first().html();
+                    var newModals = $html.find('#modalsContainer').html();
 
                     $('.table-responsive').html(newTable);
                     $('#paginationContainer').html(newPagination);
                     $('.text-muted.small.mr-3').first().html(newInfo);
+                    $('#modalsContainer').html(newModals);
                     
                     $('.table-responsive').css('opacity', '1');
                     
