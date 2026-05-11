@@ -526,27 +526,27 @@
                         </div>
                     </div>
 
-                    <div class="erp-section-title">Notification Settings</div>
+                    <div class="erp-section-title">Notification & RBAC Settings</div>
                     
                     <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
-                                <div class="custom-control custom-checkbox" style="margin-top: 30px;">
+                                <div class="custom-control custom-checkbox" style="margin-top: 5px;">
                                     <input type="checkbox" name="expiry_notification" class="custom-control-input" id="expiry_notification" <?= isset($hosting_info) && $hosting_info->expiry_notification ? 'checked' : '' ?>>
                                     <label class="custom-control-label" for="expiry_notification" style="text-transform: none; font-size: 13px;">Enable Expiry Notification</label>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4" id="notification_days_wrapper">
+                        <div class="col-md-3" id="notification_days_wrapper">
                             <div class="form-group">
-                                <label>Notification Days Before</label>
-                                <input type="number" name="notification_days" class="form-control" value="<?= isset($hosting_info) ? $hosting_info->notification_days : '7' ?>">
+                                <label style="font-size: 11px; color: #777;">Days Before</label>
+                                <input type="number" name="notification_days" class="form-control input-sm" value="<?= isset($hosting_info) ? $hosting_info->notification_days : '7' ?>">
                             </div>
                         </div>
-                        <div class="col-md-5" id="notification_unit_wrapper">
+                        <div class="col-md-3" id="notification_unit_wrapper">
                             <div class="form-group">
-                                <label>Notification Time Unit</label>
-                                <select name="notification_time_unit" class="form-control">
+                                <label style="font-size: 11px; color: #777;">Time Unit</label>
+                                <select name="notification_time_unit" class="form-control input-sm">
                                     <option value="Days" <?= isset($hosting_info) && $hosting_info->notification_time_unit == 'Days' ? 'selected' : '' ?>>Days</option>
                                     <option value="Weeks" <?= isset($hosting_info) && $hosting_info->notification_time_unit == 'Weeks' ? 'selected' : '' ?>>Weeks</option>
                                     <option value="Months" <?= isset($hosting_info) && $hosting_info->notification_time_unit == 'Months' ? 'selected' : '' ?>>Months</option>
@@ -554,83 +554,105 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+
+                    <div class="row mt-3">
                         <div class="col-md-12">
-                            <div class="form-group">
+                            <div style="background: #f8f9fa; padding: 10px 15px; border-radius: 6px; border: 1px solid #e9ecef;">
                                 <div class="custom-control custom-checkbox">
                                     <input type="checkbox" name="create_calendar_task" class="custom-control-input" id="create_calendar_task" value="1">
-                                    <label class="custom-control-label" for="create_calendar_task" style="text-transform: none; font-size: 13px;">Create Task in Calendar for Renewal</label>
+                                    <label class="custom-control-label" for="create_calendar_task" style="text-transform: none; font-size: 13px; font-weight: 600;">Create Task in Calendar for Renewal</label>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- RBAC Section (visible when Create Calendar Task is checked) -->
-                    <div id="task_rbac_section" style="display: none;">
-                        <div class="erp-section-title">Task Permission</div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <div class="checkbox c-radio needsclick" style="display: inline-block; margin-right: 20px;">
-                                        <label class="needsclick" style="text-transform: none; font-size: 13px; font-weight: normal;">
-                                            <input type="radio" name="task_permission" value="everyone" checked class="task_permission_radio">
-                                            <span class="fa fa-circle"></span> Everyone
-                                            <i title="All staff members can view and manage this task" class="fa fa-question-circle" data-toggle="tooltip" data-placement="top"></i>
-                                        </label>
-                                    </div>
-                                    <div class="checkbox c-radio needsclick" style="display: inline-block;">
-                                        <label class="needsclick" style="text-transform: none; font-size: 13px; font-weight: normal;">
-                                            <input type="radio" name="task_permission" value="custom_permission" class="task_permission_radio">
-                                            <span class="fa fa-circle"></span> Custom
-                                            <i title="Select specific users who can access this task" class="fa fa-question-circle" data-toggle="tooltip" data-placement="top"></i>
-                                        </label>
-                                    </div>
+                    <div class="erp-section-title mt-4">Record Access Permissions</div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div style="display: flex; align-items: center; flex-wrap: wrap; background: #fff; padding: 10px 15px; border-radius: 6px; border: 1px solid #eee;">
+                                <span style="font-size: 12px; font-weight: 600; color: #555; text-transform: uppercase; margin-right: 20px;">Who can access this record:</span>
+                                
+                                <div class="radio-inline c-radio needsclick m0" style="display: inline-block;">
+                                    <label class="needsclick" style="text-transform: none; font-size: 13px; font-weight: normal; margin-bottom: 0;">
+                                        <input type="radio" name="task_permission" value="everyone" <?= (empty($permissionL) || $permissionL == 'all') ? 'checked' : '' ?> class="task_permission_radio">
+                                        <span class="fa fa-circle"></span> Everyone
+                                    </label>
+                                </div>
+                                <div class="radio-inline c-radio needsclick m0 ml-3" style="display: inline-block; margin-left: 20px;">
+                                    <label class="needsclick" style="text-transform: none; font-size: 13px; font-weight: normal; margin-bottom: 0;">
+                                        <input type="radio" name="task_permission" value="custom_permission" <?= (!empty($permissionL) && $permissionL != 'all') ? 'checked' : '' ?> class="task_permission_radio">
+                                        <span class="fa fa-circle"></span> Custom Permission
+                                    </label>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Custom Permission User List -->
-                        <div id="task_permission_users" style="display: none;">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label>Select Users <span class="required text-danger">*</span></label>
-                                        <?php if (!empty($staff_members)): ?>
-                                            <?php foreach ($staff_members as $staff): ?>
-                                                <?php
-                                                $is_admin = ($staff->role_id == 1);
-                                                $role_badge = $is_admin
-                                                    ? '<strong class="badge" style="background-color:#dd4b39;color:#fff;margin-left:5px;">Admin</strong>'
-                                                    : '<strong class="badge" style="background-color:#3c8dbc;color:#fff;margin-left:5px;">Staff</strong>';
-                                                ?>
-                                                <div class="checkbox c-checkbox needsclick" style="margin-bottom: 5px;">
-                                                    <label class="needsclick" style="text-transform: none; font-size: 13px; font-weight: normal;">
-                                                        <input type="checkbox" value="<?= $staff->user_id ?>" name="assigned_to[]" class="needsclick assigned_to_task">
-                                                        <span class="fa fa-check"></span> <?= htmlspecialchars($staff->username) ?> <?= $role_badge ?>
+                    <!-- Custom Permission User List -->
+                    <div id="task_permission_users" style="display: <?= (!empty($permissionL) && $permissionL != 'all') ? 'block' : 'none' ?>; margin-top: 20px; padding: 20px; background: #fff; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                        <label style="font-weight: 700; font-size: 14px; margin-bottom: 15px; display: block; color: #333; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #eee; padding-bottom: 10px;">Select Specific Users & Permissions</label>
+                        <div class="row">
+                            <?php if (!empty($staff_members)): ?>
+                                <?php foreach ($staff_members as $staff): ?>
+                                    <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
+                                        <div class="user-permission-item" style="padding: 10px; border: 1px solid #e9ecef; border-radius: 6px; background: #fdfdfd; height: 100%;">
+                                            <?php
+                                            $is_admin = ($staff->role_id == 1);
+                                            $role_badge = $is_admin
+                                                ? '<span class="label label-danger" style="font-size: 10px; padding: 2px 6px; margin-left: 5px; vertical-align: middle;">Admin</span>'
+                                                : '<span class="label label-info" style="font-size: 10px; padding: 2px 6px; margin-left: 5px; vertical-align: middle;">Staff</span>';
+                                            
+                                            $user_permission = array();
+                                            if (!empty($permissionL) && $permissionL != 'all') {
+                                                $all_permission = json_decode($permissionL, true);
+                                                if (!empty($all_permission[$staff->user_id])) {
+                                                    $user_permission = $all_permission[$staff->user_id];
+                                                }
+                                            }
+                                            ?>
+                                            <div style="padding: 0; border: 1px solid #e9ecef; border-radius: 8px; background: #fff; height: 100%; transition: all 0.2s ease;">
+                                                <div class="checkbox c-checkbox m0">
+                                                    <label class="needsclick" style="margin-bottom: 0; display: flex; align-items: center; width: 100%; cursor: pointer; padding: 12px;">
+                                                        <input type="checkbox" value="<?= $staff->user_id ?>" name="assigned_to[]" class="needsclick assigned_to_task" <?= !empty($user_permission) ? 'checked' : '' ?>>
+                                                        <span class="fa fa-check" style="margin-top: -10px; left: 12px;"></span>
+                                                        <div style="display: flex; align-items: center; margin-left: 25px; flex: 1; overflow: hidden;">
+                                                            <img src="<?= base_url() . (!empty($staff->avatar) ? $staff->avatar : 'assets/img/user/default.png') ?>" class="img-circle" style="width: 32px; height: 32px; border: 1px solid #eee; margin-right: 12px; flex-shrink: 0; object-fit: cover;">
+                                                            <div style="overflow: hidden; line-height: 1.3;">
+                                                                <div style="font-weight: 700; font-size: 13px; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><?= htmlspecialchars($staff->username) ?></div>
+                                                                <div style="font-size: 11px; color: #888; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px;">
+                                                                    <?= !empty($staff->designations) ? htmlspecialchars($staff->designations) : ($staff->role_id == 1 ? 'Admin' : 'Staff') ?>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </label>
                                                 </div>
-                                                <div class="action_task_user" id="action_task_<?= $staff->user_id ?>" style="display: none; padding-left: 25px; margin-bottom: 10px;">
-                                                    <label class="checkbox-inline c-checkbox" style="text-transform: none; font-size: 12px; font-weight: normal;">
+                                            </div>
+                                            
+                                            <div class="action_task_user mt-2" id="action_task_<?= $staff->user_id ?>" style="display: <?= !empty($user_permission) ? 'block' : 'none' ?>; padding-left: 28px; border-top: 1px dashed #eee; pt-2;">
+                                                <div style="display: flex; flex-wrap: wrap; margin-top: 8px;">
+                                                    <label class="checkbox-inline c-checkbox m0" style="font-size: 11px; margin-right: 15px; margin-bottom: 5px;">
                                                         <input checked type="checkbox" name="action_<?= $staff->user_id ?>[]" disabled value="view">
-                                                        <span class="fa fa-check"></span> Can View
+                                                        <span class="fa fa-check"></span> View
                                                     </label>
-                                                    <label class="checkbox-inline c-checkbox" style="text-transform: none; font-size: 12px; font-weight: normal;">
-                                                        <input type="checkbox" name="action_<?= $staff->user_id ?>[]" value="edit" <?= $is_admin ? 'disabled checked' : '' ?>>
-                                                        <span class="fa fa-check"></span> Can Edit
+                                                    <label class="checkbox-inline c-checkbox m0" style="font-size: 11px; margin-right: 15px; margin-bottom: 5px;">
+                                                        <input type="checkbox" name="action_<?= $staff->user_id ?>[]" value="edit" <?= ($is_admin || in_array('edit', $user_permission)) ? 'checked' : '' ?> <?= $is_admin ? 'disabled' : '' ?>>
+                                                        <span class="fa fa-check"></span> Edit
                                                     </label>
-                                                    <label class="checkbox-inline c-checkbox" style="text-transform: none; font-size: 12px; font-weight: normal;">
-                                                        <input type="checkbox" name="action_<?= $staff->user_id ?>[]" value="delete" <?= $is_admin ? 'disabled checked' : '' ?>>
-                                                        <span class="fa fa-check"></span> Can Delete
+                                                    <label class="checkbox-inline c-checkbox m0" style="font-size: 11px; margin-right: 0; margin-bottom: 5px;">
+                                                        <input type="checkbox" name="action_<?= $staff->user_id ?>[]" value="delete" <?= ($is_admin || in_array('delete', $user_permission)) ? 'checked' : '' ?> <?= $is_admin ? 'disabled' : '' ?>>
+                                                        <span class="fa fa-check"></span> Delete
                                                     </label>
-                                                    <input type="hidden" name="action_<?= $staff->user_id ?>[]" value="view">
                                                 </div>
-                                            <?php endforeach; ?>
-                                        <?php else: ?>
-                                            <p class="text-muted" style="font-size: 12px;">No staff members found.</p>
-                                        <?php endif; ?>
+                                                <input type="hidden" name="action_<?= $staff->user_id ?>[]" value="view">
+                                                <?php if($is_admin): ?>
+                                                    <input type="hidden" name="action_<?= $staff->user_id ?>[]" value="edit">
+                                                    <input type="hidden" name="action_<?= $staff->user_id ?>[]" value="delete">
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </div>
                     </div>
 
@@ -731,13 +753,9 @@ $(document).ready(function() {
         }
     });
 
-    // RBAC Section Toggle (show/hide when "Create Task in Calendar" is checked)
+    // The Calendar Task checkbox is now independent of RBAC
     $('#create_calendar_task').change(function() {
-        if ($(this).is(':checked')) {
-            $('#task_rbac_section').slideDown();
-        } else {
-            $('#task_rbac_section').slideUp();
-        }
+        // No longer toggles the RBAC section
     });
 
     // Toggle custom permission user list based on radio selection

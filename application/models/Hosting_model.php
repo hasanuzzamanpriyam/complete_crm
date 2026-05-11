@@ -2,7 +2,11 @@
 
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Hosting_model extends CI_Model {
+class Hosting_model extends MY_Model {
+    public $_table_name = 'tblserver_hostings';
+    public $_primary_key = 'id';
+    public $_order_by = 'id DESC';
+
 
     public function __construct() {
         parent::__construct();
@@ -41,6 +45,7 @@ class Hosting_model extends CI_Model {
         $this->db->select('sh.*, p.provider_name');
         $this->db->from('tblserver_hostings sh');
         $this->db->join('tblproviders p', 'sh.provider_id = p.id', 'left');
+        $this->staff_query('tblserver_hostings');
 
         if (!empty($filters)) {
             if (!empty($filters['start_date']) && !empty($filters['end_date'])) {
@@ -86,6 +91,7 @@ class Hosting_model extends CI_Model {
         $this->db->select('sh.id');
         $this->db->from('tblserver_hostings sh');
         $this->db->join('tblproviders p', 'sh.provider_id = p.id', 'left');
+        $this->staff_query('tblserver_hostings');
 
         if (!empty($filters)) {
             if (!empty($filters['start_date']) && !empty($filters['end_date'])) {

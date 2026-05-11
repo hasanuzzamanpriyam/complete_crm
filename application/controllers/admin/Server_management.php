@@ -338,6 +338,11 @@ class Server_management extends Admin_Controller
             $this->log_activity('server_management', 'Deleted ' . count($ids) . ' hosting(s)', 'fa-trash');
             set_message('success', 'Selected hostings deleted successfully!');
         } elseif ($id) {
+            $can_delete = $this->hosting_model->can_action('tblserver_hostings', 'delete', array('id' => $id));
+            if (!$can_delete) {
+                set_message('error', 'You do not have permission to delete this record!');
+                redirect('admin/server_management/hosting');
+            }
             $hosting = $this->hosting_model->get_hosting_by_id($id);
             $this->hosting_model->delete_hosting($id);
             if ($hosting) {
@@ -419,6 +424,12 @@ class Server_management extends Admin_Controller
                 return;
             }
 
+            $can_view = $this->domain_model->can_action('tbldomains', 'view', array('id' => $id));
+            if (!$can_view) {
+                echo '<div class="alert alert-danger">You do not have permission to view this record!</div>';
+                return;
+            }
+
             $data['domain'] = $this->domain_model->get_domain_info($id);
             if (empty($data['domain'])) {
                 echo "Domain not found";
@@ -444,6 +455,12 @@ class Server_management extends Admin_Controller
         try {
             if (!$id) {
                 echo "Invalid Hosting ID";
+                return;
+            }
+
+            $can_view = $this->hosting_model->can_action('tblserver_hostings', 'view', array('id' => $id));
+            if (!$can_view) {
+                echo '<div class="alert alert-danger">You do not have permission to view this record!</div>';
                 return;
             }
 
@@ -475,6 +492,11 @@ class Server_management extends Admin_Controller
             $this->log_activity('server_management', 'Deleted ' . count($ids) . ' domain(s)', 'fa-trash');
             set_message('success', 'Selected domains deleted successfully!');
         } elseif ($id) {
+            $can_delete = $this->domain_model->can_action('tbldomains', 'delete', array('id' => $id));
+            if (!$can_delete) {
+                set_message('error', 'You do not have permission to delete this record!');
+                redirect('admin/server_management/domain');
+            }
             $domain = $this->domain_model->get_domain_by_id($id);
             $this->domain_model->delete_domain($id);
             if ($domain) {
@@ -493,7 +515,12 @@ class Server_management extends Admin_Controller
         $data['currencies'] = $this->db->get('tbl_currencies')->result_array();
         $data['server_types'] = $this->db->get('tbl_server_types')->result_array();
         $data['plans'] = $this->db->get('tbl_hosting_plans')->result_array();
-        $data['staff_members'] = $this->db->where('activated', 1)->get('tbl_users')->result();
+        $this->db->select('tbl_users.*, tbl_account_details.avatar, tbl_account_details.fullname, tbl_designations.designations');
+        $this->db->from('tbl_users');
+        $this->db->join('tbl_account_details', 'tbl_users.user_id = tbl_account_details.user_id', 'left');
+        $this->db->join('tbl_designations', 'tbl_account_details.designations_id = tbl_designations.designations_id', 'left');
+        $this->db->where('tbl_users.activated', 1);
+        $data['staff_members'] = $this->db->get()->result();
 
         if ($this->input->post()) {
             $this->form_validation->set_rules('title', 'Title', 'required|trim|callback_check_hosting_title_unique');
@@ -609,7 +636,8 @@ class Server_management extends Admin_Controller
                     'expiry_notification' => $this->input->post('expiry_notification') ? 1 : 0,
                     'notification_days' => $this->input->post('expiry_notification') ? $this->input->post('notification_days', TRUE) : NULL,
                     'notification_time_unit' => $this->input->post('expiry_notification') ? $this->input->post('notification_time_unit', TRUE) : NULL,
-                    'description' => $this->input->post('description', TRUE)
+                    'description' => $this->input->post('description', TRUE),
+                    'permission'  => $this->_build_task_permission()
                 );
 
                 if ($id) {
@@ -684,8 +712,20 @@ class Server_management extends Admin_Controller
             }
         } else {
             if ($id) {
+                $can_edit = $this->hosting_model->can_action('tblserver_hostings', 'edit', array('id' => $id));
+                if (!$can_edit) {
+                    set_message('error', 'You do not have permission to edit this record!');
+                    redirect('admin/server_management/hosting');
+                }
                 $data['hosting_info'] = $this->hosting_model->get_hosting_by_id($id);
+                if (!empty($data['hosting_info']->permission)) {
+                    $data['permissionL'] = $data['hosting_info']->permission;
+                }
             }
+            if (empty($data['permissionL'])) {
+                $data['permissionL'] = 'all';
+            }
+            $data['assign_user'] = $this->db->where('activated', 1)->get('tbl_users')->result();
             $data['providers'] = $this->hosting_model->get_all_providers();
             $data['clients'] = $this->hosting_model->get_all_clients();
             $data['projects'] = $this->hosting_model->get_all_projects();
@@ -720,7 +760,12 @@ class Server_management extends Admin_Controller
     public function add_domain($id = NULL)
     {
         $data['title'] = lang('add_domain');
-        $data['staff_members'] = $this->db->where('activated', 1)->get('tbl_users')->result();
+        $this->db->select('tbl_users.*, tbl_account_details.avatar, tbl_account_details.fullname, tbl_designations.designations');
+        $this->db->from('tbl_users');
+        $this->db->join('tbl_account_details', 'tbl_users.user_id = tbl_account_details.user_id', 'left');
+        $this->db->join('tbl_designations', 'tbl_account_details.designations_id = tbl_designations.designations_id', 'left');
+        $this->db->where('tbl_users.activated', 1);
+        $data['staff_members'] = $this->db->get()->result();
 
         if ($this->input->post()) {
             $this->form_validation->set_rules('domain_name', 'Domain Name', 'required|trim|callback_check_domain_unique');
@@ -826,7 +871,8 @@ class Server_management extends Admin_Controller
                     'is_locked'            => $this->input->post('is_locked') ? 1 : 0,
                     'is_for_sale'          => $this->input->post('is_for_sale') ? 1 : 0,
                     'nameservers'          => is_array($this->input->post('nameservers')) ? implode(',', $this->input->post('nameservers')) : $this->input->post('nameservers', TRUE),
-                    'description'        => $this->input->post('description', TRUE)
+                    'description'        => $this->input->post('description', TRUE),
+                    'permission'         => $this->_build_task_permission()
                 );
 
                 // Handle Custom Fields
@@ -898,12 +944,20 @@ class Server_management extends Admin_Controller
             }
         } else {
             if ($id) {
-                $data['domain_info'] = $this->domain_model->get_domain_by_id($id);
-                if (empty($data['domain_info'])) {
-                    set_message('error', 'Domain not found!');
+                $can_edit = $this->domain_model->can_action('tbldomains', 'edit', array('id' => $id));
+                if (!$can_edit) {
+                    set_message('error', 'You do not have permission to edit this record!');
                     redirect('admin/server_management/domain');
                 }
+                $data['domain_info'] = $this->domain_model->get_domain_by_id($id);
+                if (!empty($data['domain_info']->permission)) {
+                    $data['permissionL'] = $data['domain_info']->permission;
+                }
             }
+            if (empty($data['permissionL'])) {
+                $data['permissionL'] = 'all';
+            }
+            $data['assign_user'] = $this->db->where('activated', 1)->get('tbl_users')->result();
             $data['providers'] = $this->domain_model->get_all_providers();
             $data['clients'] = $this->domain_model->get_all_clients();
             $data['projects'] = $this->domain_model->get_all_projects();

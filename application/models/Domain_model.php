@@ -2,7 +2,11 @@
 
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Domain_model extends CI_Model {
+class Domain_model extends MY_Model {
+    public $_table_name = 'tbldomains';
+    public $_primary_key = 'id';
+    public $_order_by = 'id DESC';
+
 
     public function __construct() {
         parent::__construct();
@@ -41,6 +45,7 @@ class Domain_model extends CI_Model {
         $this->db->join('tblproviders p', 'd.provider_id = p.id', 'left');
         $this->db->join('tblhostings h', 'd.hosting_id = h.id', 'left');
         $this->db->join('tbl_currencies c', 'd.currency_id = c.code', 'left');
+        $this->staff_query('tbldomains');
 
         if (!empty($filters)) {
             if (!empty($filters['start_date']) && !empty($filters['end_date'])) {
@@ -120,6 +125,7 @@ class Domain_model extends CI_Model {
         $this->db->select('d.id');
         $this->db->from('tbldomains d');
         $this->db->join('tblproviders p', 'd.provider_id = p.id', 'left');
+        $this->staff_query('tbldomains');
 
         if (!empty($filters)) {
             if (!empty($filters['start_date']) && !empty($filters['end_date'])) {
