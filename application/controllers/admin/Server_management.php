@@ -425,7 +425,14 @@ class Server_management extends Admin_Controller
                 return;
             }
 
-            $this->load->view('admin/server_management/view_domain', $data);
+            $data['title'] = lang('view_domain') . ': ' . $data['domain']->domain_name;
+            $data['subview'] = $this->load->view('admin/server_management/view_domain', $data, TRUE);
+
+            if ($this->input->is_ajax_request()) {
+                echo $data['subview'];
+                return;
+            }
+            $this->load->view('admin/_layout_main', $data);
         } catch (Exception $e) {
             log_message('error', $e->getMessage());
             echo "Error: " . $e->getMessage();
@@ -446,7 +453,14 @@ class Server_management extends Admin_Controller
                 return;
             }
 
-            $this->load->view('admin/server_management/view_hosting', $data);
+            $data['title'] = lang('view_hosting') . ': ' . $data['hosting']->title;
+            $data['subview'] = $this->load->view('admin/server_management/view_hosting', $data, TRUE);
+
+            if ($this->input->is_ajax_request()) {
+                echo $data['subview'];
+                return;
+            }
+            $this->load->view('admin/_layout_main', $data);
         } catch (Exception $e) {
             log_message('error', $e->getMessage());
             echo "Error: " . $e->getMessage();
@@ -1630,7 +1644,15 @@ class Server_management extends Admin_Controller
             redirect('admin/server_management/billing');
         }
         $data['billing_info'] = $this->billing_model->get_billing_info($id);
-        $this->load->view('admin/server_management/view_billing', $data);
+        
+        $data['title'] = lang('view_billing') . ': ' . $data['billing_info']->label;
+        $data['subview'] = $this->load->view('admin/server_management/view_billing', $data, TRUE);
+
+        if ($this->input->is_ajax_request()) {
+            echo $data['subview'];
+            return;
+        }
+        $this->load->view('admin/_layout_main', $data);
     }
 
     public function delete_billing($id)
