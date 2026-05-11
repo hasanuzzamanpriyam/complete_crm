@@ -18,18 +18,18 @@ class Hosting_model extends MY_Model
         $expiring_soon = date('Y-m-d', strtotime('+30 days'));
 
         // 1. Mark as Expired if date passed
-        $this->db->where('expiry_date <', $today);
+        $this->db->where('purchase_date <', $today);
         $this->db->where('status !=', 'Expired');
         $this->db->update('tblserver_hostings', array('status' => 'Expired'));
 
         // 2. Mark as Expiring if within 30 days and currently Active
-        $this->db->where('expiry_date >=', $today);
-        $this->db->where('expiry_date <=', $expiring_soon);
+        $this->db->where('purchase_date >=', $today);
+        $this->db->where('purchase_date <=', $expiring_soon);
         $this->db->where('status', 'Active');
         $this->db->update('tblserver_hostings', array('status' => 'Expiring'));
 
         // 3. Mark as Active if not expired/expiring but marked otherwise
-        $this->db->where('expiry_date >', $expiring_soon);
+        $this->db->where('purchase_date >', $expiring_soon);
         $this->db->where('status', 'Expiring');
         $this->db->update('tblserver_hostings', array('status' => 'Active'));
 
@@ -78,12 +78,12 @@ class Hosting_model extends MY_Model
 
         if (!empty($filters)) {
             if (!empty($filters['start_date']) && !empty($filters['end_date'])) {
-                $this->db->where('sh.expiry_date >=', $filters['start_date']);
-                $this->db->where('sh.expiry_date <=', $filters['end_date']);
+                $this->db->where('sh.purchase_date >=', $filters['start_date']);
+                $this->db->where('sh.purchase_date <=', $filters['end_date']);
             } elseif (!empty($filters['start_date'])) {
-                $this->db->where('sh.expiry_date >=', $filters['start_date']);
+                $this->db->where('sh.purchase_date >=', $filters['start_date']);
             } elseif (!empty($filters['end_date'])) {
-                $this->db->where('sh.expiry_date <=', $filters['end_date']);
+                $this->db->where('sh.purchase_date <=', $filters['end_date']);
             }
 
             if (!empty($filters['status']) && $filters['status'] !== 'All') {
@@ -110,7 +110,7 @@ class Hosting_model extends MY_Model
         $hostings = $query->result_array();
         $today = time();
         foreach ($hostings as &$hosting) {
-            $expiry = strtotime($hosting['expiry_date']);
+            $expiry = strtotime($hosting['purchase_date']);
             $hosting['days_remaining'] = ceil(($expiry - $today) / 86400);
         }
         return $hostings;
@@ -125,12 +125,12 @@ class Hosting_model extends MY_Model
 
         if (!empty($filters)) {
             if (!empty($filters['start_date']) && !empty($filters['end_date'])) {
-                $this->db->where('sh.expiry_date >=', $filters['start_date']);
-                $this->db->where('sh.expiry_date <=', $filters['end_date']);
+                $this->db->where('sh.purchase_date >=', $filters['start_date']);
+                $this->db->where('sh.purchase_date <=', $filters['end_date']);
             } elseif (!empty($filters['start_date'])) {
-                $this->db->where('sh.expiry_date >=', $filters['start_date']);
+                $this->db->where('sh.purchase_date >=', $filters['start_date']);
             } elseif (!empty($filters['end_date'])) {
-                $this->db->where('sh.expiry_date <=', $filters['end_date']);
+                $this->db->where('sh.purchase_date <=', $filters['end_date']);
             }
 
             if (!empty($filters['status']) && $filters['status'] !== 'All') {
@@ -256,12 +256,12 @@ class Hosting_model extends MY_Model
         $this->db->where('status', 'Cancelled');
         $stats['cancelled'] = $this->db->count_all_results('tblserver_hostings');
 
-        $this->db->where('expiry_date >=', date('Y-m-d'));
-        $this->db->where('expiry_date <=', date('Y-m-d', strtotime('+30 days')));
+        $this->db->where('purchase_date >=', date('Y-m-d'));
+        $this->db->where('purchase_date <=', date('Y-m-d', strtotime('+30 days')));
         $this->db->where('status', 'Active');
         $stats['expiring'] = $this->db->count_all_results('tblserver_hostings');
 
-        $this->db->where('expiry_date <', date('Y-m-d'));
+        $this->db->where('purchase_date <', date('Y-m-d'));
         $stats['expired'] = $this->db->count_all_results('tblserver_hostings');
 
         return $stats;
@@ -287,10 +287,10 @@ class Hosting_model extends MY_Model
     {
         $today = date('Y-m-d');
         $this->db->reset_query();
-        $this->db->select('id, title as name, expiry_date, status, renew');
+        $this->db->select('id, title as name, purchase_date as expiry_date, status, renew');
         $this->db->from('tblserver_hostings');
-        $this->db->where("(status = 'Expired' OR status = 'Cancelled' OR expiry_date < '" . $today . "')", NULL, FALSE);
-        $this->db->order_by('expiry_date', 'DESC');
+        $this->db->where("(status = 'Expired' OR status = 'Cancelled' OR purchase_date < '" . $today . "')", NULL, FALSE);
+        $this->db->order_by('purchase_date', 'DESC');
         $query = $this->db->get();
         $hostings = $query->result_array();
 
@@ -311,12 +311,12 @@ class Hosting_model extends MY_Model
         $end_date = date('Y-m-d', strtotime("+{$days} days"));
 
         $this->db->reset_query();
-        $this->db->select('id, title as name, expiry_date, status, renew');
+        $this->db->select('id, title as name, purchase_date as expiry_date, status, renew');
         $this->db->from('tblserver_hostings');
-        $this->db->where('expiry_date >=', $today);
-        $this->db->where('expiry_date <=', $end_date);
+        $this->db->where('purchase_date >=', $today);
+        $this->db->where('purchase_date <=', $end_date);
         $this->db->where('status', 'Active');
-        $this->db->order_by('expiry_date', 'ASC');
+        $this->db->order_by('purchase_date', 'ASC');
         $query = $this->db->get();
         $hostings = $query->result_array();
 
@@ -339,14 +339,19 @@ class Hosting_model extends MY_Model
         $expiring = $this->get_expiring_hostings($upcoming_days);
         $expired = $this->get_expired_hostings();
 
+        $this->load->model('tasks_model');
+
         foreach ($expiring as $hosting) {
             $renew_type = (isset($hosting['renew']) && $hosting['renew'] == 'automatic') ? ' (Auto)' : ' (Manual)';
+            $task_id = $this->tasks_model->get_or_create_renewal_task('server_hosting', $hosting['id']);
+            $url = $task_id ? 'admin/tasks/details/' . $task_id : $hosting['link'];
+
             $events[] = array(
                 'title' => '[HST] ' . $hosting['name'] . $renew_type,
                 'start' => $hosting['expiry_date'],
                 'end' => $hosting['expiry_date'],
                 'color' => config_item('hosting_color') ?: '#ffd93d',
-                'url' => base_url() . $hosting['link'],
+                'url' => base_url() . $url,
                 'type' => 'hosting',
                 'status' => 'upcoming',
                 'days_left' => $hosting['days_left']
@@ -355,12 +360,15 @@ class Hosting_model extends MY_Model
 
         foreach ($expired as $hosting) {
             $renew_type = (isset($hosting['renew']) && $hosting['renew'] == 'automatic') ? ' (Auto)' : ' (Manual)';
+            $task_id = $this->tasks_model->get_or_create_renewal_task('server_hosting', $hosting['id']);
+            $url = $task_id ? 'admin/tasks/details/' . $task_id : $hosting['link'];
+
             $events[] = array(
                 'title' => '[HST] ' . $hosting['name'] . $renew_type,
                 'start' => date('Y-m-d'),
                 'end' => date('Y-m-d'),
                 'color' => '#ff6b6b',
-                'url' => base_url() . $hosting['link'],
+                'url' => base_url() . $url,
                 'type' => 'hosting',
                 'status' => 'expired',
                 'days_expired' => $hosting['days_expired']

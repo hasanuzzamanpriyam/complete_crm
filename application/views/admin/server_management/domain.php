@@ -213,7 +213,7 @@
                                 <th>Price</th>
                                 <th>Provider</th>
                                 <th>Status</th>
-                                <th>Expiry Date</th>
+                                <th>Exp Date</th>
                                 <th>Days Remaining</th>
                                 <th class="text-center" style="width: 80px;">Action</th>
                             </tr>
@@ -269,7 +269,7 @@
                                             ?>
                                             <span class="badge <?= $badge_class ?>"><?= htmlspecialchars($current_status) ?></span>
                                         </td>
-                                        <td class="small"><?= $domain['expiry_date'] ?></td>
+                                        <td class="small"><?= $domain['purchase_date'] ?></td>
                                         <td>
                                             <?php
                                             $days = $domain['days_remaining'];

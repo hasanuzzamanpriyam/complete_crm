@@ -71,13 +71,13 @@
                         </div>
                         <div class="col-xs-4 px-1">
                             <div class="p-3 bg-light rounded shadow-xs text-center border">
-                                <div class="text-muted xsmall text-uppercase mb-1" style="letter-spacing: 0.5px;">Purchased</div>
+                                <div class="text-muted xsmall text-uppercase mb-1" style="letter-spacing: 0.5px;">Exp Date</div>
                                 <div class="font-bold text-dark h5 m-0"><?= !empty($domain->purchase_date) ? date('d M, Y', strtotime($domain->purchase_date)) : '-' ?></div>
                             </div>
                         </div>
                         <div class="col-xs-4 pl-1">
                             <div class="p-3 bg-soft-danger-light rounded shadow-xs text-center border border-danger-soft">
-                                <div class="text-danger xsmall text-uppercase mb-1" style="letter-spacing: 0.5px;">Expiry Date</div>
+                                <div class="text-danger xsmall text-uppercase mb-1" style="letter-spacing: 0.5px;">Future Exp Date</div>
                                 <div class="font-bold text-danger h5 m-0"><?= !empty($domain->expiry_date) ? date('d M, Y', strtotime($domain->expiry_date)) : '-' ?></div>
                             </div>
                         </div>
@@ -348,4 +348,3 @@
         }, 1500);
     });
 </script>
-

@@ -946,9 +946,9 @@ class Cronjob extends MY_Controller
         $upcoming_date = date('Y-m-d', strtotime("+{$upcoming_days} days"));
         
         // Check for upcoming expirations (exactly X days away)
-        $this->db->select('id, domain_name, expiry_date');
+        $this->db->select('id, domain_name, purchase_date as expiry_date');
         $this->db->from('tbldomains');
-        $this->db->where('expiry_date', $upcoming_date);
+        $this->db->where('purchase_date', $upcoming_date);
         $this->db->where('status', 'Active');
         $upcoming_domains = $this->db->get()->result();
         
@@ -968,9 +968,9 @@ class Cronjob extends MY_Controller
             }
         }
         
-        $this->db->select('id, title, expiry_date');
+        $this->db->select('id, title, purchase_date as expiry_date');
         $this->db->from('tblserver_hostings');
-        $this->db->where('expiry_date', $upcoming_date);
+        $this->db->where('purchase_date', $upcoming_date);
         $this->db->where('status', 'Active');
         $upcoming_hostings = $this->db->get()->result();
         
@@ -991,9 +991,9 @@ class Cronjob extends MY_Controller
         }
         
         // Check for already expired domains
-        $this->db->select('id, domain_name, expiry_date');
+        $this->db->select('id, domain_name, purchase_date as expiry_date');
         $this->db->from('tbldomains');
-        $this->db->where('expiry_date <', $today);
+        $this->db->where('purchase_date <', $today);
         $this->db->where('status !=', 'Expired');
         $expired_domains = $this->db->get()->result();
         
@@ -1021,9 +1021,9 @@ class Cronjob extends MY_Controller
         }
         
         // Check for already expired hostings
-        $this->db->select('id, title, expiry_date');
+        $this->db->select('id, title, purchase_date as expiry_date');
         $this->db->from('tblserver_hostings');
-        $this->db->where('expiry_date <', $today);
+        $this->db->where('purchase_date <', $today);
         $this->db->where('status !=', 'Expired');
         $expired_hostings = $this->db->get()->result();
         

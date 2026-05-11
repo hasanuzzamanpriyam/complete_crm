@@ -247,7 +247,7 @@
                                 <th>IP Address</th>
                                 <th>Price</th>
                                 <th>Status</th>
-                                <th>Future Exp Date</th>
+                                <th>Exp Date</th>
                                 <th>Days Remaining</th>
                                 <th class="text-center" style="width: 110px;">Action</th>
                             </tr>
@@ -298,7 +298,7 @@
                                             ?>
                                             <span class="badge badge-pill <?= $badge_class ?>"><?= htmlspecialchars($current_status) ?></span>
                                         </td>
-                                        <td><?= $hosting['expiry_date'] ?></td>
+                                        <td><?= $hosting['purchase_date'] ?></td>
                                         <td>
                                             <?php
                                             $days = $hosting['days_remaining'];

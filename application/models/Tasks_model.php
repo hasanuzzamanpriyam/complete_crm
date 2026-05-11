@@ -247,4 +247,139 @@ class Tasks_Model extends MY_Model
             show_notification($allowed_user);
         }
     }
+
+    public function process_automated_renewal($module, $module_field_id)
+    {
+        // Step A: exact date task completed
+        $completion_date = date('Y-m-d');
+
+        $this->db->trans_start();
+
+        if ($module === 'domain') {
+            $this->load->model('domain_model');
+            $domain = $this->domain_model->get_domain_by_id($module_field_id);
+            if ($domain) {
+                // Calculate future based on domain's duration if possible, else 1 year
+                $amount = $domain->days ? $domain->days : 1;
+                $unit = $domain->time_unit ? $domain->time_unit : 'Years';
+                
+                $calc_date = new DateTime($completion_date);
+                $calc_date->modify("+" . $amount . " " . $unit);
+                $future_exp_date = $calc_date->format('Y-m-d');
+
+                // In this CRM, purchase_date is used as the primary Exp Date for Calendar plotting.
+                $this->db->where('id', $module_field_id);
+                $this->db->update('tbldomains', [
+                    'date' => $completion_date, // update start date
+                    'purchase_date' => $future_exp_date,
+                    'expiry_date' => date('Y-m-d', strtotime('+1 year', strtotime($future_exp_date))), // Next-next
+                    'status' => 'Active'
+                ]);
+
+
+                $start_date = date('Y-m-d');
+                $due_date = date('Y-m-d', strtotime($future_exp_date));
+                $task_data = array(
+                    'task_name' => 'Renew Domain: ' . $domain->domain_name,
+                    'task_start_date' => $start_date,
+                    'due_date' => $due_date,
+                    'task_status' => 'not_started',
+                    'task_progress' => 0,
+                    'module' => 'domain',
+                    'module_field_id' => $module_field_id,
+                    'permission' => $domain->permission ?? 'all'
+                );
+                $this->db->insert('tbl_task', $task_data);
+            }
+        } elseif ($module === 'server_hosting') {
+            $this->load->model('hosting_model');
+            $hosting = $this->hosting_model->get_hosting_by_id($module_field_id);
+            if ($hosting) {
+                $amount = $hosting->days ? $hosting->days : 1;
+                $unit = $hosting->time_unit ? $hosting->time_unit : 'Years';
+                
+                $calc_date = new DateTime($completion_date);
+                $calc_date->modify("+" . $amount . " " . $unit);
+                $future_exp_date = $calc_date->format('Y-m-d');
+
+                $this->db->where('id', $module_field_id);
+                $this->db->update('tblserver_hostings', [
+                    'date' => $completion_date, // update start date
+                    'purchase_date' => $future_exp_date,
+                    'expiry_date' => date('Y-m-d', strtotime('+1 year', strtotime($future_exp_date))),
+                    'status' => 'Active'
+                ]);
+
+                $start_date = date('Y-m-d');
+                $due_date = date('Y-m-d', strtotime($future_exp_date));
+                $task_data = array(
+                    'task_name' => 'Renew Hosting: ' . $hosting->title,
+                    'task_start_date' => $start_date,
+                    'due_date' => $due_date,
+                    'task_status' => 'not_started',
+                    'task_progress' => 0,
+                    'module' => 'server_hosting',
+                    'module_field_id' => $module_field_id,
+                    'permission' => $hosting->permission ?? 'all'
+                );
+                $this->db->insert('tbl_task', $task_data);
+            }
+        }
+
+        $this->db->trans_complete();
+    }
+
+    public function get_or_create_renewal_task($module, $module_field_id)
+    {
+        $task = $this->db->select('task_id')
+            ->where('module', $module)
+            ->where('module_field_id', $module_field_id)
+            ->where('task_status !=', 'completed')
+            ->order_by('task_id', 'DESC')
+            ->get('tbl_task')
+            ->row();
+
+        if ($task) {
+            return $task->task_id;
+        }
+
+        // If no pending task exists, create one!
+        if ($module === 'domain') {
+            $this->load->model('domain_model');
+            $domain = $this->domain_model->get_domain_by_id($module_field_id);
+            if ($domain) {
+                $task_data = array(
+                    'task_name' => 'Renew Domain: ' . $domain->domain_name,
+                    'task_start_date' => date('Y-m-d'),
+                    'due_date' => $domain->purchase_date, // or expiry_date? purchase_date acts as exp_date in this CRM
+                    'task_status' => 'not_started',
+                    'task_progress' => 0,
+                    'module' => 'domain',
+                    'module_field_id' => $module_field_id,
+                    'permission' => $domain->permission ?? 'all'
+                );
+                $this->db->insert('tbl_task', $task_data);
+                return $this->db->insert_id();
+            }
+        } elseif ($module === 'server_hosting') {
+            $this->load->model('hosting_model');
+            $hosting = $this->hosting_model->get_hosting_by_id($module_field_id);
+            if ($hosting) {
+                $task_data = array(
+                    'task_name' => 'Renew Hosting: ' . $hosting->title,
+                    'task_start_date' => date('Y-m-d'),
+                    'due_date' => $hosting->purchase_date,
+                    'task_status' => 'not_started',
+                    'task_progress' => 0,
+                    'module' => 'server_hosting',
+                    'module_field_id' => $module_field_id,
+                    'permission' => $hosting->permission ?? 'all'
+                );
+                $this->db->insert('tbl_task', $task_data);
+                return $this->db->insert_id();
+            }
+        }
+
+        return null;
+    }
 }

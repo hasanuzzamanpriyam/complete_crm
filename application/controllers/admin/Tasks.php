@@ -657,6 +657,13 @@ class Tasks extends Admin_Controller
 
             $this->tasks_model->set_task_progress($id);
 
+            if ($data['task_status'] == 'completed') {
+                $saved_task_info = $this->db->where('task_id', $id)->get('tbl_task')->row();
+                if ($saved_task_info && in_array($saved_task_info->module, ['domain', 'server_hosting'])) {
+                    $this->tasks_model->process_automated_renewal($saved_task_info->module, $saved_task_info->module_field_id);
+                }
+            }
+
             // $u_data['index_no'] = $id;
             // $id = $this->tasks_model->save($u_data, $id);
             $u_data['index_no'] = $id;
@@ -917,6 +924,10 @@ class Tasks extends Admin_Controller
             $this->tasks_model->_table_name = "tbl_task"; // table name
             $this->tasks_model->_primary_key = "task_id"; // $id
             $id = $this->tasks_model->save($data, $tasks_id);
+
+            if ($data['task_status'] == 'completed' && in_array($tasks_info->module, ['domain', 'server_hosting'])) {
+                $this->tasks_model->process_automated_renewal($tasks_info->module, $tasks_info->module_field_id);
+            }
             $activity = 'activity_update_task';
             // save into activities
             $activities = array(
@@ -964,6 +975,13 @@ class Tasks extends Admin_Controller
             $this->tasks_model->_primary_key = "task_id"; // $id
             $this->check_task_timer($id, $data['task_status']);
             $id = $this->tasks_model->save($data, $id);
+
+            if ($data['task_status'] == 'completed') {
+                $saved_task_info = $this->db->where('task_id', $id)->get('tbl_task')->row();
+                if ($saved_task_info && in_array($saved_task_info->module, ['domain', 'server_hosting'])) {
+                    $this->tasks_model->process_automated_renewal($saved_task_info->module, $saved_task_info->module_field_id);
+                }
+            }
 
             $tasks_info = $this->tasks_model->check_by(array('task_id' => $id), 'tbl_task');
             if (!empty($tasks_info->project_id)) {

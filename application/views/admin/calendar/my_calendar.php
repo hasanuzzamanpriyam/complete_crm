@@ -18,7 +18,7 @@ $gcal_id = config_item('gcal_id');
             var calendar = $('#my_calendar').fullCalendar({
                 googleCalendarApiKey: '<?= $gcal_api_key ?>',
                 eventAfterRender: function(event, element, view) {
-                    if (event.type == 'fo' || event.type == 'domain' || event.type == 'hosting') {
+                    if (event.type == 'fo' || ((event.type == 'domain' || event.type == 'hosting') && event.url && event.url.indexOf('tasks/details') === -1)) {
                         $(element).attr('data-toggle', 'ajaxModal').addClass('ajaxModal');
                     }
                 },

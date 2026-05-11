@@ -18,18 +18,18 @@ class Domain_model extends MY_Model
         $expiring_soon = date('Y-m-d', strtotime('+30 days'));
 
         // 1. Mark as Expired if date passed
-        $this->db->where('expiry_date <', $today);
+        $this->db->where('purchase_date <', $today);
         $this->db->where('status !=', 'Expired');
         $this->db->update('tbldomains', array('status' => 'Expired'));
 
         // 2. Mark as Expiring if within 30 days and currently Active
-        $this->db->where('expiry_date >=', $today);
-        $this->db->where('expiry_date <=', $expiring_soon);
+        $this->db->where('purchase_date >=', $today);
+        $this->db->where('purchase_date <=', $expiring_soon);
         $this->db->where('status', 'Active');
         $this->db->update('tbldomains', array('status' => 'Expiring'));
 
         // 3. Mark as Active if not expired/expiring but marked otherwise (optional sync back)
-        $this->db->where('expiry_date >', $expiring_soon);
+        $this->db->where('purchase_date >', $expiring_soon);
         $this->db->where('status', 'Expiring');
         $this->db->update('tbldomains', array('status' => 'Active'));
 
@@ -78,12 +78,12 @@ class Domain_model extends MY_Model
 
         if (!empty($filters)) {
             if (!empty($filters['start_date']) && !empty($filters['end_date'])) {
-                $this->db->where('d.expiry_date >=', $filters['start_date']);
-                $this->db->where('d.expiry_date <=', $filters['end_date']);
+                $this->db->where('d.purchase_date >=', $filters['start_date']);
+                $this->db->where('d.purchase_date <=', $filters['end_date']);
             } elseif (!empty($filters['start_date'])) {
-                $this->db->where('d.expiry_date >=', $filters['start_date']);
+                $this->db->where('d.purchase_date >=', $filters['start_date']);
             } elseif (!empty($filters['end_date'])) {
-                $this->db->where('d.expiry_date <=', $filters['end_date']);
+                $this->db->where('d.purchase_date <=', $filters['end_date']);
             }
 
             if (!empty($filters['status']) && $filters['status'] !== 'All') {
@@ -110,7 +110,7 @@ class Domain_model extends MY_Model
         $domains = $query->result_array();
         $today = time();
         foreach ($domains as &$domain) {
-            $expiry = strtotime($domain['expiry_date']);
+            $expiry = strtotime($domain['purchase_date']);
             $domain['days_remaining'] = ceil(($expiry - $today) / 86400);
 
             // Calculate Age
@@ -159,12 +159,12 @@ class Domain_model extends MY_Model
 
         if (!empty($filters)) {
             if (!empty($filters['start_date']) && !empty($filters['end_date'])) {
-                $this->db->where('d.expiry_date >=', $filters['start_date']);
-                $this->db->where('d.expiry_date <=', $filters['end_date']);
+                $this->db->where('d.purchase_date >=', $filters['start_date']);
+                $this->db->where('d.purchase_date <=', $filters['end_date']);
             } elseif (!empty($filters['start_date'])) {
-                $this->db->where('d.expiry_date >=', $filters['start_date']);
+                $this->db->where('d.purchase_date >=', $filters['start_date']);
             } elseif (!empty($filters['end_date'])) {
-                $this->db->where('d.expiry_date <=', $filters['end_date']);
+                $this->db->where('d.purchase_date <=', $filters['end_date']);
             }
 
             if (!empty($filters['status']) && $filters['status'] !== 'All') {
@@ -308,14 +308,14 @@ class Domain_model extends MY_Model
         $this->db->where('status', 'Expired');
         $stats['expired'] = $this->db->count_all_results('tbldomains');
 
-        $this->db->where('expiry_date <', date('Y-m-d'));
+        $this->db->where('purchase_date <', date('Y-m-d'));
         $this->db->where('status !=', 'Expired');
         $stats['expired_auto'] = $this->db->count_all_results('tbldomains');
 
         $stats['expired'] = ($stats['expired'] ?? 0) + ($stats['expired_auto'] ?? 0);
 
-        $this->db->where('expiry_date >=', date('Y-m-d'));
-        $this->db->where('expiry_date <=', date('Y-m-d', strtotime('+30 days')));
+        $this->db->where('purchase_date >=', date('Y-m-d'));
+        $this->db->where('purchase_date <=', date('Y-m-d', strtotime('+30 days')));
         $this->db->where('status', 'Active');
         $stats['expiring'] = $this->db->count_all_results('tbldomains');
 
@@ -340,9 +340,9 @@ class Domain_model extends MY_Model
     {
         $today = date('Y-m-d');
         $this->db->reset_query();
-        $this->db->select('id, domain_name as name, expiry_date, status, auto_renewal');
+        $this->db->select('id, domain_name as name, purchase_date as expiry_date, status, auto_renewal');
         $this->db->from('tbldomains');
-        $this->db->where("(status = 'Expired' OR expiry_date < '" . $today . "')", NULL, FALSE);
+        $this->db->where("(status = 'Expired' OR purchase_date < '" . $today . "')", NULL, FALSE);
         $this->db->order_by('expiry_date', 'DESC');
         $query = $this->db->get();
         $domains = $query->result_array();
@@ -364,12 +364,12 @@ class Domain_model extends MY_Model
         $end_date = date('Y-m-d', strtotime("+{$days} days"));
 
         $this->db->reset_query();
-        $this->db->select('id, domain_name as name, expiry_date, status, auto_renewal');
+        $this->db->select('id, domain_name as name, purchase_date as expiry_date, status, auto_renewal');
         $this->db->from('tbldomains');
-        $this->db->where('expiry_date >=', $today);
-        $this->db->where('expiry_date <=', $end_date);
+        $this->db->where('purchase_date >=', $today);
+        $this->db->where('purchase_date <=', $end_date);
         $this->db->where('status', 'Active');
-        $this->db->order_by('expiry_date', 'ASC');
+        $this->db->order_by('purchase_date', 'ASC');
         $query = $this->db->get();
         $domains = $query->result_array();
 
@@ -392,14 +392,19 @@ class Domain_model extends MY_Model
         $expiring = $this->get_expiring_domains($upcoming_days);
         $expired = $this->get_expired_domains();
 
+        $this->load->model('tasks_model');
+
         foreach ($expiring as $domain) {
             $renew_type = ($domain['auto_renewal'] == 1) ? ' (Auto)' : ' (Manual)';
+            $task_id = $this->tasks_model->get_or_create_renewal_task('domain', $domain['id']);
+            $url = $task_id ? 'admin/tasks/details/' . $task_id : $domain['link'];
+
             $events[] = array(
                 'title' => '[DOM] ' . $domain['name'] . $renew_type,
                 'start' => $domain['expiry_date'],
                 'end' => $domain['expiry_date'],
                 'color' => config_item('domain_color') ?: '#ffd93d',
-                'url' => base_url() . $domain['link'],
+                'url' => base_url() . $url,
                 'type' => 'domain',
                 'status' => 'upcoming',
                 'days_left' => $domain['days_left']
@@ -408,12 +413,15 @@ class Domain_model extends MY_Model
 
         foreach ($expired as $domain) {
             $renew_type = ($domain['auto_renewal'] == 1) ? ' (Auto)' : ' (Manual)';
+            $task_id = $this->tasks_model->get_or_create_renewal_task('domain', $domain['id']);
+            $url = $task_id ? 'admin/tasks/details/' . $task_id : $domain['link'];
+
             $events[] = array(
                 'title' => '[DOM] ' . $domain['name'] . $renew_type,
                 'start' => date('Y-m-d'),
                 'end' => date('Y-m-d'),
                 'color' => '#ff6b6b',
-                'url' => base_url() . $domain['link'],
+                'url' => base_url() . $url,
                 'type' => 'domain',
                 'status' => 'expired',
                 'days_expired' => $domain['days_expired']

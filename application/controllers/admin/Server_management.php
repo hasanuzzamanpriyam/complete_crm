@@ -143,19 +143,19 @@ class Server_management extends Admin_Controller
         $end_date = date('Y-m-d', strtotime("+{$days} days"));
         $today = date('Y-m-d');
 
-        $this->db->select('d.id, d.domain_name as name, d.expiry_date, \'domain\' as type, p.provider_name');
+        $this->db->select('d.id, d.domain_name as name, d.purchase_date as expiry_date, \'domain\' as type, p.provider_name');
         $this->db->from('tbldomains d');
         $this->db->join('tblproviders p', 'd.provider_id = p.id', 'left');
-        $this->db->where('d.expiry_date >=', $today);
-        $this->db->where('d.expiry_date <=', $end_date);
+        $this->db->where('d.purchase_date >=', $today);
+        $this->db->where('d.purchase_date <=', $end_date);
         $this->db->where('d.status', 'Active');
         $domains = $this->db->get()->result_array();
 
-        $this->db->select('h.id, h.title as name, h.expiry_date, \'hosting\' as type, p.provider_name');
+        $this->db->select('h.id, h.title as name, h.purchase_date as expiry_date, \'hosting\' as type, p.provider_name');
         $this->db->from('tblserver_hostings h');
         $this->db->join('tblproviders p', 'h.provider_id = p.id', 'left');
-        $this->db->where('h.expiry_date >=', $today);
-        $this->db->where('h.expiry_date <=', $end_date);
+        $this->db->where('h.purchase_date >=', $today);
+        $this->db->where('h.purchase_date <=', $end_date);
         $this->db->where('h.status', 'Active');
         $hostings = $this->db->get()->result_array();
         $this->db->select('b.id, b.label as name, b.expiry_date, \'billing\' as type, p.provider_name');
@@ -208,19 +208,19 @@ class Server_management extends Admin_Controller
         $today = date('Y-m-d');
 
         // Get active domains that haven't expired
-        $this->db->select('d.id, d.domain_name as name, d.purchase_date, d.expiry_date, \'domain\' as type, p.provider_name');
+        $this->db->select('d.id, d.domain_name as name, d.purchase_date, d.purchase_date as expiry_date, \'domain\' as type, p.provider_name');
         $this->db->from('tbldomains d');
         $this->db->join('tblproviders p', 'd.provider_id = p.id', 'left');
         $this->db->where('d.status', 'Active');
-        $this->db->where('d.expiry_date >=', $today);
+        $this->db->where('d.purchase_date >=', $today);
         $domains = $this->db->get()->result_array();
 
         // Get active hostings that haven't expired
-        $this->db->select('h.id, h.title as name, h.purchase_date, h.expiry_date, \'hosting\' as type, p.provider_name');
+        $this->db->select('h.id, h.title as name, h.purchase_date, h.purchase_date as expiry_date, \'hosting\' as type, p.provider_name');
         $this->db->from('tblserver_hostings h');
         $this->db->join('tblproviders p', 'h.provider_id = p.id', 'left');
         $this->db->where('h.status', 'Active');
-        $this->db->where('h.expiry_date >=', $today);
+        $this->db->where('h.purchase_date >=', $today);
         $hostings = $this->db->get()->result_array();
 
         // Get active billings that haven't expired
@@ -1794,5 +1794,88 @@ class Server_management extends Admin_Controller
             }
         }
         return 'all';
+    }
+
+    public function process_renewal()
+    {
+        if (!$this->input->is_ajax_request()) {
+            exit('No direct script access allowed');
+        }
+
+        $id = $this->input->post('id', TRUE);
+        $type = $this->input->post('type', TRUE);
+        $status = $this->input->post('status', TRUE);
+
+        if ($status === 'Completed') {
+            // Step A: exact date task completed
+            $completion_date = date('Y-m-d');
+            
+            // Step C: calculate Future Expiry Date (+1 year)
+            // We'll calculate +1 year from today.
+            $future_exp_date = date('Y-m-d', strtotime('+1 year', strtotime($completion_date)));
+
+            $this->db->trans_start();
+
+            if ($type === 'domain') {
+                $domain = $this->domain_model->get_domain_by_id($id);
+                if ($domain) {
+                    // Calculate future based on domain's duration if possible, else 1 year
+                    $amount = $domain->days ? $domain->days : 1;
+                    $unit = $domain->time_unit ? $domain->time_unit : 'Years';
+                    
+                    $calc_date = new DateTime($completion_date);
+                    $calc_date->modify("+" . $amount . " " . $unit);
+                    $future_exp_date = $calc_date->format('Y-m-d');
+
+                    // In this CRM, purchase_date is used as the primary Exp Date for Calendar plotting.
+                    // We set purchase_date to the future date so it shows up correctly in the future.
+                    $this->db->where('id', $id);
+                    $this->db->update('tbldomains', [
+                        'date' => $completion_date, // update start date
+                        'purchase_date' => $future_exp_date,
+                        'expiry_date' => date('Y-m-d', strtotime('+1 year', strtotime($future_exp_date))), // Next-next
+                        'status' => 'Active'
+                    ]);
+
+                    $this->create_renewal_task('domain', $id, $domain->domain_name, $completion_date, $future_exp_date, $domain->permission ?? 'all');
+                }
+            } elseif ($type === 'hosting') {
+                $hosting = $this->hosting_model->get_hosting_by_id($id);
+                if ($hosting) {
+                    $amount = $hosting->days ? $hosting->days : 1;
+                    $unit = $hosting->time_unit ? $hosting->time_unit : 'Years';
+                    
+                    $calc_date = new DateTime($completion_date);
+                    $calc_date->modify("+" . $amount . " " . $unit);
+                    $future_exp_date = $calc_date->format('Y-m-d');
+
+                    $this->db->where('id', $id);
+                    $this->db->update('tblserver_hostings', [
+                        'date' => $completion_date, // update start date
+                        'purchase_date' => $future_exp_date,
+                        'expiry_date' => date('Y-m-d', strtotime('+1 year', strtotime($future_exp_date))),
+                        'status' => 'Active'
+                    ]);
+
+                    $this->create_renewal_task('server_hosting', $id, $hosting->title, $completion_date, $future_exp_date, $hosting->permission ?? 'all');
+                }
+            }
+
+            // Close old task
+            $module_name = ($type === 'domain') ? 'domain' : 'server_hosting';
+            $this->db->where('module', $module_name);
+            $this->db->where('module_field_id', $id);
+            $this->db->where('task_status !=', 'completed');
+            $this->db->update('tbl_task', ['task_status' => 'completed']);
+
+            $this->db->trans_complete();
+
+            if ($this->db->trans_status() !== FALSE) {
+                echo json_encode(['status' => 'success', 'message' => 'Service renewed successfully! Calendar has been updated.']);
+                return;
+            }
+        }
+
+        echo json_encode(['status' => 'error', 'message' => 'Failed to process renewal.']);
     }
 }
