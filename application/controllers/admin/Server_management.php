@@ -995,6 +995,14 @@ class Server_management extends Admin_Controller
     public function add_provider($id = NULL)
     {
         $data['title'] = lang('add_provider');
+        
+        $this->db->select('tbl_users.*, tbl_account_details.avatar, tbl_account_details.fullname, tbl_designations.designations');
+        $this->db->from('tbl_users');
+        $this->db->join('tbl_account_details', 'tbl_users.user_id = tbl_account_details.user_id', 'left');
+        $this->db->join('tbl_designations', 'tbl_account_details.designations_id = tbl_designations.designations_id', 'left');
+        $this->db->where('tbl_users.activated', 1);
+        $data['staff_members'] = $this->db->get()->result();
+
         if ($this->input->post()) {
             $id = $this->input->post('provider_id', TRUE);
             $this->form_validation->set_rules('provider_name', 'Provider Name', 'required|trim');
@@ -1025,7 +1033,8 @@ class Server_management extends Admin_Controller
                     'provider_url'  => $provider_url,
                     'provider_type' => $this->input->post('provider_type', TRUE),
                     'status'        => $this->input->post('status', TRUE),
-                    'description'  => $this->input->post('description', TRUE)
+                    'description'  => $this->input->post('description', TRUE),
+                    'permission'    => $this->_build_task_permission()
                 );
 
                 if ($id) {
@@ -1623,7 +1632,7 @@ class Server_management extends Admin_Controller
                 'server_tags'                   => $this->input->post('server_tags', TRUE),
                 'description'                   => $this->input->post('description', TRUE),
                 'renew'                         => $this->input->post('renew', TRUE),
-                'permission'                    => $this->_build_permission(),
+                'permission'                    => $this->_build_task_permission(),
             );
 
             // Handle Custom Fields
@@ -1668,7 +1677,12 @@ class Server_management extends Admin_Controller
             $data['providers'] = $this->hosting_model->get_all_providers();
             $data['clients'] = $this->hosting_model->get_all_clients();
             $data['projects'] = $this->hosting_model->get_all_projects();
-            $data['staff_members'] = $this->db->where('activated', 1)->get('tbl_users')->result();
+            $this->db->select('tbl_users.*, tbl_account_details.avatar, tbl_account_details.fullname, tbl_designations.designations');
+            $this->db->from('tbl_users');
+            $this->db->join('tbl_account_details', 'tbl_users.user_id = tbl_account_details.user_id', 'left');
+            $this->db->join('tbl_designations', 'tbl_account_details.designations_id = tbl_designations.designations_id', 'left');
+            $this->db->where('tbl_users.activated', 1);
+            $data['staff_members'] = $this->db->get()->result();
             
             // New dynamic options
             $data['billing_types'] = $this->db->get('tbl_billing_types')->result_array();

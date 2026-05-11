@@ -78,6 +78,108 @@
             </div>
         </div>
 
+        <!-- RBAC Section -->
+        <?php
+        $permissionL = 'all';
+        if (!empty($provider_info->permission)) {
+            $permissionL = $provider_info->permission;
+        }
+        ?>
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div style="background: #fcfcfc; border: 1px solid #e9ecef; border-radius: 8px; padding: 20px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+                        <h4 style="margin: 0; font-size: 15px; font-weight: 700; color: #333; text-transform: uppercase; letter-spacing: 0.5px;">
+                            <i class="fa fa-shield text-primary" style="margin-right: 8px;"></i> Record Access Permissions
+                        </h4>
+                        <div class="radio-inline p-0">
+                            <label class="radio-inline c-radio">
+                                <input type="radio" name="task_permission" value="everyone" <?= ($permissionL == 'all') ? 'checked' : '' ?>>
+                                <span class="fa fa-circle"></span> Everyone
+                            </label>
+                            <label class="radio-inline c-radio">
+                                <input type="radio" name="task_permission" value="custom_permission" <?= ($permissionL != 'all') ? 'checked' : '' ?>>
+                                <span class="fa fa-circle"></span> Specific Users
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="task_permission_users" style="display: <?= ($permissionL != 'all') ? 'block' : 'none' ?>;">
+                        <div class="row">
+                            <?php if (!empty($staff_members)): ?>
+                                <?php foreach ($staff_members as $staff): ?>
+                                    <div class="col-lg-4 col-md-6 mb-3">
+                                        <?php
+                                        $user_permission = null;
+                                        if ($permissionL != 'all') {
+                                            $decoded_permission = json_decode($permissionL, true);
+                                            if (isset($decoded_permission[$staff->user_id])) {
+                                                $user_permission = $decoded_permission[$staff->user_id];
+                                            }
+                                        }
+                                        ?>
+                                        <div style="padding: 0; border: 1px solid #e9ecef; border-radius: 8px; background: #fff; height: 100%; transition: all 0.2s ease;">
+                                            <div class="checkbox c-checkbox m0">
+                                                <label class="needsclick" style="margin-bottom: 0; display: flex; align-items: center; width: 100%; cursor: pointer; padding: 12px;">
+                                                    <input type="checkbox" value="<?= $staff->user_id ?>" name="assigned_to[]" class="needsclick assigned_to_task" <?= !empty($user_permission) ? 'checked' : '' ?>>
+                                                    <span class="fa fa-check" style="margin-top: -10px; left: 12px;"></span>
+                                                    <div style="display: flex; align-items: center; margin-left: 25px; flex: 1; overflow: hidden;">
+                                                        <img src="<?= base_url() . (!empty($staff->avatar) ? $staff->avatar : 'assets/img/user/default.png') ?>" class="img-circle" style="width: 32px; height: 32px; border: 1px solid #eee; margin-right: 12px; flex-shrink: 0; object-fit: cover;">
+                                                        <div style="overflow: hidden; line-height: 1.3;">
+                                                            <div style="font-weight: 700; font-size: 13px; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><?= htmlspecialchars($staff->username) ?></div>
+                                                            <div style="font-size: 11px; color: #888; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px;">
+                                                                <?= !empty($staff->designations) ? htmlspecialchars($staff->designations) : ($staff->role_id == 1 ? 'Admin' : 'Staff') ?>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <div class="action_task_user mt-2" id="action_task_<?= $staff->user_id ?>" style="display: <?= !empty($user_permission) ? 'block' : 'none' ?>; padding-left: 28px;">
+                                            <label class="checkbox-inline c-checkbox">
+                                                <input type="checkbox" value="view" name="action_<?= $staff->user_id ?>[]" checked disabled>
+                                                <span class="fa fa-check"></span> View
+                                            </label>
+                                            <label class="checkbox-inline c-checkbox">
+                                                <input type="checkbox" value="edit" name="action_<?= $staff->user_id ?>[]" <?= (!empty($user_permission) && in_array('edit', $user_permission)) ? 'checked' : '' ?>>
+                                                <span class="fa fa-check"></span> Edit
+                                            </label>
+                                            <label class="checkbox-inline c-checkbox">
+                                                <input type="checkbox" value="delete" name="action_<?= $staff->user_id ?>[]" <?= (!empty($user_permission) && in_array('delete', $user_permission)) ? 'checked' : '' ?>>
+                                                <span class="fa fa-check"></span> Delete
+                                            </label>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            $(document).ready(function() {
+                $('input[name="task_permission"]').change(function() {
+                    if ($(this).val() == 'custom_permission') {
+                        $('#task_permission_users').slideDown();
+                    } else {
+                        $('#task_permission_users').slideUp();
+                    }
+                });
+
+                $('.assigned_to_task').change(function() {
+                    var user_id = $(this).val();
+                    if ($(this).is(':checked')) {
+                        $('#action_task_' + user_id).slideDown();
+                    } else {
+                        $('#action_task_' + user_id).slideUp();
+                    }
+                });
+            });
+        </script>
+
     <?php if ($this->input->is_ajax_request()): ?>
     </div>
     <div class="modal-footer">
