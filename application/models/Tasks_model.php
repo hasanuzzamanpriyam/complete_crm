@@ -270,7 +270,6 @@ class Tasks_Model extends MY_Model
                 // In this CRM, purchase_date is used as the primary Exp Date for Calendar plotting.
                 $this->db->where('id', $module_field_id);
                 $this->db->update('tbldomains', [
-                    'date' => $completion_date, // update start date
                     'purchase_date' => $future_exp_date,
                     'expiry_date' => date('Y-m-d', strtotime('+1 year', strtotime($future_exp_date))), // Next-next
                     'status' => 'Active'
@@ -304,7 +303,6 @@ class Tasks_Model extends MY_Model
 
                 $this->db->where('id', $module_field_id);
                 $this->db->update('tblserver_hostings', [
-                    'date' => $completion_date, // update start date
                     'purchase_date' => $future_exp_date,
                     'expiry_date' => date('Y-m-d', strtotime('+1 year', strtotime($future_exp_date))),
                     'status' => 'Active'

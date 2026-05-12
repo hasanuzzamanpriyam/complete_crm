@@ -1958,7 +1958,6 @@ class Server_management extends Admin_Controller
                     // We set purchase_date to the future date so it shows up correctly in the future.
                     $this->db->where('id', $id);
                     $this->db->update('tbldomains', [
-                        'date' => $completion_date, // update start date
                         'purchase_date' => $future_exp_date,
                         'expiry_date' => date('Y-m-d', strtotime('+1 year', strtotime($future_exp_date))), // Next-next
                         'status' => 'Active'
@@ -1978,7 +1977,6 @@ class Server_management extends Admin_Controller
 
                     $this->db->where('id', $id);
                     $this->db->update('tblserver_hostings', [
-                        'date' => $completion_date, // update start date
                         'purchase_date' => $future_exp_date,
                         'expiry_date' => date('Y-m-d', strtotime('+1 year', strtotime($future_exp_date))),
                         'status' => 'Active'

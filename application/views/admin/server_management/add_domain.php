@@ -374,7 +374,7 @@
                     <div class="row">
                         <div class="col-md-2">
                             <div class="form-group">
-                                <label>Registered Date</label>
+                                <label>Registration Date</label>
                                 <input type="date" name="date" class="form-control" value="<?= !empty($domain_info) ? $domain_info->date : '' ?>">
                             </div>
                         </div>
