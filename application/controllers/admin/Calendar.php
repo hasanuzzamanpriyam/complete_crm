@@ -53,7 +53,8 @@ class Calendar extends Admin_Controller
             'on_leave' => 'on_leave_on_calendar',
             'expenses' => 'expense_schedule_on_calendar',
             'domain' => 'domain_on_calendar',
-            'hosting' => 'hosting_on_calendar'
+            'hosting' => 'hosting_on_calendar',
+            'billing' => 'billing_on_calendar'
         );
         
         foreach ($config_map as $key => $config) {

@@ -2,7 +2,11 @@
 
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Provider_model extends CI_Model {
+class Provider_model extends MY_Model {
+    
+    public $_table_name = 'tblproviders';
+    public $_primary_key = 'id';
+    public $_order_by = 'id DESC';
 
     public function __construct() {
         parent::__construct();
@@ -15,6 +19,7 @@ class Provider_model extends CI_Model {
     public function get_providers($limit, $start, $filters = array()) {
         $this->db->select('*');
         $this->db->from('tblproviders');
+        $this->staff_query('tblproviders');
 
         if (!empty($filters)) {
             if (!empty($filters['start_date']) && !empty($filters['end_date'])) {
@@ -52,6 +57,7 @@ class Provider_model extends CI_Model {
     public function get_providers_count($filters = array()) {
         $this->db->select('*');
         $this->db->from('tblproviders');
+        $this->staff_query('tblproviders');
 
         if (!empty($filters)) {
             if (!empty($filters['start_date']) && !empty($filters['end_date'])) {
@@ -105,12 +111,15 @@ class Provider_model extends CI_Model {
 
     public function get_stats() {
         $stats = [];
-        $stats['total'] = $this->db->count_all('tblproviders');
+        $this->staff_query('tblproviders');
+        $stats['total'] = $this->db->count_all_results('tblproviders');
         
         $this->db->where('status', 'Active');
+        $this->staff_query('tblproviders');
         $stats['active'] = $this->db->count_all_results('tblproviders');
         
         $this->db->where('status', 'Inactive');
+        $this->staff_query('tblproviders');
         $stats['inactive'] = $this->db->count_all_results('tblproviders');
         
         return $stats;
@@ -121,6 +130,7 @@ class Provider_model extends CI_Model {
         $this->db->select('id, provider_name as name, status');
         $this->db->from('tblproviders');
         $this->db->where('status', 'Inactive');
+        $this->staff_query('tblproviders');
         $this->db->order_by('provider_name', 'ASC');
         $query = $this->db->get();
         $providers = $query->result_array();

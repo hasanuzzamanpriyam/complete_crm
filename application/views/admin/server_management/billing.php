@@ -62,8 +62,12 @@
                                         <td><?= $billing->currency ?> <?= number_format((float)$billing->value, 2) ?></td>
                                         <td class="text-center">
                                             <a href="<?= base_url('admin/server_management/view_billing/' . $billing->id) ?>" class="btn btn-xs btn-outline-info" title="View Details" data-toggle="modal" data-target="#myModal"><i class="fa fa-list-alt"></i></a>
-                                            <a href="<?= base_url('admin/server_management/add_billing/' . $billing->id) ?>" class="btn btn-xs btn-outline-primary" title="Edit"><i class="fa fa-pencil"></i></a>
-                                            <a href="<?= base_url('admin/server_management/delete_billing/' . $billing->id) ?>" class="btn btn-xs btn-outline-danger" title="Delete" onclick="return confirm('Are you sure?')"><i class="fa fa-trash"></i></a>
+                                            <?php if (can_action_record($billing->permission, 'edit')): ?>
+                                                <a href="<?= base_url('admin/server_management/add_billing/' . $billing->id) ?>" class="btn btn-xs btn-outline-primary" title="Edit"><i class="fa fa-pencil"></i></a>
+                                            <?php endif; ?>
+                                            <?php if (can_action_record($billing->permission, 'delete')): ?>
+                                                <a href="<?= base_url('admin/server_management/delete_billing/' . $billing->id) ?>" class="btn btn-xs btn-outline-danger" title="Delete" onclick="return confirm('Are you sure?')"><i class="fa fa-trash"></i></a>
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>

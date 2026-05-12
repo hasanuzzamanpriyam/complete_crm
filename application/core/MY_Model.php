@@ -558,7 +558,6 @@
                 }
                 $this->db->where($table . '.permission REGEXP', $sq, false);
                 $this->db->or_where(array($table . '.permission' => 'all'));
-                $this->db->or_where(array($table . '.permission' => NULL));
                 $this->db->group_end(); //close bracket
             }
         }

@@ -43,19 +43,24 @@ class Billing_model extends MY_Model
     public function get_stats()
     {
         $stats = [];
-        $stats['total'] = $this->db->count_all('tbl_billing_orders');
+        $this->staff_query('tbl_billing_orders');
+        $stats['total'] = $this->db->count_all_results('tbl_billing_orders');
 
         $this->db->where('status', 'Active');
+        $this->staff_query('tbl_billing_orders');
         $stats['active'] = $this->db->count_all_results('tbl_billing_orders');
 
         $this->db->where('status', 'Pending');
+        $this->staff_query('tbl_billing_orders');
         $stats['pending'] = $this->db->count_all_results('tbl_billing_orders');
 
         $this->db->where('status', 'Expired');
+        $this->staff_query('tbl_billing_orders');
         $stats['expired'] = $this->db->count_all_results('tbl_billing_orders');
 
         $this->db->where('expiry_date <', date('Y-m-d'));
         $this->db->where('status !=', 'Expired');
+        $this->staff_query('tbl_billing_orders');
         $stats['expired_auto'] = $this->db->count_all_results('tbl_billing_orders');
 
         $stats['expired'] = ($stats['expired'] ?? 0) + ($stats['expired_auto'] ?? 0);
@@ -63,6 +68,7 @@ class Billing_model extends MY_Model
         $this->db->where('expiry_date >=', date('Y-m-d'));
         $this->db->where('expiry_date <=', date('Y-m-d', strtotime('+30 days')));
         $this->db->where('status', 'Active');
+        $this->staff_query('tbl_billing_orders');
         $stats['expiring'] = $this->db->count_all_results('tbl_billing_orders');
 
         return $stats;
@@ -74,6 +80,7 @@ class Billing_model extends MY_Model
         $this->db->select('id, label as name, expiry_date, status');
         $this->db->from('tbl_billing_orders');
         $this->db->where("(status = 'Expired' OR expiry_date < '" . $today . "')", NULL, FALSE);
+        $this->staff_query('tbl_billing_orders');
         $this->db->order_by('expiry_date', 'DESC');
         $query = $this->db->get();
         $billings = $query->result_array();
@@ -99,6 +106,7 @@ class Billing_model extends MY_Model
         $this->db->where('expiry_date >=', $today);
         $this->db->where('expiry_date <=', $end_date);
         $this->db->where('status', 'Active');
+        $this->staff_query('tbl_billing_orders');
         $this->db->order_by('expiry_date', 'ASC');
         $query = $this->db->get();
         $billings = $query->result_array();
@@ -112,5 +120,42 @@ class Billing_model extends MY_Model
         }
 
         return $billings;
+    }
+
+    public function get_calendar_events()
+    {
+        $events = array();
+        $upcoming_days = config_item('upcoming_expiry_days') ? config_item('upcoming_expiry_days') : 7;
+
+        $expiring = $this->get_expiring_billing($upcoming_days);
+        $expired = $this->get_expired_billing();
+
+        foreach ($expiring as $billing) {
+            $events[] = array(
+                'title' => '[BIL] ' . $billing['name'],
+                'start' => $billing['expiry_date'],
+                'end' => $billing['expiry_date'],
+                'color' => '#8e44ad',
+                'url' => base_url() . $billing['link'],
+                'type' => 'billing',
+                'status' => 'upcoming',
+                'days_left' => $billing['days_left']
+            );
+        }
+
+        foreach ($expired as $billing) {
+            $events[] = array(
+                'title' => '[BIL] ' . $billing['name'],
+                'start' => date('Y-m-d'),
+                'end' => date('Y-m-d'),
+                'color' => '#c0392b',
+                'url' => base_url() . $billing['link'],
+                'type' => 'billing',
+                'status' => 'expired',
+                'days_expired' => $billing['days_expired']
+            );
+        }
+
+        return $events;
     }
 }

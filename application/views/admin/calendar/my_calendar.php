@@ -561,6 +561,23 @@ $gcal_id = config_item('gcal_id');
                         <?php }
                                 }
                             } ?>
+                        <?php if (config_item('billing_on_calendar') == 'on') {
+                                $this->load->model('billing_model');
+                                $billing_events = $this->billing_model->get_calendar_events();
+                                if (!empty($billing_events)) {
+                                    foreach ($billing_events as $billing_event) {
+                                        $status_label = $billing_event['status'] === 'expired' ? ' (EXPIRED)' : ' (Expiring: ' . $billing_event['days_left'] . ' days)';
+                            ?> {
+                                        title: "<?= clear_textarea_breaks($billing_event['title']) . $status_label ?>",
+                                        start: "<?= $billing_event['start'] ?>",
+                                        end: "<?= $billing_event['end'] ?>",
+                                        color: "<?= $billing_event['color'] ?>",
+                                        url: "<?= $billing_event['url'] ?>",
+                                        type: "billing"
+                                    },
+                        <?php }
+                                }
+                            } ?>
                         ]
                     }
                 ]

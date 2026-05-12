@@ -1445,6 +1445,34 @@ function can_action($menu_id, $action)
     }
 }
 
+function can_action_record($permission_json, $action)
+{
+    $CI = &get_instance();
+    $user_type = $CI->session->userdata('user_type');
+    if ($user_type == 1) {
+        return true;
+    }
+    if (empty($permission_json) || $permission_json == 'NULL') {
+        return false;
+    }
+    if ($permission_json == 'all') {
+        return true;
+    }
+
+    $permissions = json_decode($permission_json, true);
+    if (empty($permissions)) {
+        return false;
+    }
+
+    $user_id = $CI->session->userdata('user_id');
+    if (isset($permissions[$user_id])) {
+        if (in_array($action, $permissions[$user_id])) {
+            return true;
+        }
+    }
+    return false;
+}
+
 function can_action_by_label($label, $action)
 {
     $CI = &get_instance();

@@ -297,19 +297,24 @@ class Domain_model extends MY_Model
     public function get_stats()
     {
         $stats = [];
-        $stats['total'] = $this->db->count_all('tbldomains');
+        $this->staff_query('tbldomains');
+        $stats['total'] = $this->db->count_all_results('tbldomains');
 
         $this->db->where('status', 'Active');
+        $this->staff_query('tbldomains');
         $stats['active'] = $this->db->count_all_results('tbldomains');
 
         $this->db->where('status', 'Pending');
+        $this->staff_query('tbldomains');
         $stats['pending'] = $this->db->count_all_results('tbldomains');
 
         $this->db->where('status', 'Expired');
+        $this->staff_query('tbldomains');
         $stats['expired'] = $this->db->count_all_results('tbldomains');
 
         $this->db->where('purchase_date <', date('Y-m-d'));
         $this->db->where('status !=', 'Expired');
+        $this->staff_query('tbldomains');
         $stats['expired_auto'] = $this->db->count_all_results('tbldomains');
 
         $stats['expired'] = ($stats['expired'] ?? 0) + ($stats['expired_auto'] ?? 0);
@@ -317,6 +322,7 @@ class Domain_model extends MY_Model
         $this->db->where('purchase_date >=', date('Y-m-d'));
         $this->db->where('purchase_date <=', date('Y-m-d', strtotime('+30 days')));
         $this->db->where('status', 'Active');
+        $this->staff_query('tbldomains');
         $stats['expiring'] = $this->db->count_all_results('tbldomains');
 
         return $stats;
@@ -343,6 +349,7 @@ class Domain_model extends MY_Model
         $this->db->select('id, domain_name as name, purchase_date as expiry_date, status, auto_renewal');
         $this->db->from('tbldomains');
         $this->db->where("(status = 'Expired' OR purchase_date < '" . $today . "')", NULL, FALSE);
+        $this->staff_query('tbldomains');
         $this->db->order_by('expiry_date', 'DESC');
         $query = $this->db->get();
         $domains = $query->result_array();
@@ -369,6 +376,7 @@ class Domain_model extends MY_Model
         $this->db->where('purchase_date >=', $today);
         $this->db->where('purchase_date <=', $end_date);
         $this->db->where('status', 'Active');
+        $this->staff_query('tbldomains');
         $this->db->order_by('purchase_date', 'ASC');
         $query = $this->db->get();
         $domains = $query->result_array();

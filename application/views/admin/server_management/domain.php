@@ -290,22 +290,26 @@
                                                     title="View Details">
                                                     <i class="fa fa-eye"></i>
                                                 </a>
-                                                <a href="<?= base_url('admin/server_management/add_domain/' . $domain['id']) ?>" class="btn-action <?= !empty($domain['is_locked']) ? 'disabled' : '' ?>" title="<?= !empty($domain['is_locked']) ? 'Locked' : 'Edit' ?>"><i class="fa fa-pencil-square-o"></i></a>
+                                                <?php if (can_action_record($domain['permission'], 'edit')): ?>
+                                                    <a href="<?= base_url('admin/server_management/add_domain/' . $domain['id']) ?>" class="btn-action <?= !empty($domain['is_locked']) ? 'disabled' : '' ?>" title="<?= !empty($domain['is_locked']) ? 'Locked' : 'Edit' ?>"><i class="fa fa-pencil-square-o"></i></a>
 
-                                                <a href="javascript:void(0)"
-                                                    class="btn-action toggle-lock"
-                                                    data-id="<?= $domain['id'] ?>"
-                                                    data-status="<?= !empty($domain['is_locked']) ? 1 : 0 ?>"
-                                                    title="<?= !empty($domain['is_locked']) ? 'Unlock Domain' : 'Lock Domain' ?>">
-                                                    <i class="fa <?= !empty($domain['is_locked']) ? 'fa-lock text-danger' : 'fa-unlock text-success' ?>"></i>
-                                                </a>
+                                                    <a href="javascript:void(0)"
+                                                        class="btn-action toggle-lock"
+                                                        data-id="<?= $domain['id'] ?>"
+                                                        data-status="<?= !empty($domain['is_locked']) ? 1 : 0 ?>"
+                                                        title="<?= !empty($domain['is_locked']) ? 'Unlock Domain' : 'Lock Domain' ?>">
+                                                        <i class="fa <?= !empty($domain['is_locked']) ? 'fa-lock text-danger' : 'fa-unlock text-success' ?>"></i>
+                                                    </a>
+                                                <?php endif; ?>
 
-                                                <a href="<?= base_url('admin/server_management/delete_domain/' . $domain['id']) ?>"
-                                                    class="btn-action text-danger <?= !empty($domain['is_locked']) ? 'disabled' : '' ?>"
-                                                    title="<?= !empty($domain['is_locked']) ? 'Locked' : 'Delete' ?>"
-                                                    onclick="<?= !empty($domain['is_locked']) ? 'return false;' : "return confirm('Are you sure you want to delete this domain?')" ?>">
-                                                    <i class="fa fa-trash-o"></i>
-                                                </a>
+                                                <?php if (can_action_record($domain['permission'], 'delete')): ?>
+                                                    <a href="<?= base_url('admin/server_management/delete_domain/' . $domain['id']) ?>"
+                                                        class="btn-action text-danger <?= !empty($domain['is_locked']) ? 'disabled' : '' ?>"
+                                                        title="<?= !empty($domain['is_locked']) ? 'Locked' : 'Delete' ?>"
+                                                        onclick="<?= !empty($domain['is_locked']) ? 'return false;' : "return confirm('Are you sure you want to delete this domain?')" ?>">
+                                                        <i class="fa fa-trash-o"></i>
+                                                    </a>
+                                                <?php endif; ?>
                                             </div>
                                         </td>
                                     </tr>

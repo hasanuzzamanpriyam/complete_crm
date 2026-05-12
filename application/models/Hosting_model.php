@@ -242,26 +242,33 @@ class Hosting_model extends MY_Model
     public function get_stats()
     {
         $stats = [];
-        $stats['total'] = $this->db->count_all('tblserver_hostings');
+        $this->staff_query('tblserver_hostings');
+        $stats['total'] = $this->db->count_all_results('tblserver_hostings');
 
         $this->db->where('status', 'Active');
+        $this->staff_query('tblserver_hostings');
         $stats['active'] = $this->db->count_all_results('tblserver_hostings');
 
         $this->db->where('status', 'Pending');
+        $this->staff_query('tblserver_hostings');
         $stats['pending'] = $this->db->count_all_results('tblserver_hostings');
 
         $this->db->where('status', 'Suspended');
+        $this->staff_query('tblserver_hostings');
         $stats['suspended'] = $this->db->count_all_results('tblserver_hostings');
 
         $this->db->where('status', 'Cancelled');
+        $this->staff_query('tblserver_hostings');
         $stats['cancelled'] = $this->db->count_all_results('tblserver_hostings');
 
         $this->db->where('purchase_date >=', date('Y-m-d'));
         $this->db->where('purchase_date <=', date('Y-m-d', strtotime('+30 days')));
         $this->db->where('status', 'Active');
+        $this->staff_query('tblserver_hostings');
         $stats['expiring'] = $this->db->count_all_results('tblserver_hostings');
 
         $this->db->where('purchase_date <', date('Y-m-d'));
+        $this->staff_query('tblserver_hostings');
         $stats['expired'] = $this->db->count_all_results('tblserver_hostings');
 
         return $stats;
@@ -290,6 +297,7 @@ class Hosting_model extends MY_Model
         $this->db->select('id, title as name, purchase_date as expiry_date, status, renew');
         $this->db->from('tblserver_hostings');
         $this->db->where("(status = 'Expired' OR status = 'Cancelled' OR purchase_date < '" . $today . "')", NULL, FALSE);
+        $this->staff_query('tblserver_hostings');
         $this->db->order_by('purchase_date', 'DESC');
         $query = $this->db->get();
         $hostings = $query->result_array();
@@ -316,6 +324,7 @@ class Hosting_model extends MY_Model
         $this->db->where('purchase_date >=', $today);
         $this->db->where('purchase_date <=', $end_date);
         $this->db->where('status', 'Active');
+        $this->staff_query('tblserver_hostings');
         $this->db->order_by('purchase_date', 'ASC');
         $query = $this->db->get();
         $hostings = $query->result_array();

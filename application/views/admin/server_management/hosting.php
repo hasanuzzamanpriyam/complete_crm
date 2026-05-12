@@ -313,8 +313,12 @@
                                         </td>
                                         <td class="text-center">
                                             <a href="#" class="btn-action text-info" title="View" data-toggle="modal" data-target="#viewModal_<?= $hosting['id'] ?>"><i class="fa fa-eye"></i></a>
-                                            <a href="<?= base_url('admin/server_management/add_hosting/' . $hosting['id']) ?>" class="btn-action" title="Edit"><i class="fa fa-pencil-square-o"></i></a>
-                                            <a href="<?= base_url('admin/server_management/delete_hosting/' . $hosting['id']) ?>" class="btn-action text-danger" title="Delete" onclick="return confirm('Are you sure you want to delete this hosting?')"><i class="fa fa-trash-o"></i></a>
+                                            <?php if (can_action_record($hosting['permission'], 'edit')): ?>
+                                                <a href="<?= base_url('admin/server_management/add_hosting/' . $hosting['id']) ?>" class="btn-action" title="Edit"><i class="fa fa-pencil-square-o"></i></a>
+                                            <?php endif; ?>
+                                            <?php if (can_action_record($hosting['permission'], 'delete')): ?>
+                                                <a href="<?= base_url('admin/server_management/delete_hosting/' . $hosting['id']) ?>" class="btn-action text-danger" title="Delete" onclick="return confirm('Are you sure you want to delete this hosting?')"><i class="fa fa-trash-o"></i></a>
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>

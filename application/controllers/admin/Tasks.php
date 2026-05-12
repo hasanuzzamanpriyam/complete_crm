@@ -153,7 +153,9 @@ class Tasks extends Admin_Controller
 
             $where = array();
             if (empty($filterBy) && !empty(admin())) {
-                $where = array('task_status !=' => 'completed');
+                $where = array('task_status !=' => 'completed', 'sub_task_id' => NULL);
+            } elseif (empty($filterBy)) {
+                $where = array('sub_task_id' => NULL);
             }
             if (!empty($search_by)) {
                 if ($search_by == 'by_project') {

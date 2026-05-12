@@ -185,8 +185,12 @@
                                         <td><span class="badge <?= $type_class ?>"><?= $provider['provider_type'] ?></span></td>
                                         <td><span class="badge <?= $status_class ?>"><?= $provider['status'] ?></span></td>
                                         <td class="text-center">
-                                            <a href="<?= base_url('admin/server_management/add_provider/' . $provider['id']) ?>" class="btn-action" title="Edit"><i class="fa fa-pencil-square-o"></i></a>
-                                            <a href="<?= base_url('admin/server_management/delete_provider/' . $provider['id']) ?>" class="btn-action text-danger" title="Delete" onclick="return confirm('Are you sure you want to delete this provider?')"><i class="fa fa-trash-o"></i></a>
+                                            <?php if (can_action_record($provider['permission'], 'edit')): ?>
+                                                <a href="<?= base_url('admin/server_management/add_provider/' . $provider['id']) ?>" class="btn-action" title="Edit"><i class="fa fa-pencil-square-o"></i></a>
+                                            <?php endif; ?>
+                                            <?php if (can_action_record($provider['permission'], 'delete')): ?>
+                                                <a href="<?= base_url('admin/server_management/delete_provider/' . $provider['id']) ?>" class="btn-action text-danger" title="Delete" onclick="return confirm('Are you sure you want to delete this provider?')"><i class="fa fa-trash-o"></i></a>
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>

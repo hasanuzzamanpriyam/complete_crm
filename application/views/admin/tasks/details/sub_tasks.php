@@ -34,7 +34,7 @@ $sub_tasks = config_item('allow_sub_tasks');
                     </thead>
                     <tbody>
                     <?php
-                    $all_sub_tasks = get_result('tbl_task', array('sub_task_id' => $task_details->task_id));
+                    $all_sub_tasks = $this->tasks_model->get_permission('tbl_task', array('sub_task_id' => $task_details->task_id));
                     if (!empty($all_sub_tasks)) : foreach ($all_sub_tasks as $key => $v_task) :
                         ?>
                         <tr>

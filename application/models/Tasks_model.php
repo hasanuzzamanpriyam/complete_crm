@@ -320,7 +320,7 @@ class Tasks_Model extends MY_Model
                     'task_progress' => 0,
                     'module' => 'server_hosting',
                     'module_field_id' => $module_field_id,
-                    'permission' => $hosting->permission ?? 'all'
+                    'permission' => $hosting->permission
                 );
                 $this->db->insert('tbl_task', $task_data);
             }
@@ -356,7 +356,7 @@ class Tasks_Model extends MY_Model
                     'task_progress' => 0,
                     'module' => 'domain',
                     'module_field_id' => $module_field_id,
-                    'permission' => $domain->permission ?? 'all'
+                    'permission' => $domain->permission
                 );
                 $this->db->insert('tbl_task', $task_data);
                 return $this->db->insert_id();
@@ -373,7 +373,7 @@ class Tasks_Model extends MY_Model
                     'task_progress' => 0,
                     'module' => 'server_hosting',
                     'module_field_id' => $module_field_id,
-                    'permission' => $hosting->permission ?? 'all'
+                    'permission' => $hosting->permission
                 );
                 $this->db->insert('tbl_task', $task_data);
                 return $this->db->insert_id();

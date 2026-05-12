@@ -334,9 +334,22 @@ class Server_management extends Admin_Controller
     {
         $ids = $this->input->post('ids', TRUE);
         if (!empty($ids)) {
-            $this->hosting_model->delete_hosting($ids);
-            $this->log_activity('server_management', 'Deleted ' . count($ids) . ' hosting(s)', 'fa-trash');
-            set_message('success', 'Selected hostings deleted successfully!');
+            $deleted_count = 0;
+            foreach ($ids as $id) {
+                if ($this->hosting_model->can_action('tblserver_hostings', 'delete', array('id' => $id))) {
+                    $hosting = $this->hosting_model->get_hosting_by_id($id);
+                    $this->hosting_model->delete_hosting($id);
+                    if ($hosting) {
+                        $this->log_activity('server_management', 'Deleted hosting "' . $hosting->title . '"', 'fa-trash');
+                    }
+                    $deleted_count++;
+                }
+            }
+            if ($deleted_count > 0) {
+                set_message('success', 'Selected hostings deleted successfully!');
+            } else {
+                set_message('error', 'You do not have permission to delete these records!');
+            }
         } elseif ($id) {
             $can_delete = $this->hosting_model->can_action('tblserver_hostings', 'delete', array('id' => $id));
             if (!$can_delete) {
@@ -488,9 +501,22 @@ class Server_management extends Admin_Controller
     {
         $ids = $this->input->post('ids', TRUE);
         if (!empty($ids)) {
-            $this->domain_model->delete_domain($ids);
-            $this->log_activity('server_management', 'Deleted ' . count($ids) . ' domain(s)', 'fa-trash');
-            set_message('success', 'Selected domains deleted successfully!');
+            $deleted_count = 0;
+            foreach ($ids as $id) {
+                if ($this->domain_model->can_action('tbldomains', 'delete', array('id' => $id))) {
+                    $domain = $this->domain_model->get_domain_by_id($id);
+                    $this->domain_model->delete_domain($id);
+                    if ($domain) {
+                        $this->log_activity('server_management', 'Deleted domain "' . $domain->domain_name . '"', 'fa-trash');
+                    }
+                    $deleted_count++;
+                }
+            }
+            if ($deleted_count > 0) {
+                set_message('success', 'Selected domains deleted successfully!');
+            } else {
+                set_message('error', 'You do not have permission to delete these records!');
+            }
         } elseif ($id) {
             $can_delete = $this->domain_model->can_action('tbldomains', 'delete', array('id' => $id));
             if (!$can_delete) {
@@ -511,7 +537,14 @@ class Server_management extends Admin_Controller
 
     public function add_hosting($id = NULL)
     {
-        $data['title'] = lang('add_hosting');
+        if ($id) {
+            $can_edit = $this->hosting_model->can_action('tblserver_hostings', 'edit', array('id' => $id));
+            if (!$can_edit) {
+                set_message('error', 'You do not have permission to edit this record!');
+                redirect('admin/server_management/hosting');
+            }
+        }
+        $data['title'] = $id ? lang('edit_hosting') : lang('add_hosting');
         $data['currencies'] = $this->db->get('tbl_currencies')->result_array();
         $data['server_types'] = $this->db->get('tbl_server_types')->result_array();
         $data['plans'] = $this->db->get('tbl_hosting_plans')->result_array();
@@ -759,7 +792,14 @@ class Server_management extends Admin_Controller
 
     public function add_domain($id = NULL)
     {
-        $data['title'] = lang('add_domain');
+        if ($id) {
+            $can_edit = $this->domain_model->can_action('tbldomains', 'edit', array('id' => $id));
+            if (!$can_edit) {
+                set_message('error', 'You do not have permission to edit this record!');
+                redirect('admin/server_management/domain');
+            }
+        }
+        $data['title'] = $id ? lang('edit_domain') : lang('add_domain');
         $this->db->select('tbl_users.*, tbl_account_details.avatar, tbl_account_details.fullname, tbl_designations.designations');
         $this->db->from('tbl_users');
         $this->db->join('tbl_account_details', 'tbl_users.user_id = tbl_account_details.user_id', 'left');
@@ -994,7 +1034,14 @@ class Server_management extends Admin_Controller
 
     public function add_provider($id = NULL)
     {
-        $data['title'] = lang('add_provider');
+        if ($id) {
+            $can_edit = $this->provider_model->can_action('tblproviders', 'edit', array('id' => $id));
+            if (!$can_edit) {
+                set_message('error', 'You do not have permission to edit this record!');
+                redirect('admin/server_management/provider');
+            }
+        }
+        $data['title'] = $id ? lang('edit_provider') : lang('add_provider');
         
         $this->db->select('tbl_users.*, tbl_account_details.avatar, tbl_account_details.fullname, tbl_designations.designations');
         $this->db->from('tbl_users');
@@ -1287,13 +1334,29 @@ class Server_management extends Admin_Controller
     {
         $ids = $this->input->post('ids', TRUE);
         if (!empty($ids)) {
-            // Bulk delete
-            $this->provider_model->delete_provider($ids);
-            set_message('success', 'Selected providers deleted successfully!');
+            $deleted_count = 0;
+            foreach ($ids as $id) {
+                if ($this->provider_model->can_action('tblproviders', 'delete', array('id' => $id))) {
+                    $provider = $this->provider_model->get_provider_by_id($id);
+                    $this->provider_model->delete_provider($id);
+                    if ($provider) {
+                        $this->log_activity('server_management', 'Deleted provider "' . $provider->provider_name . '"', 'fa-trash');
+                    }
+                    $deleted_count++;
+                }
+            }
+            if ($deleted_count > 0) {
+                set_message('success', 'Selected providers deleted successfully!');
+            } else {
+                set_message('error', 'You do not have permission to delete these records!');
+            }
         } elseif ($id) {
-            // Single delete
-            $this->provider_model->delete_provider($id);
-            set_message('success', 'Provider deleted successfully!');
+            if ($this->provider_model->can_action('tblproviders', 'delete', array('id' => $id))) {
+                $this->provider_model->delete_provider($id);
+                set_message('success', 'Provider deleted successfully!');
+            } else {
+                set_message('error', 'You do not have permission to delete this record!');
+            }
         } else {
             set_message('error', 'Nothing to delete!');
         }
@@ -1594,7 +1657,14 @@ class Server_management extends Admin_Controller
 
     public function add_billing($id = NULL)
     {
-        $data['title'] = lang('add_billing_item');
+        if ($id) {
+            $can_edit = $this->billing_model->can_action('tbl_billing_orders', 'edit', array('id' => $id));
+            if (!$can_edit) {
+                set_message('error', 'You do not have permission to edit this record!');
+                redirect('admin/server_management/billing');
+            }
+        }
+        $data['title'] = $id ? 'Edit Billing Order' : 'Add Billing Order';
         if ($this->input->post()) {
             $id = $this->input->post('id', TRUE);
             
@@ -1741,8 +1811,61 @@ class Server_management extends Admin_Controller
         redirect('admin/server_management/billing');
     }
 
+    private function get_or_create_server_category()
+    {
+        $category_name = 'Server Management';
+        $this->db->where('customer_group', $category_name);
+        $this->db->where('type', 'tasks');
+        $query = $this->db->get('tbl_customer_group');
+        if ($query->num_rows() > 0) {
+            return $query->row()->customer_group_id;
+        } else {
+            $data = array(
+                'customer_group' => $category_name,
+                'type' => 'tasks'
+            );
+            $this->db->insert('tbl_customer_group', $data);
+            return $this->db->insert_id();
+        }
+    }
+
+    private function get_or_create_master_task($module, $permission = 'all')
+    {
+        $name_map = array(
+            'domain' => 'Domain Management',
+            'server_hosting' => 'Hosting Management',
+            'billing' => 'Billing Management'
+        );
+        $master_task_name = isset($name_map[$module]) ? $name_map[$module] : ucfirst(str_replace('_', ' ', $module)) . ' Management';
+
+        $this->db->where('task_name', $master_task_name);
+        $this->db->where('module', 'server_management_master');
+        $query = $this->db->get('tbl_task');
+
+        if ($query->num_rows() > 0) {
+            return $query->row()->task_id;
+        } else {
+            $category_id = $this->get_or_create_server_category();
+            $data = array(
+                'task_name' => $master_task_name,
+                'task_description' => 'Master task for all ' . str_replace('_', ' ', $module) . ' related tasks.',
+                'task_start_date' => date('Y-m-d'),
+                'task_status' => 'not_started',
+                'created_by' => $this->session->userdata('user_id'),
+                'permission' => $permission,
+                'category_id' => $category_id,
+                'module' => 'server_management_master'
+            );
+            $this->db->insert('tbl_task', $data);
+            return $this->db->insert_id();
+        }
+    }
+
     private function create_renewal_task($module, $module_id, $module_name, $exp_date, $future_exp_date, $permission = 'all')
     {
+        $master_id = $this->get_or_create_master_task($module, $permission);
+        $category_id = $this->get_or_create_server_category();
+
         // Task 1: Recent Expiration (Exp Date)
         $task_data1 = array(
             'task_name' => 'Recent Expiration: ' . $module_name,
@@ -1753,7 +1876,9 @@ class Server_management extends Admin_Controller
             'created_by' => $this->session->userdata('user_id'),
             'permission' => $permission,
             'module' => $module,
-            'module_field_id' => $module_id
+            'module_field_id' => $module_id,
+            'sub_task_id' => $master_id,
+            'category_id' => $category_id
         );
         $this->db->insert('tbl_task', $task_data1);
 
@@ -1767,7 +1892,9 @@ class Server_management extends Admin_Controller
             'created_by' => $this->session->userdata('user_id'),
             'permission' => $permission,
             'module' => $module,
-            'module_field_id' => $module_id
+            'module_field_id' => $module_id,
+            'sub_task_id' => $master_id,
+            'category_id' => $category_id
         );
         $this->db->insert('tbl_task', $task_data2);
     }
