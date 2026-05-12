@@ -110,6 +110,7 @@
                                 <?php foreach ($staff_members as $staff): ?>
                                     <div class="col-lg-4 col-md-6 mb-3">
                                         <?php
+                                        $is_admin = ($staff->role_id == 1);
                                         $user_permission = null;
                                         if ($permissionL != 'all') {
                                             $decoded_permission = json_decode($permissionL, true);
@@ -121,7 +122,7 @@
                                         <div style="padding: 0; border: 1px solid #e9ecef; border-radius: 8px; background: #fff; height: 100%; transition: all 0.2s ease;">
                                             <div class="checkbox c-checkbox m0">
                                                 <label class="needsclick" style="margin-bottom: 0; display: flex; align-items: center; width: 100%; cursor: pointer; padding: 12px;">
-                                                    <input type="checkbox" value="<?= $staff->user_id ?>" name="assigned_to[]" class="needsclick assigned_to_task" <?= !empty($user_permission) ? 'checked' : '' ?>>
+                                                    <input type="checkbox" value="<?= $staff->user_id ?>" name="assigned_to[]" class="needsclick assigned_to_task <?= $is_admin ? 'is-admin' : '' ?>" <?= !empty($user_permission) ? 'checked' : '' ?>>
                                                     <span class="fa fa-check" style="margin-top: -10px; left: 12px;"></span>
                                                     <div style="display: flex; align-items: center; margin-left: 25px; flex: 1; overflow: hidden;">
                                                         <img src="<?= base_url() . (!empty($staff->avatar) ? $staff->avatar : 'assets/img/user/default.png') ?>" class="img-circle" style="width: 32px; height: 32px; border: 1px solid #eee; margin-right: 12px; flex-shrink: 0; object-fit: cover;">
@@ -142,13 +143,18 @@
                                                 <span class="fa fa-check"></span> View
                                             </label>
                                             <label class="checkbox-inline c-checkbox">
-                                                <input type="checkbox" value="edit" name="action_<?= $staff->user_id ?>[]" <?= (!empty($user_permission) && in_array('edit', $user_permission)) ? 'checked' : '' ?>>
+                                                <input type="checkbox" value="edit" name="action_<?= $staff->user_id ?>[]" <?= ($is_admin || (!empty($user_permission) && in_array('edit', $user_permission))) ? 'checked' : '' ?> <?= $is_admin ? 'disabled' : '' ?>>
                                                 <span class="fa fa-check"></span> Edit
                                             </label>
                                             <label class="checkbox-inline c-checkbox">
-                                                <input type="checkbox" value="delete" name="action_<?= $staff->user_id ?>[]" <?= (!empty($user_permission) && in_array('delete', $user_permission)) ? 'checked' : '' ?>>
+                                                <input type="checkbox" value="delete" name="action_<?= $staff->user_id ?>[]" <?= ($is_admin || (!empty($user_permission) && in_array('delete', $user_permission))) ? 'checked' : '' ?> <?= $is_admin ? 'disabled' : '' ?>>
                                                 <span class="fa fa-check"></span> Delete
                                             </label>
+                                            <input type="hidden" name="action_<?= $staff->user_id ?>[]" value="view">
+                                            <?php if($is_admin): ?>
+                                                <input type="hidden" name="action_<?= $staff->user_id ?>[]" value="edit">
+                                                <input type="hidden" name="action_<?= $staff->user_id ?>[]" value="delete">
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 <?php endforeach; ?>
@@ -164,6 +170,7 @@
                 $('input[name="task_permission"]').change(function() {
                     if ($(this).val() == 'custom_permission') {
                         $('#task_permission_users').slideDown();
+                        $('.assigned_to_task.is-admin').prop('checked', true).trigger('change');
                     } else {
                         $('#task_permission_users').slideUp();
                     }

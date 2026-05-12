@@ -678,7 +678,7 @@
                                             <div style="padding: 0; border: 1px solid #e9ecef; border-radius: 8px; background: #fff; height: 100%; transition: all 0.2s ease;">
                                                 <div class="checkbox c-checkbox m0">
                                                     <label class="needsclick" style="margin-bottom: 0; display: flex; align-items: center; width: 100%; cursor: pointer; padding: 12px;">
-                                                        <input type="checkbox" value="<?= $staff->user_id ?>" name="assigned_to[]" class="needsclick assigned_to_task" <?= !empty($user_permission) ? 'checked' : '' ?>>
+                                                        <input type="checkbox" value="<?= $staff->user_id ?>" name="assigned_to[]" class="needsclick assigned_to_task <?= $is_admin ? 'is-admin' : '' ?>" <?= !empty($user_permission) ? 'checked' : '' ?>>
                                                         <span class="fa fa-check" style="margin-top: -10px; left: 12px;"></span>
                                                         <div style="display: flex; align-items: center; margin-left: 25px; flex: 1; overflow: hidden;">
                                                             <img src="<?= base_url() . (!empty($staff->avatar) ? $staff->avatar : 'assets/img/user/default.png') ?>" class="img-circle" style="width: 32px; height: 32px; border: 1px solid #eee; margin-right: 12px; flex-shrink: 0; object-fit: cover;">
@@ -818,6 +818,7 @@
                             $('.task_permission_radio').on('click', function() {
                                 if ($(this).val() === 'custom_permission') {
                                     $('#task_permission_users').slideDown();
+                                    $('.assigned_to_task.is-admin').prop('checked', true).trigger('change');
                                 } else {
                                     $('#task_permission_users').slideUp();
                                 }
