@@ -8,7 +8,7 @@ class Billing_model extends MY_Model
 
     public function get_all_billing()
     {
-        $this->db->select('tbl_billing_orders.id, tbl_billing_orders.label, tbl_billing_orders.type, tbl_billing_orders.value, tbl_billing_orders.currency, tbl_billing_orders.renewal_date, tbl_billing_orders.expiry_date, tbl_billing_orders.renew, tbl_billing_orders.status, tblproviders.provider_name, tbl_client.name as client_name');
+        $this->db->select('tbl_billing_orders.id, tbl_billing_orders.label, tbl_billing_orders.type, tbl_billing_orders.value, tbl_billing_orders.currency, tbl_billing_orders.renewal_date, tbl_billing_orders.expiry_date, tbl_billing_orders.renew, tbl_billing_orders.status, tbl_billing_orders.permission, tblproviders.provider_name, tbl_client.name as client_name');
         $this->db->from('tbl_billing_orders');
         $this->db->join('tblproviders', 'tbl_billing_orders.provider_id = tblproviders.id', 'left');
         $this->db->join('tbl_client', 'tbl_billing_orders.client_id = tbl_client.client_id', 'left');

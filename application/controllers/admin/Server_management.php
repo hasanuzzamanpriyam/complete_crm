@@ -1763,7 +1763,7 @@ class Server_management extends Admin_Controller
             $data['stores'] = $this->db->get('tbl_woocommerce_stores')->result_array();
             
             $data['assign_user'] = $this->db->where('activated', 1)->get('tbl_users')->result();
-            if (!empty($data['billing_info']->permission)) {
+            if (!empty($data['billing_info']) && !empty($data['billing_info']->permission)) {
                 $data['permissionL'] = $data['billing_info']->permission;
             } else {
                 $data['permissionL'] = 'all';
