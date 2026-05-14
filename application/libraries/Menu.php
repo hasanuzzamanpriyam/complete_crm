@@ -230,7 +230,7 @@ class Menu
         }
 
         // Check specific server management tables
-        $tables = ['tblserver_hostings', 'tblserver_domains', 'tblproviders', 'tbl_billing_orders'];
+        $tables = ['tblserver_hostings', 'tbldomains', 'tblproviders', 'tbl_billing_orders'];
         foreach ($tables as $table) {
             if ($CI->db->field_exists('permission', $table)) {
                 $CI->db->group_start();
