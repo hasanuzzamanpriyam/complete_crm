@@ -249,6 +249,34 @@
     </div>
 
 
+    <!-- Additional Custom Fields -->
+    <?php
+    $custom_fields = !empty($hosting->custom_fields) ? json_decode($hosting->custom_fields, true) : [];
+    if (!empty($custom_fields)):
+    ?>
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="panel panel-default border-none shadow-sm" style="border-radius: 10px; overflow: hidden;">
+                <div class="panel-heading bg-white border-none px-4 pt-4 pb-0">
+                    <h5 class="text-uppercase text-muted font-bold m-0" style="font-size: 11px; letter-spacing: 1.2px;">Additional Information</h5>
+                </div>
+                <div class="panel-body p-4">
+                    <div class="row">
+                        <?php foreach ($custom_fields as $field): ?>
+                            <div class="col-md-6 mb-3">
+                                <div class="bg-white p-2 rounded shadow-xs border d-flex justify-content-between align-items-center" style="min-height: 40px;">
+                                    <span class="text-muted small"><?= htmlspecialchars($field['label']) ?>:</span>
+                                    <span class="font-bold text-dark ml-2"><?= htmlspecialchars($field['value']) ?></span>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <!-- Description -->
     <?php if (!empty($hosting->description)): ?>
     <div class="row mt-4 mb-4">

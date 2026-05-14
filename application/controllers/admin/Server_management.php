@@ -671,6 +671,7 @@ class Server_management extends Admin_Controller
                     'notification_days' => $this->input->post('expiry_notification') ? $this->input->post('notification_days', TRUE) : NULL,
                     'notification_time_unit' => $this->input->post('expiry_notification') ? $this->input->post('notification_time_unit', TRUE) : NULL,
                     'description' => $this->input->post('description', TRUE),
+                    'custom_fields' => $this->_process_custom_fields(),
                     'permission'  => $this->_build_task_permission()
                 );
 
@@ -2016,5 +2017,22 @@ class Server_management extends Admin_Controller
         }
 
         echo json_encode(['status' => 'error', 'message' => 'Failed to process renewal.']);
+    }
+    private function _process_custom_fields()
+    {
+        $custom_field_labels = $this->input->post('custom_field_label', TRUE);
+        $custom_field_values = $this->input->post('custom_field_value', TRUE);
+        $custom_fields = array();
+        if (!empty($custom_field_labels)) {
+            foreach ($custom_field_labels as $key => $label) {
+                if (!empty($label)) {
+                    $custom_fields[] = array(
+                        'label' => $label,
+                        'value' => isset($custom_field_values[$key]) ? $custom_field_values[$key] : ''
+                    );
+                }
+            }
+        }
+        return !empty($custom_fields) ? json_encode($custom_fields) : NULL;
     }
 }

@@ -656,6 +656,35 @@
                         </div>
                     </div>
 
+                    <div class="erp-section-title mt-4" style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>Additional Information</span>
+                        <button type="button" class="btn btn-xs btn-primary" id="add_custom_field" style="padding: 2px 8px; font-size: 10px;">
+                            <i class="fa fa-plus"></i> Add Field
+                        </button>
+                    </div>
+                    <div id="custom_fields_container" style="margin-bottom: 20px;">
+                        <?php
+                        $custom_fields = isset($hosting_info) && !empty($hosting_info->custom_fields) ? json_decode($hosting_info->custom_fields, true) : [];
+                        if (!empty($custom_fields)):
+                            foreach ($custom_fields as $field):
+                        ?>
+                            <div class="row custom-field-row" style="margin-bottom: 10px;">
+                                <div class="col-md-5">
+                                    <input type="text" name="custom_field_label[]" class="form-control" placeholder="Field Name" value="<?= htmlspecialchars($field['label']) ?>">
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="text" name="custom_field_value[]" class="form-control" placeholder="Value" value="<?= htmlspecialchars($field['value']) ?>">
+                                </div>
+                                <div class="col-md-1">
+                                    <button type="button" class="btn btn-danger btn-xs remove-custom-field" style="margin-top: 5px;"><i class="fa fa-times"></i></button>
+                                </div>
+                            </div>
+                        <?php 
+                            endforeach;
+                        endif; 
+                        ?>
+                    </div>
+
                     <div class="erp-section-title">Description</div>
                     
                     <div class="row">
@@ -1029,5 +1058,25 @@ $(document).ready(function() {
     $('#h_purchase_date, #h_days, #h_time_unit').on('change', calculateExpiryDate);
     $('#h_days').on('keyup', calculateExpiryDate);
     calculateExpiryDate();
+
+    // Custom Fields Logic
+    $('#add_custom_field').click(function() {
+        var html = '<div class="row custom-field-row" style="margin-bottom: 10px;">' +
+                   '    <div class="col-md-5">' +
+                   '        <input type="text" name="custom_field_label[]" class="form-control" placeholder="Field Name">' +
+                   '    </div>' +
+                   '    <div class="col-md-6">' +
+                   '        <input type="text" name="custom_field_value[]" class="form-control" placeholder="Value">' +
+                   '    </div>' +
+                   '    <div class="col-md-1">' +
+                   '        <button type="button" class="btn btn-danger btn-xs remove-custom-field" style="margin-top: 5px;"><i class="fa fa-times"></i></button>' +
+                   '    </div>' +
+                   '</div>';
+        $('#custom_fields_container').append(html);
+    });
+
+    $(document).on('click', '.remove-custom-field', function() {
+        $(this).closest('.custom-field-row').remove();
+    });
 });
 </script>
