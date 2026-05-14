@@ -21,6 +21,10 @@ class Menu
             $user_menu = $query_result->result();
         } else { // get all menu for admin
             $user_menu = $CI->db->where('status', 1)->order_by('sort', 'time')->get('tbl_menu')->result();
+        }
+
+        // Add Server Management menu for both admins and authorized staff
+        if ($user_type == 1 || $this->hasServerManagementAccess($CI->session->userdata('user_id'))) {
             $module = [
                 [
                     'menu_id' => '111122222222',
@@ -205,5 +209,40 @@ class Menu
             }
         }
         return FALSE;
+    }
+
+    public function hasServerManagementAccess($user_id)
+    {
+        $CI = &get_instance();
+        // Check for any server management related tasks assigned to user
+        $CI->db->where('module', 'server_management');
+        $CI->db->group_start();
+        if ($CI->db->version() >= 8) {
+            $sq = '\\b' . ($user_id) . '\\b';
+        } else {
+            $sq = '[[:<:]]' . ($user_id) . '[[:>:]]';
+        }
+        $CI->db->where('permission REGEXP', $CI->db->escape($sq), false);
+        $CI->db->or_where('permission', 'all');
+        $CI->db->group_end();
+        if ($CI->db->get('tbl_task')->num_rows() > 0) {
+            return true;
+        }
+
+        // Check specific server management tables
+        $tables = ['tblserver_hostings', 'tblserver_domains', 'tblproviders', 'tbl_billing_orders'];
+        foreach ($tables as $table) {
+            if ($CI->db->field_exists('permission', $table)) {
+                $CI->db->group_start();
+                $CI->db->where('permission REGEXP', $CI->db->escape($sq), false);
+                $CI->db->or_where('permission', 'all');
+                $CI->db->group_end();
+                $CI->db->limit(1);
+                if ($CI->db->get($table)->num_rows() > 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

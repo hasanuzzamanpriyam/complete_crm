@@ -541,7 +541,7 @@
         return $result;
     }
 
-    public function staff_query($table)
+    public function staff_query($table, $alias = null)
     {
         $role = $this->session->userdata('user_type');
         $userid = $this->input->post('user_id', true);
@@ -550,14 +550,15 @@
                 $userid = my_id();
             }
             if (!empty($this->db->field_exists('permission', $table))) {
+                $query_table = (!empty($alias) ? $alias : $table);
                 $this->db->group_start();
                 if ($this->db->version() >= 8) {
                     $sq = $this->db->escape('\\b' . ($userid) . '\\b');
                 } else {
                     $sq = $this->db->escape('[[:<:]]' . ($userid) . '[[:>:]]');
                 }
-                $this->db->where($table . '.permission REGEXP', $sq, false);
-                $this->db->or_where(array($table . '.permission' => 'all'));
+                $this->db->where($query_table . '.permission REGEXP', $sq, false);
+                $this->db->or_where(array($query_table . '.permission' => 'all'));
                 $this->db->group_end(); //close bracket
             }
         }
