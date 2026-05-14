@@ -12,7 +12,7 @@ class Billing_model extends MY_Model
         $this->db->from('tbl_billing_orders');
         $this->db->join('tblproviders', 'tbl_billing_orders.provider_id = tblproviders.id', 'left');
         $this->db->join('tbl_client', 'tbl_billing_orders.client_id = tbl_client.client_id', 'left');
-        $this->staff_query('ttbl_billing_ordersl_billing_orders', 'b');
+        $this->staff_query('tbl_billing_orders', 'tbl_billing_orders');
         $this->db->order_by('tbl_billing_orders.id', 'DESC');
         $query = $this->db->get();
         return $query->result();
@@ -176,7 +176,7 @@ class Billing_model extends MY_Model
         $this->db->select('id, label as name, expiry_date, status');
         $this->db->from('tbl_billing_orders');
         $this->db->where("(status = 'Expired' OR expiry_date < '" . $today . "')", NULL, FALSE);
-        $this->staff_query('tbl_billing_orders', 'b');
+        $this->staff_query('tbl_billing_orders', 'tbl_billing_orders');
         $this->db->order_by('expiry_date', 'DESC');
         $query = $this->db->get();
         $billings = $query->result_array();
@@ -202,7 +202,7 @@ class Billing_model extends MY_Model
         $this->db->where('expiry_date >=', $today);
         $this->db->where('expiry_date <=', $end_date);
         $this->db->where('status', 'Active');
-        $this->staff_query('tbl_billing_orders', 'b');
+        $this->staff_query('tbl_billing_orders', 'tbl_billing_orders');
         $this->db->order_by('expiry_date', 'ASC');
         $query = $this->db->get();
         $billings = $query->result_array();

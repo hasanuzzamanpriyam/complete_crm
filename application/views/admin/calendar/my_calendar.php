@@ -164,7 +164,7 @@ $gcal_id = config_item('gcal_id');
                         events: [<?php
                                     if (config_item('tasks_on_calendar') == 'on') {
                                         if (!empty($searchType) && ($searchType == 'tasks' || $searchType == 'all')) {
-                                            $task_where = "(tbl_task.task_status != 'completed' OR (tbl_task.task_status = 'completed' AND (tbl_task.module = 'domain' OR tbl_task.module = 'server_hosting')))";
+                                            $task_where = "(tbl_task.task_status != 'completed')";
                                             $task_info = $this->admin_model->get_permission('tbl_task', $task_where);
                                             // Status colors mapping
                                             $status_colors = [
