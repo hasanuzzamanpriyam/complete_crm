@@ -1,5 +1,6 @@
 <?php
 $edited = can_action('54', 'edited');
+$deleted = can_action('54', 'deleted');
 $sub_tasks = config_item('allow_sub_tasks');
 // var_dump($active, $sub_tasks);
 ?>
@@ -106,8 +107,11 @@ $sub_tasks = config_item('allow_sub_tasks');
                             </td>
                             <td>
                                 <?php echo btn_view('admin/tasks/details/' . $v_task->task_id) ?>
-                                <?php if (!empty($t_edited)) { ?>
+                                <?php if (!empty($edited)) { ?>
                                     <?php echo btn_edit('admin/tasks/create/' . $v_task->task_id) ?>
+                                <?php } ?>
+                                <?php if (!empty($deleted)) { ?>
+                                    <?php echo btn_delete('admin/tasks/delete_task/' . $v_task->task_id) ?>
                                 <?php } ?>
                             </td>
                         </tr>

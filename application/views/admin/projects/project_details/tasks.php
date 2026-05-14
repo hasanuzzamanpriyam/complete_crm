@@ -35,6 +35,7 @@ $deleted = can_action('57', 'deleted');
                             <?php
                             $all_task_info = get_result('tbl_task', array('project_id' => $project_details->project_id));
                             $t_edited = can_action('54', 'edited');
+                            $t_deleted = can_action('54', 'deleted');
                             if (!empty($all_task_info)) : foreach ($all_task_info as $key => $v_task) :
                             ?>
                                     <tr>
@@ -101,6 +102,9 @@ $deleted = can_action('57', 'deleted');
                                             <?php echo btn_view('admin/tasks/details/' . $v_task->task_id) ?>
                                             <?php if (!empty($t_edited)) { ?>
                                                 <?php echo btn_edit('admin/tasks/create/' . $v_task->task_id) ?>
+                                            <?php } ?>
+                                            <?php if (!empty($t_deleted)) { ?>
+                                                <?php echo btn_delete('admin/tasks/delete_task/' . $v_task->task_id) ?>
                                             <?php } ?>
                                         </td>
                                     </tr>

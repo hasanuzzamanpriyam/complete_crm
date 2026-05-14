@@ -64,13 +64,14 @@ class Items_Model extends MY_Model
     function total_project_cost($project_id)
     {
         $project_info = $this->db->where('project_id', $project_id)->get('tbl_project')->row();
+        if (empty($project_info) || !is_object($project_info)) {
+            return 0;
+        }
         $tasks_cost = $this->calculate_all_tasks_cost($project_id);
         $project_time = $this->calculate_total_task_time($project_id);
         $project_hours = $project_time / 3600;
-        if (empty($project_info->hourly_rate)) {
-            $project_info = 0;
-        }
-        $project_cost = $project_hours * $project_info->hourly_rate;
+        $hourly_rate = (!empty($project_info->hourly_rate) ? $project_info->hourly_rate : 0);
+        $project_cost = $project_hours * $hourly_rate;
 
         if ($project_info->billing_type == 'tasks_hours') {
             return $tasks_cost;
@@ -105,6 +106,9 @@ class Items_Model extends MY_Model
     function total_project_hours($project_id, $second = null, $task = null)
     {
         $project_info = $this->db->where('project_id', $project_id)->get('tbl_project')->row();
+        if (empty($project_info) || !is_object($project_info)) {
+            return 0;
+        }
         $project_time = $this->calculate_total_task_time($project_id);
         $all_tasks = $this->db->where('project_id', $project_id)->get('tbl_task')->result();
 
@@ -188,6 +192,9 @@ class Items_Model extends MY_Model
     function get_project_progress($id)
     {
         $project_info = $this->check_by(array('project_id' => $id), 'tbl_project');
+        if (empty($project_info) || !is_object($project_info)) {
+            return 0;
+        }
         if ($project_info->project_status == 'completed') {
             $progress = 100;
         } else {
@@ -236,6 +243,9 @@ class Items_Model extends MY_Model
     function set_progress($id)
     {
         $project_info = $this->check_by(array('project_id' => $id), 'tbl_project');
+        if (empty($project_info) || !is_object($project_info)) {
+            return;
+        }
 
         if (!empty($project_info->calculate_progress) && $project_info->calculate_progress != '0') {
             if ($project_info->calculate_progress == 'through_project_hours') {
@@ -310,6 +320,9 @@ class Items_Model extends MY_Model
     {
         $all_items = array();
         $project_info = $this->check_by(array('project_id' => $project_id), 'tbl_project');
+        if (empty($project_info) || !is_object($project_info)) {
+            return !empty($json) ? json_encode($all_items) : $all_items;
+        }
         $project_hours = $this->calculate_project('project_hours', $project_id);
         $project_cost = $this->calculate_project('project_cost', $project_id);
         $p_hours = floor($project_hours / 3600);
