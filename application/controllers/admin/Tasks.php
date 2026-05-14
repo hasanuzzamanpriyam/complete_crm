@@ -1972,8 +1972,17 @@ class Tasks extends Admin_Controller
         if (!empty($bulk)) {
             return (array("status" => $type, 'message' => $message));
         }
-        echo json_encode(array("status" => $type, 'message' => $message));
-        exit();
+        if ($this->input->is_ajax_request()) {
+            echo json_encode(array("status" => $type, 'message' => $message));
+            exit();
+        } else {
+            set_message($type, $message);
+            if (empty($_SERVER['HTTP_REFERER'])) {
+                redirect('admin/tasks/all_task');
+            } else {
+                redirect($_SERVER['HTTP_REFERER']);
+            }
+        }
     }
 
     public
