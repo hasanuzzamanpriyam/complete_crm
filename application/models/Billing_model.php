@@ -18,6 +18,102 @@ class Billing_model extends MY_Model
         return $query->result();
     }
 
+    public function get_billings($limit, $start, $filters = array())
+    {
+        $this->db->select('b.*, p.provider_name, c.name as client_name');
+        $this->db->from('tbl_billing_orders b');
+        $this->db->join('tblproviders p', 'b.provider_id = p.id', 'left');
+        $this->db->join('tbl_client c', 'b.client_id = c.client_id', 'left');
+        $this->staff_query('tbl_billing_orders');
+
+        if (!empty($filters)) {
+            if (!empty($filters['start_date']) && !empty($filters['end_date'])) {
+                $this->db->where('b.expiry_date >=', $filters['start_date']);
+                $this->db->where('b.expiry_date <=', $filters['end_date']);
+            } elseif (!empty($filters['start_date'])) {
+                $this->db->where('b.expiry_date >=', $filters['start_date']);
+            } elseif (!empty($filters['end_date'])) {
+                $this->db->where('b.expiry_date <=', $filters['end_date']);
+            }
+
+            if (!empty($filters['status']) && $filters['status'] !== 'All') {
+                $this->db->where('b.status', $filters['status']);
+            }
+
+            if (!empty($filters['provider_id']) && $filters['provider_id'] !== 'All') {
+                $this->db->where('b.provider_id', $filters['provider_id']);
+            }
+
+            if (!empty($filters['search'])) {
+                $search = $this->db->escape_like_str($filters['search']);
+                $this->db->group_start();
+                $this->db->like('b.label', $search);
+                $this->db->or_like('p.provider_name', $search);
+                $this->db->or_like('c.name', $search);
+                $this->db->group_end();
+            }
+        }
+
+        $this->db->order_by('b.id', 'DESC');
+        $this->db->limit($limit, $start);
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+    public function get_billings_count($filters = array())
+    {
+        $this->db->from('tbl_billing_orders b');
+        $this->db->join('tblproviders p', 'b.provider_id = p.id', 'left');
+        $this->db->join('tbl_client c', 'b.client_id = c.client_id', 'left');
+        $this->staff_query('tbl_billing_orders');
+
+        if (!empty($filters)) {
+            if (!empty($filters['start_date']) && !empty($filters['end_date'])) {
+                $this->db->where('b.expiry_date >=', $filters['start_date']);
+                $this->db->where('b.expiry_date <=', $filters['end_date']);
+            } elseif (!empty($filters['start_date'])) {
+                $this->db->where('b.expiry_date >=', $filters['start_date']);
+            } elseif (!empty($filters['end_date'])) {
+                $this->db->where('b.expiry_date <=', $filters['end_date']);
+            }
+
+            if (!empty($filters['status']) && $filters['status'] !== 'All') {
+                $this->db->where('b.status', $filters['status']);
+            }
+
+            if (!empty($filters['provider_id']) && $filters['provider_id'] !== 'All') {
+                $this->db->where('b.provider_id', $filters['provider_id']);
+            }
+
+            if (!empty($filters['search'])) {
+                $search = $this->db->escape_like_str($filters['search']);
+                $this->db->group_start();
+                $this->db->like('b.label', $search);
+                $this->db->or_like('p.provider_name', $search);
+                $this->db->or_like('c.name', $search);
+                $this->db->group_end();
+            }
+        }
+
+        return $this->db->count_all_results();
+    }
+
+    public function get_all_providers()
+    {
+        $this->db->select('id, provider_name');
+        $this->db->from('tblproviders');
+        $this->db->order_by('provider_name', 'ASC');
+        return $this->db->get()->result_array();
+    }
+
+    public function get_all_statuses()
+    {
+        $this->db->select('DISTINCT(status) as status_name');
+        $this->db->from('tbl_billing_orders');
+        $this->db->where('status !=', '');
+        return $this->db->get()->result_array();
+    }
+
     public function get_billing_by_id($id)
     {
         return $this->get($id, TRUE);
@@ -130,13 +226,15 @@ class Billing_model extends MY_Model
         $expiring = $this->get_expiring_billing($upcoming_days);
         $expired = $this->get_expired_billing();
 
+        $this->load->model('tasks_model');
         foreach ($expiring as $billing) {
+            $task_id = $this->tasks_model->get_or_create_renewal_task('billing', $billing['id']);
             $events[] = array(
                 'title' => '[BIL] ' . $billing['name'],
                 'start' => $billing['expiry_date'],
                 'end' => $billing['expiry_date'],
                 'color' => '#8e44ad',
-                'url' => base_url() . $billing['link'],
+                'url' => $task_id ? base_url() . 'admin/tasks/details/' . $task_id : base_url() . $billing['link'],
                 'type' => 'billing',
                 'status' => 'upcoming',
                 'days_left' => $billing['days_left']
@@ -144,12 +242,13 @@ class Billing_model extends MY_Model
         }
 
         foreach ($expired as $billing) {
+            $task_id = $this->tasks_model->get_or_create_renewal_task('billing', $billing['id']);
             $events[] = array(
                 'title' => '[BIL] ' . $billing['name'],
                 'start' => date('Y-m-d'),
                 'end' => date('Y-m-d'),
                 'color' => '#c0392b',
-                'url' => base_url() . $billing['link'],
+                'url' => $task_id ? base_url() . 'admin/tasks/details/' . $task_id : base_url() . $billing['link'],
                 'type' => 'billing',
                 'status' => 'expired',
                 'days_expired' => $billing['days_expired']

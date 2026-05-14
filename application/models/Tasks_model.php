@@ -278,6 +278,10 @@ class Tasks_Model extends MY_Model
 
                 $start_date = date('Y-m-d');
                 $due_date = date('Y-m-d', strtotime($future_exp_date));
+
+                $master_id = $this->get_or_create_master_task('domain', $domain->permission ?? 'all');
+                $category_id = $this->get_or_create_server_category();
+
                 $task_data = array(
                     'task_name' => 'Renew Domain: ' . $domain->domain_name,
                     'task_start_date' => $start_date,
@@ -286,7 +290,9 @@ class Tasks_Model extends MY_Model
                     'task_progress' => 0,
                     'module' => 'domain',
                     'module_field_id' => $module_field_id,
-                    'permission' => $domain->permission ?? 'all'
+                    'permission' => $domain->permission ?? 'all',
+                    'sub_task_id' => $master_id,
+                    'category_id' => $category_id
                 );
                 $this->db->insert('tbl_task', $task_data);
             }
@@ -310,6 +316,10 @@ class Tasks_Model extends MY_Model
 
                 $start_date = date('Y-m-d');
                 $due_date = date('Y-m-d', strtotime($future_exp_date));
+                
+                $master_id = $this->get_or_create_master_task('server_hosting', $hosting->permission);
+                $category_id = $this->get_or_create_server_category();
+
                 $task_data = array(
                     'task_name' => 'Renew Hosting: ' . $hosting->title,
                     'task_start_date' => $start_date,
@@ -318,13 +328,65 @@ class Tasks_Model extends MY_Model
                     'task_progress' => 0,
                     'module' => 'server_hosting',
                     'module_field_id' => $module_field_id,
-                    'permission' => $hosting->permission
+                    'permission' => $hosting->permission,
+                    'sub_task_id' => $master_id,
+                    'category_id' => $category_id
                 );
                 $this->db->insert('tbl_task', $task_data);
             }
         }
 
         $this->db->trans_complete();
+    }
+
+    public function get_or_create_server_category()
+    {
+        $category_name = 'Server Management';
+        $this->db->where('customer_group', $category_name);
+        $this->db->where('type', 'tasks');
+        $query = $this->db->get('tbl_customer_group');
+        if ($query->num_rows() > 0) {
+            return $query->row()->customer_group_id;
+        } else {
+            $data = array(
+                'customer_group' => $category_name,
+                'type' => 'tasks'
+            );
+            $this->db->insert('tbl_customer_group', $data);
+            return $this->db->insert_id();
+        }
+    }
+
+    public function get_or_create_master_task($module, $permission = 'all')
+    {
+        $name_map = array(
+            'domain' => 'Domain Management',
+            'server_hosting' => 'Hosting Management',
+            'billing' => 'Billing Management'
+        );
+        $master_task_name = isset($name_map[$module]) ? $name_map[$module] : ucfirst(str_replace('_', ' ', $module)) . ' Management';
+
+        $this->db->where('task_name', $master_task_name);
+        $this->db->where('module', 'server_management_master');
+        $query = $this->db->get('tbl_task');
+
+        if ($query->num_rows() > 0) {
+            return $query->row()->task_id;
+        } else {
+            $category_id = $this->get_or_create_server_category();
+            $data = array(
+                'task_name' => $master_task_name,
+                'task_description' => 'Master task for all ' . str_replace('_', ' ', $module) . ' related tasks.',
+                'task_start_date' => date('Y-m-d'),
+                'task_status' => 'not_started',
+                'created_by' => $this->session->userdata('user_id'),
+                'permission' => $permission,
+                'category_id' => $category_id,
+                'module' => 'server_management_master'
+            );
+            $this->db->insert('tbl_task', $data);
+            return $this->db->insert_id();
+        }
     }
 
     public function get_or_create_renewal_task($module, $module_field_id)
@@ -341,6 +403,9 @@ class Tasks_Model extends MY_Model
             return $task->task_id;
         }
 
+        $master_id = $this->get_or_create_master_task($module);
+        $category_id = $this->get_or_create_server_category();
+
         // If no pending task exists, create one!
         if ($module === 'domain') {
             $this->load->model('domain_model');
@@ -349,12 +414,14 @@ class Tasks_Model extends MY_Model
                 $task_data = array(
                     'task_name' => 'Renew Domain: ' . $domain->domain_name,
                     'task_start_date' => date('Y-m-d'),
-                    'due_date' => $domain->purchase_date, // or expiry_date? purchase_date acts as exp_date in this CRM
+                    'due_date' => $domain->purchase_date,
                     'task_status' => 'not_started',
                     'task_progress' => 0,
                     'module' => 'domain',
                     'module_field_id' => $module_field_id,
-                    'permission' => $domain->permission
+                    'permission' => $domain->permission,
+                    'sub_task_id' => $master_id,
+                    'category_id' => $category_id
                 );
                 $this->db->insert('tbl_task', $task_data);
                 return $this->db->insert_id();
@@ -371,7 +438,28 @@ class Tasks_Model extends MY_Model
                     'task_progress' => 0,
                     'module' => 'server_hosting',
                     'module_field_id' => $module_field_id,
-                    'permission' => $hosting->permission
+                    'permission' => $hosting->permission,
+                    'sub_task_id' => $master_id,
+                    'category_id' => $category_id
+                );
+                $this->db->insert('tbl_task', $task_data);
+                return $this->db->insert_id();
+            }
+        } elseif ($module === 'billing') {
+            $this->load->model('billing_model');
+            $billing = $this->billing_model->get($module_field_id, TRUE);
+            if ($billing) {
+                $task_data = array(
+                    'task_name' => 'Renew Billing: ' . $billing->label,
+                    'task_start_date' => date('Y-m-d'),
+                    'due_date' => $billing->expiry_date,
+                    'task_status' => 'not_started',
+                    'task_progress' => 0,
+                    'module' => 'billing',
+                    'module_field_id' => $module_field_id,
+                    'permission' => $billing->permission,
+                    'sub_task_id' => $master_id,
+                    'category_id' => $category_id
                 );
                 $this->db->insert('tbl_task', $task_data);
                 return $this->db->insert_id();

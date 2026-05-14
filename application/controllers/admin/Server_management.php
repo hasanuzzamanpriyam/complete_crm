@@ -12,6 +12,7 @@ class Server_management extends Admin_Controller
         $this->load->model('domain_model');
         $this->load->model('hosting_model');
         $this->load->model('billing_model');
+        $this->load->model('tasks_model');
 
 
         $method = $this->router->fetch_method();
@@ -1625,8 +1626,61 @@ class Server_management extends Admin_Controller
     public function billing()
     {
         $data['title'] = lang('billing_order');
-        $data['all_billing'] = $this->billing_model->get_all_billing();
+
+        $filters = array(
+            'start_date'  => $this->input->get('start_date', TRUE),
+            'end_date'   => $this->input->get('end_date', TRUE),
+            'status'    => $this->input->get('status', TRUE) ?: 'All',
+            'provider_id' => $this->input->get('provider_id', TRUE) ?: 'All',
+            'search'    => $this->input->get('search', TRUE)
+        );
+
+        $limit = $this->input->get('limit', TRUE) ?: 10;
+        $filters['limit'] = $limit;
+        $total_rows = $this->billing_model->get_billings_count($filters);
+        $offset = $this->uri->segment(4) ? $this->uri->segment(4) : 0;
+
+        $data['all_billing'] = $this->billing_model->get_billings($limit, $offset, $filters);
+        $data['filters'] = $filters;
+        $data['total_rows'] = $total_rows;
+        $data['offset'] = $offset;
+
+        $data['providers'] = $this->billing_model->get_all_providers();
+        $data['statuses'] = $this->billing_model->get_all_statuses();
+
+        $this->load->library('pagination');
+        $config['base_url'] = base_url('admin/server_management/billing');
+        $config['total_rows'] = $total_rows;
+        $config['per_page'] = $limit;
+        $config['reuse_query_string'] = TRUE;
+        $config['full_tag_open'] = '<ul class="pagination pagination-sm mb-0">';
+        $config['full_tag_close'] = '</ul>';
+        $config['first_link'] = 'First';
+        $config['last_link'] = 'Last';
+        $config['first_tag_open'] = '<li class="page-item">';
+        $config['first_tag_close'] = '</li>';
+        $config['prev_link'] = '&laquo;';
+        $config['prev_tag_open'] = '<li class="page-item">';
+        $config['prev_tag_close'] = '</li>';
+        $config['next_link'] = '&raquo;';
+        $config['next_tag_open'] = '<li class="page-item">';
+        $config['next_tag_close'] = '</li>';
+        $config['last_tag_open'] = '<li class="page-item">';
+        $config['last_tag_close'] = '</li>';
+        $config['cur_tag_open'] = '<li class="page-item active"><a class="page-link" href="#">';
+        $config['cur_tag_close'] = '</a></li>';
+        $config['num_tag_open'] = '<li class="page-item">';
+        $config['num_tag_close'] = '</li>';
+        $config['attributes'] = array('class' => 'page-link');
+
+        $this->pagination->initialize($config);
+        $data['pagination'] = $this->pagination->create_links();
+
         $data['subview'] = $this->load->view('admin/server_management/billing', $data, TRUE);
+        if ($this->input->is_ajax_request()) {
+            echo $data['subview'];
+            return;
+        }
         $this->load->view('admin/_layout_main', $data);
     }
 
@@ -1813,52 +1867,12 @@ class Server_management extends Admin_Controller
 
     private function get_or_create_server_category()
     {
-        $category_name = 'Server Management';
-        $this->db->where('customer_group', $category_name);
-        $this->db->where('type', 'tasks');
-        $query = $this->db->get('tbl_customer_group');
-        if ($query->num_rows() > 0) {
-            return $query->row()->customer_group_id;
-        } else {
-            $data = array(
-                'customer_group' => $category_name,
-                'type' => 'tasks'
-            );
-            $this->db->insert('tbl_customer_group', $data);
-            return $this->db->insert_id();
-        }
+        return $this->tasks_model->get_or_create_server_category();
     }
 
     private function get_or_create_master_task($module, $permission = 'all')
     {
-        $name_map = array(
-            'domain' => 'Domain Management',
-            'server_hosting' => 'Hosting Management',
-            'billing' => 'Billing Management'
-        );
-        $master_task_name = isset($name_map[$module]) ? $name_map[$module] : ucfirst(str_replace('_', ' ', $module)) . ' Management';
-
-        $this->db->where('task_name', $master_task_name);
-        $this->db->where('module', 'server_management_master');
-        $query = $this->db->get('tbl_task');
-
-        if ($query->num_rows() > 0) {
-            return $query->row()->task_id;
-        } else {
-            $category_id = $this->get_or_create_server_category();
-            $data = array(
-                'task_name' => $master_task_name,
-                'task_description' => 'Master task for all ' . str_replace('_', ' ', $module) . ' related tasks.',
-                'task_start_date' => date('Y-m-d'),
-                'task_status' => 'not_started',
-                'created_by' => $this->session->userdata('user_id'),
-                'permission' => $permission,
-                'category_id' => $category_id,
-                'module' => 'server_management_master'
-            );
-            $this->db->insert('tbl_task', $data);
-            return $this->db->insert_id();
-        }
+        return $this->tasks_model->get_or_create_master_task($module, $permission);
     }
 
     private function create_renewal_task($module, $module_id, $module_name, $exp_date, $future_exp_date, $permission = 'all')
