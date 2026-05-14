@@ -245,8 +245,8 @@ class Billing_model extends MY_Model
             $task_id = $this->tasks_model->get_or_create_renewal_task('billing', $billing['id']);
             $events[] = array(
                 'title' => '[BIL] ' . $billing['name'],
-                'start' => date('Y-m-d'),
-                'end' => date('Y-m-d'),
+                'start' => $billing['expiry_date'],
+                'end' => $billing['expiry_date'],
                 'color' => '#c0392b',
                 'url' => $task_id ? base_url() . 'admin/tasks/details/' . $task_id : base_url() . $billing['link'],
                 'type' => 'billing',

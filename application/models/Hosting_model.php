@@ -374,8 +374,8 @@ class Hosting_model extends MY_Model
 
             $events[] = array(
                 'title' => '[HST] ' . $hosting['name'] . $renew_type,
-                'start' => date('Y-m-d'),
-                'end' => date('Y-m-d'),
+                'start' => $hosting['expiry_date'],
+                'end' => $hosting['expiry_date'],
                 'color' => '#ff6b6b',
                 'url' => base_url() . $url,
                 'type' => 'hosting',

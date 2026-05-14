@@ -426,8 +426,8 @@ class Domain_model extends MY_Model
 
             $events[] = array(
                 'title' => '[DOM] ' . $domain['name'] . $renew_type,
-                'start' => date('Y-m-d'),
-                'end' => date('Y-m-d'),
+                'start' => $domain['expiry_date'],
+                'end' => $domain['expiry_date'],
                 'color' => '#ff6b6b',
                 'url' => base_url() . $url,
                 'type' => 'domain',
