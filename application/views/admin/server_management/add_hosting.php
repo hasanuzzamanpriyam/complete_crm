@@ -574,13 +574,13 @@
                                 
                                 <div class="radio-inline c-radio needsclick m0" style="display: inline-block;">
                                     <label class="needsclick" style="text-transform: none; font-size: 13px; font-weight: normal; margin-bottom: 0;">
-                                        <input type="radio" name="task_permission" value="everyone" <?= (empty($permissionL) || $permissionL == 'all') ? 'checked' : '' ?> class="task_permission_radio">
+                                        <input type="radio" name="task_permission" value="everyone" <?= (empty($permissionL) || $permissionL == 'all') ? 'checked' : '' ?> class="task_permission_radio_toggle">
                                         <span class="fa fa-circle"></span> Everyone
                                     </label>
                                 </div>
                                 <div class="radio-inline c-radio needsclick m0 ml-3" style="display: inline-block; margin-left: 20px;">
                                     <label class="needsclick" style="text-transform: none; font-size: 13px; font-weight: normal; margin-bottom: 0;">
-                                        <input type="radio" name="task_permission" value="custom_permission" <?= (!empty($permissionL) && $permissionL != 'all') ? 'checked' : '' ?> class="task_permission_radio">
+                                        <input type="radio" name="task_permission" value="custom_permission" <?= (!empty($permissionL) && $permissionL != 'all') ? 'checked' : '' ?> class="task_permission_radio_toggle">
                                         <span class="fa fa-circle"></span> Custom Permission
                                     </label>
                                 </div>
@@ -589,7 +589,7 @@
                     </div>
 
                     <!-- Custom Permission User List -->
-                    <div id="task_permission_users" style="display: <?= (!empty($permissionL) && $permissionL != 'all') ? 'block' : 'none' ?>; margin-top: 20px; padding: 20px; background: #fff; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    <div class="task_permission_users_wrapper" style="display: <?= (!empty($permissionL) && $permissionL != 'all') ? 'block' : 'none' ?>; margin-top: 20px; padding: 20px; background: #fff; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
                         <label style="font-weight: 700; font-size: 14px; margin-bottom: 15px; display: block; color: #333; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #eee; padding-bottom: 10px;">Select Specific Users & Permissions</label>
                         <div class="row">
                             <?php if (!empty($staff_members)): ?>
@@ -759,12 +759,14 @@ $(document).ready(function() {
     });
 
     // Toggle custom permission user list based on radio selection
-    $('.task_permission_radio').on('click', function() {
+    $(document).on('click', '.task_permission_radio_toggle', function() {
+        var $form = $(this).closest('form');
+        var $userList = $form.find('.task_permission_users_wrapper');
         if ($(this).val() === 'custom_permission') {
-            $('#task_permission_users').slideDown();
-            $('.assigned_to_task.is-admin').prop('checked', true).trigger('change');
+            $userList.slideDown();
+            $userList.find('.assigned_to_task.is-admin').prop('checked', true).trigger('change');
         } else {
-            $('#task_permission_users').slideUp();
+            $userList.slideUp();
         }
     });
 

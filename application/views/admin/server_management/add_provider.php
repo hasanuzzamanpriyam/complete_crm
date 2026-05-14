@@ -94,17 +94,17 @@
                         </h4>
                         <div class="radio-inline p-0">
                             <label class="radio-inline c-radio">
-                                <input type="radio" name="task_permission" value="everyone" <?= ($permissionL == 'all') ? 'checked' : '' ?>>
+                                <input type="radio" name="task_permission" value="everyone" <?= ($permissionL == 'all') ? 'checked' : '' ?> class="task_permission_radio_toggle">
                                 <span class="fa fa-circle"></span> Everyone
                             </label>
                             <label class="radio-inline c-radio">
-                                <input type="radio" name="task_permission" value="custom_permission" <?= ($permissionL != 'all') ? 'checked' : '' ?>>
+                                <input type="radio" name="task_permission" value="custom_permission" <?= ($permissionL != 'all') ? 'checked' : '' ?> class="task_permission_radio_toggle">
                                 <span class="fa fa-circle"></span> Specific Users
                             </label>
                         </div>
                     </div>
 
-                    <div id="task_permission_users" style="display: <?= ($permissionL != 'all') ? 'block' : 'none' ?>;">
+                    <div class="task_permission_users_wrapper" style="display: <?= ($permissionL != 'all') ? 'block' : 'none' ?>;">
                         <div class="row">
                             <?php if (!empty($staff_members)): ?>
                                 <?php foreach ($staff_members as $staff): ?>
@@ -167,12 +167,14 @@
 
         <script>
             $(document).ready(function() {
-                $('input[name="task_permission"]').change(function() {
+                $(document).on('change', '.task_permission_radio_toggle', function() {
+                    var $form = $(this).closest('form');
+                    var $userList = $form.find('.task_permission_users_wrapper');
                     if ($(this).val() == 'custom_permission') {
-                        $('#task_permission_users').slideDown();
-                        $('.assigned_to_task.is-admin').prop('checked', true).trigger('change');
+                        $userList.slideDown();
+                        $userList.find('.assigned_to_task.is-admin').prop('checked', true).trigger('change');
                     } else {
-                        $('#task_permission_users').slideUp();
+                        $userList.slideUp();
                     }
                 });
 
