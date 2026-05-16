@@ -226,6 +226,31 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Hosted Domains</label>
+                                <div class="input-group">
+                                    <select name="hosted_domains[]" class="form-control select2" id="hosted_domains" multiple data-placeholder="Select Hosted Domain(s)">
+                                        <?php 
+                                        $selected_hosted_domains = isset($hosting_info) && $hosting_info->hosted_domains ? explode(',', $hosting_info->hosted_domains) : [];
+                                        ?>
+                                        <?php if (!empty($domains)): ?>
+                                            <?php foreach ($domains as $domain): ?>
+                                                <option value="<?= $domain['id'] ?>" <?= in_array($domain['id'], $selected_hosted_domains) ? 'selected' : '' ?>><?= $domain['domain_name'] ?></option>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </select>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn quick-add-btn" data-type="domain" data-url="<?= base_url('admin/server_management/add_domain') ?>" tabindex="-1">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     
                     <div class="row">
                         <div class="col-md-3">

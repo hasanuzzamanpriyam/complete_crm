@@ -637,6 +637,7 @@ class Server_management extends Admin_Controller
                     'server_name' => $this->input->post('server_name', TRUE),
                     'hostname' => $this->input->post('hostname', TRUE),
                     'main_domain' => is_array($this->input->post('main_domain')) ? implode(',', $this->input->post('main_domain')) : $this->input->post('main_domain', TRUE),
+                    'hosted_domains' => is_array($this->input->post('hosted_domains')) ? implode(',', $this->input->post('hosted_domains')) : $this->input->post('hosted_domains', TRUE),
                     'nameservers' => is_array($this->input->post('nameservers')) ? implode(',', $this->input->post('nameservers')) : $this->input->post('nameservers', TRUE),
                     'provider_id' => $this->input->post('provider_id', TRUE),
                     'provider_url' => $provider_url,

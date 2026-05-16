@@ -233,6 +233,30 @@ class Hosting_model extends MY_Model
                         $row->clients_names = implode(', ', array_column($clients, 'name'));
                     }
                 }
+
+                // Fetch Main Domain Name
+                $row->main_domain_name = '';
+                if (!empty($row->main_domain)) {
+                    $domain_ids = explode(',', $row->main_domain);
+                    $this->db->select('domain_name');
+                    $this->db->where_in('id', $domain_ids);
+                    $domains = $this->db->get('tbldomains')->result_array();
+                    if (!empty($domains)) {
+                        $row->main_domain_name = implode(', ', array_column($domains, 'domain_name'));
+                    }
+                }
+
+                // Fetch Hosted Domains Names
+                $row->hosted_domains_names = '';
+                if (!empty($row->hosted_domains)) {
+                    $domain_ids = explode(',', $row->hosted_domains);
+                    $this->db->select('domain_name');
+                    $this->db->where_in('id', $domain_ids);
+                    $domains = $this->db->get('tbldomains')->result_array();
+                    if (!empty($domains)) {
+                        $row->hosted_domains_names = implode(', ', array_column($domains, 'domain_name'));
+                    }
+                }
             }
             return $row;
         }

@@ -55,7 +55,11 @@
                         </tr>
                         <tr>
                             <td class="text-muted border-none p-v-sm">Main Domain</td>
-                            <td class="border-none p-v-sm text-dark font-bold"><?= !empty($hosting->main_domain) ? htmlspecialchars($hosting->main_domain) : '<span class="text-muted">-</span>' ?></td>
+                            <td class="border-none p-v-sm text-dark font-bold"><?= !empty($hosting->main_domain_name) ? htmlspecialchars($hosting->main_domain_name) : '<span class="text-muted">-</span>' ?></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted border-none p-v-sm">Hosted Domains</td>
+                            <td class="border-none p-v-sm text-dark font-bold"><?= !empty($hosting->hosted_domains_names) ? htmlspecialchars($hosting->hosted_domains_names) : '<span class="text-muted">-</span>' ?></td>
                         </tr>
                         <tr>
                             <td class="text-muted border-none p-v-sm">Projects</td>
