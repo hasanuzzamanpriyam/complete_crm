@@ -156,7 +156,7 @@ if (empty(admin())) {
                                 <strong><?php
                                     if (!empty($project_details->demo_url)) {
                                         ?>
-                                        <a href="<?php echo $project_details->demo_url; ?>"
+                                        <a href="<?= (strpos($project_details->demo_url, 'http') === 0) ? $project_details->demo_url : 'http://' . $project_details->demo_url; ?>"
                                            target="_blank"><?php echo $project_details->demo_url ?></a>
                                         <?php
                                     } else {
@@ -719,7 +719,7 @@ if (empty(admin())) {
                         <?php
                         if (!empty($project_details->demo_url)) {
                             ?>
-                            <a href="<?php echo $project_details->demo_url; ?>"
+                            <a href="<?= (strpos($project_details->demo_url, 'http') === 0) ? $project_details->demo_url : 'http://' . $project_details->demo_url; ?>"
                                target="_blank"><?php echo $project_details->demo_url ?></a>
                             <?php
                         } else {

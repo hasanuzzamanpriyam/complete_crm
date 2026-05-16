@@ -295,6 +295,9 @@ class Projects extends Admin_Controller
                     $data['project_status'] = trim($value[4]);
                     $data['project_cost'] = trim($value[5]);
                     $data['demo_url'] = trim($value[6]);
+                    if (!empty($data['demo_url']) && !preg_match('#^[^/:]+://#', $data['demo_url'])) {
+                        $data['demo_url'] = 'http://' . $data['demo_url'];
+                    }
                     $data['description'] = trim($value[7]);
                     $data['estimate_hours'] = '0:00';
                     $data['project_settings'] = json_encode(array('show_team_members', 'show_milestones', 'show_project_tasks', 'show_project_attachments', 'show_timesheets', 'show_project_bugs', 'show_project_history', 'show_project_calendar', 'show_project_comments', 'show_gantt_chart', 'show_project_hours', 'comment_on_project_tasks', 'show_project_tasks_attachments', 'show_tasks_hours', 'show_finance_overview'));
@@ -368,6 +371,10 @@ class Projects extends Admin_Controller
             $this->items_model->_primary_key = 'project_id';
 
             $data = $this->items_model->array_from_post(array('project_no', 'project_name', 'tags', 'category_id', 'client_id', 'progress', 'calculate_progress', 'start_date', 'end_date', 'billing_type', 'project_cost', 'hourly_rate', 'project_status', 'demo_url', 'description'));
+
+            if (!empty($data['demo_url']) && !preg_match('#^[^/:]+://#', $data['demo_url'])) {
+                $data['demo_url'] = 'http://' . $data['demo_url'];
+            }
 
             if (empty($data['project_cost'])) {
                 $data['project_cost'] = '0';
