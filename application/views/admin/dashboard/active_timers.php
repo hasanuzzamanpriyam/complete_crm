@@ -7,6 +7,9 @@
             <thead>
             <tr>
                 <th><?= lang('task_name') ?> / <?= lang('project_name') ?></th>
+                <?php if ($this->session->userdata('user_type') == '1') { ?>
+                    <th><?= lang('user') ?></th>
+                <?php } ?>
                 <th><?= lang('start_time') ?></th>
                 <th><?= lang('action') ?></th>
             </tr>
@@ -14,7 +17,7 @@
             <tbody>
             <?php
             if (!empty($active_timers)) {
-                foreach ($active_timers as $v_timer): 
+                foreach ($active_timers as $v_timer):
                     if (!empty($v_timer->task_id)) {
                         $item_info = get_row('tbl_task', array('task_id' => $v_timer->task_id));
                         if (!empty($item_info)) {
@@ -31,25 +34,28 @@
                         }
                     }
                     if (!empty($item_info)) {
-                    ?>
-                    <tr>
-                        <td>
-                            <a class="text-info" href="<?= $link ?>"><?= $name ?></a>
-                        </td>
-                        <td><?= display_datetime($v_timer->start_time, true) ?></td>
-                        <td>
-                            <a class="btn btn-xs btn-danger" href="<?= $stop_link ?>"><?= lang('stop_timer') ?></a>
-                        </td>
-                    </tr>
-                <?php
+                        ?>
+                        <tr>
+                            <td>
+                                <a class="text-info" href="<?= $link ?>"><?= $name ?></a>
+                            </td>
+                            <?php if ($this->session->userdata('user_type') == '1') { ?>
+                                <td><?= $v_timer->fullname ?></td>
+                            <?php } ?>
+                            <td><?= display_datetime($v_timer->start_time, true) ?></td>
+                            <td>
+                                <a class="btn btn-xs btn-danger" href="<?= $stop_link ?>"><?= lang('stop_timer') ?></a>
+                            </td>
+                        </tr>
+                        <?php
                     }
                 endforeach;
             } else {
                 ?>
                 <tr>
-                    <td colspan="3"><?= lang('no_timer_found') ?></td>
+                    <td colspan="<?= ($this->session->userdata('user_type') == '1') ? '4' : '3' ?>"><?= lang('no_timer_found') ?></td>
                 </tr>
-            <?php
+                <?php
             }
             ?>
             </tbody>

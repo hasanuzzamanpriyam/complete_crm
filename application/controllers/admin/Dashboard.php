@@ -30,7 +30,15 @@ class Dashboard extends Admin_Controller
     {
         if ($this->input->is_ajax_request()) {
             $user_id = $this->session->userdata('user_id');
-            $data['active_timers'] = $this->db->where(array('user_id' => $user_id, 'timer_status' => 'on'))->get('tbl_tasks_timer')->result();
+            if ($this->session->userdata('user_type') == '1') {
+                $data['active_timers'] = $this->db
+                    ->select('tbl_tasks_timer.*, tbl_account_details.fullname')
+                    ->join('tbl_account_details', 'tbl_account_details.user_id = tbl_tasks_timer.user_id', 'left')
+                    ->where(array('timer_status' => 'on'))
+                    ->get('tbl_tasks_timer')->result();
+            } else {
+                $data['active_timers'] = $this->db->where(array('user_id' => $user_id, 'timer_status' => 'on'))->get('tbl_tasks_timer')->result();
+            }
             $pathonor_jonno['active_timers_div'] = $this->load->view("admin/dashboard/active_timers", $data, true);
             echo json_encode($pathonor_jonno);
             exit;
