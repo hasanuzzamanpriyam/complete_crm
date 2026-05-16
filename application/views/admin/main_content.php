@@ -541,6 +541,13 @@ $all_order_data = $this->db->where($where)->order_by('order_no', 'ASC')->get('tb
                     });
                 </script>
             <?php /*Comment in my JavaScript*/ ?>
+                <?php if ($v_order->name == 'active_timers' && $v_order->status == 1) { ?>
+                <div class="<?= $v_order->col ?> mt-lg" id="<?= $v_order->id ?>">
+                    <?php echo ajax_anchor(base_url("admin/settings/save_dashboard/$v_order->id" . '/0'), "<i class='fa fa-times-circle'></i>", array("class" => "close-btn", "title" => lang('inactive'), "data-fade-out-on-success" => "#" . $v_order->id)); ?>
+                    <div id="active_timers_div">
+                    </div>
+                </div>
+                <?php } ?>
             <?php if ($v_order->name == 'my_project' && $v_order->status == 1) { ?>
                 <div class="<?= $v_order->col ?> mt-lg" id="<?= $v_order->id ?>">
                     <?php echo ajax_anchor(base_url("admin/settings/save_dashboard/$v_order->id" . '/0'), "<i class='fa fa-times-circle'></i>", array("class" => "close-btn", "title" => lang('inactive'), "data-fade-out-on-success" => "#" . $v_order->id)); ?>
@@ -716,6 +723,7 @@ $all_order_data = $this->db->where($where)->order_by('order_no', 'ASC')->get('tb
 
         ins_data(base_url + 'admin/dashboard/finance_overview');
         ins_data(base_url + 'admin/dashboard/my_projects');
+        ins_data(base_url + 'admin/dashboard/active_timers');
         ins_data(base_url + 'admin/dashboard/goal_report');
         ins_data(base_url + 'admin/dashboard/to_do_list');
         ins_data(base_url + 'admin/dashboard/my_task');

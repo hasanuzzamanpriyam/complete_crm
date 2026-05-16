@@ -95,3 +95,6 @@ $lang['chat'] = 'Chat';
 $lang['not_new_chat_message'] = 'posted a new chat message on - %s';
 $lang['type_your_message_here'] = 'Type your message here...';
 $lang['send'] = 'Send';
+$lang['active_timers'] = 'Active Timers';
+$lang['no_timer_found'] = 'No Active Timers Found';
+

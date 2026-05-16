@@ -22,8 +22,22 @@ class Dashboard extends Admin_Controller
         $this->load->model('admin_model');
         $this->load->model('invoice_model');
         $this->load->model('estimates_model');
+        $this->load->model('tasks_model');
     }
 
+
+    public function active_timers()
+    {
+        if ($this->input->is_ajax_request()) {
+            $user_id = $this->session->userdata('user_id');
+            $data['active_timers'] = $this->db->where(array('user_id' => $user_id, 'timer_status' => 'on'))->get('tbl_tasks_timer')->result();
+            $pathonor_jonno['active_timers_div'] = $this->load->view("admin/dashboard/active_timers", $data, true);
+            echo json_encode($pathonor_jonno);
+            exit;
+        } else {
+            redirect('admin/dashboard');
+        }
+    }
 
     public function rendering($param, $filter_by = null)
     {
