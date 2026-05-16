@@ -469,6 +469,14 @@ class Tasks extends Admin_Controller
                 'priority',
                 'report_to'
             ));
+            if (empty(trim(strip_tags($data['task_description'])))) {
+                set_message('error', lang('task_description') . ' Field is required');
+                if (empty($_SERVER['HTTP_REFERER'])) {
+                    redirect('admin/tasks/all_task');
+                } else {
+                    redirect($_SERVER['HTTP_REFERER']);
+                }
+            }
 
             $estimate_hours = $this->input->post('task_hour', true);
             $check_flot = explode('.', $estimate_hours);

@@ -80,7 +80,7 @@
                     <div class="box" style="border: none; padding-top: 15px;" data-collapsed="0">
                         <div class="panel-body row">
                             
-                            <form data-parsley-validate="" novalidate="" action="<?php echo base_url() ?>admin/tasks/save_task/<?php if (!empty($task_id)) echo $task_id; ?>" method="post" class="form-horizontal">
+                            <form data-parsley-validate="" data-parsley-excluded="input[type=button], input[type=submit], input[type=reset]" novalidate="" action="<?php echo base_url() ?>admin/tasks/save_task/<?php if (!empty($task_id)) echo $task_id; ?>" method="post" class="form-horizontal">
                                 
                                 <?php
                                     $project_id = !empty($task_info->project_id) ? $task_info->project_id : (!empty($project_id) ? $project_id : null);
@@ -465,9 +465,11 @@
 
                                 <div class="col-md-12">
                                     <div class="form-group mt-lg">
-                                        <label for="field-1" class="col-sm-12 control-label"><?= lang('task_description') ?></label>
                                         <div class="col-sm-12">
-                                            <textarea class="form-control textarea" name="task_description"><?php if (!empty($task_info->task_description)) echo $task_info->task_description; ?></textarea>
+                                            <label for="field-1" class="control-label"><?= lang('task_description') ?> <span class="required">*</span></label>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <textarea class="form-control textarea" name="task_description" required><?php if (!empty($task_info->task_description)) echo $task_info->task_description; ?></textarea>
                                         </div>
                                     </div>
 
@@ -553,6 +555,13 @@
         progress_from_tasks.on('change', function() {
             var _checked = $(this).prop('checked');
             $('.project_progress_slider').slider({ disabled: _checked });
+        });
+
+        // Sync summernote with textarea for parsley validation
+        $('.textarea').on('summernote.change', function(we, contents, $editable) {
+            $(this).val(contents === '<p><br></p>' ? '' : contents);
+            // Trigger parsley validation
+            $(this).parsley().validate();
         });
     });
 </script>
