@@ -73,6 +73,11 @@
             </div>
             <br/>
 
+            <ul class="nav pinned" id="nav_pinned_cont">
+            </ul>
+            <ul class="nav pinned" id="nav_pinned_cont_2">
+            </ul>
+
             <?php
             echo $this->menu->dynamicMenu();
             if ($this->session->userdata('user_type') == 1) { ?>
@@ -102,17 +107,7 @@
                         </a>
                     </li>
                 </ul>
-            <?php }
-
-            //if (!empty($pinned_details)) { ?>
-                <ul class="nav pinned" id="nav_pinned_cont">
-                    <?php //$this->load->view("admin/components/nav_pinned"); ?>
-                </ul>
-            <?php //} ?>
-            <!-- Iterates over all sidebar items-->
-            <ul class="nav pinned" id="nav_pinned_cont_2">
-                <?php //$this->load->view("admin/components/nav_pinned_2"); ?>
-            </ul>
+            <?php } ?>
             <script>
                 $(document).ready(function () {  ins_data(base_url+'admin/dashboard/pinned_menu_items')   });
             </script>
