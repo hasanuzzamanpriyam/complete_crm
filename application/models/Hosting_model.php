@@ -100,6 +100,9 @@ class Hosting_model extends MY_Model
                 $this->db->like('sh.title', $search);
                 $this->db->or_like('p.provider_name', $search);
                 $this->db->or_like('sh.ip_address', $search);
+                $this->db->or_like('sh.username', $search);
+                $this->db->or_like('sh.server_name', $search);
+                $this->db->or_like('sh.hostname', $search);
                 $this->db->group_end();
             }
         }
@@ -147,6 +150,9 @@ class Hosting_model extends MY_Model
                 $this->db->like('sh.title', $search);
                 $this->db->or_like('p.provider_name', $search);
                 $this->db->or_like('sh.ip_address', $search);
+                $this->db->or_like('sh.username', $search);
+                $this->db->or_like('sh.server_name', $search);
+                $this->db->or_like('sh.hostname', $search);
                 $this->db->group_end();
             }
         }

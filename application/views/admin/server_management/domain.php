@@ -184,7 +184,7 @@
                         <div class="col-md-5">
                             <label class="text-muted small mb-1">&nbsp;</label>
                             <div class="input-group">
-                                <input type="text" name="search" id="customSearch" class="form-control form-control-sm" value="<?= htmlspecialchars($filters['search']) ?>" placeholder="Start typing to search domains...">
+                                <input type="text" name="search" id="customSearch" class="form-control form-control-sm" value="<?= htmlspecialchars($filters['search']) ?>" placeholder="Search by domain, provider, reg. user...">
                                 <span class="input-group-addon" style="padding: 4px 10px; background: #fff;"><button type="submit" style="border:none; background:none; padding:0;"><i class="fa fa-search text-muted"></i></button></span>
                             </div>
                         </div>

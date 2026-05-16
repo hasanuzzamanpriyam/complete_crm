@@ -99,7 +99,9 @@ class Domain_model extends MY_Model
                 $this->db->group_start();
                 $this->db->like('d.domain_name', $search);
                 $this->db->or_like('p.provider_name', $search);
+                $this->db->or_like('h.hosting_name', $search);
                 $this->db->or_like('d.username', $search);
+                $this->db->or_like('d.registrar_username', $search);
                 $this->db->group_end();
             }
         }
@@ -155,6 +157,7 @@ class Domain_model extends MY_Model
         $this->db->select('d.id');
         $this->db->from('tbldomains d');
         $this->db->join('tblproviders p', 'd.provider_id = p.id', 'left');
+        $this->db->join('tblhostings h', 'd.hosting_id = h.id', 'left');
         $this->staff_query('tbldomains', 'd');
 
         if (!empty($filters)) {
@@ -180,7 +183,9 @@ class Domain_model extends MY_Model
                 $this->db->group_start();
                 $this->db->like('d.domain_name', $search);
                 $this->db->or_like('p.provider_name', $search);
+                $this->db->or_like('h.hosting_name', $search);
                 $this->db->or_like('d.username', $search);
+                $this->db->or_like('d.registrar_username', $search);
                 $this->db->group_end();
             }
         }
