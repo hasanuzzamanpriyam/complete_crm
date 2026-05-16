@@ -439,4 +439,13 @@ class Hosting_model extends MY_Model
         $query = $this->db->get();
         return $query->result_array();
     }
+
+    public function get_all_hostings()
+    {
+        $this->db->select('id, title as hosting_name');
+        $this->db->from('tblserver_hostings');
+        $this->db->order_by('title', 'ASC');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
 }

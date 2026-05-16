@@ -832,7 +832,7 @@ class Server_management extends Admin_Controller
                     $data['domain_info'] = $this->domain_model->get_domain_by_id($id);
                 }
                 $data['providers'] = $this->domain_model->get_all_providers();
-                $data['hostings'] = $this->hosting_model->get_all_active_hostings();
+                $data['hostings'] = $this->hosting_model->get_all_hostings();
                 $data['clients'] = $this->domain_model->get_all_clients();
                 $data['projects'] = $this->domain_model->get_all_projects();
                 $data['domain_types'] = $this->domain_model->get_domain_types();
@@ -990,7 +990,7 @@ class Server_management extends Admin_Controller
             $data['providers'] = $this->domain_model->get_all_providers();
             $data['clients'] = $this->domain_model->get_all_clients();
             $data['projects'] = $this->domain_model->get_all_projects();
-            $data['hostings'] = $this->hosting_model->get_all_active_hostings();
+            $data['hostings'] = $this->hosting_model->get_all_hostings();
             $data['domain_types'] = $this->domain_model->get_domain_types();
             $data['domain_statuses'] = $this->domain_model->get_domain_statuses();
             $data['currencies'] = $this->db->get('tbl_currencies')->result_array();
