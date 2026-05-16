@@ -917,21 +917,7 @@ class Server_management extends Admin_Controller
                     'permission'         => $this->_build_task_permission()
                 );
 
-                // Handle Custom Fields
-                $labels = $this->input->post('custom_field_label', TRUE);
-                $values = $this->input->post('custom_field_value', TRUE);
-                $custom_fields = array();
-                if (!empty($labels)) {
-                    foreach ($labels as $index => $label) {
-                        if (!empty($label)) {
-                            $custom_fields[] = array(
-                                'label' => $label,
-                                'value' => isset($values[$index]) ? $values[$index] : ''
-                            );
-                        }
-                    }
-                }
-                $data_save['custom_fields'] = json_encode($custom_fields);
+                $data_save['custom_fields'] = $this->_process_custom_fields();
 
                 if ($id) {
                     $this->domain_model->update_domain($id, $data_save);
@@ -1760,21 +1746,7 @@ class Server_management extends Admin_Controller
                 'permission'                    => $this->_build_task_permission(),
             );
 
-            // Handle Custom Fields
-            $labels = $this->input->post('custom_field_label', TRUE);
-            $values = $this->input->post('custom_field_value', TRUE);
-            $custom_fields = array();
-            if (!empty($labels)) {
-                foreach ($labels as $index => $label) {
-                    if (!empty($label)) {
-                        $custom_fields[] = array(
-                            'label' => $label,
-                            'value' => isset($values[$index]) ? $values[$index] : ''
-                        );
-                    }
-                }
-            }
-            $data_save['custom_fields'] = json_encode($custom_fields);
+            $data_save['custom_fields'] = $this->_process_custom_fields();
 
             if ($id) {
                 $data_save['updated_at'] = date('Y-m-d H:i:s');
@@ -2021,14 +1993,53 @@ class Server_management extends Admin_Controller
     private function _process_custom_fields()
     {
         $custom_field_labels = $this->input->post('custom_field_label', TRUE);
+        $custom_field_types = $this->input->post('custom_field_type', TRUE);
         $custom_field_values = $this->input->post('custom_field_value', TRUE);
+        $custom_field_existing_values = $this->input->post('custom_field_existing_value', TRUE);
         $custom_fields = array();
+
         if (!empty($custom_field_labels)) {
             foreach ($custom_field_labels as $key => $label) {
                 if (!empty($label)) {
+                    $type = isset($custom_field_types[$key]) ? $custom_field_types[$key] : 'text';
+                    $value = isset($custom_field_values[$key]) ? $custom_field_values[$key] : '';
+                    $existing_value = isset($custom_field_existing_values[$key]) ? $custom_field_existing_values[$key] : '';
+
+                    if ($type === 'file') {
+                        // Handle file upload
+                        if (isset($_FILES['custom_field_value']['name'][$key]) && !empty($_FILES['custom_field_value']['name'][$key])) {
+                            $file_name = $_FILES['custom_field_value']['name'][$key];
+                            $file_tmp = $_FILES['custom_field_value']['tmp_name'][$key];
+                            $file_error = $_FILES['custom_field_value']['error'][$key];
+
+                            if ($file_error === 0) {
+                                $upload_path = 'uploads/hosting_custom_fields/';
+                                if (!is_dir($upload_path)) {
+                                    mkdir($upload_path, 0755, true);
+                                }
+
+                                $ext = pathinfo($file_name, PATHINFO_EXTENSION);
+                                $new_file_name = uniqid('field_', true) . '.' . $ext;
+                                $full_path = $upload_path . $new_file_name;
+
+                                if (move_uploaded_file($file_tmp, $full_path)) {
+                                    $value = $full_path;
+                                    // Optionally delete old file if it exists
+                                    if (!empty($existing_value) && file_exists($existing_value)) {
+                                        @unlink($existing_value);
+                                    }
+                                }
+                            }
+                        } else {
+                            // Keep existing value if no new file uploaded
+                            $value = $existing_value;
+                        }
+                    }
+
                     $custom_fields[] = array(
                         'label' => $label,
-                        'value' => isset($custom_field_values[$key]) ? $custom_field_values[$key] : ''
+                        'type' => $type,
+                        'value' => $value
                     );
                 }
             }

@@ -243,7 +243,7 @@
     <div class="col-md-12">
         <div class="card erp-card">
             <div class="card-body">
-                <form method="post" action="<?= base_url('admin/server_management/add_domain' . (!empty($domain_info) ? '/' . $domain_info->id : '')) ?>" class="erp-form">
+                <form method="post" action="<?= base_url('admin/server_management/add_domain' . (!empty($domain_info) ? '/' . $domain_info->id : '')) ?>" class="erp-form" enctype="multipart/form-data">
 
                     <div class="erp-section-title" style="margin-top: 5px;">Domain Details</div>
                     <div class="row">
@@ -721,11 +721,11 @@
                         </div>
                     </div>
 
-                    <div class="d-flex justify-content-between align-items-end mt-4 mb-3" style="border-bottom: 1px solid #eee; padding-bottom: 8px;">
-                        <div class="erp-section-title" style="border-bottom: none; margin: 0; padding: 0;">Custom Fields</div>
-                        <button type="button" class="btn custom-field-btn" id="add_custom_field" tabindex="-1">
+                    <div class="erp-section-title mt-4" style="display: flex; align-items: center; gap: 10px;">
+                        <button type="button" class="btn btn-xs btn-primary" id="add_custom_field" style="padding: 2px 8px; font-size: 10px;">
                             <i class="fa fa-plus"></i> Add Field
                         </button>
+                        <span>Custom Fields</span>
                     </div>
 
                     <div class="row">
@@ -734,14 +734,25 @@
                                 <?php
                                 $custom_fields = !empty($domain_info->custom_fields) ? json_decode($domain_info->custom_fields, true) : array();
                                 if (!empty($custom_fields)):
-                                    foreach ($custom_fields as $field):
+                                    foreach ($custom_fields as $index => $field):
                                 ?>
                                         <div class="row custom-field-row mb-2">
-                                            <div class="col-md-5">
-                                                <input type="text" name="custom_field_label[]" class="form-control" placeholder="Label" value="<?= htmlspecialchars($field['label']) ?>">
+                                            <div class="col-md-3">
+                                                <input type="text" name="custom_field_label[<?= $index ?>]" class="form-control" placeholder="Label" value="<?= htmlspecialchars($field['label']) ?>">
                                             </div>
-                                            <div class="col-md-6">
-                                                <input type="text" name="custom_field_value[]" class="form-control" placeholder="Value" value="<?= htmlspecialchars($field['value']) ?>">
+                                            <div class="col-md-3">
+                                                <select name="custom_field_type[<?= $index ?>]" class="form-control field-type-select">
+                                                    <option value="text" <?= (isset($field['type']) && $field['type'] == 'text') ? 'selected' : '' ?>>Text</option>
+                                                    <option value="password" <?= (isset($field['type']) && $field['type'] == 'password') ? 'selected' : '' ?>>Password</option>
+                                                    <option value="file" <?= (isset($field['type']) && $field['type'] == 'file') ? 'selected' : '' ?>>File</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-5">
+                                                <input type="<?= (isset($field['type']) && $field['type'] != 'file') ? $field['type'] : 'text' ?>" name="custom_field_value[<?= $index ?>]" class="form-control field-value-input" placeholder="Value" value="<?= htmlspecialchars($field['value']) ?>">
+                                                <input type="hidden" name="custom_field_existing_value[<?= $index ?>]" value="<?= htmlspecialchars($field['value']) ?>">
+                                                <?php if (isset($field['type']) && $field['type'] == 'file' && !empty($field['value'])): ?>
+                                                    <small class="text-info d-block mt-1">Current file: <a href="<?= base_url($field['value']) ?>" target="_blank"><?= basename($field['value']) ?></a></small>
+                                                <?php endif; ?>
                                             </div>
                                             <div class="col-md-1">
                                                 <button type="button" class="btn btn-danger remove-custom-field w-100" tabindex="-1"><i class="fa fa-trash"></i></button>
@@ -1124,14 +1135,24 @@
                             });
 
                             // Custom Fields Logic
+                            var customFieldCounter = <?= !empty($custom_fields) ? count($custom_fields) : 0 ?>;
                             $('#add_custom_field').click(function() {
+                                var index = customFieldCounter++;
                                 var row = `
                                     <div class="row custom-field-row mb-2">
-                                        <div class="col-md-5">
-                                            <input type="text" name="custom_field_label[]" class="form-control" placeholder="Label">
+                                        <div class="col-md-3">
+                                            <input type="text" name="custom_field_label[${index}]" class="form-control" placeholder="Label">
                                         </div>
-                                        <div class="col-md-6">
-                                            <input type="text" name="custom_field_value[]" class="form-control" placeholder="Value">
+                                        <div class="col-md-3">
+                                            <select name="custom_field_type[${index}]" class="form-control field-type-select">
+                                                <option value="text">Text</option>
+                                                <option value="password">Password</option>
+                                                <option value="file">File</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <input type="text" name="custom_field_value[${index}]" class="form-control field-value-input" placeholder="Value">
+                                            <input type="hidden" name="custom_field_existing_value[${index}]" value="">
                                         </div>
                                         <div class="col-md-1">
                                             <button type="button" class="btn btn-danger remove-custom-field w-100" tabindex="-1"><i class="fa fa-trash"></i></button>
@@ -1139,6 +1160,16 @@
                                     </div>`;
                                 $('#custom_fields_container').append(row);
                                 $('#no_custom_fields_msg').hide();
+                            });
+
+                            $(document).on('change', '.field-type-select', function() {
+                                var type = $(this).val();
+                                var row = $(this).closest('.custom-field-row');
+                                var input = row.find('.field-value-input');
+                                input.attr('type', type);
+                                if (type === 'file') {
+                                    input.val('');
+                                }
                             });
 
                             $(document).on('click', '.remove-custom-field', function() {

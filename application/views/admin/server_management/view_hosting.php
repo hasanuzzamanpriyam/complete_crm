@@ -266,7 +266,22 @@
                             <div class="col-md-6 mb-3">
                                 <div class="bg-white p-2 rounded shadow-xs border d-flex justify-content-between align-items-center" style="min-height: 40px;">
                                     <span class="text-muted small"><?= htmlspecialchars($field['label']) ?>:</span>
-                                    <span class="font-bold text-dark ml-2"><?= htmlspecialchars($field['value']) ?></span>
+                                    <?php if (isset($field['type']) && $field['type'] == 'password'): ?>
+                                        <div class="d-flex align-items-center">
+                                            <span class="password-mask font-bold text-dark mr-2" data-pass="<?= htmlspecialchars($field['value']) ?>">********</span>
+                                            <a href="javascript:void(0)" class="toggle-mask-pass text-info"><i class="fa fa-eye"></i></a>
+                                        </div>
+                                    <?php elseif (isset($field['type']) && $field['type'] == 'file'): ?>
+                                        <span class="font-bold text-dark ml-2">
+                                            <?php if (!empty($field['value'])): ?>
+                                                <a href="<?= base_url($field['value']) ?>" target="_blank" class="text-info"><i class="fa fa-download"></i> Download</a>
+                                            <?php else: ?>
+                                                <span class="text-muted italic">No file</span>
+                                            <?php endif; ?>
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="font-bold text-dark ml-2"><?= htmlspecialchars($field['value']) ?></span>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         <?php endforeach; ?>

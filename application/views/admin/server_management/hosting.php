@@ -312,7 +312,7 @@
                                             <?php endif; ?>
                                         </td>
                                         <td class="text-center">
-                                            <a href="#" class="btn-action text-info" title="View" data-toggle="modal" data-target="#viewModal_<?= $hosting['id'] ?>"><i class="fa fa-eye"></i></a>
+                                            <a href="<?= base_url('admin/server_management/view_hosting/' . $hosting['id']) ?>" class="btn-action text-info view-hosting" title="View" data-id="<?= $hosting['id'] ?>"><i class="fa fa-eye"></i></a>
                                             <?php if (can_action_record($hosting['permission'], 'edit')): ?>
                                                 <a href="<?= base_url('admin/server_management/add_hosting/' . $hosting['id']) ?>" class="btn-action" title="Edit"><i class="fa fa-pencil-square-o"></i></a>
                                             <?php endif; ?>
@@ -351,333 +351,31 @@
     </div>
 </div>
 
-<div id="modalsContainer">
-<?php if (!empty($hostings)): ?>
-    <?php foreach ($hostings as $hosting): ?>
-        <?php
-        $badge_class = '';
-        switch ($hosting['status']) {
-            case 'Cancelled':
-                $badge_class = 'badge-cancelled';
-                break;
-            case 'Pending':
-                $badge_class = 'badge-pending';
-                break;
-            case 'Active':
-                $badge_class = 'badge-active';
-                break;
-            case 'Suspended':
-                $badge_class = 'badge-suspended';
-                break;
-            case 'Expired':
-                $badge_class = 'badge-expired';
-                break;
-        }
-        ?>
-        <div class="modal fade" id="viewModal_<?= $hosting['id'] ?>" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content text-left">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Hosting Details - <?= htmlspecialchars($hosting['title']) ?></h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <table class="table table-borderless table-sm mb-0">
-                                    <tr>
-                                        <th style="width: 40%;">Provider Name</th>
-                                        <td>: <?= htmlspecialchars($hosting['provider_name']) ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Provider URL</th>
-                                        <td>: <?php
-                                            if (!empty($hosting['provider_url'])) {
-                                                $url = htmlspecialchars($hosting['provider_url']);
-                                                $link_url = (strpos($hosting['provider_url'], 'http') === 0) ? $hosting['provider_url'] : 'http://' . $hosting['provider_url'];
-                                                echo '<a href="' . htmlspecialchars($link_url) . '" target="_blank">' . $url . '</a>';
-                                            } else {
-                                                echo 'N/A';
-                                            }
-                                            ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Server Type</th>
-                                        <td>: <?= htmlspecialchars($hosting['server_type']) ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Server Name</th>
-                                        <td>: <?= htmlspecialchars($hosting['server_name'] ?? 'N/A') ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Hostname</th>
-                                        <td>: <?= htmlspecialchars($hosting['hostname'] ?? 'N/A') ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Server Location</th>
-                                        <td>: <?= htmlspecialchars($hosting['server_location'] ?? 'N/A') ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th>IP Address</th>
-                                        <td>: <?= htmlspecialchars($hosting['ip_address'] ?? 'N/A') ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Price</th>
-                                        <td>: <?= htmlspecialchars($hosting['price']) ?> <?= htmlspecialchars($hosting['currency_id'] ?? '') ?></td>
-                                    </tr>
-                                </table>
-                            </div>
-                            <div class="col-md-6">
-                                <table class="table table-borderless table-sm mb-0">
-                                    <tr>
-                                        <th style="width: 40%;">Status</th>
-                                        <td>: 
-                                            <?php
-                                            $modal_status = $hosting['status'];
-                                            if ($hosting['days_remaining'] < 0) $modal_status = 'Expired';
-                                            $modal_badge = '';
-                                            switch ($modal_status) {
-                                                case 'Active': $modal_badge = 'badge-active'; break;
-                                                case 'Expiring': $modal_badge = 'badge-suspended'; break;
-                                                case 'Expired': $modal_badge = 'badge-expired'; break;
-                                                case 'Suspended': $modal_badge = 'badge-suspended'; break;
-                                                case 'Pending': $modal_badge = 'badge-pending'; break;
-                                                case 'Cancelled': $modal_badge = 'badge-cancelled'; break;
-                                                default: $modal_badge = 'badge-secondary';
-                                            }
-                                            ?>
-                                            <span class="badge badge-pill <?= $modal_badge ?>"><?= htmlspecialchars($modal_status) ?></span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th style="width: 40%;">Registered Date</th>
-                                        <td>: <?= !empty($hosting['date']) ? $hosting['date'] : '-' ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Exp Date</th>
-                                        <td>: <?= $hosting['purchase_date'] ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Future Exp Date</th>
-                                        <td>: <?= $hosting['expiry_date'] ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Duration</th>
-                                        <td>: <?= htmlspecialchars($hosting['days']) ?> <?= htmlspecialchars($hosting['time_unit']) ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Renew Type</th>
-                                        <td>: <span class="badge badge-pill <?= $hosting['renew'] == 'automatic' ? 'badge-active' : 'badge-suspended' ?>"><?= ucfirst($hosting['renew']) ?></span></td>
-                                    </tr>
-                                    <tr>
-                                        <th>CPanel URL</th>
-                                        <td>: <?php
-                                            if (!empty($hosting['cpanel_url'])) {
-                                                $url = htmlspecialchars($hosting['cpanel_url']);
-                                                $link_url = (strpos($hosting['cpanel_url'], 'http') === 0) ? $hosting['cpanel_url'] : 'http://' . $hosting['cpanel_url'];
-                                                echo '<a href="' . htmlspecialchars($link_url) . '" target="_blank">' . $url . '</a>';
-                                            } else {
-                                                echo 'N/A';
-                                            }
-                                            ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Username</th>
-                                        <td>: <?= htmlspecialchars($hosting['username'] ?? 'N/A') ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Password</th>
-                                        <td>: <?php if (!empty($hosting['password'])): ?>
-                                                <span class="password-toggle" data-password="<?= htmlspecialchars($hosting['password']) ?>" title="Click to show/hide">••••••••</span>
-                                            <?php else: ?>
-                                                N/A
-                                            <?php endif; ?>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
 
-                        <div class="row mt-3">
-                            <div class="col-md-6 border-right">
-                                <h6 class="border-bottom pb-1 mb-2">FTP Information</h6>
-                                <table class="table table-borderless table-sm mb-0">
-                                    <tr>
-                                        <th style="width: 40%;">FTP Username</th>
-                                        <td>: <?= htmlspecialchars($hosting['ftp_username'] ?? 'N/A') ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th>FTP Password</th>
-                                        <td>: <?php if (!empty($hosting['ftp_password'])): ?>
-                                                <span class="password-toggle" data-password="<?= htmlspecialchars($hosting['ftp_password']) ?>" title="Click to show/hide">••••••••</span>
-                                            <?php else: ?>
-                                                N/A
-                                            <?php endif; ?>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                            <div class="col-md-6">
-                                <h6 class="border-bottom pb-1 mb-2">DNS Provider Credentials</h6>
-                                <table class="table table-borderless table-sm mb-0">
-                                    <tr>
-                                        <th style="width: 40%;">DNS Provider</th>
-                                        <td>: <?= htmlspecialchars($hosting['dns_provider_name'] ?? 'N/A') ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Login Email</th>
-                                        <td>: <?= htmlspecialchars($hosting['dns_email'] ?? 'N/A') ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Login Password</th>
-                                        <td>: <?php if (!empty($hosting['dns_password'])): ?>
-                                                <span class="password-toggle" data-password="<?= htmlspecialchars($hosting['dns_password']) ?>" title="Click to show/hide">••••••••</span>
-                                            <?php else: ?>
-                                                N/A
-                                            <?php endif; ?>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div class="row mt-3">
-                            <div class="col-md-6 border-right">
-                                <h6 class="border-bottom pb-1 mb-2">SSL Settings</h6>
-                                <table class="table table-borderless table-sm mb-0">
-                                    <tr>
-                                        <th style="width: 40%;">SSL Certificate</th>
-                                        <td>: <?= !empty($hosting['ssl_certificate']) ? '<span class="text-success">Enabled</span>' : '<span class="text-danger">Disabled</span>' ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th>SSL Type</th>
-                                        <td>: <?= htmlspecialchars($hosting['ssl_type'] ?? 'N/A') ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th>SSL Expiry</th>
-                                        <td>: <?= htmlspecialchars($hosting['ssl_expiry_date'] ?? 'N/A') ?></td>
-                                    </tr>
-                                </table>
-                            </div>
-                            <div class="col-md-6">
-                                <h6 class="border-bottom pb-1 mb-2">Notification Settings</h6>
-                                <table class="table table-borderless table-sm mb-0">
-                                    <tr>
-                                        <th style="width: 40%;">Expiry Alert</th>
-                                        <td>: <?= !empty($hosting['expiry_notification']) ? '<span class="text-success">Active</span>' : '<span class="text-danger">Inactive</span>' ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Notify Before</th>
-                                        <td>: <?= !empty($hosting['expiry_notification']) ? htmlspecialchars($hosting['notification_days']) . ' ' . htmlspecialchars($hosting['notification_time_unit']) : 'N/A' ?></td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div class="row mt-3">
-                            <div class="col-md-12">
-                                <h6 class="border-bottom pb-1 mb-2">Assignments & Additional Info</h6>
-                                <table class="table table-borderless table-sm mb-0">
-                                    <tr>
-                                        <th style="width: 20%;">Main Domain(s)</th>
-                                        <td>: <?php
-                                            if (!empty($hosting['main_domain'])) {
-                                                $domain_ids = explode(',', $hosting['main_domain']);
-                                                $domain_names = [];
-                                                foreach ($domain_ids as $id) {
-                                                    foreach ($domains as $d) {
-                                                        if ($d['id'] == $id) {
-                                                            $domain_names[] = $d['domain_name'];
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-                                                echo !empty($domain_names) ? implode(', ', $domain_names) : $hosting['main_domain'];
-                                            } else {
-                                                echo 'N/A';
-                                            }
-                                            ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Nameservers</th>
-                                        <td>: <?= htmlspecialchars($hosting['nameservers'] ?? 'N/A') ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Project(s)</th>
-                                        <td>: <?php
-                                            if (!empty($hosting['project_id'])) {
-                                                $project_ids = explode(',', $hosting['project_id']);
-                                                $project_names = [];
-                                                foreach ($project_ids as $id) {
-                                                    foreach ($projects as $p) {
-                                                        if ($p['project_id'] == $id) {
-                                                            $project_names[] = $p['project_name'];
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-                                                echo !empty($project_names) ? implode(', ', $project_names) : $hosting['project_id'];
-                                            } else {
-                                                echo 'N/A';
-                                            }
-                                            ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Client(s)</th>
-                                        <td>: <?php
-                                            if (!empty($hosting['client_id'])) {
-                                                $client_ids = explode(',', $hosting['client_id']);
-                                                $client_names = [];
-                                                foreach ($client_ids as $id) {
-                                                    foreach ($clients as $c) {
-                                                        if ($c['client_id'] == $id) {
-                                                            $client_names[] = $c['name'];
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-                                                echo !empty($client_names) ? implode(', ', $client_names) : $hosting['client_id'];
-                                            } else {
-                                                echo 'N/A';
-                                            }
-                                            ?></td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-
-                        <?php if (!empty($hosting['ssl_info'])): ?>
-                            <div class="row mt-3">
-                                <div class="col-md-12">
-                                    <h6 class="border-bottom pb-1 mb-2">SSL Certificate Info</h6>
-                                    <pre class="bg-light p-2 small"><?= htmlspecialchars($hosting['ssl_info']) ?></pre>
-                                </div>
-                            </div>
-                        <?php endif; ?>
-
-                        <?php if (!empty($hosting['description'])): ?>
-                            <div class="row mt-3">
-                                <div class="col-md-12">
-                                    <h6 class="border-bottom pb-1 mb-2">Description</h6>
-                                    <p class="text-muted small"><?= nl2br(htmlspecialchars($hosting['description'])) ?></p>
-                                </div>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    <?php endforeach; ?>
-<?php endif; ?>
-</div>
 
 <script type="text/javascript">
-    $(document).ready(function() {
+        // Handle View Details
+        $(document).on('click', '.view-hosting', function(e) {
+            e.preventDefault();
+            var id = $(this).data('id');
+            var url = $(this).attr('href');
+
+            $('#myModal').modal('show');
+            $('#myModal .modal-content').html('<div class="modal-body text-center mt-3 mb-3"><i class="fa fa-spinner fa-spin fa-2x"></i> Loading Hosting Details...</div>');
+
+            $.ajax({
+                url: url,
+                type: 'GET',
+                success: function(response) {
+                    $('#myModal .modal-content').html(response);
+                },
+                error: function(xhr, status, error) {
+                    $('#myModal .modal-content').html('<div class="modal-header"><button type="button" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Error</h4></div><div class="modal-body"><div class="alert alert-danger">Error: Could not load hosting details. Status: ' + status + '</div></div>');
+                }
+            });
+        });
+
+        $(document).ready(function() {
 
         // Custom Date Range Filter Logic for DataTables
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {

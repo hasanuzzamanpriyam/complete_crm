@@ -194,7 +194,22 @@
                         <?php foreach ($custom_fields as $field) { ?>
                             <div class="col-md-4 mb-3">
                                 <label class="text-muted xsmall text-uppercase d-block mb-1"><?= htmlspecialchars($field['label']) ?></label>
-                                <div class="font-bold text-dark"><?= htmlspecialchars($field['value']) ?></div>
+                                <?php if (isset($field['type']) && $field['type'] == 'password'): ?>
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <span class="password-mask font-bold text-dark mr-2" data-pass="<?= htmlspecialchars($field['value']) ?>">********</span>
+                                        <a href="javascript:void(0)" class="toggle-mask-pass text-info"><i class="fa fa-eye"></i></a>
+                                    </div>
+                                <?php elseif (isset($field['type']) && $field['type'] == 'file'): ?>
+                                    <div class="font-bold text-dark">
+                                        <?php if (!empty($field['value'])): ?>
+                                            <a href="<?= base_url($field['value']) ?>" target="_blank" class="text-info"><i class="fa fa-download"></i> Download</a>
+                                        <?php else: ?>
+                                            <span class="text-muted italic">No file</span>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="font-bold text-dark"><?= htmlspecialchars($field['value']) ?></div>
+                                <?php endif; ?>
                             </div>
                         <?php } ?>
                     </div>
@@ -272,4 +287,20 @@
 
     .xsmall { font-size: 11px; }
 </style>
+
+<script>
+    $('.toggle-mask-pass').click(function() {
+        var span = $(this).siblings('.password-mask');
+        var pass = span.data('pass');
+        var isMasked = span.text() === '********';
+        
+        if (isMasked) {
+            span.text(pass);
+            $(this).find('i').removeClass('fa-eye').addClass('fa-eye-slash');
+        } else {
+            span.text('********');
+            $(this).find('i').removeClass('fa-eye-slash').addClass('fa-eye');
+        }
+    });
+</script>
 
