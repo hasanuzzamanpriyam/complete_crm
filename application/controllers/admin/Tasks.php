@@ -2012,31 +2012,47 @@ class Tasks extends Admin_Controller
             // if true then off time
             // else do not off time
             $check_user = $this->timer_started_by($task_id);
-            if ($check_user == TRUE) {
-                $task_logged_time = $this->tasks_model->task_spent_time_by_id($task_id);
-                $time_logged = (time() - $task_start->start_time) + $task_logged_time; //time already logged
-                $data = array(
-                    'timer_status' => $status,
-                    'logged_time' => $time_logged,
-                    'start_time' => 0
-                );
-                // Update into tbl_task
-                $this->tasks_model->_table_name = "tbl_task"; //table name
-                $this->tasks_model->_primary_key = "task_id";
-                $this->tasks_model->save($data, $task_id);
+            if ($check_user == TRUE || $this->session->userdata('user_type') == '1') {
+                $active_timer = $this->db->where(array('task_id' => $task_id, 'timer_status' => 'on'))->get('tbl_tasks_timer')->row();
+                if (!empty($active_timer)) {
+                    $task_logged_time = $this->tasks_model->task_spent_time_by_id($task_id);
+                    $time_logged = (time() - $task_start->start_time) + $task_logged_time; //time already logged
+                    $data = array(
+                        'timer_status' => $status,
+                        'logged_time' => $time_logged,
+                        'start_time' => 0
+                    );
+                    // Update into tbl_task
+                    $this->tasks_model->_table_name = "tbl_task"; //table name
+                    $this->tasks_model->_primary_key = "task_id";
+                    $this->tasks_model->save($data, $task_id);
 
-                // save into tbl_task_timer
-                $t_data = array(
-                    'task_id' => $task_id,
-                    'user_id' => $this->session->userdata('user_id'),
-                    'timer_status' => $status,
-                    'end_time' => time()
-                );
-                $tasks_timer_id = timer_status('tasks', $task_id, 'on', true);
-                // insert into tbl_task_timer
-                $this->tasks_model->_table_name = "tbl_tasks_timer"; //table name
-                $this->tasks_model->_primary_key = "tasks_timer_id";
-                $this->tasks_model->save($t_data, $tasks_timer_id);
+                    // save into tbl_task_timer
+                    $t_data = array(
+                        'timer_status' => $status,
+                        'end_time' => time()
+                    );
+                    // insert into tbl_task_timer
+                    $this->tasks_model->_table_name = "tbl_tasks_timer"; //table name
+                    $this->tasks_model->_primary_key = "tasks_timer_id";
+                    $this->tasks_model->save($t_data, $active_timer->tasks_timer_id);
+                } else {
+                    $paused_timer = $this->db->where('task_id', $task_id)
+                        ->where_in('timer_status', array('pause', 'hold'))
+                        ->order_by('tasks_timer_id', 'DESC')
+                        ->get('tbl_tasks_timer')->row();
+                    if (!empty($paused_timer)) {
+                        $this->db->where('tasks_timer_id', $paused_timer->tasks_timer_id)
+                            ->update('tbl_tasks_timer', array('timer_status' => 'off'));
+                    }
+                    $data = array(
+                        'timer_status' => $status,
+                        'start_time' => 0
+                    );
+                    $this->tasks_model->_table_name = "tbl_task"; //table name
+                    $this->tasks_model->_primary_key = "task_id";
+                    $this->tasks_model->save($data, $task_id);
+                }
 
                 // save into activities
                 $activities = array(
@@ -2067,6 +2083,63 @@ class Tasks extends Admin_Controller
                     show_notification($notifiedUsers);
                 }
                 $this->tasks_model->set_task_progress($task_id);
+            }
+        } elseif ($status == 'hold' || $status == 'pause') {
+            $check_user = $this->timer_started_by($task_id);
+            if ($check_user == TRUE || $this->session->userdata('user_type') == '1') {
+                $active_timer = $this->db->where(array('task_id' => $task_id, 'timer_status' => 'on'))->get('tbl_tasks_timer')->row();
+                if (!empty($active_timer)) {
+                    $task_logged_time = $this->tasks_model->task_spent_time_by_id($task_id);
+                    $time_logged = (time() - $task_start->start_time) + $task_logged_time;
+                    $data = array(
+                        'timer_status' => $status,
+                        'logged_time' => $time_logged,
+                        'start_time' => 0
+                    );
+                    // Update into tbl_task
+                    $this->tasks_model->_table_name = "tbl_task";
+                    $this->tasks_model->_primary_key = "task_id";
+                    $this->tasks_model->save($data, $task_id);
+
+                    // Update tbl_tasks_timer
+                    $t_data = array(
+                        'timer_status' => $status,
+                        'end_time' => time()
+                    );
+                    $this->tasks_model->_table_name = "tbl_tasks_timer";
+                    $this->tasks_model->_primary_key = "tasks_timer_id";
+                    $this->tasks_model->save($t_data, $active_timer->tasks_timer_id);
+
+                    // save into activities
+                    $activities = array(
+                        'user' => $this->session->userdata('user_id'),
+                        'module' => 'tasks',
+                        'module_field_id' => $task_id,
+                        'activity' => 'activity_tasks_timer_' . $status,
+                        'icon' => 'fa-tasks',
+                        'link' => 'admin/tasks/details/' . $task_id . '/timesheets',
+                        'value1' => $task_start->task_name,
+                    );
+                    $this->tasks_model->_table_name = "tbl_activities";
+                    $this->tasks_model->_primary_key = "activities_id";
+                    $this->tasks_model->save($activities);
+
+                    if (!empty($notifiedUsers)) {
+                        foreach ($notifiedUsers as $users) {
+                            if ($users != $this->session->userdata('user_id')) {
+                                add_notification(array(
+                                    'to_user_id' => $users,
+                                    'from_user_id' => true,
+                                    'description' => 'not_timer_' . $status,
+                                    'link' => 'admin/tasks/details/' . $task_start->task_id . '/timesheets',
+                                    'value' => lang('task') . ' ' . $task_start->task_name,
+                                ));
+                            }
+                        }
+                        show_notification($notifiedUsers);
+                    }
+                    $this->tasks_model->set_task_progress($task_id);
+                }
             }
         } else {
             $data = array(

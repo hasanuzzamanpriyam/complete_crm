@@ -320,21 +320,46 @@ $percentage = $this->tasks_model->get_estime_time($estimate_hours);
                         <div class="form-group">
                             <div class="col-sm-4"><strong><?= lang('timer_status') ?>:</strong></div>
                             <div class="col-sm-8">
-                                <?php if (timer_status('tasks', $task_details->task_id, 'on')) { ?>
-                                    <span class="label label-success"><?= lang('on') ?></span>
-
-                                    <a class="btn btn-xs btn-danger "
-                                        href="<?= base_url() ?>admin/tasks/tasks_timer/off/<?= $task_details->task_id ?>"><?= lang('stop_timer') ?>
-                                    </a>
-                                <?php } else {
-                                ?>
-                                    <span class="label label-danger"><?= lang('off') ?></span>
-                                    <?php $this_permission = $this->tasks_model->can_action('tbl_task', 'view', array('task_id' => $task_details->task_id), true);
-                                    if (!empty($this_permission)) { ?>
-                                        <a class="btn btn-xs btn-success <?= $disabled ?>"
-                                            href="<?= base_url() ?>admin/tasks/tasks_timer/on/<?= $task_details->task_id ?>"><?= lang('start_timer') ?>
-                                        </a>
-                                <?php }
+                                <?php
+                                $timer_state = $task_details->timer_status;
+                                $is_admin = ($this->session->userdata('user_type') == '1');
+                                $this_permission = $this->tasks_model->can_action('tbl_task', 'view', array('task_id' => $task_details->task_id), true);
+                                
+                                if ($timer_state == 'on') { ?>
+                                    <span class="label label-success" style="padding: 3px 6px; font-weight: 600;"><i class="fa fa-refresh fa-spin"></i> Running</span>
+                                    <?php if (!empty($this_permission)) { ?>
+                                        <?php if ($is_admin) { ?>
+                                            <a class="btn btn-xs btn-warning" style="margin-left: 4px;"
+                                                href="<?= base_url() ?>admin/tasks/tasks_timer/hold/<?= $task_details->task_id ?>"><i class="fa fa-hand-paper-o"></i> Hold</a>
+                                        <?php } else { ?>
+                                            <a class="btn btn-xs btn-warning" style="margin-left: 4px;"
+                                                href="<?= base_url() ?>admin/tasks/tasks_timer/pause/<?= $task_details->task_id ?>"><i class="fa fa-pause"></i> Pause</a>
+                                        <?php } ?>
+                                        <a class="btn btn-xs btn-danger" style="margin-left: 4px;"
+                                            href="<?= base_url() ?>admin/tasks/tasks_timer/off/<?= $task_details->task_id ?>"><i class="fa fa-stop"></i> Stop</a>
+                                    <?php }
+                                } elseif ($timer_state == 'pause') { ?>
+                                    <span class="label label-warning" style="padding: 3px 6px; font-weight: 600;"><i class="fa fa-pause"></i> Paused</span>
+                                    <?php if (!empty($this_permission)) { ?>
+                                        <a class="btn btn-xs btn-success <?= $disabled ?>" style="margin-left: 4px;"
+                                            href="<?= base_url() ?>admin/tasks/tasks_timer/on/<?= $task_details->task_id ?>"><i class="fa fa-play"></i> Resume</a>
+                                        <a class="btn btn-xs btn-danger" style="margin-left: 4px;"
+                                            href="<?= base_url() ?>admin/tasks/tasks_timer/off/<?= $task_details->task_id ?>"><i class="fa fa-stop"></i> Stop</a>
+                                    <?php }
+                                } elseif ($timer_state == 'hold') { ?>
+                                    <span class="label label-danger" style="background-color: #f39c12; border-color: #e08e0b; padding: 3px 6px; font-weight: 600;"><i class="fa fa-hand-paper-o"></i> On Hold</span>
+                                    <?php if (!empty($this_permission)) { ?>
+                                        <a class="btn btn-xs btn-success <?= $disabled ?>" style="margin-left: 4px;"
+                                            href="<?= base_url() ?>admin/tasks/tasks_timer/on/<?= $task_details->task_id ?>"><i class="fa fa-play"></i> Resume</a>
+                                        <a class="btn btn-xs btn-danger" style="margin-left: 4px;"
+                                            href="<?= base_url() ?>admin/tasks/tasks_timer/off/<?= $task_details->task_id ?>"><i class="fa fa-stop"></i> Stop</a>
+                                    <?php }
+                                } else { ?>
+                                    <span class="label label-danger" style="padding: 3px 6px; font-weight: 600;">Off</span>
+                                    <?php if (!empty($this_permission)) { ?>
+                                        <a class="btn btn-xs btn-success <?= $disabled ?>" style="margin-left: 4px;"
+                                            href="<?= base_url() ?>admin/tasks/tasks_timer/on/<?= $task_details->task_id ?>"><i class="fa fa-play"></i> Start</a>
+                                    <?php }
                                 }
                                 ?>
                             </div>
@@ -673,21 +698,46 @@ $percentage = $this->tasks_model->get_estime_time($estimate_hours);
                 <label class="control-label col-sm-4"><strong><?= lang('timer_status') ?>
                         :</strong></label>
                 <div class="col-sm-8 mt">
-                    <?php if (timer_status('tasks', $task_details->task_id, 'on')) { ?>
-                        <span class="label label-success"><?= lang('on') ?></span>
-
-                        <a class="btn btn-xs btn-danger "
-                            href="<?= base_url() ?>admin/tasks/tasks_timer/off/<?= $task_details->task_id ?>"><?= lang('stop_timer') ?>
-                        </a>
-                    <?php } else {
-                    ?>
-                        <span class="label label-danger"><?= lang('off') ?></span>
-                        <?php $this_permission = $this->tasks_model->can_action('tbl_task', 'view', array('task_id' => $task_details->task_id), true);
-                        if (!empty($this_permission)) { ?>
-                            <a class="btn btn-xs btn-success <?= $disabled ?>"
-                                href="<?= base_url() ?>admin/tasks/tasks_timer/on/<?= $task_details->task_id ?>"><?= lang('start_timer') ?>
-                            </a>
-                    <?php }
+                    <?php
+                    $timer_state = $task_details->timer_status;
+                    $is_admin = ($this->session->userdata('user_type') == '1');
+                    $this_permission = $this->tasks_model->can_action('tbl_task', 'view', array('task_id' => $task_details->task_id), true);
+                    
+                    if ($timer_state == 'on') { ?>
+                        <span class="label label-success" style="padding: 3px 6px; font-weight: 600;"><i class="fa fa-refresh fa-spin"></i> Running</span>
+                        <?php if (!empty($this_permission)) { ?>
+                            <?php if ($is_admin) { ?>
+                                <a class="btn btn-xs btn-warning" style="margin-left: 4px;"
+                                    href="<?= base_url() ?>admin/tasks/tasks_timer/hold/<?= $task_details->task_id ?>"><i class="fa fa-hand-paper-o"></i> Hold</a>
+                            <?php } else { ?>
+                                <a class="btn btn-xs btn-warning" style="margin-left: 4px;"
+                                    href="<?= base_url() ?>admin/tasks/tasks_timer/pause/<?= $task_details->task_id ?>"><i class="fa fa-pause"></i> Pause</a>
+                            <?php } ?>
+                            <a class="btn btn-xs btn-danger" style="margin-left: 4px;"
+                                href="<?= base_url() ?>admin/tasks/tasks_timer/off/<?= $task_details->task_id ?>"><i class="fa fa-stop"></i> Stop</a>
+                        <?php }
+                    } elseif ($timer_state == 'pause') { ?>
+                        <span class="label label-warning" style="padding: 3px 6px; font-weight: 600;"><i class="fa fa-pause"></i> Paused</span>
+                        <?php if (!empty($this_permission)) { ?>
+                            <a class="btn btn-xs btn-success <?= $disabled ?>" style="margin-left: 4px;"
+                                href="<?= base_url() ?>admin/tasks/tasks_timer/on/<?= $task_details->task_id ?>"><i class="fa fa-play"></i> Resume</a>
+                            <a class="btn btn-xs btn-danger" style="margin-left: 4px;"
+                                href="<?= base_url() ?>admin/tasks/tasks_timer/off/<?= $task_details->task_id ?>"><i class="fa fa-stop"></i> Stop</a>
+                        <?php }
+                    } elseif ($timer_state == 'hold') { ?>
+                        <span class="label label-danger" style="background-color: #f39c12; border-color: #e08e0b; padding: 3px 6px; font-weight: 600;"><i class="fa fa-hand-paper-o"></i> On Hold</span>
+                        <?php if (!empty($this_permission)) { ?>
+                            <a class="btn btn-xs btn-success <?= $disabled ?>" style="margin-left: 4px;"
+                                href="<?= base_url() ?>admin/tasks/tasks_timer/on/<?= $task_details->task_id ?>"><i class="fa fa-play"></i> Resume</a>
+                            <a class="btn btn-xs btn-danger" style="margin-left: 4px;"
+                                href="<?= base_url() ?>admin/tasks/tasks_timer/off/<?= $task_details->task_id ?>"><i class="fa fa-stop"></i> Stop</a>
+                        <?php }
+                    } else { ?>
+                        <span class="label label-danger" style="padding: 3px 6px; font-weight: 600;">Off</span>
+                        <?php if (!empty($this_permission)) { ?>
+                            <a class="btn btn-xs btn-success <?= $disabled ?>" style="margin-left: 4px;"
+                                href="<?= base_url() ?>admin/tasks/tasks_timer/on/<?= $task_details->task_id ?>"><i class="fa fa-play"></i> Start</a>
+                        <?php }
                     }
                     ?>
                 </div>
