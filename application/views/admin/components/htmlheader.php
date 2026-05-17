@@ -154,6 +154,35 @@
         <?php
     }
     ?>
+        /* Ensure user profile avatar image size remains consistent regardless of uploaded image dimensions or aspect ratios */
+        .user-block .user-block-picture .user-block-status img {
+            width: 60px !important;
+            height: 60px !important;
+            max-width: 60px !important;
+            max-height: 60px !important;
+            object-fit: cover !important;
+        }
+
+        /* Constrain image size when sidebar is collapsed */
+        .aside-collapsed .user-block .user-block-picture .user-block-status img {
+            width: 50px !important;
+            height: 50px !important;
+            max-width: 50px !important;
+            max-height: 50px !important;
+        }
+
+        /* Constrain brand logo image size to fit perfectly in the top navbar header on desktop */
+        .topnavbar .navbar-header .brand-logo img {
+            max-height: 50px !important;
+            width: auto !important;
+            object-fit: contain !important;
+        }
+
+        /* Constrain brand logo collapsed image size */
+        .topnavbar .navbar-header .brand-logo-collapsed img {
+            max-height: 48px !important;
+            object-fit: contain !important;
+        }
     </style>
 
 </head>
