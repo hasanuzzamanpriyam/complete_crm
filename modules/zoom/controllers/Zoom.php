@@ -18,8 +18,14 @@ class Zoom extends MY_Controller
 
   public function index($id = NULL)
   {
+    if (!can_action_by_label('zoom', 'view')) {
+      access_denied('zoom');
+    }
     $data['title'] = lang('zoom');
     if (!empty($id)) {
+      if (!can_action_by_label('zoom', 'edited')) {
+        access_denied('zoom');
+      }
       $data['active'] = 2;
       $data['meeting_info'] = $this->db->where('zoom_meeting_id', $id)->get('tbl_zoom_meeting')->row();
     } else {
@@ -31,6 +37,9 @@ class Zoom extends MY_Controller
 
   public function settings($id = null)
   {
+    if ($this->session->userdata('user_type') != 1) {
+      access_denied('zoom');
+    }
     $data['active'] = 1;
     $data['title'] = lang('zoom_settings'); //Page title
     $input = $this->admin_model->array_from_post(array('zoom_api_key', 'zoom_api_secret'));
@@ -61,6 +70,9 @@ class Zoom extends MY_Controller
   public function meetingList($zoom_meeting_id = null)
   {
     if ($this->input->is_ajax_request()) {
+      if (!can_action_by_label('zoom', 'view')) {
+        access_denied('zoom');
+      }
       $this->load->model('datatables');
       $this->datatables->table = 'tbl_zoom_meeting';
       $this->datatables->join_table = array('tbl_account_details');
@@ -223,6 +235,9 @@ class Zoom extends MY_Controller
 
   public function change_status($zoom_meeting_id, $status)
   {
+    if (!can_action_by_label('zoom', 'edited')) {
+      access_denied('zoom');
+    }
     $data['meeting_info'] = get_row('tbl_zoom_meeting', array('zoom_meeting_id' => $zoom_meeting_id));
     if (!empty($data['meeting_info'])) {
       $rdata['status'] = $status;

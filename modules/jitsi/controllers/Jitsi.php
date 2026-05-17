@@ -21,8 +21,14 @@ class Jitsi extends MY_Controller
      */
     public function index($id = NULL)
     {
+        if (!can_action_by_label('jitsi', 'view')) {
+            access_denied('jitsi');
+        }
         $data['title'] = lang('jitsi');
         if (!empty($id)) {
+            if (!can_action_by_label('jitsi', 'edited')) {
+                access_denied('jitsi');
+            }
             $data['active'] = 2;
             $data['meeting_info'] = $this->db->where('jitsi_meeting_id', $id)->get('tbl_jitsi_meetings')->row();
         } else {
@@ -37,6 +43,9 @@ class Jitsi extends MY_Controller
      */
     public function settings($id = null)
     {
+        if ($this->session->userdata('user_type') != 1) {
+            access_denied('jitsi');
+        }
         $data['active'] = 1;
         $data['title'] = lang('jitsi_settings');
 
@@ -84,6 +93,9 @@ class Jitsi extends MY_Controller
     public function meetingList()
     {
         if ($this->input->is_ajax_request()) {
+            if (!can_action_by_label('jitsi', 'view')) {
+                access_denied('jitsi');
+            }
             $this->load->model('datatables');
             $this->datatables->table = 'tbl_jitsi_meetings';
             $this->datatables->join_table = ['tbl_account_details'];
@@ -245,6 +257,9 @@ class Jitsi extends MY_Controller
      */
     public function change_status($jitsi_meeting_id, $status)
     {
+        if (!can_action_by_label('jitsi', 'edited')) {
+            access_denied('jitsi');
+        }
         $data['meeting_info'] = get_row('tbl_jitsi_meetings', ['jitsi_meeting_id' => $jitsi_meeting_id]);
         if (!empty($data['meeting_info'])) {
             $rdata['status'] = $status;
