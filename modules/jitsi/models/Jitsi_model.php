@@ -14,6 +14,32 @@ class Jitsi_model extends MY_Model
     public function __construct()
     {
         parent::__construct();
+
+        // Automatically update expired waiting meetings to finished
+        $this->db->where('status', 'waiting');
+        $query = $this->db->get('tbl_jitsi_meetings');
+        if ($query) {
+            $meetings = $query->result();
+            foreach ($meetings as $meeting) {
+                $duration = intval($meeting->duration ?: 0);
+                if ($duration <= 0) {
+                    $duration = 60; // default to 60 minutes
+                }
+                
+                $end_time = null;
+                if (!empty($meeting->meeting_start)) {
+                    $end_time = strtotime($meeting->meeting_start) + ($duration * 60);
+                } else {
+                    $end_time = strtotime($meeting->meeting_time) + ($duration * 60);
+                }
+                
+                // If the end time is in the past, update the status to finished
+                if ($end_time < time()) {
+                    $this->db->where('jitsi_meeting_id', $meeting->jitsi_meeting_id);
+                    $this->db->update('tbl_jitsi_meetings', ['status' => 'finished']);
+                }
+            }
+        }
     }
 
     /**

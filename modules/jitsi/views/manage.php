@@ -212,4 +212,18 @@ if (!empty($created) || !empty($edited)) {
             $(this).datetimepicker(opt_time);
         });
     }
+
+    function copyMeetingLink(btn, url) {
+        var $temp = $("<input>");
+        $("body").append($temp);
+        $temp.val(url).select();
+        document.execCommand("copy");
+        $temp.remove();
+        
+        var originalTitle = $(btn).attr('data-original-title') || $(btn).attr('title');
+        $(btn).attr('title', 'Link Copied!').tooltip('fixTitle').tooltip('show');
+        setTimeout(function() {
+            $(btn).attr('title', originalTitle).tooltip('fixTitle').tooltip('hide');
+        }, 1500);
+    }
 </script>

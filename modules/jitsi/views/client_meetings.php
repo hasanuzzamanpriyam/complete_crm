@@ -41,10 +41,14 @@ echo message_box('error');
                                 <td><?= $meeting->host_name ?></td>
                                 <td><span class="label label-<?= $status_class ?>"><?= lang($meeting->status) ?></span></td>
                                 <td>
-                                    <?php if ($meeting->status != 'canceled') : ?>
+                                    <?php if ($meeting->status == 'waiting') : ?>
                                         <a href="<?= base_url('jitsi/join_meeting/' . url_encode($meeting->jitsi_meeting_id)) ?>" class="btn btn-xs btn-warning" target="_blank">
                                             <i class="fa fa-video-camera"></i> <?= lang('join_the_meeting') ?>
                                         </a>
+                                        <?php $share_url = base_url('jitsi/share/' . url_encode($meeting->jitsi_meeting_id)); ?>
+                                        <button class="btn btn-info btn-xs copy-meeting-link" data-link="<?= $share_url ?>" data-toggle="tooltip" data-placement="top" title="Copy Shareable Link" onclick="copyMeetingLink(this, '<?= $share_url ?>')">
+                                            <i class="fa fa-share-alt"></i>
+                                        </button>
                                     <?php else : ?>
                                         <span class="text-muted"><?= lang('meeting_ended') ?></span>
                                     <?php endif; ?>
@@ -57,3 +61,19 @@ echo message_box('error');
         <?php endif; ?>
     </div>
 </div>
+
+<script type="text/javascript">
+    function copyMeetingLink(btn, url) {
+        var $temp = $("<input>");
+        $("body").append($temp);
+        $temp.val(url).select();
+        document.execCommand("copy");
+        $temp.remove();
+        
+        var originalTitle = $(btn).attr('data-original-title') || $(btn).attr('title');
+        $(btn).attr('title', 'Link Copied!').tooltip('fixTitle').tooltip('show');
+        setTimeout(function() {
+            $(btn).attr('title', originalTitle).tooltip('fixTitle').tooltip('hide');
+        }, 1500);
+    }
+</script>

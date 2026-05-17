@@ -128,11 +128,20 @@ class Jitsi extends MY_Controller
                 $change_status .= '</ul></div>';
                 $sub_array[] = $change_status;
 
-                if ($v_meeting->host == my_id()) {
-                    $sub_array[] = '<a target="_blank" data-toggle="tooltip" data-placement="top" title="' . lang('start_as_host') . '" class="btn btn-warning btn-xs" href="' . base_url('admin/jitsi/join/' . url_encode($v_meeting->jitsi_meeting_id)) . '"><i class="fa fa-video-camera"></i> </a>';
+                $join_btn = '';
+                if ($v_meeting->status == 'finished' || $v_meeting->status == 'canceled') {
+                    $tooltip_title = ($v_meeting->status == 'finished') ? lang('meeting_ended') : lang('canceled');
+                    $join_btn .= '<button class="btn btn-default btn-xs" disabled data-toggle="tooltip" data-placement="top" title="' . $tooltip_title . '"><i class="fa fa-video-camera"></i></button>';
                 } else {
-                    $sub_array[] = '<a target="_blank" data-toggle="tooltip" data-placement="top" title="' . lang('join_the_meeting') . '" class="btn btn-warning btn-xs" href="' . base_url('admin/jitsi/joined/' . url_encode($v_meeting->jitsi_meeting_id)) . '"><i class="fa fa-video-camera"></i> </a>';
+                    if ($v_meeting->host == my_id()) {
+                        $join_btn .= '<a target="_blank" data-toggle="tooltip" data-placement="top" title="' . lang('start_as_host') . '" class="btn btn-warning btn-xs" href="' . base_url('admin/jitsi/join/' . url_encode($v_meeting->jitsi_meeting_id)) . '"><i class="fa fa-video-camera"></i> </a>';
+                    } else {
+                        $join_btn .= '<a target="_blank" data-toggle="tooltip" data-placement="top" title="' . lang('join_the_meeting') . '" class="btn btn-warning btn-xs" href="' . base_url('admin/jitsi/joined/' . url_encode($v_meeting->jitsi_meeting_id)) . '"><i class="fa fa-video-camera"></i> </a>';
+                    }
+                    $share_url = base_url('jitsi/share/' . url_encode($v_meeting->jitsi_meeting_id));
+                    $join_btn .= ' <button class="btn btn-info btn-xs copy-meeting-link" data-link="' . $share_url . '" data-toggle="tooltip" data-placement="top" title="Copy Shareable Link" onclick="copyMeetingLink(this, \'' . $share_url . '\')"><i class="fa fa-share-alt"></i></button>';
                 }
+                $sub_array[] = $join_btn;
 
                 if (!empty($edited) || !empty($deleted)) {
                     if (!empty($edited)) {
@@ -263,6 +272,12 @@ class Jitsi extends MY_Controller
             redirect('admin/jitsi');
         }
 
+        if ($meeting_info->status == 'finished' || $meeting_info->status == 'canceled') {
+            $msg = ($meeting_info->status == 'finished') ? lang('meeting_ended') : lang('canceled');
+            set_message('error', $msg);
+            redirect('admin/jitsi');
+        }
+
         $host_user = get_row('tbl_users', ['user_id' => $meeting_info->host]);
         $user_email = $host_user->email ?: '';
         $user_name = fullname($meeting_info->host);
@@ -274,7 +289,7 @@ class Jitsi extends MY_Controller
         $meeting_url = build_jitsi_url($meeting_info->meeting_room, $user_email, $user_name, true, $exp);
 
         if ($meeting_info->host == my_id()) {
-            $rdata['status'] = 'finished';
+            $rdata['status'] = 'waiting';
             $rdata['meeting_start'] = date('Y-m-d H:i');
             update('tbl_jitsi_meetings', ['jitsi_meeting_id' => $jitsi_meeting_id], $rdata);
             $this->send_notify_assign_user($jitsi_meeting_id);
@@ -293,6 +308,12 @@ class Jitsi extends MY_Controller
             $meeting_info = get_row('tbl_jitsi_meetings', ['jitsi_meeting_id' => $jitsi_meeting_id]);
 
             if (!empty($meeting_info)) {
+                if ($meeting_info->status == 'finished' || $meeting_info->status == 'canceled') {
+                    $msg = ($meeting_info->status == 'finished') ? lang('meeting_ended') : lang('canceled');
+                    set_message('error', $msg);
+                    redirect('admin/jitsi');
+                }
+
                 if (!empty(staff())) {
                     $user = json_decode($meeting_info->user_id);
                     $id = my_id();
@@ -429,6 +450,12 @@ class Jitsi extends MY_Controller
             redirect('client/dashboard');
         }
 
+        if ($meeting_info->status == 'finished' || $meeting_info->status == 'canceled') {
+            $msg = ($meeting_info->status == 'finished') ? lang('meeting_ended') : lang('canceled');
+            set_message('error', $msg);
+            redirect('client/dashboard');
+        }
+
         $client_id = client_id();
         $invited_clients = json_decode($meeting_info->client_id, true);
 
@@ -467,5 +494,56 @@ class Jitsi extends MY_Controller
         $meeting_url = build_jitsi_url($meeting_info->meeting_room, $user_email, $user_name, false, $exp);
 
         redirect($meeting_url);
+    }
+
+    /**
+     * Public share link - allows anyone with the link to join the meeting
+     */
+    public function share($jitsi_meeting_id)
+    {
+        $jitsi_meeting_id = url_decode($jitsi_meeting_id);
+        $meeting_info = get_row('tbl_jitsi_meetings', ['jitsi_meeting_id' => $jitsi_meeting_id]);
+
+        if (empty($meeting_info)) {
+            show_error('Meeting not found.', 404);
+        }
+
+        // Check if meeting status is finished or canceled
+        if ($meeting_info->status == 'finished' || $meeting_info->status == 'canceled') {
+            show_error('This meeting has already ended or is canceled.', 403);
+        }
+
+        // If the user is logged in (staff or client), bypass name entry and let them join directly
+        if (!empty(my_id())) {
+            $user_email = get_any_field('tbl_users', ['user_id' => my_id()], 'email');
+            $user_name = fullname(my_id());
+            
+            $meeting_time = strtotime($meeting_info->meeting_time);
+            $duration_minutes = (int) $meeting_info->duration;
+            $exp = $meeting_time + ($duration_minutes * 60) + 3600;
+            
+            $meeting_url = build_jitsi_url($meeting_info->meeting_room, $user_email, $user_name, false, $exp);
+            redirect($meeting_url);
+        }
+
+        // If a guest name was submitted via POST
+        if ($this->input->post('guest_name')) {
+            $guest_name = strip_tags($this->input->post('guest_name', true));
+            if (!empty($guest_name)) {
+                $user_email = 'guest_' . time() . '@example.com';
+                $meeting_time = strtotime($meeting_info->meeting_time);
+                $duration_minutes = (int) $meeting_info->duration;
+                $exp = $meeting_time + ($duration_minutes * 60) + 3600;
+                
+                $meeting_url = build_jitsi_url($meeting_info->meeting_room, $user_email, $guest_name, false, $exp);
+                redirect($meeting_url);
+            }
+        }
+
+        // Otherwise, show a beautiful guest login view
+        $data['title'] = $meeting_info->topic;
+        $data['meeting_info'] = $meeting_info;
+        
+        $this->load->view('guest_join', $data);
     }
 }
