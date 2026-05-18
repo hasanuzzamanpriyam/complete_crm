@@ -199,8 +199,6 @@ class Jitsi extends MY_Controller
 
             $new_id = $id ?: $this->db->insert_id();
 
-            $this->send_meeting_invitation($new_id);
-
             $activity = [
                 'user' => $this->session->userdata('user_id'),
                 'module' => 'jitsi',
@@ -220,6 +218,9 @@ class Jitsi extends MY_Controller
             $message = lang('something_went_wrong');
         }
         set_message($type, $message);
+        if ($type == "success") {
+            $this->session->set_flashdata('send_invitation_meeting_id', $new_id);
+        }
         redirect('admin/jitsi');
     }
 
@@ -311,7 +312,11 @@ class Jitsi extends MY_Controller
             $rdata['status'] = 'waiting';
             $rdata['meeting_start'] = date('Y-m-d H:i');
             update('tbl_jitsi_meetings', ['jitsi_meeting_id' => $jitsi_meeting_id], $rdata);
-            $this->send_notify_assign_user($jitsi_meeting_id);
+            
+            $data['jitsi_meeting_id'] = $jitsi_meeting_id;
+            $data['meeting_url'] = $meeting_url;
+            $this->load->view('start_transition', $data);
+            return;
         }
 
         redirect($meeting_url);
@@ -654,5 +659,35 @@ class Jitsi extends MY_Controller
         $data['meeting_info'] = $meeting_info;
         
         $this->load->view('guest_join', $data);
+    }
+
+    /**
+     * Send invitations AJAX endpoint
+     */
+    public function send_invitations_ajax($meeting_id)
+    {
+        if (!$this->input->is_ajax_request()) {
+            show_error('No direct script access allowed', 403);
+        }
+        
+        $this->send_meeting_invitation($meeting_id);
+        
+        echo json_encode(['status' => 'success', 'message' => 'Invitations sent successfully']);
+        exit();
+    }
+
+    /**
+     * Send start notifications AJAX endpoint
+     */
+    public function send_start_notifications_ajax($meeting_id)
+    {
+        if (!$this->input->is_ajax_request()) {
+            show_error('No direct script access allowed', 403);
+        }
+        
+        $this->send_notify_assign_user($meeting_id);
+        
+        echo json_encode(['status' => 'success', 'message' => 'Start notifications sent successfully']);
+        exit();
     }
 }

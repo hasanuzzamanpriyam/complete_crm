@@ -227,3 +227,25 @@ if (!empty($created) || !empty($edited)) {
         }, 1500);
     }
 </script>
+
+<?php
+$send_invitation_meeting_id = $this->session->flashdata('send_invitation_meeting_id');
+if (!empty($send_invitation_meeting_id)) {
+?>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            // Silently send invitations in the background
+            $.ajax({
+                url: "<?= base_url('admin/jitsi/send_invitations_ajax/' . $send_invitation_meeting_id) ?>",
+                type: "GET",
+                dataType: "json",
+                success: function(response) {
+                    console.log("Jitsi meeting invitations sent: ", response);
+                },
+                error: function(xhr, status, error) {
+                    console.error("Jitsi meeting invitations failed: ", error);
+                }
+            });
+        });
+    </script>
+<?php } ?>
