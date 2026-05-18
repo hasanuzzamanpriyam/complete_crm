@@ -197,10 +197,14 @@ class Jitsi extends MY_Controller
             $this->jitsi_model->_primary_key = 'jitsi_meeting_id';
             $this->jitsi_model->save($data, $id);
 
+            $new_id = $id ?: $this->db->insert_id();
+
+            $this->send_meeting_invitation($new_id);
+
             $activity = [
                 'user' => $this->session->userdata('user_id'),
                 'module' => 'jitsi',
-                'module_field_id' => $id ?: $this->db->insert_id(),
+                'module_field_id' => $new_id,
                 'activity' => 'activity_new_custom_field',
                 'value1' => $data['topic'],
             ];
@@ -356,6 +360,10 @@ class Jitsi extends MY_Controller
         $email_template = email_templates(['email_group' => 'jitsi_meeting_start']);
 
         if (empty($email_template)) {
+            $email_template = get_row('tbl_email_templates', ['email_group' => 'jitsi_meeting_start', 'code' => 'en']);
+        }
+
+        if (empty($email_template)) {
             return;
         }
 
@@ -412,7 +420,7 @@ class Jitsi extends MY_Controller
                 $params['subject'] = $subject;
                 $params['message'] = $email_body;
                 $params['resourceed_file'] = '';
-                $params['recipient'] = $clientInfo->email;
+                $params['recipient'] = client_contact_email($client_id) ?: $clientInfo->email;
                 $this->admin_model->send_email($params);
             }
         }
@@ -423,6 +431,92 @@ class Jitsi extends MY_Controller
                 $leadsInfo = get_row('tbl_leads', ['leads_id' => $leads_id]);
                 $final_message = str_replace("{USER}", $leadsInfo->lead_name, $topic_name);
                 $final_message = str_replace("{MEETING_URL}", base_url('jitsi/joined/' . url_encode($jitsi_meeting_id)), $final_message);
+                $final_message = str_replace("{SITE_NAME}", config_item('company_name'), $final_message);
+
+                $data['message'] = $final_message;
+                $email_body = $this->load->view('email_template', $data, TRUE);
+
+                $params['subject'] = $subject;
+                $params['message'] = $email_body;
+                $params['resourceed_file'] = '';
+                $params['recipient'] = $leadsInfo->email;
+                $this->admin_model->send_email($params);
+            }
+        }
+    }
+
+    /**
+     * Send email invitations to invited users when a meeting is created
+     */
+    public function send_meeting_invitation($jitsi_meeting_id)
+    {
+        $meeting_info = get_row('tbl_jitsi_meetings', ['jitsi_meeting_id' => $jitsi_meeting_id]);
+        $email_template = email_templates(['email_group' => 'jitsi_meeting_invitation']);
+
+        if (empty($email_template)) {
+            $email_template = get_row('tbl_email_templates', ['email_group' => 'jitsi_meeting_invitation', 'code' => 'en']);
+        }
+
+        if (empty($email_template)) {
+            return;
+        }
+
+        $message = $email_template->template_body;
+        $subject = $email_template->subject;
+
+        $host_name = str_replace("{HOST}", fullname($meeting_info->host), $message);
+        $topic_name = str_replace("{TOPIC}", $meeting_info->topic, $host_name);
+        $meeting_time = str_replace("{MEETING_TIME}", date('M d, Y - h:i A', strtotime($meeting_info->meeting_time)), $topic_name);
+        $duration = str_replace("{DURATION}", $meeting_info->duration, $meeting_time);
+
+        $share_url = base_url('jitsi/share/' . url_encode($jitsi_meeting_id));
+
+        $user = json_decode($meeting_info->user_id);
+        if (!empty($user) && is_array($user)) {
+            foreach ($user as $id) {
+                $user_email = get_any_field('tbl_users', ['user_id' => $id], 'email');
+                $user_name = fullname($id);
+
+                $final_message = str_replace("{USER}", $user_name, $duration);
+                $final_message = str_replace("{MEETING_URL}", $share_url, $final_message);
+                $final_message = str_replace("{SITE_NAME}", config_item('company_name'), $final_message);
+
+                $data['message'] = $final_message;
+                $email_body = $this->load->view('email_template', $data, TRUE);
+
+                $params['subject'] = $subject;
+                $params['message'] = $email_body;
+                $params['resourceed_file'] = '';
+                $params['recipient'] = $user_email;
+                $this->admin_model->send_email($params);
+            }
+        }
+
+        $client = json_decode($meeting_info->client_id);
+        if (!empty($client) && is_array($client)) {
+            foreach ($client as $client_id) {
+                $clientInfo = get_row('tbl_client', ['client_id' => $client_id]);
+                $final_message = str_replace("{USER}", $clientInfo->name, $duration);
+                $final_message = str_replace("{MEETING_URL}", $share_url, $final_message);
+                $final_message = str_replace("{SITE_NAME}", config_item('company_name'), $final_message);
+
+                $data['message'] = $final_message;
+                $email_body = $this->load->view('email_template', $data, TRUE);
+
+                $params['subject'] = $subject;
+                $params['message'] = $email_body;
+                $params['resourceed_file'] = '';
+                $params['recipient'] = client_contact_email($client_id) ?: $clientInfo->email;
+                $this->admin_model->send_email($params);
+            }
+        }
+
+        $leads = json_decode($meeting_info->leads_id);
+        if (!empty($leads) && is_array($leads)) {
+            foreach ($leads as $leads_id) {
+                $leadsInfo = get_row('tbl_leads', ['leads_id' => $leads_id]);
+                $final_message = str_replace("{USER}", $leadsInfo->lead_name, $duration);
+                $final_message = str_replace("{MEETING_URL}", $share_url, $final_message);
                 $final_message = str_replace("{SITE_NAME}", config_item('company_name'), $final_message);
 
                 $data['message'] = $final_message;
@@ -480,7 +574,7 @@ class Jitsi extends MY_Controller
         }
 
         $clientInfo = get_row('tbl_client', ['client_id' => $client_id]);
-        $user_email = $clientInfo->email ?: '';
+        $user_email = client_contact_email($client_id) ?: $clientInfo->email ?: '';
         $user_name = $clientInfo->name ?: 'Client';
 
         $meeting_time = strtotime($meeting_info->meeting_time);

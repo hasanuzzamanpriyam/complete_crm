@@ -33,7 +33,7 @@ $CI->db->query(
 
 $CI->db->query(
     "INSERT INTO `tbl_email_templates` (`email_templates_id`, `code`, `email_group`, `subject`, `template_body`)
-    VALUES (NULL, 'jitsi_meeting_start', 'jitsi_meeting_start', 'Your Jitsi Meeting is Starting Now',
+    VALUES (NULL, 'en', 'jitsi_meeting_start', 'Your Jitsi Meeting is Starting Now',
     '<p>Hello {USER}!</p>
     <p>A video meeting has started: <strong>{TOPIC}</strong></p>
     <p>Hosted by: {HOST}</p>
@@ -41,5 +41,18 @@ $CI->db->query(
     <p><a href=\"{MEETING_URL}\"><strong>Join the Meeting</strong></a></p>
     <p>If the link does not work, copy and paste this URL into your browser:<br>
     <a href=\"{MEETING_URL}\">{MEETING_URL}</a></p>
+    <p>Best regards,<br>{SITE_NAME} Team</p>');"
+);
+
+$CI->db->query(
+    "INSERT INTO `tbl_email_templates` (`email_templates_id`, `code`, `email_group`, `subject`, `template_body`)
+    VALUES (NULL, 'en', 'jitsi_meeting_invitation', 'You are invited: {TOPIC}',
+    '<p>Hello {USER}!</p>
+    <p>You have been invited to a video meeting:</p>
+    <p><strong>Topic:</strong> {TOPIC}<br>
+    <strong>Host:</strong> {HOST}<br>
+    <strong>Time:</strong> {MEETING_TIME}<br>
+    <strong>Duration:</strong> {DURATION} minutes</p>
+    <p><a href=\"{MEETING_URL}\"><strong>Click here to join the meeting</strong></a></p>
     <p>Best regards,<br>{SITE_NAME} Team</p>');"
 );
