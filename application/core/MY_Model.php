@@ -1119,7 +1119,8 @@
             $config['smtp_pass'] = decrypt(config_item('smtp_pass'));
             $config['smtp_crypto'] = config_item('smtp_encryption');
 
-            $this->load->library('email', $config);
+            $this->load->library('email');
+            $this->email->initialize($config);
             $this->email->clear(true);
             $this->email->from(config_item('company_email'), config_item('company_name'));
             $this->email->to($params['recipient']);
