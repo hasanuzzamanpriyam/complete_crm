@@ -2743,6 +2743,92 @@ function send_later($params)
     return TRUE;
 }
 
+if (!function_exists('queue_email')) {
+    function queue_email($recipient, $subject, $message, $source = 'system', $attachments = null)
+    {
+        $CI = &get_instance();
+        $CI->load->model('email_queue_model');
+        return $CI->email_queue_model->queue_email($recipient, $subject, $message, $source, $attachments);
+    }
+}
+
+if (!function_exists('queue_email_batch')) {
+    function queue_email_batch($emails, $source = 'system')
+    {
+        $CI = &get_instance();
+        $CI->load->model('email_queue_model');
+        return $CI->email_queue_model->queue_batch($emails, $source);
+    }
+}
+
+if (!function_exists('process_email_queue')) {
+    function process_email_queue($limit = 50)
+    {
+        $CI = &get_instance();
+        $CI->load->model('email_queue_model');
+        $CI->load->library('email');
+
+        $pending_emails = $CI->email_queue_model->get_pending_emails($limit);
+        $sent_count = 0;
+        $failed_count = 0;
+
+        foreach ($pending_emails as $email) {
+            $CI->email_queue_model->mark_sending($email->id);
+
+            $config['wordwrap'] = TRUE;
+            $config['mailtype'] = 'html';
+            $config['charset'] = 'utf-8';
+            $config['newline'] = "\r\n";
+            $config['crlf'] = "\r\n";
+            $config['smtp_timeout'] = '30';
+            $config['protocol'] = config_item('protocol');
+            $config['smtp_host'] = config_item('smtp_host');
+            $config['smtp_port'] = config_item('smtp_port');
+            $config['smtp_user'] = trim(config_item('smtp_user'));
+            $config['smtp_pass'] = decrypt(config_item('smtp_pass'));
+            $config['smtp_crypto'] = config_item('smtp_encryption');
+
+            $CI->email->initialize($config, TRUE);
+            $CI->email->clear(TRUE);
+            $CI->email->from(config_item('company_email'), config_item('company_name'));
+            $CI->email->to($email->recipient);
+            $CI->email->subject($email->subject);
+            $CI->email->message($email->message);
+
+            if (!empty($email->attachments)) {
+                $files = json_decode($email->attachments, true);
+                if (is_array($files)) {
+                    foreach ($files as $file) {
+                        $CI->email->attach($file);
+                    }
+                }
+            }
+
+            try {
+                if ($CI->email->send()) {
+                    $CI->email_queue_model->mark_sent($email->id);
+                    $sent_count++;
+                } else {
+                    $error = $CI->email->print_debugger([], TRUE);
+                    $CI->email_queue_model->mark_failed($email->id, $error);
+                    $failed_count++;
+                }
+            } catch (Exception $e) {
+                $CI->email_queue_model->mark_failed($email->id, $e->getMessage());
+                $failed_count++;
+            }
+
+            $CI->email->clear(TRUE);
+        }
+
+        return [
+            'processed' => count($pending_emails),
+            'sent' => $sent_count,
+            'failed' => $failed_count,
+        ];
+    }
+}
+
 /**
  * Return server temporary directory
  * @return string

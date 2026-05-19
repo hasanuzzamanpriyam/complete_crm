@@ -358,6 +358,7 @@ class Jitsi extends MY_Controller
 
     /**
      * Send email notifications to invited users when meeting starts
+     * Uses async email queue instead of synchronous sending.
      */
     public function send_notify_assign_user($jitsi_meeting_id)
     {
@@ -378,12 +379,15 @@ class Jitsi extends MY_Controller
         $host_name = str_replace("{HOST}", fullname($meeting_info->host), $message);
         $topic_name = str_replace("{TOPIC}", $meeting_info->topic, $host_name);
 
+        $queued_count = 0;
+
         $user = json_decode($meeting_info->user_id);
         if (!empty($user) && is_array($user)) {
             foreach ($user as $id) {
                 $user_email = get_any_field('tbl_users', ['user_id' => $id], 'email');
-                $user_name = fullname($id);
+                if (empty($user_email)) continue;
 
+                $user_name = fullname($id);
                 $meeting_url = base_url('admin/jitsi/joined/' . url_encode($jitsi_meeting_id));
                 $final_message = str_replace("{USER}", $user_name, $topic_name);
                 $final_message = str_replace("{MEETING_URL}", $meeting_url, $final_message);
@@ -392,11 +396,8 @@ class Jitsi extends MY_Controller
                 $data['message'] = $final_message;
                 $email_body = $this->load->view('email_template', $data, TRUE);
 
-                $params['subject'] = $subject;
-                $params['message'] = $email_body;
-                $params['resourceed_file'] = '';
-                $params['recipient'] = $user_email;
-                $this->admin_model->send_email($params);
+                queue_email($user_email, $subject, $email_body, 'jitsi_meeting_start');
+                $queued_count++;
 
                 if ($id != $this->session->userdata('user_id')) {
                     add_notification([
@@ -415,6 +416,9 @@ class Jitsi extends MY_Controller
         if (!empty($client) && is_array($client)) {
             foreach ($client as $client_id) {
                 $clientInfo = get_row('tbl_client', ['client_id' => $client_id]);
+                $recipient_email = client_contact_email($client_id) ?: $clientInfo->email;
+                if (empty($recipient_email)) continue;
+
                 $final_message = str_replace("{USER}", $clientInfo->name, $topic_name);
                 $final_message = str_replace("{MEETING_URL}", base_url('jitsi/joined/' . url_encode($jitsi_meeting_id)), $final_message);
                 $final_message = str_replace("{SITE_NAME}", config_item('company_name'), $final_message);
@@ -422,11 +426,8 @@ class Jitsi extends MY_Controller
                 $data['message'] = $final_message;
                 $email_body = $this->load->view('email_template', $data, TRUE);
 
-                $params['subject'] = $subject;
-                $params['message'] = $email_body;
-                $params['resourceed_file'] = '';
-                $params['recipient'] = client_contact_email($client_id) ?: $clientInfo->email;
-                $this->admin_model->send_email($params);
+                queue_email($recipient_email, $subject, $email_body, 'jitsi_meeting_start');
+                $queued_count++;
             }
         }
 
@@ -434,6 +435,8 @@ class Jitsi extends MY_Controller
         if (!empty($leads) && is_array($leads)) {
             foreach ($leads as $leads_id) {
                 $leadsInfo = get_row('tbl_leads', ['leads_id' => $leads_id]);
+                if (empty($leadsInfo->email)) continue;
+
                 $final_message = str_replace("{USER}", $leadsInfo->lead_name, $topic_name);
                 $final_message = str_replace("{MEETING_URL}", base_url('jitsi/joined/' . url_encode($jitsi_meeting_id)), $final_message);
                 $final_message = str_replace("{SITE_NAME}", config_item('company_name'), $final_message);
@@ -441,17 +444,17 @@ class Jitsi extends MY_Controller
                 $data['message'] = $final_message;
                 $email_body = $this->load->view('email_template', $data, TRUE);
 
-                $params['subject'] = $subject;
-                $params['message'] = $email_body;
-                $params['resourceed_file'] = '';
-                $params['recipient'] = $leadsInfo->email;
-                $this->admin_model->send_email($params);
+                queue_email($leadsInfo->email, $subject, $email_body, 'jitsi_meeting_start');
+                $queued_count++;
             }
         }
+
+        return $queued_count;
     }
 
     /**
      * Send email invitations to invited users when a meeting is created
+     * Uses async email queue instead of synchronous sending.
      */
     public function send_meeting_invitation($jitsi_meeting_id)
     {
@@ -475,13 +478,15 @@ class Jitsi extends MY_Controller
         $duration = str_replace("{DURATION}", $meeting_info->duration, $meeting_time);
 
         $share_url = base_url('jitsi/share/' . url_encode($jitsi_meeting_id));
+        $queued_count = 0;
 
         $user = json_decode($meeting_info->user_id);
         if (!empty($user) && is_array($user)) {
             foreach ($user as $id) {
                 $user_email = get_any_field('tbl_users', ['user_id' => $id], 'email');
-                $user_name = fullname($id);
+                if (empty($user_email)) continue;
 
+                $user_name = fullname($id);
                 $final_message = str_replace("{USER}", $user_name, $duration);
                 $final_message = str_replace("{MEETING_URL}", $share_url, $final_message);
                 $final_message = str_replace("{SITE_NAME}", config_item('company_name'), $final_message);
@@ -489,11 +494,8 @@ class Jitsi extends MY_Controller
                 $data['message'] = $final_message;
                 $email_body = $this->load->view('email_template', $data, TRUE);
 
-                $params['subject'] = $subject;
-                $params['message'] = $email_body;
-                $params['resourceed_file'] = '';
-                $params['recipient'] = $user_email;
-                $this->admin_model->send_email($params);
+                queue_email($user_email, $subject, $email_body, 'jitsi_meeting_invitation');
+                $queued_count++;
             }
         }
 
@@ -501,6 +503,9 @@ class Jitsi extends MY_Controller
         if (!empty($client) && is_array($client)) {
             foreach ($client as $client_id) {
                 $clientInfo = get_row('tbl_client', ['client_id' => $client_id]);
+                $recipient_email = client_contact_email($client_id) ?: $clientInfo->email;
+                if (empty($recipient_email)) continue;
+
                 $final_message = str_replace("{USER}", $clientInfo->name, $duration);
                 $final_message = str_replace("{MEETING_URL}", $share_url, $final_message);
                 $final_message = str_replace("{SITE_NAME}", config_item('company_name'), $final_message);
@@ -508,11 +513,8 @@ class Jitsi extends MY_Controller
                 $data['message'] = $final_message;
                 $email_body = $this->load->view('email_template', $data, TRUE);
 
-                $params['subject'] = $subject;
-                $params['message'] = $email_body;
-                $params['resourceed_file'] = '';
-                $params['recipient'] = client_contact_email($client_id) ?: $clientInfo->email;
-                $this->admin_model->send_email($params);
+                queue_email($recipient_email, $subject, $email_body, 'jitsi_meeting_invitation');
+                $queued_count++;
             }
         }
 
@@ -520,6 +522,8 @@ class Jitsi extends MY_Controller
         if (!empty($leads) && is_array($leads)) {
             foreach ($leads as $leads_id) {
                 $leadsInfo = get_row('tbl_leads', ['leads_id' => $leads_id]);
+                if (empty($leadsInfo->email)) continue;
+
                 $final_message = str_replace("{USER}", $leadsInfo->lead_name, $duration);
                 $final_message = str_replace("{MEETING_URL}", $share_url, $final_message);
                 $final_message = str_replace("{SITE_NAME}", config_item('company_name'), $final_message);
@@ -527,13 +531,12 @@ class Jitsi extends MY_Controller
                 $data['message'] = $final_message;
                 $email_body = $this->load->view('email_template', $data, TRUE);
 
-                $params['subject'] = $subject;
-                $params['message'] = $email_body;
-                $params['resourceed_file'] = '';
-                $params['recipient'] = $leadsInfo->email;
-                $this->admin_model->send_email($params);
+                queue_email($leadsInfo->email, $subject, $email_body, 'jitsi_meeting_invitation');
+                $queued_count++;
             }
         }
+
+        return $queued_count;
     }
 
     /**

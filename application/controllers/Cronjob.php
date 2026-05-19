@@ -49,6 +49,7 @@ class Cronjob extends MY_Controller
             $this->autoclose_tickets();
             $this->reminders();
             $this->outgoing_emails();
+            $this->process_email_queue_cron();
             // check domain and hosting expiry
             $this->check_domain_hosting_expiry();
         }
@@ -239,7 +240,7 @@ class Cronjob extends MY_Controller
     {
         // Get a list of overdue projects
         $email_lists = $this->db->where('delivered', '0')->get('tbl_outgoing_emails')->result();
-        if (count(array($email_lists)) > 0) {
+        if (!empty($email_lists)) {
             foreach ($email_lists as $em) {
                 $params = array(
                     'recipient' => $em->sent_to,
@@ -250,12 +251,46 @@ class Cronjob extends MY_Controller
                 $this->invoice_model->send_email($params);
                 // We have sent an alert email
                 $this->db->where('id', $em->id)->delete('tbl_outgoing_emails');
+                
+                // Add a small delay between emails to prevent SMTP connection drops/rate limiting
+                usleep(500000); // 0.5 second delay
             }
-            return array('success' => TRUE, 'result' => count(array($email_lists)) . ' outgoing emails sent');
+            return array('success' => TRUE, 'result' => count($email_lists) . ' outgoing emails sent');
         } else {
             log_message('error', 'There are no outgoing emails to send');
             return array('success' => TRUE, 'result' => 'There are no outgoing emails');
         }
+    }
+
+    function process_email_queue_cron()
+    {
+        $this->load->helper('admin_helper');
+        $result = process_email_queue(100);
+
+        if ($result['processed'] > 0) {
+            log_message('info', "Email queue processed: {$result['processed']} processed, {$result['sent']} sent, {$result['failed']} failed");
+            return array('success' => TRUE, 'result' => $result);
+        } else {
+            log_message('info', 'Email queue is empty');
+            return array('success' => TRUE, 'result' => 'Email queue is empty');
+        }
+    }
+
+    function process_email_queue_manual()
+    {
+        if (!$this->input->is_cli_request() && !$this->input->get('manual')) {
+            show_error('No direct script access allowed', 403);
+        }
+
+        $this->load->helper('admin_helper');
+        $result = process_email_queue(200);
+
+        echo json_encode([
+            'status' => 'success',
+            'message' => 'Email queue processed',
+            'data' => $result,
+        ]);
+        exit;
     }
 
     function client_sms_reminder($data, $mobile)
