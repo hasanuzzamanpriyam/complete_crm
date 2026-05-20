@@ -162,11 +162,17 @@ class ATS_Parser
         foreach ($phpWord->getSections() as $section) {
             foreach ($section->getElements() as $element) {
                 if (method_exists($element, 'getText')) {
-                    $text .= $element->getText() . ' ';
+                    $textContent = $element->getText();
+                    if (is_string($textContent)) {
+                        $text .= $textContent . ' ';
+                    }
                 } elseif (method_exists($element, 'getElements')) {
                     foreach ($element->getElements() as $child) {
                         if (method_exists($child, 'getText')) {
-                            $text .= $child->getText() . ' ';
+                            $textContent = $child->getText();
+                            if (is_string($textContent)) {
+                                $text .= $textContent . ' ';
+                            }
                         }
                     }
                 }
@@ -343,7 +349,7 @@ class ATS_Parser
         } elseif ($score > 0) {
             return '<span class="label label-danger" style="font-size:13px;padding:5px 10px;">' . number_format($score, 1) . '% - Low</span>';
         } else {
-            return '<span class="label label-default" style="font-size:13px;padding:5px 10px;">N/A</span>';
+            return '<span class="label label-default" style="font-size:13px;padding:5px 10px;" title="No skills configured for this job">0% - Pending</span>';
         }
     }
 

@@ -1087,4 +1087,110 @@ class Cronjob extends MY_Controller
         
         log_message('info', 'Domain and Hosting Expiry Check Completed');
     }
+
+    public function send_offer_email_test($offer_id)
+    {
+        if (!$this->input->is_cli_request() && !$this->input->get('manual')) {
+            show_error('No direct script access allowed', 403);
+        }
+
+        $this->load->model('recruitment_model');
+
+        $offer = $this->recruitment_model->get_offer_by_id($offer_id);
+        if (empty($offer)) {
+            echo json_encode(['success' => false, 'message' => 'Offer not found']);
+            return;
+        }
+
+        $designation = '-';
+        if (!empty($offer->designations_id)) {
+            $design_info = $this->db->where('designations_id', $offer->designations_id)->get('tbl_designations')->row();
+            if ($design_info) $designation = $design_info->designations;
+        }
+
+        $replacements = [
+            '{CANDIDATE_NAME}' => $offer->candidate_name,
+            '{JOB_TITLE}' => $offer->job_title,
+            '{DESIGNATION}' => $designation,
+            '{SALARY}' => $offer->salary_offered ?: 'As discussed',
+            '{JOINING_DATE}' => $offer->joining_date ? strftime(config_item('date_format'), strtotime($offer->joining_date)) : 'To be confirmed',
+            '{EMPLOYMENT_TYPE}' => lang($offer->employment_type ?? 'full_time'),
+            '{COMPANY_NAME}' => config_item('company_name'),
+            '{ADDITIONAL_TERMS}' => $offer->additional_terms ?: '',
+            '{SITE_NAME}' => config_item('company_name')
+        ];
+
+        $subject = $offer->offer_subject;
+        $body = $offer->offer_body;
+
+        foreach ($replacements as $key => $val) {
+            $subject = str_replace($key, $val, $subject);
+            $body = str_replace($key, $val, $body);
+        }
+
+        $this->db->where('offer_id', $offer_id);
+        $this->db->update('tbl_offer_letters', [
+            'offer_subject' => $subject,
+            'offer_body' => $body
+        ]);
+
+        $params = [
+            'recipient' => $offer->candidate_email,
+            'subject' => $subject,
+            'message' => $body,
+            'resourceed_file' => ''
+        ];
+
+        $sent = $this->recruitment_model->send_email($params);
+        if ($sent) {
+            $this->recruitment_model->update_offer_status($offer_id, 'sent');
+            echo json_encode(['success' => true, 'message' => 'Offer email sent to ' . $offer->candidate_email]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Failed to send email']);
+        }
+    }
+
+    public function rescore_all_applications()
+    {
+        if (!$this->input->is_cli_request() && !$this->input->get('manual')) {
+            show_error('No direct script access allowed', 403);
+        }
+
+        $this->load->model('recruitment_model');
+        $this->load->library('ats_parser');
+
+        $applications = $this->db->where('ats_score', 0)->where('resume IS NOT NULL')->where('resume !=', '')->get('tbl_job_appliactions')->result();
+        $processed = 0;
+        $scored = 0;
+        $failed = 0;
+
+        foreach ($applications as $app) {
+            $processed++;
+            $resume_path = $app->resume;
+
+            if (!file_exists($resume_path)) {
+                $failed++;
+                continue;
+            }
+
+            $resume_text = $this->ats_parser->extract_text($resume_path);
+            if (!empty($resume_text)) {
+                $ats_data = $this->recruitment_model->calculate_ats_score($app->job_circular_id, $resume_text);
+                $this->recruitment_model->update_application_ats($app->job_appliactions_id, $ats_data);
+                $scored++;
+            } else {
+                $failed++;
+            }
+        }
+
+        echo json_encode([
+            'success' => true,
+            'message' => "Re-scoring complete",
+            'data' => [
+                'processed' => $processed,
+                'scored' => $scored,
+                'failed' => $failed,
+            ]
+        ]);
+    }
 }

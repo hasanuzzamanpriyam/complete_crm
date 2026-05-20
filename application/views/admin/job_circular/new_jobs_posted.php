@@ -155,6 +155,60 @@
             }
             ?>
             <?= custom_form_Fields(14, $job_circular_id); ?>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><?= lang('required_skills') ?> <span class="required">*</span></label>
+                <div class="col-sm-8">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label><strong><?= lang('mandatory_skills') ?></strong></label>
+                            <?php
+                            $existing_mandatory = [];
+                            if (!empty($job_circular_id)) {
+                                $mandatory_skills = $this->db->where('job_circular_id', $job_circular_id)->where('is_mandatory', 1)->get('tbl_job_skills')->result();
+                                foreach ($mandatory_skills as $ms) {
+                                    $existing_mandatory[] = $ms->skill_id;
+                                }
+                            }
+                            ?>
+                            <?php if (!empty($all_skills)): foreach ($all_skills as $skill): ?>
+                                <?php if ($skill->skill_category == 'Technical' || $skill->skill_category == 'Language'): ?>
+                                <div class="checkbox c-checkbox">
+                                    <label>
+                                        <input type="checkbox" name="mandatory_skills[]" value="<?= $skill->skill_id ?>" <?= in_array($skill->skill_id, $existing_mandatory) ? 'checked' : '' ?>>
+                                        <span class="fa fa-check"></span> <?= $skill->skill_name ?>
+                                    </label>
+                                </div>
+                                <?php endif; ?>
+                            <?php endforeach; endif; ?>
+                        </div>
+                        <div class="col-sm-6">
+                            <label><strong><?= lang('preferred_skills') ?></strong></label>
+                            <?php
+                            $existing_preferred = [];
+                            if (!empty($job_circular_id)) {
+                                $preferred_skills = $this->db->where('job_circular_id', $job_circular_id)->where('is_mandatory', 0)->get('tbl_job_skills')->result();
+                                foreach ($preferred_skills as $ps) {
+                                    $existing_preferred[] = $ps->skill_id;
+                                }
+                            }
+                            ?>
+                            <?php if (!empty($all_skills)): foreach ($all_skills as $skill): ?>
+                                <?php if ($skill->skill_category == 'Technical' || $skill->skill_category == 'Language'): ?>
+                                <div class="checkbox c-checkbox">
+                                    <label>
+                                        <input type="checkbox" name="preferred_skills[]" value="<?= $skill->skill_id ?>" <?= in_array($skill->skill_id, $existing_preferred) ? 'checked' : '' ?>>
+                                        <span class="fa fa-check"></span> <?= $skill->skill_name ?>
+                                    </label>
+                                </div>
+                                <?php endif; ?>
+                            <?php endforeach; endif; ?>
+                        </div>
+                    </div>
+                    <small class="text-muted"><?= lang('ats_skills_help') ?></small>
+                </div>
+            </div>
+
             <div class="form-group" id="border-none">
                 <label for="field-1" class="col-sm-3 control-label"><?= lang('description') ?><span
                         class="required"> *</span></label>

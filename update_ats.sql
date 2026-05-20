@@ -1,0 +1,1 @@
+UPDATE tbl_job_appliactions SET ats_score = 85.00, matched_skills = 'PHP, CodeIgniter, Laravel, JavaScript, HTML/CSS, MySQL', missing_skills = '', skill_match_details = '{"mandatory_match": 100, "preferred_match": 100, "total_score": 85}' WHERE job_appliactions_id = 258;

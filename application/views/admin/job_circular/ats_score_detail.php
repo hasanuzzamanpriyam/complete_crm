@@ -41,8 +41,8 @@
 
         <div class="row">
             <div class="col-md-6">
-                <h4><i class="fa fa-check-circle text-success"></i> <?= lang('matched_skills') ?> (<?= count($matched_skills) ?>)</h4>
-                <?php if (!empty($matched_skills)): ?>
+                <h4><i class="fa fa-check-circle text-success"></i> <?= lang('matched_skills') ?> (<?= is_array($matched_skills) ? count($matched_skills) : 0 ?>)</h4>
+                <?php if (!empty($matched_skills) && is_array($matched_skills)): ?>
                     <?php foreach ($matched_skills as $skill): ?>
                         <?php $detail = isset($skill_match_details[$skill]) ? $skill_match_details[$skill] : []; ?>
                         <span class="label label-success" style="margin:3px;padding:6px 12px;font-size:13px;">
@@ -55,8 +55,8 @@
                 <?php endif; ?>
             </div>
             <div class="col-md-6">
-                <h4><i class="fa fa-times-circle text-danger"></i> <?= lang('missing_skills') ?> (<?= count($missing_skills) ?>)</h4>
-                <?php if (!empty($missing_skills)): ?>
+                <h4><i class="fa fa-times-circle text-danger"></i> <?= lang('missing_skills') ?> (<?= is_array($missing_skills) ? count($missing_skills) : 0 ?>)</h4>
+                <?php if (!empty($missing_skills) && is_array($missing_skills)): ?>
                     <?php foreach ($missing_skills as $skill): ?>
                         <span class="label label-danger" style="margin:3px;padding:6px 12px;font-size:13px;"><?= $skill ?></span>
                     <?php endforeach; ?>

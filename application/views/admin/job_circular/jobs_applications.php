@@ -46,7 +46,7 @@
                     <th><?= lang('name') ?></th>
                     <th><?= lang('email') ?></th>
                     <th class="col-sm-1"><?= lang('mobile') ?></th>
-                    <th class="col-sm-1"><?= lang('ats_score') ?></th>
+                    <th class="col-sm-1"><?= lang('ats_score') ?> <i class="fa fa-info-circle text-muted" data-toggle="tooltip" title="ATS score is calculated based on job skills. Configure skills in job posting settings."></i></th>
                     <th class="col-sm-1"><?= lang('apply_on') ?></th>
                     <th class="col-sm-1"><?= lang('status') ?></th>
                     <th class="col-sm-2"><?= lang('action') ?></th>

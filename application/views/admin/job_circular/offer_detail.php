@@ -54,8 +54,35 @@
             <div class="col-sm-4 text-right"><label class="control-label"><strong><?= lang('responded_at') ?> :</strong></label></div>
             <div class="col-sm-8"><p class="form-control-static"><?= $offer->responded_at ? $offer->responded_at : '-' ?></p></div>
         </div>
+        <div class="col-md-12">
+            <div class="col-sm-4 text-right"><label class="control-label"><strong><?= lang('email_sent') ?> :</strong></label></div>
+            <div class="col-sm-8"><p class="form-control-static"><?= $offer->sent_at ? lang('yes') : lang('no') ?></p></div>
+        </div>
     </div>
     <div class="modal-footer">
+        <button type="button" class="btn btn-warning" onclick="resendOfferEmail(<?= $offer->offer_id ?>)"><i class="fa fa-envelope"></i> <?= lang('send_offer') ?></button>
         <button type="button" class="btn btn-default" data-dismiss="modal"><?= lang('close') ?></button>
     </div>
 </div>
+
+<script>
+function resendOfferEmail(offerId) {
+    if (!confirm('<?= lang('confirm_send_offer') ?>')) return;
+    $.ajax({
+        url: '<?= base_url() ?>admin/job_circular/resend_offer_email/' + offerId,
+        type: 'POST',
+        dataType: 'json',
+        success: function(res) {
+            if (res.success) {
+                alert('<?= lang('email_sent') ?>: ' + res.message);
+                location.reload();
+            } else {
+                alert('Error: ' + res.message);
+            }
+        },
+        error: function() {
+            alert('Failed to resend email');
+        }
+    });
+}
+</script>

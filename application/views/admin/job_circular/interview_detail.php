@@ -82,6 +82,29 @@
         </div>
     </div>
     <div class="modal-footer">
+        <button type="button" class="btn btn-warning" onclick="resendInterviewEmail(<?= $interview->interview_id ?>)"><i class="fa fa-envelope"></i> <?= lang('send_interview') ?></button>
         <button type="button" class="btn btn-default" data-dismiss="modal"><?= lang('close') ?></button>
     </div>
 </div>
+
+<script>
+function resendInterviewEmail(interviewId) {
+    if (!confirm('<?= lang('confirm_send_interview') ?>')) return;
+    $.ajax({
+        url: '<?= base_url() ?>admin/job_circular/resend_interview_email/' + interviewId,
+        type: 'POST',
+        dataType: 'json',
+        success: function(res) {
+            if (res.success) {
+                alert('<?= lang('email_sent') ?>: ' + res.message);
+                location.reload();
+            } else {
+                alert('Error: ' + res.message);
+            }
+        },
+        error: function() {
+            alert('Failed to resend email');
+        }
+    });
+}
+</script>

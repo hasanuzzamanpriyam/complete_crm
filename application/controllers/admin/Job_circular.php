@@ -131,6 +131,9 @@ class Job_Circular extends Admin_Controller
 
         $data['assign_user'] = $this->job_circular_model->allowed_user('103');
 
+        // Load all active skills for skill selection
+        $data['all_skills'] = $this->db->where('status', 'active')->order_by('skill_category', 'ASC')->order_by('skill_name', 'ASC')->get('tbl_recruitment_skills')->result();
+
         $data['subview'] = $this->load->view('admin/job_circular/new_jobs_posted', $data, FALSE);
         $this->load->view('admin/_layout_modal_lg', $data); //page load
     }
@@ -182,6 +185,36 @@ class Job_Circular extends Admin_Controller
             $this->job_circular_model->_table_name = "tbl_job_circular"; // table name
             $this->job_circular_model->_primary_key = "job_circular_id"; // $id
             $return_id = $this->job_circular_model->save($data, $id);
+
+            // Save job skills
+            $mandatory_skills = $this->input->post('mandatory_skills', true);
+            $preferred_skills = $this->input->post('preferred_skills', true);
+
+            // Delete existing skills for this job
+            $this->db->where('job_circular_id', $return_id);
+            $this->db->delete('tbl_job_skills');
+
+            // Insert mandatory skills
+            if (!empty($mandatory_skills)) {
+                foreach ($mandatory_skills as $skill_id) {
+                    $this->db->insert('tbl_job_skills', [
+                        'job_circular_id' => $return_id,
+                        'skill_id' => $skill_id,
+                        'is_mandatory' => 1
+                    ]);
+                }
+            }
+
+            // Insert preferred skills
+            if (!empty($preferred_skills)) {
+                foreach ($preferred_skills as $skill_id) {
+                    $this->db->insert('tbl_job_skills', [
+                        'job_circular_id' => $return_id,
+                        'skill_id' => $skill_id,
+                        'is_mandatory' => 0
+                    ]);
+                }
+            }
 
             if (!empty($id)) {
                 $activity = 'activity_update_job_posted';
@@ -661,16 +694,25 @@ class Job_Circular extends Admin_Controller
 
         if (!empty($data['application']->matched_skills)) {
             $data['matched_skills'] = json_decode($data['application']->matched_skills, true);
+            if (!is_array($data['matched_skills'])) {
+                $data['matched_skills'] = [];
+            }
         } else {
             $data['matched_skills'] = [];
         }
         if (!empty($data['application']->missing_skills)) {
             $data['missing_skills'] = json_decode($data['application']->missing_skills, true);
+            if (!is_array($data['missing_skills'])) {
+                $data['missing_skills'] = [];
+            }
         } else {
             $data['missing_skills'] = [];
         }
         if (!empty($data['application']->skill_match_details)) {
             $data['skill_match_details'] = json_decode($data['application']->skill_match_details, true);
+            if (!is_array($data['skill_match_details'])) {
+                $data['skill_match_details'] = [];
+            }
         } else {
             $data['skill_match_details'] = [];
         }
@@ -744,10 +786,16 @@ class Job_Circular extends Admin_Controller
     public function send_interview_email($interview_id)
     {
         $interview = $this->recruitment_model->get_interview_by_id($interview_id);
-        if (empty($interview)) return false;
+        if (empty($interview)) {
+            log_message('error', "Interview not found for ID {$interview_id}");
+            return false;
+        }
 
         $email_template = email_templates(['email_group' => 'interview_invitation']);
-        if (empty($email_template)) return false;
+        if (empty($email_template)) {
+            log_message('error', "Interview email template not found for interview ID {$interview_id}");
+            return false;
+        }
 
         $message = $email_template->template_body;
         $subject = $email_template->subject;
@@ -790,8 +838,74 @@ class Job_Circular extends Admin_Controller
         $sent = $this->recruitment_model->send_email($params);
         if ($sent) {
             $this->recruitment_model->mark_interview_email_sent($interview_id);
+            log_message('info', "Interview email sent successfully to {$interview->candidate_email} for interview ID {$interview_id}");
+        } else {
+            log_message('error', "Failed to send interview email to {$interview->candidate_email} for interview ID {$interview_id}");
         }
         return $sent;
+    }
+
+    public function resend_interview_email($interview_id)
+    {
+        $interview = $this->recruitment_model->get_interview_by_id($interview_id);
+        if (empty($interview)) {
+            echo json_encode(['success' => false, 'message' => 'Interview not found']);
+            return;
+        }
+
+        $email_template = email_templates(['email_group' => 'interview_invitation']);
+        if (empty($email_template)) {
+            echo json_encode(['success' => false, 'message' => 'Email template not found']);
+            return;
+        }
+
+        $message = $email_template->template_body;
+        $subject = $email_template->subject;
+
+        $type_label = ucfirst(str_replace('_', ' ', $interview->interview_type));
+        $meeting_or_location = '';
+        if ($interview->interview_type == 'online' && !empty($interview->meeting_link)) {
+            $meeting_or_location = '<li><strong>Meeting Link:</strong> <a href="' . $interview->meeting_link . '">' . $interview->meeting_link . '</a></li>';
+        } elseif ($interview->interview_type == 'face_to_face' && !empty($interview->location_details)) {
+            $meeting_or_location = '<li><strong>Location:</strong> ' . $interview->location_details . '</li>';
+        }
+
+        $notes_html = !empty($interview->interview_notes) ? '<p><strong>Additional Notes:</strong> ' . $interview->interview_notes . '</p>' : '';
+
+        $replacements = [
+            '{CANDIDATE_NAME}' => $interview->candidate_name,
+            '{JOB_TITLE}' => $interview->job_title,
+            '{COMPANY_NAME}' => config_item('company_name'),
+            '{INTERVIEW_DATE}' => strftime(config_item('date_format'), strtotime($interview->interview_date)),
+            '{INTERVIEW_TIME}' => date('g:i A', strtotime($interview->interview_time)),
+            '{INTERVIEW_TYPE}' => $type_label,
+            '{MEETING_LINK_OR_LOCATION}' => $meeting_or_location,
+            '{INTERVIEWER_NAME}' => $interview->interviewer_name,
+            '{INTERVIEW_NOTES}' => $notes_html,
+            '{SITE_NAME}' => config_item('company_name')
+        ];
+
+        foreach ($replacements as $key => $val) {
+            $message = str_replace($key, $val, $message);
+            $subject = str_replace($key, $val, $subject);
+        }
+
+        $params = [
+            'recipient' => $interview->candidate_email,
+            'subject' => $subject,
+            'message' => $message,
+            'resourceed_file' => ''
+        ];
+
+        $sent = $this->recruitment_model->send_email($params);
+        if ($sent) {
+            $this->recruitment_model->mark_interview_email_sent($interview_id);
+            log_message('info', "Interview email resent successfully to {$interview->candidate_email} for interview ID {$interview_id}");
+            echo json_encode(['success' => true, 'message' => 'Interview email resent successfully']);
+        } else {
+            log_message('error', "Failed to resend interview email to {$interview->candidate_email} for interview ID {$interview_id}");
+            echo json_encode(['success' => false, 'message' => 'Failed to send email. Check SMTP configuration.']);
+        }
     }
 
     public function update_interview_status()
@@ -927,6 +1041,13 @@ class Job_Circular extends Admin_Controller
             $body = str_replace($key, $val, $body);
         }
 
+        // Update the offer in database with replaced placeholders
+        $this->db->where('offer_id', $offer_id);
+        $this->db->update('tbl_offer_letters', [
+            'offer_subject' => $subject,
+            'offer_body' => $body
+        ]);
+
         $params = [
             'recipient' => $offer->candidate_email,
             'subject' => $subject,
@@ -937,8 +1058,68 @@ class Job_Circular extends Admin_Controller
         $sent = $this->recruitment_model->send_email($params);
         if ($sent) {
             $this->recruitment_model->update_offer_status($offer_id, 'sent');
+            log_message('info', "Offer email sent successfully to {$offer->candidate_email} for offer ID {$offer_id}");
+        } else {
+            log_message('error', "Failed to send offer email to {$offer->candidate_email} for offer ID {$offer_id}");
         }
         return $sent;
+    }
+
+    public function resend_offer_email($offer_id)
+    {
+        $offer = $this->recruitment_model->get_offer_by_id($offer_id);
+        if (empty($offer)) {
+            echo json_encode(['success' => false, 'message' => 'Offer not found']);
+            return;
+        }
+
+        $designation = '-';
+        if (!empty($offer->designations_id)) {
+            $design_info = $this->db->where('designations_id', $offer->designations_id)->get('tbl_designations')->row();
+            if ($design_info) $designation = $design_info->designations;
+        }
+
+        $replacements = [
+            '{CANDIDATE_NAME}' => $offer->candidate_name,
+            '{JOB_TITLE}' => $offer->job_title,
+            '{DESIGNATION}' => $designation,
+            '{SALARY}' => $offer->salary_offered ?: 'As discussed',
+            '{JOINING_DATE}' => $offer->joining_date ? strftime(config_item('date_format'), strtotime($offer->joining_date)) : 'To be confirmed',
+            '{EMPLOYMENT_TYPE}' => lang($offer->employment_type),
+            '{COMPANY_NAME}' => config_item('company_name'),
+            '{ADDITIONAL_TERMS}' => $offer->additional_terms ?: '',
+            '{SITE_NAME}' => config_item('company_name')
+        ];
+
+        // Get original template or use stored offer content
+        $subject = $offer->offer_subject;
+        $body = $offer->offer_body;
+
+        // Check if placeholders still exist in stored content
+        $has_placeholders = (strpos($subject, '{') !== false || strpos($body, '{') !== false);
+        if ($has_placeholders) {
+            foreach ($replacements as $key => $val) {
+                $subject = str_replace($key, $val, $subject);
+                $body = str_replace($key, $val, $body);
+            }
+        }
+
+        $params = [
+            'recipient' => $offer->candidate_email,
+            'subject' => $subject,
+            'message' => $body,
+            'resourceed_file' => ''
+        ];
+
+        $sent = $this->recruitment_model->send_email($params);
+        if ($sent) {
+            $this->recruitment_model->update_offer_status($offer_id, 'sent');
+            log_message('info', "Offer email resent successfully to {$offer->candidate_email} for offer ID {$offer_id}");
+            echo json_encode(['success' => true, 'message' => 'Offer email resent successfully']);
+        } else {
+            log_message('error', "Failed to resend offer email to {$offer->candidate_email} for offer ID {$offer_id}");
+            echo json_encode(['success' => false, 'message' => 'Failed to send email. Check SMTP configuration.']);
+        }
     }
 
     public function update_offer_status_ajax()
@@ -1004,12 +1185,21 @@ class Job_Circular extends Admin_Controller
                     if ($design_info) $designation = $design_info->designations;
                 }
 
+                $joining_date = $this->input->post('joining_date');
+                $joining_date_timestamp = $joining_date ? strtotime($joining_date) : false;
+                $formatted_joining_date = 'To be confirmed';
+                if ($joining_date_timestamp !== false) {
+                    $format = config_item('date_format');
+                    $map = ['%d' => 'd', '%m' => 'm', '%Y' => 'Y', '%y' => 'y', '%H' => 'H', '%M' => 'i', '%S' => 's'];
+                    $formatted_joining_date = date(strtr($format, $map), $joining_date_timestamp);
+                }
+
                 $replacements = [
                     '{CANDIDATE_NAME}' => $app->name,
                     '{JOB_TITLE}' => $app->job_title,
                     '{DESIGNATION}' => $designation,
                     '{SALARY}' => $this->input->post('salary_offered') ?: 'As discussed',
-                    '{JOINING_DATE}' => $this->input->post('joining_date') ? strftime(config_item('date_format'), strtotime($this->input->post('joining_date'))) : 'To be confirmed',
+                    '{JOINING_DATE}' => $formatted_joining_date,
                     '{EMPLOYMENT_TYPE}' => lang($app->employment_type),
                     '{COMPANY_NAME}' => config_item('company_name'),
                     '{ADDITIONAL_TERMS}' => $this->input->post('additional_terms') ?: '',
