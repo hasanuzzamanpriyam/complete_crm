@@ -46,41 +46,43 @@
                     <th><?= lang('name') ?></th>
                     <th><?= lang('email') ?></th>
                     <th class="col-sm-1"><?= lang('mobile') ?></th>
+                    <th class="col-sm-1"><?= lang('ats_score') ?></th>
                     <th class="col-sm-1"><?= lang('apply_on') ?></th>
                     <th class="col-sm-1"><?= lang('status') ?></th>
                     <th class="col-sm-2"><?= lang('action') ?></th>
                 </tr>
                 </thead>
                 <tbody>
-                <script type="text/javascript">
-                    $(document).ready(function () {
-                        list = base_url + "admin/job_circular/jobs_applicationsList";
-                        $('.filtered > .dropdown-toggle').on('click', function () {
-                            if ($('.group').css('display') == 'block') {
-                                $('.group').css('display', 'none');
-                            } else {
-                                $('.group').css('display', 'block')
-                            }
-                        });
-                        $('.filter_by').on('click', function () {
-                            $('.filter_by').removeClass('active');
-                            $('.group').css('display', 'block');
-                            $(this).addClass('active');
-                            var filter_by = $(this).attr('id');
-                            if (filter_by) {
-                                filter_by = filter_by;
-                            } else {
-                                filter_by = '';
-                            }
-                            table_url(base_url + "admin/job_circular/jobs_applicationsList/" + filter_by);
-                        });
-                        <?php if(!empty($job_appliactions_id)){?>
-                        list = base_url + "admin/job_circular/jobs_applicationsList/<?= $job_appliactions_id?>";
-                        <?php }?>
-                    });
-                </script>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        list = base_url + "admin/job_circular/jobs_applicationsList";
+        $('.filtered > .dropdown-toggle').on('click', function () {
+            if ($('.group').css('display') == 'block') {
+                $('.group').css('display', 'none');
+            } else {
+                $('.group').css('display', 'block')
+            }
+        });
+        $('.filter_by').on('click', function () {
+            $('.filter_by').removeClass('active');
+            $('.group').css('display', 'block');
+            $(this).addClass('active');
+            var filter_by = $(this).attr('id');
+            if (filter_by) {
+                filter_by = filter_by;
+            } else {
+                filter_by = '';
+            }
+            table_url(base_url + "admin/job_circular/jobs_applicationsList/" + filter_by);
+        });
+        <?php if(!empty($job_appliactions_id)){?>
+        list = base_url + "admin/job_circular/jobs_applicationsList/<?= $job_appliactions_id?>";
+        <?php }?>
+    });
+</script>

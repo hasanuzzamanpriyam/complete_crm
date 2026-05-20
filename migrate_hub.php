@@ -211,4 +211,217 @@ try {
     echo "✔ Updated tbl_migrations version to 614\n";
 } catch (Exception $e) {}
 
+// ========================================
+// 6. Recruitment & ATS Module (Migration 619)
+// ========================================
+echo "\n--- Recruitment & ATS Module (Migration 619) ---\n";
+
+// Helper functions for migration 619
+function tblExists619($pdo, $table) {
+    try {
+        $stmt = $pdo->query("SHOW TABLES LIKE '$table'");
+        return $stmt->rowCount() > 0;
+    } catch (Exception $e) { return false; }
+}
+
+function colExists619($pdo, $table, $col) {
+    try {
+        $stmt = $pdo->query("SHOW COLUMNS FROM `$table` LIKE '$col'");
+        return $stmt->rowCount() > 0;
+    } catch (Exception $e) { return false; }
+}
+
+function addCol619($pdo, $table, $col, $def) {
+    if (!colExists619($pdo, $table, $col)) {
+        $pdo->exec("ALTER TABLE `$table` ADD COLUMN `$col` $def");
+        echo "✔ Added $col to $table\n";
+    }
+}
+
+// 1. Recruitment Skills Master
+$pdo->exec("CREATE TABLE IF NOT EXISTS `tbl_recruitment_skills` (
+    `skill_id` INT(11) NOT NULL AUTO_INCREMENT,
+    `skill_name` VARCHAR(100) NOT NULL,
+    `skill_category` VARCHAR(50) DEFAULT NULL,
+    `status` ENUM('active','inactive') NOT NULL DEFAULT 'active',
+    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`skill_id`),
+    UNIQUE KEY `unique_skill` (`skill_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+echo "✔ Created tbl_recruitment_skills\n";
+
+// 2. Job-Skills Mapping
+$pdo->exec("CREATE TABLE IF NOT EXISTS `tbl_job_skills` (
+    `job_skill_id` INT(11) NOT NULL AUTO_INCREMENT,
+    `job_circular_id` INT(11) NOT NULL,
+    `skill_id` INT(11) NOT NULL,
+    `is_mandatory` TINYINT(1) NOT NULL DEFAULT 1,
+    PRIMARY KEY (`job_skill_id`),
+    UNIQUE KEY `unique_job_skill` (`job_circular_id`, `skill_id`),
+    KEY `fk_job_skills_job` (`job_circular_id`),
+    KEY `fk_job_skills_skill` (`skill_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+echo "✔ Created tbl_job_skills\n";
+
+// 3. Extend tbl_job_appliactions with ATS columns
+if (tblExists619($pdo, 'tbl_job_appliactions')) {
+    addCol619($pdo, 'tbl_job_appliactions', 'ats_score', "DECIMAL(5,2) DEFAULT 0.00");
+    addCol619($pdo, 'tbl_job_appliactions', 'matched_skills', "TEXT DEFAULT NULL");
+    addCol619($pdo, 'tbl_job_appliactions', 'missing_skills', "TEXT DEFAULT NULL");
+    addCol619($pdo, 'tbl_job_appliactions', 'resume_text', "LONGTEXT DEFAULT NULL");
+    addCol619($pdo, 'tbl_job_appliactions', 'skill_match_details', "TEXT DEFAULT NULL");
+} else {
+    echo "⚠ tbl_job_appliactions not found - skipping ATS columns\n";
+}
+
+// 4. Interview Scheduling
+$pdo->exec("CREATE TABLE IF NOT EXISTS `tbl_interviews` (
+    `interview_id` INT(11) NOT NULL AUTO_INCREMENT,
+    `job_appliactions_id` INT(11) NOT NULL,
+    `job_circular_id` INT(11) NOT NULL,
+    `interview_type` ENUM('online','face_to_face','phone') NOT NULL DEFAULT 'online',
+    `interview_date` DATE NOT NULL,
+    `interview_time` TIME NOT NULL,
+    `interviewer_name` VARCHAR(100) DEFAULT NULL,
+    `interviewer_email` VARCHAR(100) DEFAULT NULL,
+    `meeting_link` VARCHAR(500) DEFAULT NULL,
+    `location_details` TEXT DEFAULT NULL,
+    `interview_notes` TEXT DEFAULT NULL,
+    `status` ENUM('scheduled','completed','cancelled','no_show','rescheduled') NOT NULL DEFAULT 'scheduled',
+    `feedback` TEXT DEFAULT NULL,
+    `rating` TINYINT(1) DEFAULT NULL,
+    `email_sent` TINYINT(1) NOT NULL DEFAULT 0,
+    `email_sent_at` DATETIME DEFAULT NULL,
+    `created_by` INT(11) DEFAULT NULL,
+    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`interview_id`),
+    KEY `fk_interviews_application` (`job_appliactions_id`),
+    KEY `fk_interviews_job` (`job_circular_id`),
+    KEY `idx_interview_date` (`interview_date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+echo "✔ Created tbl_interviews\n";
+
+// 5. Offer Letters
+$pdo->exec("CREATE TABLE IF NOT EXISTS `tbl_offer_letters` (
+    `offer_id` INT(11) NOT NULL AUTO_INCREMENT,
+    `job_appliactions_id` INT(11) NOT NULL,
+    `job_circular_id` INT(11) NOT NULL,
+    `offer_template_id` INT(11) DEFAULT NULL,
+    `offer_subject` VARCHAR(255) NOT NULL,
+    `offer_body` LONGTEXT NOT NULL,
+    `salary_offered` VARCHAR(100) DEFAULT NULL,
+    `joining_date` DATE DEFAULT NULL,
+    `additional_terms` TEXT DEFAULT NULL,
+    `status` ENUM('draft','sent','accepted','declined','expired') NOT NULL DEFAULT 'draft',
+    `sent_at` DATETIME DEFAULT NULL,
+    `responded_at` DATETIME DEFAULT NULL,
+    `created_by` INT(11) DEFAULT NULL,
+    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`offer_id`),
+    KEY `fk_offers_application` (`job_appliactions_id`),
+    KEY `fk_offers_job` (`job_circular_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+echo "✔ Created tbl_offer_letters\n";
+
+// 6. Offer Letter Templates
+$pdo->exec("CREATE TABLE IF NOT EXISTS `tbl_offer_templates` (
+    `template_id` INT(11) NOT NULL AUTO_INCREMENT,
+    `template_name` VARCHAR(100) NOT NULL,
+    `template_subject` VARCHAR(255) NOT NULL,
+    `template_body` LONGTEXT NOT NULL,
+    `is_default` TINYINT(1) NOT NULL DEFAULT 0,
+    `status` ENUM('active','inactive') NOT NULL DEFAULT 'active',
+    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`template_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+echo "✔ Created tbl_offer_templates\n";
+
+// Seed default offer template
+$stmt = $pdo->query("SELECT template_id FROM tbl_offer_templates WHERE template_name = 'Standard Offer Letter'");
+if ($stmt->rowCount() == 0) {
+    $pdo->exec("INSERT INTO `tbl_offer_templates` 
+        (`template_name`, `template_subject`, `template_body`, `is_default`) 
+        VALUES (
+            'Standard Offer Letter',
+            'Job Offer: {JOB_TITLE} at {COMPANY_NAME}',
+            '<p>Dear <strong>{CANDIDATE_NAME}</strong>,</p>
+             <p>We are pleased to offer you the position of <strong>{JOB_TITLE}</strong> at <strong>{COMPANY_NAME}</strong>.</p>
+             <p><strong>Position Details:</strong></p>
+             <ul>
+               <li><strong>Position:</strong> {JOB_TITLE}</li>
+               <li><strong>Salary:</strong> {SALARY}</li>
+               <li><strong>Joining Date:</strong> {JOINING_DATE}</li>
+               <li><strong>Employment Type:</strong> {EMPLOYMENT_TYPE}</li>
+             </ul>
+             <p>{ADDITIONAL_TERMS}</p>
+             <p>We look forward to having you on our team. Please confirm your acceptance by replying to this email.</p>
+             <p>Best Regards,<br/>The <strong>{COMPANY_NAME}</strong> Team</p>',
+            1
+        );");
+    echo "✔ Seeded default offer template\n";
+}
+
+// Seed sample skills
+$skills = [
+    ['PHP', 'Technical'], ['JavaScript', 'Technical'], ['MySQL', 'Technical'],
+    ['CodeIgniter', 'Technical'], ['Laravel', 'Technical'], ['React', 'Technical'],
+    ['Node.js', 'Technical'], ['Python', 'Technical'], ['HTML/CSS', 'Technical'],
+    ['Communication', 'Soft'], ['Team Leadership', 'Soft'], ['Problem Solving', 'Soft'],
+    ['Project Management', 'Soft'], ['English', 'Language'], ['Git', 'Tool'],
+    ['Docker', 'Tool'], ['AWS', 'Tool'], ['REST API', 'Technical'], ['Agile/Scrum', 'Soft']
+];
+$seeded = 0;
+foreach ($skills as $skill) {
+    $stmt = $pdo->query("SELECT skill_id FROM tbl_recruitment_skills WHERE skill_name = '{$skill[0]}'");
+    if ($stmt->rowCount() == 0) {
+        $pdo->exec("INSERT INTO `tbl_recruitment_skills` (`skill_name`, `skill_category`) VALUES ('{$skill[0]}', '{$skill[1]}')");
+        $seeded++;
+    }
+}
+echo "✔ Seeded $seeded sample skills\n";
+
+// Add new menu items under Recruitment (menu_id 102)
+$menuItems = [
+    [240, 'skills_management', 'admin/job_circular/manage_skills', 'fa fa-tags', 102, 2],
+    [241, 'interview_schedule', 'admin/job_circular/manage_interviews', 'fa fa-calendar-check-o', 102, 3],
+    [242, 'offer_letters', 'admin/job_circular/manage_offers', 'fa fa-file-text-o', 102, 4]
+];
+foreach ($menuItems as $menu) {
+    $stmt = $pdo->query("SELECT menu_id FROM tbl_menu WHERE menu_id = {$menu[0]}");
+    if ($stmt->rowCount() == 0) {
+        $pdo->exec("INSERT INTO `tbl_menu` (`menu_id`, `label`, `link`, `icon`, `parent`, `sort`, `time`, `status`) VALUES
+            ({$menu[0]}, '{$menu[1]}', '{$menu[2]}', '{$menu[3]}', {$menu[4]}, {$menu[5]}, NOW(), 1)");
+        echo "✔ Added menu: {$menu[1]}\n";
+    }
+}
+
+// Add interview email template
+$stmt = $pdo->query("SELECT email_templates_id FROM tbl_email_templates WHERE email_group = 'interview_invitation'");
+if ($stmt->rowCount() == 0) {
+    $pdo->exec("INSERT INTO `tbl_email_templates` (`email_group`, `subject`, `template_body`) VALUES 
+        ('interview_invitation', 'Interview Invitation: {JOB_TITLE} at {COMPANY_NAME}',
+         '<p>Dear <strong>{CANDIDATE_NAME}</strong>,</p>
+          <p>We are pleased to invite you for an interview for the position of <strong>{JOB_TITLE}</strong> at <strong>{COMPANY_NAME}</strong>.</p>
+          <p><strong>Interview Details:</strong></p>
+          <ul>
+            <li><strong>Date:</strong> {INTERVIEW_DATE}</li>
+            <li><strong>Time:</strong> {INTERVIEW_TIME}</li>
+            <li><strong>Type:</strong> {INTERVIEW_TYPE}</li>
+            {MEETING_LINK_OR_LOCATION}
+          </ul>
+          <p><strong>Interviewer:</strong> {INTERVIEWER_NAME}</p>
+          {INTERVIEW_NOTES}
+          <p>Please confirm your availability by replying to this email.</p>
+          <p>Best Regards,<br/>The <strong>{COMPANY_NAME}</strong> Recruitment Team</p>');");
+    echo "✔ Added interview_invitation email template\n";
+}
+
+// Update migration version
+try {
+    $pdo->exec("UPDATE `tbl_migrations` SET `version` = 619");
+    echo "✔ Updated tbl_migrations version to 619\n";
+} catch (Exception $e) {}
+
 echo "\nMigration Complete! All tables and columns are synchronized.\n";

@@ -10,6 +10,7 @@ class Frontend extends MY_Controller
     {
         parent::__construct();
         $this->load->model('job_circular_model');
+        $this->load->model('recruitment_model');
         $this->load->model('invoice_model');
         $this->load->model('estimates_model');
         $this->load->model('proposal_model');
@@ -28,10 +29,8 @@ class Frontend extends MY_Controller
     public function circular_details($id)
     {
         $data['title'] = lang('view_circular_details');
-
-        //get all training information
         $data['circular_details'] = $this->db->where('job_circular_id', $id)->get('tbl_job_circular')->row();
-
+        $data['job_skills'] = $this->recruitment_model->get_job_skills($id);
         $data['subview'] = $this->load->view('frontend/circular_details', $data, TRUE);
         $this->load->view('frontend/_layout_main', $data);
     }
@@ -57,10 +56,21 @@ class Frontend extends MY_Controller
             $data['resume'] = $val['path'];
         }
         $data['job_circular_id'] = $id;
+        $data['apply_date'] = date('Y-m-d H:i:s');
 
         $this->job_circular_model->_table_name = 'tbl_job_appliactions';
         $this->job_circular_model->_primary_key = 'job_appliactions_id';
         $job_appliactions_id = $this->job_circular_model->save($data);
+
+        // ATS Resume Parsing
+        if (!empty($data['resume']) && file_exists($data['resume'])) {
+            $this->load->library('ats_parser');
+            $resume_text = $this->ats_parser->extract_text($data['resume']);
+            if (!empty($resume_text)) {
+                $ats_data = $this->recruitment_model->calculate_ats_score($id, $resume_text);
+                $this->recruitment_model->update_application_ats($job_appliactions_id, $ats_data);
+            }
+        }
 
         $circular_info = $this->db->where('job_circular_id', $id)->get('tbl_job_circular')->row();
 

@@ -7,6 +7,7 @@ class Job_Circular extends Admin_Controller
     {
         parent::__construct();
         $this->load->model('job_circular_model');
+        $this->load->model('recruitment_model');
     }
 
     public function jobs_posted()
@@ -73,6 +74,12 @@ class Job_Circular extends Admin_Controller
 
                 $action .= '<a href="' . base_url() . 'admin/job_circular/jobs_applications/' . $v_job_post->job_circular_id . '" title="' . lang('all_application_for') . '" class="btn btn-purple btn-xs" data-toggle="tooltip"><span
                             class="fa fa-list-alt"></span></a>' . ' ';
+                
+                $app_count = $this->db->where('job_circular_id', $v_job_post->job_circular_id)->count_all_results('tbl_job_appliactions');
+                $action .= '<a href="' . base_url() . 'admin/job_circular/ats_applications/' . $v_job_post->job_circular_id . '" title="' . lang('ats_applications') . '" class="btn btn-info btn-xs" data-toggle="tooltip"><span
+                            class="fa fa-bar-chart"></span> ' . ($app_count > 0 ? '<span class="badge" style="background:#fff;color:#31708f;padding:1px 5px;font-size:10px;">' . $app_count . '</span>' : '') . '</a>' . ' ';
+                $action .= '<a href="javascript:void(0)" onclick="openJobSkillsModal(' . $v_job_post->job_circular_id . ')" title="' . lang('manage_job_skills') . '" class="btn btn-warning btn-xs" data-toggle="tooltip"><span
+                            class="fa fa-tags"></span></a>' . ' ';
                 if (!empty($can_edit) && !empty($edited)) {
                     if ($v_job_post->status == 'unpublished') {
                         $action .= btn_publish('admin/job_circular/change_status/published/' . $v_job_post->job_circular_id) . ' ';
@@ -300,9 +307,10 @@ class Job_Circular extends Admin_Controller
             $this->datatables->table = 'tbl_job_appliactions';
             $this->datatables->join_table = array('tbl_job_circular');
             $this->datatables->join_where = array('tbl_job_circular.job_circular_id=tbl_job_appliactions.job_circular_id');
-            $this->datatables->column_order = array('tbl_job_circular.job_title', 'name', 'email', 'mobile', 'application_status', 'apply_date', 'interview_date');
-            $this->datatables->column_search = array('tbl_job_circular.job_title', 'name', 'email', 'mobile', 'application_status', 'apply_date', 'interview_date');
-            $this->datatables->order = array('tbl_job_appliactions.job_appliactions_id' => 'desc');
+            $this->datatables->select = array('tbl_job_appliactions.*', 'tbl_job_circular.job_title', 'tbl_job_circular.designations_id', 'tbl_job_circular.employment_type');
+            $this->datatables->column_order = array('tbl_job_circular.job_title', 'tbl_job_appliactions.name', 'tbl_job_appliactions.email', 'tbl_job_appliactions.mobile', 'tbl_job_appliactions.ats_score', 'tbl_job_appliactions.application_status', 'tbl_job_appliactions.apply_date', 'tbl_job_appliactions.interview_date');
+            $this->datatables->column_search = array('tbl_job_circular.job_title', 'tbl_job_appliactions.name', 'tbl_job_appliactions.email', 'tbl_job_appliactions.mobile', 'tbl_job_appliactions.application_status', 'tbl_job_appliactions.apply_date', 'tbl_job_appliactions.interview_date');
+            $this->datatables->order = array('tbl_job_appliactions.ats_score' => 'desc', 'tbl_job_appliactions.apply_date' => 'desc');
             $where = null;
             if (!empty($id)) {
                 $where = array('tbl_job_appliactions.job_circular_id' => $id);
@@ -311,6 +319,7 @@ class Job_Circular extends Admin_Controller
             $edited = can_action('102', 'edited');
             $deleted = can_action('102', 'deleted');
             $data = array();
+            $this->load->library('ats_parser');
             foreach ($fetch_data as $_key => $v_job_application) {
 
                 $action = null;
@@ -322,6 +331,11 @@ class Job_Circular extends Admin_Controller
                 $sub_array[] = '<span class="tags">' . $v_job_application->name . '</span>';
                 $sub_array[] = $v_job_application->email;
                 $sub_array[] = $v_job_application->mobile;
+
+                // ATS Score column
+                $ats_score = isset($v_job_application->ats_score) ? (float) $v_job_application->ats_score : 0;
+                $sub_array[] = $this->ats_parser->get_score_badge($ats_score);
+
                 $sub_array[] = display_date($v_job_application->apply_date);
 
                 if ($v_job_application->application_status == 0) {
@@ -339,6 +353,12 @@ class Job_Circular extends Admin_Controller
 
                 $action .= '<a href="' . base_url() . 'admin/job_circular/download_resume/' . $v_job_application->job_appliactions_id . '" title="' . lang('download') . ' ' . lang('resume') . '" class="btn btn-purple btn-xs" data-toggle="tooltip"><span
                             class="fa fa-download"></span></a>' . ' ';
+                $action .= '<a href="' . base_url() . 'admin/job_circular/ats_score_detail/' . $v_job_application->job_appliactions_id . '" title="' . lang('ats_score_detail') . '" class="btn btn-info btn-xs" data-toggle="modal" data-target="#myModal"><span
+                            class="fa fa-bar-chart"></span></a>' . ' ';
+                $action .= '<a href="' . base_url() . 'admin/job_circular/schedule_interview/' . $v_job_application->job_appliactions_id . '" title="' . lang('schedule_interview') . '" class="btn btn-success btn-xs" data-toggle="modal" data-target="#myModal_lg"><span
+                            class="fa fa-calendar"></span></a>' . ' ';
+                $action .= '<a href="' . base_url() . 'admin/job_circular/create_offer/' . $v_job_application->job_appliactions_id . '" title="' . lang('create_offer') . '" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#myModal_lg"><span
+                            class="fa fa-file-text-o"></span></a>' . ' ';
                 if (!empty($edited)) {
                     $action .= '<a href="' . base_url() . 'admin/job_circular/change_application_status/' . $v_job_application->job_appliactions_id . '" title="' . lang('change_status') . '" class="btn btn-success btn-xs" data-toggle="modal" data-target="#myModal"><span
                             class="fa fa-pencil-square-o"></span> ' . lang('status') . '</a>' . ' ';
@@ -482,9 +502,527 @@ class Job_Circular extends Admin_Controller
     function download_resume($id)
     {
         $job_application_info = $this->job_circular_model->get_job_application_info($id);
-        $path = file_get_contents($job_application_info->resume); // Read the file's contents
+        if (empty($job_application_info) || empty($job_application_info->resume) || !file_exists($job_application_info->resume)) {
+            set_message('error', lang('resume_not_found'));
+            redirect($_SERVER['HTTP_REFERER'] ?? 'admin/job_circular/jobs_applications');
+        }
+        $path = file_get_contents($job_application_info->resume);
         $resume = explode('/', $job_application_info->resume);
         $this->load->helper('download');
         force_download($job_application_info->name . ' - ' . $resume[1], $path);
+    }
+
+    // ==================== SKILLS MANAGEMENT ====================
+
+    public function manage_skills()
+    {
+        $data['title'] = lang('skills_management');
+        $data['all_skills'] = $this->recruitment_model->get_all_skills();
+        $data['categories'] = $this->recruitment_model->get_skill_categories();
+        $data['subview'] = $this->load->view('admin/job_circular/manage_skills', $data, TRUE);
+        $this->load->view('admin/_layout_main', $data);
+    }
+
+    public function save_skill($id = null)
+    {
+        $data = $this->input->post(null, true);
+        $skill_data = [
+            'skill_name' => trim($data['skill_name']),
+            'skill_category' => !empty($data['skill_category']) ? trim($data['skill_category']) : null,
+            'status' => !empty($data['status']) ? 'active' : 'inactive'
+        ];
+
+        $saved_id = $this->recruitment_model->save_skill($skill_data, $id);
+
+        if ($this->input->is_ajax_request()) {
+            echo json_encode(['success' => true, 'id' => $saved_id]);
+            return;
+        }
+        set_message('success', lang('skill_saved'));
+        redirect('admin/job_circular/manage_skills');
+    }
+
+    public function delete_skill($id)
+    {
+        $this->recruitment_model->delete_skill($id);
+        if ($this->input->is_ajax_request()) {
+            echo json_encode(['success' => true]);
+            return;
+        }
+        set_message('success', lang('skill_deleted'));
+        redirect('admin/job_circular/manage_skills');
+    }
+
+    public function get_skills_ajax()
+    {
+        $category = $this->input->get('category');
+        $skills = $this->recruitment_model->get_all_skills('active');
+
+        if ($category) {
+            $skills = array_filter($skills, function($s) use ($category) {
+                return $s->skill_category == $category;
+            });
+        }
+
+        echo json_encode(['success' => true, 'skills' => $skills]);
+    }
+
+    // ==================== JOB SKILLS ASSIGNMENT ====================
+
+    public function save_job_skills($job_circular_id)
+    {
+        if (!$this->input->is_ajax_request()) {
+            redirect('admin/job_circular/jobs_posted');
+        }
+
+        $post = $this->input->post(null, true);
+        $skills = [];
+
+        if (!empty($post['skills'])) {
+            foreach ($post['skills'] as $skill_id) {
+                $skills[] = [
+                    'skill_id' => $skill_id,
+                    'is_mandatory' => !empty($post['mandatory_' . $skill_id]) ? 1 : 0
+                ];
+            }
+        }
+
+        $this->recruitment_model->save_job_skills($job_circular_id, $skills);
+
+        // Recalculate ATS scores for existing applications
+        $this->recruitment_model->recalculate_all_ats_scores($job_circular_id);
+
+        echo json_encode(['success' => true, 'message' => lang('job_skills_saved')]);
+    }
+
+    public function get_job_skills_ajax($job_circular_id)
+    {
+        $skills = $this->recruitment_model->get_job_skills($job_circular_id);
+        $all_skills = $this->recruitment_model->get_all_skills('active');
+
+        $assigned_ids = array_map(function($s) { return $s->skill_id; }, $skills);
+
+        echo json_encode([
+            'success' => true,
+            'assigned' => $skills,
+            'all_skills' => $all_skills,
+            'assigned_ids' => $assigned_ids
+        ]);
+    }
+
+    // ==================== ATS APPLICATIONS DASHBOARD ====================
+
+    public function ats_applications($job_circular_id = null)
+    {
+        $data['title'] = lang('ats_applications');
+        $data['job_circular_id'] = $job_circular_id;
+        $data['applications'] = $this->recruitment_model->get_applications_with_ats($job_circular_id);
+        $data['job_skills'] = $job_circular_id ? $this->recruitment_model->get_job_skills($job_circular_id) : [];
+        $data['job_circulars'] = $this->db->where('status', 'published')->get('tbl_job_circular')->result();
+        $data['subview'] = $this->load->view('admin/job_circular/ats_applications', $data, TRUE);
+        $this->load->view('admin/_layout_main', $data);
+    }
+
+    public function reparse_resume($job_appliactions_id)
+    {
+        if (!$this->input->is_ajax_request()) {
+            redirect('admin/job_circular/jobs_applications');
+        }
+
+        $app = $this->recruitment_model->get_application_detail($job_appliactions_id);
+        if (empty($app) || empty($app->resume)) {
+            echo json_encode(['success' => false, 'message' => lang('resume_not_found')]);
+            return;
+        }
+
+        $resume_text = $this->ats_parser->extract_text($app->resume);
+        if (empty($resume_text)) {
+            echo json_encode(['success' => false, 'message' => lang('resume_parse_failed')]);
+            return;
+        }
+
+        $ats_data = $this->recruitment_model->calculate_ats_score($app->job_circular_id, $resume_text);
+        $this->recruitment_model->update_application_ats($job_appliactions_id, $ats_data);
+
+        echo json_encode([
+            'success' => true,
+            'ats_score' => $ats_data['ats_score'],
+            'matched_skills' => $ats_data['matched_skills'],
+            'missing_skills' => $ats_data['missing_skills'],
+            'badge' => $this->ats_parser->get_score_badge($ats_data['ats_score'])
+        ]);
+    }
+
+    public function ats_score_detail($job_appliactions_id)
+    {
+        $data['title'] = lang('ats_score_detail');
+        $data['application'] = $this->recruitment_model->get_application_detail($job_appliactions_id);
+        $data['job_skills'] = $this->recruitment_model->get_job_skills($data['application']->job_circular_id);
+
+        if (!empty($data['application']->matched_skills)) {
+            $data['matched_skills'] = json_decode($data['application']->matched_skills, true);
+        } else {
+            $data['matched_skills'] = [];
+        }
+        if (!empty($data['application']->missing_skills)) {
+            $data['missing_skills'] = json_decode($data['application']->missing_skills, true);
+        } else {
+            $data['missing_skills'] = [];
+        }
+        if (!empty($data['application']->skill_match_details)) {
+            $data['skill_match_details'] = json_decode($data['application']->skill_match_details, true);
+        } else {
+            $data['skill_match_details'] = [];
+        }
+
+        $data['subview'] = $this->load->view('admin/job_circular/ats_score_detail', $data, FALSE);
+        $this->load->view('admin/_layout_modal', $data);
+    }
+
+    // ==================== INTERVIEW MANAGEMENT ====================
+
+    public function manage_interviews()
+    {
+        $data['title'] = lang('interview_schedule');
+        $filters = [
+            'status' => $this->input->get('status') ?: null,
+            'interview_type' => $this->input->get('interview_type') ?: null,
+            'date_from' => $this->input->get('date_from') ?: null,
+            'date_to' => $this->input->get('date_to') ?: null,
+        ];
+        $data['interviews'] = $this->recruitment_model->get_interviews($filters);
+        $data['job_circulars'] = $this->db->get('tbl_job_circular')->result();
+        $data['subview'] = $this->load->view('admin/job_circular/manage_interviews', $data, TRUE);
+        $this->load->view('admin/_layout_main', $data);
+    }
+
+    public function schedule_interview($job_appliactions_id = null)
+    {
+        $data['title'] = lang('schedule_interview');
+        if ($job_appliactions_id) {
+            $data['application'] = $this->recruitment_model->get_application_detail($job_appliactions_id);
+        }
+        $data['job_circulars'] = $this->db->where('status', 'published')->get('tbl_job_circular')->result();
+        $data['subview'] = $this->load->view('admin/job_circular/schedule_interview', $data, FALSE);
+        $this->load->view('admin/_layout_modal_lg', $data);
+    }
+
+    public function save_interview($id = null)
+    {
+        $data = $this->input->post(null, true);
+
+        $interview_data = [
+            'job_appliactions_id' => $data['job_appliactions_id'],
+            'job_circular_id' => $data['job_circular_id'],
+            'interview_type' => $data['interview_type'],
+            'interview_date' => $data['interview_date'],
+            'interview_time' => $data['interview_time'],
+            'interviewer_name' => $data['interviewer_name'],
+            'interviewer_email' => $data['interviewer_email'],
+            'meeting_link' => !empty($data['meeting_link']) ? $data['meeting_link'] : null,
+            'location_details' => !empty($data['location_details']) ? $data['location_details'] : null,
+            'interview_notes' => !empty($data['interview_notes']) ? $data['interview_notes'] : null,
+            'created_by' => $this->session->userdata('user_id')
+        ];
+
+        $interview_id = $this->recruitment_model->save_interview($interview_data, $id);
+
+        // Send email if requested
+        if (!empty($data['send_email'])) {
+            $this->send_interview_email($interview_id);
+        }
+
+        if ($this->input->is_ajax_request()) {
+            echo json_encode(['success' => true, 'interview_id' => $interview_id]);
+            return;
+        }
+
+        set_message('success', lang('interview_saved'));
+        redirect('admin/job_circular/manage_interviews');
+    }
+
+    public function send_interview_email($interview_id)
+    {
+        $interview = $this->recruitment_model->get_interview_by_id($interview_id);
+        if (empty($interview)) return false;
+
+        $email_template = email_templates(['email_group' => 'interview_invitation']);
+        if (empty($email_template)) return false;
+
+        $message = $email_template->template_body;
+        $subject = $email_template->subject;
+
+        $type_label = ucfirst(str_replace('_', ' ', $interview->interview_type));
+        $meeting_or_location = '';
+        if ($interview->interview_type == 'online' && !empty($interview->meeting_link)) {
+            $meeting_or_location = '<li><strong>Meeting Link:</strong> <a href="' . $interview->meeting_link . '">' . $interview->meeting_link . '</a></li>';
+        } elseif ($interview->interview_type == 'face_to_face' && !empty($interview->location_details)) {
+            $meeting_or_location = '<li><strong>Location:</strong> ' . $interview->location_details . '</li>';
+        }
+
+        $notes_html = !empty($interview->interview_notes) ? '<p><strong>Additional Notes:</strong> ' . $interview->interview_notes . '</p>' : '';
+
+        $replacements = [
+            '{CANDIDATE_NAME}' => $interview->candidate_name,
+            '{JOB_TITLE}' => $interview->job_title,
+            '{COMPANY_NAME}' => config_item('company_name'),
+            '{INTERVIEW_DATE}' => strftime(config_item('date_format'), strtotime($interview->interview_date)),
+            '{INTERVIEW_TIME}' => date('g:i A', strtotime($interview->interview_time)),
+            '{INTERVIEW_TYPE}' => $type_label,
+            '{MEETING_LINK_OR_LOCATION}' => $meeting_or_location,
+            '{INTERVIEWER_NAME}' => $interview->interviewer_name,
+            '{INTERVIEW_NOTES}' => $notes_html,
+            '{SITE_NAME}' => config_item('company_name')
+        ];
+
+        foreach ($replacements as $key => $val) {
+            $message = str_replace($key, $val, $message);
+            $subject = str_replace($key, $val, $subject);
+        }
+
+        $params = [
+            'recipient' => $interview->candidate_email,
+            'subject' => $subject,
+            'message' => $message,
+            'resourceed_file' => ''
+        ];
+
+        $sent = $this->recruitment_model->send_email($params);
+        if ($sent) {
+            $this->recruitment_model->mark_interview_email_sent($interview_id);
+        }
+        return $sent;
+    }
+
+    public function update_interview_status()
+    {
+        if (!$this->input->is_ajax_request()) {
+            redirect('admin/job_circular/manage_interviews');
+        }
+
+        $interview_id = $this->input->post('interview_id');
+        $status = $this->input->post('status');
+        $feedback = $this->input->post('feedback');
+        $rating = $this->input->post('rating');
+
+        $this->recruitment_model->update_interview_status($interview_id, $status, $feedback, $rating);
+        echo json_encode(['success' => true]);
+    }
+
+    public function interview_detail($interview_id)
+    {
+        $data['title'] = lang('interview_detail');
+        $data['interview'] = $this->recruitment_model->get_interview_by_id($interview_id);
+        $data['subview'] = $this->load->view('admin/job_circular/interview_detail', $data, FALSE);
+        $this->load->view('admin/_layout_modal_lg', $data);
+    }
+
+    public function delete_interview($interview_id)
+    {
+        $this->db->where('interview_id', $interview_id);
+        $this->db->delete('tbl_interviews');
+
+        if ($this->input->is_ajax_request()) {
+            echo json_encode(['success' => true]);
+            return;
+        }
+        set_message('success', lang('interview_deleted'));
+        redirect('admin/job_circular/manage_interviews');
+    }
+
+    // ==================== OFFER LETTERS ====================
+
+    public function manage_offers()
+    {
+        $data['title'] = lang('offer_letters');
+        $filters = [
+            'status' => $this->input->get('status') ?: null,
+            'job_circular_id' => $this->input->get('job_circular_id') ?: null,
+        ];
+        $data['offers'] = $this->recruitment_model->get_offers($filters);
+        $data['job_circulars'] = $this->db->get('tbl_job_circular')->result();
+        $data['subview'] = $this->load->view('admin/job_circular/manage_offers', $data, TRUE);
+        $this->load->view('admin/_layout_main', $data);
+    }
+
+    public function create_offer($job_appliactions_id = null)
+    {
+        $data['title'] = lang('create_offer');
+        $data['templates'] = $this->recruitment_model->get_offer_templates();
+        $data['job_circulars'] = $this->db->where('status', 'published')->get('tbl_job_circular')->result();
+
+        if ($job_appliactions_id) {
+            $data['application'] = $this->recruitment_model->get_application_detail($job_appliactions_id);
+            $default_template = $this->recruitment_model->get_default_offer_template();
+            if ($default_template) {
+                $data['template_subject'] = $default_template->template_subject;
+                $data['template_body'] = $default_template->template_body;
+            }
+        }
+
+        $data['subview'] = $this->load->view('admin/job_circular/create_offer', $data, FALSE);
+        $this->load->view('admin/_layout_modal_lg', $data);
+    }
+
+    public function save_offer($id = null)
+    {
+        $data = $this->input->post(null, true);
+
+        $offer_data = [
+            'job_appliactions_id' => $data['job_appliactions_id'],
+            'job_circular_id' => $data['job_circular_id'],
+            'offer_template_id' => !empty($data['template_id']) ? $data['template_id'] : null,
+            'offer_subject' => $data['offer_subject'],
+            'offer_body' => $data['offer_body'],
+            'salary_offered' => !empty($data['salary_offered']) ? $data['salary_offered'] : null,
+            'joining_date' => !empty($data['joining_date']) ? $data['joining_date'] : null,
+            'additional_terms' => !empty($data['additional_terms']) ? $data['additional_terms'] : null,
+            'created_by' => $this->session->userdata('user_id')
+        ];
+
+        $offer_id = $this->recruitment_model->save_offer($offer_data, $id);
+
+        // Send email if requested
+        if (!empty($data['send_email'])) {
+            $this->send_offer_email($offer_id);
+        }
+
+        if ($this->input->is_ajax_request()) {
+            echo json_encode(['success' => true, 'offer_id' => $offer_id]);
+            return;
+        }
+
+        set_message('success', lang('offer_saved'));
+        redirect('admin/job_circular/manage_offers');
+    }
+
+    public function send_offer_email($offer_id)
+    {
+        $offer = $this->recruitment_model->get_offer_by_id($offer_id);
+        if (empty($offer)) return false;
+
+        $designation = '-';
+        if (!empty($offer->designations_id)) {
+            $design_info = $this->db->where('designations_id', $offer->designations_id)->get('tbl_designations')->row();
+            if ($design_info) $designation = $design_info->designations;
+        }
+
+        $replacements = [
+            '{CANDIDATE_NAME}' => $offer->candidate_name,
+            '{JOB_TITLE}' => $offer->job_title,
+            '{DESIGNATION}' => $designation,
+            '{SALARY}' => $offer->salary_offered ?: 'As discussed',
+            '{JOINING_DATE}' => $offer->joining_date ? strftime(config_item('date_format'), strtotime($offer->joining_date)) : 'To be confirmed',
+            '{EMPLOYMENT_TYPE}' => lang($offer->employment_type),
+            '{COMPANY_NAME}' => config_item('company_name'),
+            '{ADDITIONAL_TERMS}' => $offer->additional_terms ?: '',
+            '{SITE_NAME}' => config_item('company_name')
+        ];
+
+        $subject = $offer->offer_subject;
+        $body = $offer->offer_body;
+
+        foreach ($replacements as $key => $val) {
+            $subject = str_replace($key, $val, $subject);
+            $body = str_replace($key, $val, $body);
+        }
+
+        $params = [
+            'recipient' => $offer->candidate_email,
+            'subject' => $subject,
+            'message' => $body,
+            'resourceed_file' => ''
+        ];
+
+        $sent = $this->recruitment_model->send_email($params);
+        if ($sent) {
+            $this->recruitment_model->update_offer_status($offer_id, 'sent');
+        }
+        return $sent;
+    }
+
+    public function update_offer_status_ajax()
+    {
+        if (!$this->input->is_ajax_request()) {
+            redirect('admin/job_circular/manage_offers');
+        }
+
+        $offer_id = $this->input->post('offer_id');
+        $status = $this->input->post('status');
+
+        $this->recruitment_model->update_offer_status($offer_id, $status);
+        echo json_encode(['success' => true]);
+    }
+
+    public function offer_detail($offer_id)
+    {
+        $data['title'] = lang('offer_detail');
+        $data['offer'] = $this->recruitment_model->get_offer_by_id($offer_id);
+        $data['subview'] = $this->load->view('admin/job_circular/offer_detail', $data, FALSE);
+        $this->load->view('admin/_layout_modal_lg', $data);
+    }
+
+    public function delete_offer($offer_id)
+    {
+        $this->db->where('offer_id', $offer_id);
+        $this->db->delete('tbl_offer_letters');
+
+        if ($this->input->is_ajax_request()) {
+            echo json_encode(['success' => true]);
+            return;
+        }
+        set_message('success', lang('offer_deleted'));
+        redirect('admin/job_circular/manage_offers');
+    }
+
+    public function get_offer_template_ajax($template_id)
+    {
+        $template = $this->recruitment_model->get_offer_template_by_id($template_id);
+        if ($template) {
+            echo json_encode(['success' => true, 'subject' => $template->template_subject, 'body' => $template->template_body]);
+        } else {
+            echo json_encode(['success' => false]);
+        }
+    }
+
+    public function preview_offer()
+    {
+        if (!$this->input->is_ajax_request()) {
+            redirect('admin/job_circular/manage_offers');
+        }
+
+        $body = $this->input->post('offer_body');
+        $subject = $this->input->post('offer_subject');
+
+        $application_id = $this->input->post('job_appliactions_id');
+        if ($application_id) {
+            $app = $this->recruitment_model->get_application_detail($application_id);
+            if ($app) {
+                $designation = '-';
+                if (!empty($app->designations_id)) {
+                    $design_info = $this->db->where('designations_id', $app->designations_id)->get('tbl_designations')->row();
+                    if ($design_info) $designation = $design_info->designations;
+                }
+
+                $replacements = [
+                    '{CANDIDATE_NAME}' => $app->name,
+                    '{JOB_TITLE}' => $app->job_title,
+                    '{DESIGNATION}' => $designation,
+                    '{SALARY}' => $this->input->post('salary_offered') ?: 'As discussed',
+                    '{JOINING_DATE}' => $this->input->post('joining_date') ? strftime(config_item('date_format'), strtotime($this->input->post('joining_date'))) : 'To be confirmed',
+                    '{EMPLOYMENT_TYPE}' => lang($app->employment_type),
+                    '{COMPANY_NAME}' => config_item('company_name'),
+                    '{ADDITIONAL_TERMS}' => $this->input->post('additional_terms') ?: '',
+                    '{SITE_NAME}' => config_item('company_name')
+                ];
+
+                foreach ($replacements as $key => $val) {
+                    $body = str_replace($key, $val, $body);
+                    $subject = str_replace($key, $val, $subject);
+                }
+            }
+        }
+
+        echo json_encode(['success' => true, 'subject' => $subject, 'body' => $body]);
     }
 }

@@ -94,6 +94,29 @@ if (!empty($circular_details->designations_id)) {
             ?>
 
             <blockquote style="font-size: 12px"><?php echo $circular_details->description; ?></blockquote>
+
+            <?php if (!empty($job_skills)): ?>
+                <hr>
+                <h4><i class="fa fa-tags"></i> <?= lang('required_skills') ?></h4>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <strong><?= lang('mandatory') ?>:</strong><br>
+                        <?php foreach ($job_skills as $skill): ?>
+                            <?php if ($skill->is_mandatory): ?>
+                                <span class="label label-danger" style="margin:3px;padding:5px 10px;"><?= $skill->skill_name ?></span>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </div>
+                    <div class="col-sm-6">
+                        <strong><?= lang('preferred') ?>:</strong><br>
+                        <?php foreach ($job_skills as $skill): ?>
+                            <?php if (!$skill->is_mandatory): ?>
+                                <span class="label label-warning" style="margin:3px;padding:5px 10px;"><?= $skill->skill_name ?></span>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
         </div>
 
         <div class="col-md-4">

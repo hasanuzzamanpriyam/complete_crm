@@ -49,8 +49,97 @@ $deleted = can_action('103', 'deleted');
                 });
             </script>
 
-
             </tbody>
         </table>
     </div>
 </div>
+
+<!-- Job Skills Modal -->
+<div class="modal fade" id="jobSkillsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><?= lang('manage_job_skills') ?></h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="job_skills_circular_id" value="">
+                <div id="job_skills_list"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><?= lang('close') ?></button>
+                <button type="button" class="btn btn-primary" onclick="saveJobSkills()"><?= lang('save') ?></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function openJobSkillsModal(jobCircularId) {
+    $('#job_skills_circular_id').val(jobCircularId);
+    $.ajax({
+        url: '<?= base_url() ?>admin/job_circular/get_job_skills_ajax/' + jobCircularId,
+        dataType: 'json',
+        success: function(res) {
+            if (res.success) {
+                var html = '<div class="row">';
+                var categories = {};
+                res.all_skills.forEach(function(skill) {
+                    var cat = skill.skill_category || 'Uncategorized';
+                    if (!categories[cat]) categories[cat] = [];
+                    categories[cat].push(skill);
+                });
+                for (var cat in categories) {
+                    html += '<div class="col-md-6"><div class="panel panel-default"><div class="panel-heading"><strong>' + cat + '</strong></div><div class="panel-body">';
+                    categories[cat].forEach(function(skill) {
+                        var checked = res.assigned_ids.indexOf(skill.skill_id) !== -1 ? 'checked' : '';
+                        var mandatory = '';
+                        if (checked) {
+                            res.assigned.forEach(function(a) {
+                                if (a.skill_id == skill.skill_id && a.is_mandatory == 1) mandatory = 'checked';
+                            });
+                        }
+                        html += '<label style="display:block;margin:5px 0;">';
+                        html += '<input type="checkbox" name="skills[]" value="' + skill.skill_id + '" ' + checked + ' onchange="toggleMandatory(this, ' + skill.skill_id + ')"> ';
+                        html += skill.skill_name;
+                        html += ' <label style="margin-left:10px;font-size:11px;"><input type="checkbox" name="mandatory_' + skill.skill_id + '" id="mandatory_' + skill.skill_id + '" ' + mandatory + ' ' + (!checked ? 'disabled' : '') + '> Mandatory</label>';
+                        html += '</label>';
+                    });
+                    html += '</div></div></div>';
+                }
+                html += '</div>';
+                $('#job_skills_list').html(html);
+                $('#jobSkillsModal').modal('show');
+            }
+        }
+    });
+}
+
+function toggleMandatory(checkbox, skillId) {
+    $('#mandatory_' + skillId).prop('disabled', !checkbox.checked);
+    if (!checkbox.checked) $('#mandatory_' + skillId).prop('checked', false);
+}
+
+function saveJobSkills() {
+    var circularId = $('#job_skills_circular_id').val();
+    var formData = $('#job_skills_list').find('input[type="checkbox"]:checked').serialize();
+    // Also include unchecked skills for mandatory
+    $('#job_skills_list').find('input[type="checkbox"][name^="skills"]').each(function() {
+        if (!$(this).is(':checked')) {
+            formData += '&skills[]=' + $(this).val();
+        }
+    });
+    $.ajax({
+        url: '<?= base_url() ?>admin/job_circular/save_job_skills/' + circularId,
+        type: 'POST',
+        data: formData,
+        dataType: 'json',
+        success: function(res) {
+            if (res.success) {
+                $('#jobSkillsModal').modal('hide');
+                location.reload();
+            }
+        }
+    });
+}
+</script>

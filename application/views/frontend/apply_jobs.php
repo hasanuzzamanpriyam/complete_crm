@@ -61,13 +61,14 @@ if (!empty($circular_info->designations_id)) {
                                     <span class="btn btn-default btn-file"><span
                                             class="fileinput-new">Select file</span>
                                         <span class="fileinput-exists">Change</span>
-                                        <input required type="file" name="resume">
+                                        <input required type="file" name="resume" accept=".pdf,.doc,.docx">
                                     </span>
                         <span class="fileinput-filename"></span>
                         <a href="#" class="close fileinput-exists" data-dismiss="fileinput"
                            style="float: none;">&times;</a>
 
                     </div>
+                    <p class="help-block"><i class="fa fa-info-circle"></i> <?= lang('ats_resume_info') ?></p>
                 </div>
             </div>
             <div class="margin pull-right">
