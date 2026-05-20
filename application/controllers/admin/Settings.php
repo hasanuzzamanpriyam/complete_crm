@@ -56,9 +56,17 @@ class Settings extends Admin_Controller
 
         if (!empty($created) || !empty($edited)) {
             $input_data = $this->settings_model->array_from_post(array(
-                'company_name', 'company_legal_name',
-                'contact_person', 'company_address', 'company_city', 'company_zip_code',
-                'company_country', 'company_phone', 'company_email', 'company_domain', 'company_vat'
+                'company_name',
+                'company_legal_name',
+                'contact_person',
+                'company_address',
+                'company_city',
+                'company_zip_code',
+                'company_country',
+                'company_phone',
+                'company_email',
+                'company_domain',
+                'company_vat'
             ));
 
             foreach ($input_data as $key => $value) {
@@ -119,10 +127,40 @@ class Settings extends Admin_Controller
         $can_do = can_do(112);
         if (!empty($can_do)) {
             $input_data = $this->settings_model->array_from_post(array(
-                'default_language', 'locale', 'office_location', 'office_lat', 'office_long', 'allowed_radius',
-                'timezone', 'default_currency', 'chat_interval_time', 'default_payment_method', 'default_account', 'date_format', 'time_format', 'project_details_view', 'task_details_view', 'allow_multiple_client_in_project',
-                'enable_languages', 'allow_client_registration', 'allow_apply_job_from_login', 'allow_custom_permission', 'allow_client_project', 'allow_sub_tasks', 'only_allowed_ip_can_clock', 'currency_position', 'money_format', 'decimal_separator', 'allowed_files', 'google_api_key',
-                'auto_close_ticket', 'attendance_report', 'tables_pagination_limit', 'max_file_size', 'recaptcha_secret_key', 'recaptcha_site_key',
+                'default_language',
+                'locale',
+                'office_location',
+                'office_lat',
+                'office_long',
+                'allowed_radius',
+                'timezone',
+                'default_currency',
+                'chat_interval_time',
+                'default_payment_method',
+                'default_account',
+                'date_format',
+                'time_format',
+                'project_details_view',
+                'task_details_view',
+                'allow_multiple_client_in_project',
+                'enable_languages',
+                'allow_client_registration',
+                'allow_apply_job_from_login',
+                'allow_custom_permission',
+                'allow_client_project',
+                'allow_sub_tasks',
+                'only_allowed_ip_can_clock',
+                'currency_position',
+                'money_format',
+                'decimal_separator',
+                'allowed_files',
+                'google_api_key',
+                'auto_close_ticket',
+                'attendance_report',
+                'tables_pagination_limit',
+                'max_file_size',
+                'recaptcha_secret_key',
+                'recaptcha_site_key',
                 'allow_geo_clock_in',
                 'allow_weekend_excluded_from_leave',
             ));
@@ -291,9 +329,32 @@ class Settings extends Admin_Controller
         $can_do = can_do(120);
         if (!empty($can_do)) {
             $input_data = $this->settings_model->array_from_post(array(
-                'website_name', 'logo_or_icon', 'sidebar_theme', 'aside-float', 'show-scrollbar', 'aside-collapsed', 'layout-h', 'layout-boxed', 'layout-fixed', 'login_position', 'RTL',
-                'active_custom_color', 'navbar_logo_background', 'top_bar_background', 'top_bar_color', 'sidebar_background', 'sidebar_color', 'sidebar_active_background', 'sidebar_active_color', 'submenu_open_background',
-                'active_background', 'active_color', 'body_background', 'active_pre_loader', 'sidebar_font_size', 'body_font_size'
+                'website_name',
+                'logo_or_icon',
+                'sidebar_theme',
+                'aside-float',
+                'show-scrollbar',
+                'aside-collapsed',
+                'layout-h',
+                'layout-boxed',
+                'layout-fixed',
+                'login_position',
+                'RTL',
+                'active_custom_color',
+                'navbar_logo_background',
+                'top_bar_background',
+                'top_bar_color',
+                'sidebar_background',
+                'sidebar_color',
+                'sidebar_active_background',
+                'sidebar_active_color',
+                'submenu_open_background',
+                'active_background',
+                'active_color',
+                'body_background',
+                'active_pre_loader',
+                'sidebar_font_size',
+                'body_font_size'
             ));
 
             if (empty($input_data['active_custom_color'])) {
@@ -427,8 +488,15 @@ class Settings extends Admin_Controller
         $can_do = can_do(113);
         if (!empty($can_do)) {
             $input_data = $this->settings_model->array_from_post(array(
-                'company_email', 'use_postmark',
-                'postmark_api_key', 'postmark_from_address', 'protocol', 'smtp_host', 'smtp_user', 'smtp_port', 'smtp_encryption'
+                'company_email',
+                'use_postmark',
+                'postmark_api_key',
+                'postmark_from_address',
+                'protocol',
+                'smtp_host',
+                'smtp_user',
+                'smtp_port',
+                'smtp_encryption'
             ));
 
             $smtp_pass = $this->input->post('smtp_pass', true);
@@ -2082,8 +2150,13 @@ class Settings extends Admin_Controller
     public function set_noticifation()
     {
         $input_data = $this->settings_model->array_from_post(array(
-            'pusher_app_id', 'pusher_app_key', 'pusher_app_secret',
-            'pusher_cluster', 'auto_check_for_new_notifications', 'desktop_notifications', 'realtime_notification'
+            'pusher_app_id',
+            'pusher_app_key',
+            'pusher_app_secret',
+            'pusher_cluster',
+            'auto_check_for_new_notifications',
+            'desktop_notifications',
+            'realtime_notification'
         ));
         if (!empty($input_data['realtime_notification']) && $input_data['realtime_notification'] == 1 || empty($input_data['auto_check_for_new_notifications'])) {
             $input_data['auto_check_for_new_notifications'] = 0;
@@ -2136,8 +2209,12 @@ class Settings extends Admin_Controller
         $can_do = can_do(119);
         if (!empty($can_do)) {
             $input_data = $this->settings_model->array_from_post(array(
-                'notify_ticket_reopened', 'default_department', 'default_status', 'default_priority',
-                'default_leads_source', 'default_lead_status'
+                'notify_ticket_reopened',
+                'default_department',
+                'default_status',
+                'default_priority',
+                'default_leads_source',
+                'default_lead_status'
             ));
 
             foreach ($input_data as $key => $value) {
@@ -2657,12 +2734,12 @@ class Settings extends Admin_Controller
                 redirect('admin/settings/system');
             }
         }
-        
+
         if ($this->input->is_ajax_request()) {
             $this->load->view('admin/settings/_modal_new_currency');
             return;
         }
-        
+
         $data['title'] = lang('activities');
         $data['modal_subview'] = $this->load->view('admin/settings/_modal_new_currency', $data, FALSE);
         $this->load->view('admin/_layout_modal', $data);
@@ -2927,8 +3004,17 @@ class Settings extends Admin_Controller
         } else {
             $input_data = $this->settings_model->array_from_post(array(
                 'encryption',
-                'delete_mail_after_import', 'config_host', 'config_username', 'config_mailbox', 'unread_email', 'for_leads', 'imap_search_for_leads', 'leads_keyword',
-                'imap_search_for_tickets', 'tickets_keyword', 'for_tickets'
+                'delete_mail_after_import',
+                'config_host',
+                'config_username',
+                'config_mailbox',
+                'unread_email',
+                'for_leads',
+                'imap_search_for_leads',
+                'leads_keyword',
+                'imap_search_for_tickets',
+                'tickets_keyword',
+                'for_tickets'
             ));
 
             $config_password = $this->input->post('config_password', true);
@@ -3441,8 +3527,19 @@ class Settings extends Admin_Controller
     public function save_email_notification()
     {
         $input_data = $this->settings_model->array_from_post(array(
-            'send_clock_email', 'leave_email', 'overtime_email', 'projects_email', 'tasks_email',
-            'payslip_email', 'advance_salary_email', 'award_email', 'job_circular_email', 'announcements_email', 'training_email', 'expense_email', 'deposit_email'
+            'send_clock_email',
+            'leave_email',
+            'overtime_email',
+            'projects_email',
+            'tasks_email',
+            'payslip_email',
+            'advance_salary_email',
+            'award_email',
+            'job_circular_email',
+            'announcements_email',
+            'training_email',
+            'expense_email',
+            'deposit_email'
         ));
         foreach ($input_data as $key => $value) {
             $data = array('value' => $value);
@@ -3753,10 +3850,18 @@ class Settings extends Admin_Controller
     {
         $input_data = $this->settings_model->array_from_post(array(
             'purchase_confirmation_sms_number',
-            'transaction_record_sms_number', 'sms_template_purchase_confirmation', 'sms_template_purchase_payment_confirmation',
-            'sms_template_return_stock', 'sms_template_return_stock_payment', 'sms_template_transaction_record',
-            'sms_template_reminder_invoice', 'sms_template_overdue_invoice', 'sms_template_invoice_payment',
-            'sms_template_estimate_expiration', 'sms_template_proposal_expiration', 'sms_template_staff_reminder'
+            'transaction_record_sms_number',
+            'sms_template_purchase_confirmation',
+            'sms_template_purchase_payment_confirmation',
+            'sms_template_return_stock',
+            'sms_template_return_stock_payment',
+            'sms_template_transaction_record',
+            'sms_template_reminder_invoice',
+            'sms_template_overdue_invoice',
+            'sms_template_invoice_payment',
+            'sms_template_estimate_expiration',
+            'sms_template_proposal_expiration',
+            'sms_template_staff_reminder'
         ));
         $all_gateway = $this->sms->get_gateways();
         foreach ($all_gateway as $gatwayName => $all_field) {
