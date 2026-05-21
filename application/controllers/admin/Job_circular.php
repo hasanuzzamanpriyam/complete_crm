@@ -1093,6 +1093,137 @@ class Job_Circular extends Admin_Controller
         $this->load->view('admin/_layout_main', $data);
     }
 
+    public function get_applications_for_offer($job_circular_id = null)
+    {
+        $this->db->select('job_appliactions_id, name, email, mobile, ats_score, apply_date');
+        $this->db->from('tbl_job_appliactions');
+        if ($job_circular_id) {
+            $this->db->where('job_circular_id', $job_circular_id);
+        }
+        $this->db->order_by('ats_score', 'DESC');
+        $all_applications = $this->db->get()->result();
+
+        // Get applicants who already have offers
+        $this->db->select('job_appliactions_id');
+        $this->db->from('tbl_offer_letters');
+        if ($job_circular_id) {
+            $this->db->where('job_circular_id', $job_circular_id);
+        }
+        $existing_offers = $this->db->get()->result();
+        $existing_ids = array_map(function($o) { return $o->job_appliactions_id; }, $existing_offers);
+
+        // Filter out applicants who already have offers
+        $applications = array_filter($all_applications, function($app) use ($existing_ids) {
+            return !in_array($app->job_appliactions_id, $existing_ids);
+        });
+
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true, 'applications' => array_values($applications)]);
+        exit;
+    }
+
+    public function bulk_create_offers()
+    {
+        if (!$this->input->is_ajax_request()) {
+            redirect('admin/job_circular/manage_offers');
+        }
+
+        try {
+            $post = $this->input->post(null, true);
+
+            if (empty($post['selected_ids'])) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'No applicants selected']);
+                exit;
+            }
+
+            if (empty($post['job_circular_id'])) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'No job circular selected']);
+                exit;
+            }
+
+            if (empty($post['joining_date'])) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'Joining date is required']);
+                exit;
+            }
+
+            $selected_ids = explode(',', $post['selected_ids']);
+            $job_circular_id = $post['job_circular_id'];
+            $created_count = 0;
+            $sent_count = 0;
+            $failed_count = 0;
+
+            // Get job circular info for template
+            $job_circular = $this->db->where('job_circular_id', $job_circular_id)->get('tbl_job_circular')->row();
+            $job_title = $job_circular ? $job_circular->job_title : '';
+
+            foreach ($selected_ids as $app_id) {
+                $app = $this->recruitment_model->get_application_detail($app_id);
+                if (empty($app)) {
+                    $failed_count++;
+                    continue;
+                }
+
+                // Get offer template if selected
+                $template_id = !empty($post['template_id']) ? $post['template_id'] : null;
+                $template = null;
+                if ($template_id) {
+                    $template = $this->recruitment_model->get_offer_template_by_id($template_id);
+                }
+
+                if (!$template) {
+                    $template = $this->recruitment_model->get_default_offer_template();
+                }
+
+                $offer_subject = $template ? $template->template_subject : 'Job Offer: ' . $job_title;
+                $offer_body = $template ? $template->template_body : '<p>Dear {CANDIDATE_NAME},</p><p>We are pleased to offer you the position of {JOB_TITLE}.</p>';
+
+                $offer_data = [
+                    'job_appliactions_id' => $app_id,
+                    'job_circular_id' => $job_circular_id,
+                    'offer_template_id' => $template_id,
+                    'offer_subject' => $offer_subject,
+                    'offer_body' => $offer_body,
+                    'salary_offered' => !empty($post['salary_offered']) ? $post['salary_offered'] : null,
+                    'joining_date' => $post['joining_date'],
+                    'additional_terms' => !empty($post['additional_terms']) ? $post['additional_terms'] : null,
+                    'created_by' => $this->session->userdata('user_id')
+                ];
+
+                $offer_id = $this->recruitment_model->save_offer($offer_data);
+                $created_count++;
+
+                if (!empty($post['send_email'])) {
+                    $sent = $this->send_offer_email($offer_id);
+                    if ($sent) {
+                        $sent_count++;
+                    } else {
+                        $failed_count++;
+                    }
+                }
+            }
+
+            $message = "$created_count offer(s) created.";
+            if ($sent_count > 0) {
+                $message .= " $sent_count email(s) sent successfully.";
+            }
+            if ($failed_count > 0) {
+                $message .= " $failed_count failed.";
+            }
+
+            header('Content-Type: application/json');
+            echo json_encode(['success' => true, 'message' => $message, 'created' => $created_count, 'sent' => $sent_count, 'failed' => $failed_count]);
+            exit;
+        } catch (Exception $e) {
+            log_message('error', 'Bulk create offers failed: ' . $e->getMessage());
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Server error: ' . $e->getMessage()]);
+            exit;
+        }
+    }
+
     public function create_offer($job_appliactions_id = null)
     {
         $data['title'] = lang('create_offer');
