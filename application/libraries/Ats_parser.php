@@ -6,7 +6,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * Extracts text from resume files (PDF/DOCX) and calculates ATS match scores
  * against job-required skills.
  */
-class ATS_Parser
+class Ats_parser
 {
     private $CI;
 

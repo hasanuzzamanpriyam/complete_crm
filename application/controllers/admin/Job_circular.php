@@ -8,6 +8,7 @@ class Job_Circular extends Admin_Controller
         parent::__construct();
         $this->load->model('job_circular_model');
         $this->load->model('recruitment_model');
+        $this->load->library('ats_parser');
     }
 
     public function jobs_posted()
