@@ -667,6 +667,76 @@ class Job_Circular extends Admin_Controller
         exit;
     }
 
+    public function get_applications_for_interview($job_circular_id = null)
+    {
+        $this->db->select('job_appliactions_id, name, email, mobile, ats_score, apply_date');
+        $this->db->from('tbl_job_appliactions');
+        if ($job_circular_id) {
+            $this->db->where('job_circular_id', $job_circular_id);
+        }
+        $this->db->order_by('ats_score', 'DESC');
+        $applications = $this->db->get()->result();
+
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true, 'applications' => $applications]);
+        exit;
+    }
+
+    public function bulk_schedule_interview()
+    {
+        if (!$this->input->is_ajax_request()) {
+            redirect('admin/job_circular/manage_interviews');
+        }
+
+        $post = $this->input->post(null, true);
+        $selected_ids = explode(',', $post['selected_ids']);
+        $job_circular_id = $post['job_circular_id'];
+        $sent_count = 0;
+        $failed_count = 0;
+
+        foreach ($selected_ids as $app_id) {
+            $app = $this->recruitment_model->get_application_detail($app_id);
+            if (empty($app)) {
+                $failed_count++;
+                continue;
+            }
+
+            $interview_data = [
+                'job_appliactions_id' => $app_id,
+                'job_circular_id' => $job_circular_id,
+                'interview_type' => $post['interview_type'],
+                'interview_date' => $post['interview_date'],
+                'interview_time' => $post['interview_time'],
+                'interviewer_name' => $post['interviewer_name'],
+                'interviewer_email' => $post['interviewer_email'],
+                'meeting_link' => !empty($post['meeting_link']) ? $post['meeting_link'] : null,
+                'location_details' => !empty($post['location_details']) ? $post['location_details'] : null,
+                'interview_notes' => !empty($post['interview_notes']) ? $post['interview_notes'] : null,
+                'created_by' => $this->session->userdata('user_id')
+            ];
+
+            $interview_id = $this->recruitment_model->save_interview($interview_data);
+
+            if (!empty($post['send_email'])) {
+                $sent = $this->send_interview_email($interview_id);
+                if ($sent) {
+                    $sent_count++;
+                } else {
+                    $failed_count++;
+                }
+            }
+        }
+
+        $message = "$sent_count interview(s) scheduled and email(s) sent successfully.";
+        if ($failed_count > 0) {
+            $message .= " $failed_count failed.";
+        }
+
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true, 'message' => $message, 'sent' => $sent_count, 'failed' => $failed_count]);
+        exit;
+    }
+
     // ==================== ATS APPLICATIONS DASHBOARD ====================
 
     public function ats_applications($job_circular_id = null)
