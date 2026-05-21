@@ -6,6 +6,9 @@
         <div class="panel-title">
             <strong><?= lang('interview_schedule') ?></strong>
             <div class="pull-right hidden-print">
+                <button class="btn btn-xs btn-success" onclick="openBulkScheduleModal()">
+                    <i class="fa fa-envelope"></i> <?= lang('bulk_schedule_interview') ?>
+                </button>
                 <a href="<?= base_url() ?>admin/job_circular/schedule_interview" class="btn btn-xs btn-info" data-toggle="modal" data-target="#myModal_lg">
                     <i class="fa fa-plus"></i> <?= lang('schedule_interview') ?>
                 </a>
@@ -30,35 +33,6 @@
                     <option value="face_to_face"><?= lang('face_to_face') ?></option>
                     <option value="phone"><?= lang('phone') ?></option>
                 </select>
-            </div>
-        </div>
-
-        <div class="panel panel-default" style="margin-bottom:20px;">
-            <div class="panel-heading"><strong><i class="fa fa-envelope"></i> <?= lang('bulk_schedule_interview') ?></strong></div>
-            <div class="panel-body">
-                <div class="row">
-                    <div class="col-md-4">
-                        <select class="form-control" id="bulk_job_circular" onchange="loadApplicantsForBulk()">
-                            <option value=""><?= lang('select_job_circular') ?></option>
-                            <?php foreach ($job_circulars as $jc): ?>
-                                <option value="<?= $jc->job_circular_id ?>"><?= $jc->job_title ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <button class="btn btn-primary btn-block" onclick="loadApplicantsForBulk()"><i class="fa fa-users"></i> <?= lang('load_applicants') ?></button>
-                    </div>
-                    <div class="col-md-2">
-                        <button class="btn btn-success btn-block" id="btn_bulk_send" onclick="openBulkModal()" disabled><i class="fa fa-envelope"></i> <?= lang('send_bulk_emails') ?></button>
-                    </div>
-                    <div class="col-md-2">
-                        <button class="btn btn-default btn-block" onclick="selectAllApplicants()"><i class="fa fa-check-square"></i> <?= lang('select_all') ?></button>
-                    </div>
-                    <div class="col-md-2">
-                        <span id="selected_count" class="label label-info" style="font-size:14px;padding:6px 10px;">0 <?= lang('selected') ?></span>
-                    </div>
-                </div>
-                <div id="applicants_table_container" style="margin-top:15px;"></div>
             </div>
         </div>
 
@@ -121,93 +95,122 @@
     </div>
 </div>
 
-<!-- Bulk Interview Modal -->
-<div class="modal fade" id="bulkInterviewModal" tabindex="-1">
+<!-- Bulk Schedule Interview Modal -->
+<div class="modal fade" id="bulkScheduleModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title"><?= lang('bulk_schedule_interview') ?></h4>
+                <h4 class="modal-title"><i class="fa fa-envelope"></i> <?= lang('bulk_schedule_interview') ?></h4>
             </div>
-            <div class="modal-body">
-                <form id="bulkInterviewForm" class="form-horizontal">
-                    <input type="hidden" id="bulk_selected_ids" name="selected_ids" value="">
-                    <input type="hidden" id="bulk_job_circular_id" name="job_circular_id" value="">
-                    
+            <div class="modal-body" style="max-height:70vh;overflow-y:auto;">
+                <form id="bulkScheduleForm" class="form-horizontal">
                     <div class="form-group">
-                        <label class="col-sm-3 control-label"><?= lang('interview_type') ?> <span class="text-danger">*</span></label>
+                        <label class="col-sm-3 control-label"><?= lang('job_circular') ?> <span class="text-danger">*</span></label>
                         <div class="col-sm-8">
-                            <select class="form-control" name="interview_type" id="bulk_interview_type" required onchange="toggleBulkFields()">
-                                <option value="online"><?= lang('online') ?></option>
-                                <option value="face_to_face"><?= lang('face_to_face') ?></option>
-                                <option value="phone"><?= lang('phone') ?></option>
+                            <select class="form-control" name="job_circular_id" id="bulk_job_circular" onchange="loadBulkApplicants()" required>
+                                <option value=""><?= lang('select_job_circular') ?></option>
+                                <?php foreach ($job_circulars as $jc): ?>
+                                    <option value="<?= $jc->job_circular_id ?>"><?= $jc->job_title ?></option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label"><?= lang('interview_date') ?> <span class="text-danger">*</span></label>
-                        <div class="col-sm-5">
-                            <div class="input-group">
-                                <input type="text" class="form-control datepicker" name="interview_date" required>
-                                <div class="input-group-addon"><i class="fa fa-calendar"></i></div>
+                    <div id="applicants_section" style="display:none;">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label"><?= lang('select_applicants') ?> <span class="text-danger">*</span></label>
+                            <div class="col-sm-8">
+                                <div class="row">
+                                    <div class="col-xs-6">
+                                        <button type="button" class="btn btn-default btn-xs" onclick="toggleAllBulkApplicants(true)"><i class="fa fa-check-square"></i> <?= lang('select_all') ?></button>
+                                        <button type="button" class="btn btn-default btn-xs" onclick="toggleAllBulkApplicants(false)"><i class="fa fa-square-o"></i> <?= lang('deselect_all') ?></button>
+                                    </div>
+                                    <div class="col-xs-6 text-right">
+                                        <span id="bulk_selected_count" class="label label-info" style="font-size:12px;padding:4px 8px;">0 <?= lang('selected') ?></span>
+                                    </div>
+                                </div>
+                                <div id="bulk_applicants_container" style="margin-top:10px;max-height:200px;overflow-y:auto;border:1px solid #ddd;padding:5px;"></div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label"><?= lang('interview_time') ?> <span class="text-danger">*</span></label>
-                        <div class="col-sm-5">
-                            <input type="time" class="form-control" name="interview_time" required>
+                        <hr style="margin:15px 0;">
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label"><?= lang('interview_type') ?> <span class="text-danger">*</span></label>
+                            <div class="col-sm-8">
+                                <select class="form-control" name="interview_type" id="bulk_interview_type" required onchange="toggleBulkFields()">
+                                    <option value="online"><?= lang('online') ?></option>
+                                    <option value="face_to_face"><?= lang('face_to_face') ?></option>
+                                    <option value="phone"><?= lang('phone') ?></option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="form-group" id="bulk_meeting_link_group">
-                        <label class="col-sm-3 control-label"><?= lang('meeting_link') ?></label>
-                        <div class="col-sm-8">
-                            <input type="url" class="form-control" name="meeting_link" placeholder="https://meet.jit.si/room-name or Zoom link">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label"><?= lang('interview_date') ?> <span class="text-danger">*</span></label>
+                            <div class="col-sm-5">
+                                <div class="input-group">
+                                    <input type="text" class="form-control datepicker" name="interview_date" required>
+                                    <div class="input-group-addon"><i class="fa fa-calendar"></i></div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="form-group" id="bulk_location_group" style="display:none;">
-                        <label class="col-sm-3 control-label"><?= lang('location_details') ?></label>
-                        <div class="col-sm-8">
-                            <textarea class="form-control" name="location_details" rows="2" placeholder="Office address, floor, room number"></textarea>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label"><?= lang('interview_time') ?> <span class="text-danger">*</span></label>
+                            <div class="col-sm-5">
+                                <input type="time" class="form-control" name="interview_time" required>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label"><?= lang('interviewer_name') ?></label>
-                        <div class="col-sm-8">
-                            <input type="text" class="form-control" name="interviewer_name" value="<?= $this->session->userdata('name') ?>">
+                        <div class="form-group" id="bulk_meeting_link_group">
+                            <label class="col-sm-3 control-label"><?= lang('meeting_link') ?></label>
+                            <div class="col-sm-8">
+                                <input type="url" class="form-control" name="meeting_link" placeholder="https://meet.jit.si/room-name">
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label"><?= lang('interviewer_email') ?></label>
-                        <div class="col-sm-8">
-                            <input type="email" class="form-control" name="interviewer_email" value="<?= $this->session->userdata('email') ?>">
+                        <div class="form-group" id="bulk_location_group" style="display:none;">
+                            <label class="col-sm-3 control-label"><?= lang('location_details') ?></label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" name="location_details" rows="2" placeholder="Office address, floor, room number"></textarea>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label"><?= lang('interview_notes') ?></label>
-                        <div class="col-sm-8">
-                            <textarea class="form-control" name="interview_notes" rows="3"></textarea>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label"><?= lang('interviewer_name') ?></label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" name="interviewer_name" value="<?= $this->session->userdata('name') ?>">
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label"></label>
-                        <div class="col-sm-8">
-                            <label><input type="checkbox" name="send_email" value="1" checked> <?= lang('send_interview_email') ?></label>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label"><?= lang('interviewer_email') ?></label>
+                            <div class="col-sm-8">
+                                <input type="email" class="form-control" name="interviewer_email" value="<?= $this->session->userdata('email') ?>">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label"><?= lang('interview_notes') ?></label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" name="interview_notes" rows="2"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label"></label>
+                            <div class="col-sm-8">
+                                <label><input type="checkbox" name="send_email" value="1" checked> <?= lang('send_interview_email') ?></label>
+                            </div>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal"><?= lang('close') ?></button>
-                <button type="button" class="btn btn-primary" id="btn_bulk_submit" onclick="submitBulkInterview()"><i class="fa fa-paper-plane"></i> <?= lang('schedule_and_send') ?></button>
+                <button type="button" class="btn btn-primary" id="btn_bulk_submit" onclick="submitBulkInterview()" disabled><i class="fa fa-paper-plane"></i> <?= lang('schedule_and_send') ?></button>
             </div>
         </div>
     </div>
@@ -244,70 +247,69 @@ function filterInterviews() {
     window.location = url;
 }
 
-function loadApplicantsForBulk() {
+function openBulkScheduleModal() {
+    $('#bulkScheduleForm')[0].reset();
+    $('#applicants_section').hide();
+    $('#bulk_applicants_container').html('');
+    $('#bulk_selected_count').text('0 <?= lang('selected') ?>');
+    $('#btn_bulk_submit').prop('disabled', true);
+    $('#bulkScheduleModal').modal('show');
+}
+
+function loadBulkApplicants() {
     var jobCircularId = $('#bulk_job_circular').val();
     if (!jobCircularId) {
-        alert('<?= lang('select_job_circular') ?>');
+        $('#applicants_section').hide();
+        $('#btn_bulk_submit').prop('disabled', true);
         return;
     }
 
-    $('#applicants_table_container').html('<p class="text-center"><i class="fa fa-spinner fa-spin"></i> Loading...</p>');
-    $('#btn_bulk_send').prop('disabled', true);
-    $('#selected_count').text('0 <?= lang('selected') ?>');
+    $('#bulk_applicants_container').html('<p class="text-center"><i class="fa fa-spinner fa-spin"></i> Loading...</p>');
+    $('#applicants_section').show();
 
     $.ajax({
         url: '<?= base_url() ?>admin/job_circular/get_applications_for_interview/' + jobCircularId,
         dataType: 'json',
         success: function(res) {
             if (res.success && res.applications.length > 0) {
-                var html = '<table class="table table-striped table-hover"><thead><tr>';
-                html += '<th><input type="checkbox" id="select_all_bulk" onchange="toggleSelectAllBulk(this)"></th>';
-                html += '<th><?= lang('name') ?></th><th><?= lang('email') ?></th><th><?= lang('mobile') ?></th>';
-                html += '<th><?= lang('ats_score') ?></th><th><?= lang('apply_on') ?></th>';
-                html += '</tr></thead><tbody>';
-
+                var html = '';
                 res.applications.forEach(function(app) {
-                    html += '<tr>';
-                    html += '<td><input type="checkbox" class="bulk_applicant_checkbox" value="' + app.job_appliactions_id + '" onchange="updateSelectedCount()"></td>';
-                    html += '<td><strong>' + app.name + '</strong></td>';
-                    html += '<td>' + app.email + '</td>';
-                    html += '<td>' + (app.mobile || '-') + '</td>';
-                    html += '<td>' + (app.ats_score ? app.ats_score + '%' : 'N/A') + '</td>';
-                    html += '<td>' + (app.apply_date ? new Date(app.apply_date).toLocaleDateString() : '-') + '</td>';
-                    html += '</tr>';
+                    html += '<label style="display:block;margin:4px 0;padding:5px;border-bottom:1px solid #eee;">';
+                    html += '<input type="checkbox" class="bulk_applicant_checkbox" value="' + app.job_appliactions_id + '" onchange="updateBulkSelectedCount()"> ';
+                    html += '<strong>' + app.name + '</strong> (' + app.email + ')';
+                    html += ' <span class="label label-default" style="font-size:10px;">ATS: ' + (app.ats_score || 0) + '%</span>';
+                    html += '</label>';
                 });
-
-                html += '</tbody></table>';
-                $('#applicants_table_container').html(html);
+                $('#bulk_applicants_container').html(html);
             } else {
-                $('#applicants_table_container').html('<div class="alert alert-info"><?= lang('no_applicants_found') ?></div>');
+                $('#bulk_applicants_container').html('<p class="text-muted"><?= lang('no_applicants_found') ?></p>');
             }
+            updateBulkSelectedCount();
         },
         error: function() {
-            $('#applicants_table_container').html('<div class="alert alert-danger">Error loading applicants</div>');
+            $('#bulk_applicants_container').html('<p class="text-danger">Error loading applicants</p>');
         }
     });
 }
 
-function toggleSelectAllBulk(checkbox) {
-    $('.bulk_applicant_checkbox').prop('checked', checkbox.checked);
-    updateSelectedCount();
+function toggleAllBulkApplicants(checked) {
+    $('.bulk_applicant_checkbox').prop('checked', checked);
+    updateBulkSelectedCount();
 }
 
-function selectAllApplicants() {
-    var allChecked = $('.bulk_applicant_checkbox').length > 0 && $('.bulk_applicant_checkbox:checked').length === $('.bulk_applicant_checkbox').length;
-    $('.bulk_applicant_checkbox').prop('checked', !allChecked);
-    $('#select_all_bulk').prop('checked', !allChecked);
-    updateSelectedCount();
-}
-
-function updateSelectedCount() {
+function updateBulkSelectedCount() {
     var count = $('.bulk_applicant_checkbox:checked').length;
-    $('#selected_count').text(count + ' <?= lang('selected') ?>');
-    $('#btn_bulk_send').prop('disabled', count === 0);
+    $('#bulk_selected_count').text(count + ' <?= lang('selected') ?>');
+    $('#btn_bulk_submit').prop('disabled', count === 0);
 }
 
-function openBulkModal() {
+function toggleBulkFields() {
+    var type = $('#bulk_interview_type').val();
+    $('#bulk_meeting_link_group').toggle(type === 'online');
+    $('#bulk_location_group').toggle(type === 'face_to_face');
+}
+
+function submitBulkInterview() {
     var selectedIds = [];
     $('.bulk_applicant_checkbox:checked').each(function() {
         selectedIds.push($(this).val());
@@ -318,19 +320,7 @@ function openBulkModal() {
         return;
     }
 
-    $('#bulk_selected_ids').val(selectedIds.join(','));
-    $('#bulk_job_circular_id').val($('#bulk_job_circular').val());
-    $('#bulkInterviewModal').modal('show');
-}
-
-function toggleBulkFields() {
-    var type = $('#bulk_interview_type').val();
-    $('#bulk_meeting_link_group').toggle(type === 'online');
-    $('#bulk_location_group').toggle(type === 'face_to_face');
-}
-
-function submitBulkInterview() {
-    var formData = $('#bulkInterviewForm').serialize();
+    var formData = $('#bulkScheduleForm').serialize() + '&selected_ids=' + selectedIds.join(',');
     var $btn = $('#btn_bulk_submit');
     var originalText = $btn.html();
     $btn.html('<i class="fa fa-spinner fa-spin"></i> Sending...').prop('disabled', true);
@@ -343,7 +333,7 @@ function submitBulkInterview() {
         success: function(res) {
             if (res.success) {
                 alert(res.message);
-                $('#bulkInterviewModal').modal('hide');
+                $('#bulkScheduleModal').modal('hide');
                 location.reload();
             } else {
                 alert('Error: ' + res.message);
