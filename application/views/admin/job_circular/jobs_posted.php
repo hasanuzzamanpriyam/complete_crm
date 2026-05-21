@@ -68,7 +68,7 @@ $deleted = can_action('103', 'deleted');
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal"><?= lang('close') ?></button>
-                <button type="button" class="btn btn-primary" onclick="saveJobSkills()"><?= lang('save') ?></button>
+                <button type="button" class="btn btn-primary" id="saveJobSkillsBtn" onclick="saveJobSkills()"><?= lang('save') ?></button>
             </div>
         </div>
     </div>
@@ -77,6 +77,7 @@ $deleted = can_action('103', 'deleted');
 <script>
 function openJobSkillsModal(jobCircularId) {
     $('#job_skills_circular_id').val(jobCircularId);
+    $('#job_skills_list').html('<p class="text-center"><i class="fa fa-spinner fa-spin"></i> Loading...</p>');
     $.ajax({
         url: '<?= base_url() ?>admin/job_circular/get_job_skills_ajax/' + jobCircularId,
         dataType: 'json',
@@ -102,7 +103,7 @@ function openJobSkillsModal(jobCircularId) {
                         html += '<label style="display:block;margin:5px 0;">';
                         html += '<input type="checkbox" name="skills[]" value="' + skill.skill_id + '" ' + checked + ' onchange="toggleMandatory(this, ' + skill.skill_id + ')"> ';
                         html += skill.skill_name;
-                        html += ' <label style="margin-left:10px;font-size:11px;"><input type="checkbox" name="mandatory_' + skill.skill_id + '" id="mandatory_' + skill.skill_id + '" ' + mandatory + ' ' + (!checked ? 'disabled' : '') + '> Mandatory</label>';
+                        html += ' <label style="margin-left:10px;font-size:11px;"><input type="checkbox" name="mandatory[' + skill.skill_id + ']" id="mandatory_' + skill.skill_id + '" ' + mandatory + ' ' + (!checked ? 'disabled' : '') + '> Mandatory</label>';
                         html += '</label>';
                     });
                     html += '</div></div></div>';
@@ -110,7 +111,12 @@ function openJobSkillsModal(jobCircularId) {
                 html += '</div>';
                 $('#job_skills_list').html(html);
                 $('#jobSkillsModal').modal('show');
+            } else {
+                alert('Failed to load skills');
             }
+        },
+        error: function(xhr, status, error) {
+            alert('Error loading skills: ' + error);
         }
     });
 }
@@ -122,23 +128,44 @@ function toggleMandatory(checkbox, skillId) {
 
 function saveJobSkills() {
     var circularId = $('#job_skills_circular_id').val();
-    var formData = $('#job_skills_list').find('input[type="checkbox"]:checked').serialize();
-    // Also include unchecked skills for mandatory
-    $('#job_skills_list').find('input[type="checkbox"][name^="skills"]').each(function() {
-        if (!$(this).is(':checked')) {
-            formData += '&skills[]=' + $(this).val();
+    var $btn = $('#saveJobSkillsBtn');
+    var originalText = $btn.html();
+    $btn.html('<i class="fa fa-spinner fa-spin"></i> Saving...').prop('disabled', true);
+
+    var postData = { job_circular_id: circularId };
+
+    // Collect all selected skills and their mandatory status
+    $('#job_skills_list').find('input[name="skills[]"]').each(function() {
+        var skillId = $(this).val();
+        var isChecked = $(this).is(':checked');
+        var isMandatory = $('#mandatory_' + skillId).is(':checked');
+
+        if (isChecked) {
+            if (!postData.skills) postData.skills = [];
+            postData.skills.push(skillId);
+            if (isMandatory) {
+                postData['mandatory_' + skillId] = 1;
+            }
         }
     });
+
     $.ajax({
         url: '<?= base_url() ?>admin/job_circular/save_job_skills/' + circularId,
         type: 'POST',
-        data: formData,
+        data: postData,
         dataType: 'json',
         success: function(res) {
             if (res.success) {
                 $('#jobSkillsModal').modal('hide');
                 location.reload();
+            } else {
+                alert('Failed to save skills');
+                $btn.html(originalText).prop('disabled', false);
             }
+        },
+        error: function(xhr, status, error) {
+            alert('Error saving skills: ' + error);
+            $btn.html(originalText).prop('disabled', false);
         }
     });
 }

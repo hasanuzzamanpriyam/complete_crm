@@ -21,7 +21,7 @@
                 <div class="form-group">
                     <label class="col-sm-3 control-label"><?= lang('select_application') ?> <span class="text-danger">*</span></label>
                     <div class="col-sm-8">
-                        <select class="form-control" name="job_appliactions_id" id="job_appliactions_id" required>
+                        <select class="form-control" name="job_appliactions_id" id="job_appliactions_id" required onchange="onApplicationChange()">
                             <option value=""><?= lang('select') ?></option>
                         </select>
                     </div>
@@ -29,7 +29,7 @@
                 <div class="form-group">
                     <label class="col-sm-3 control-label"><?= lang('job_circular') ?> <span class="text-danger">*</span></label>
                     <div class="col-sm-8">
-                        <select class="form-control" name="job_circular_id" id="job_circular_id" required>
+                        <select class="form-control" name="job_circular_id" id="job_circular_id" required onchange="loadApplications()">
                             <option value=""><?= lang('select') ?></option>
                             <?php foreach ($job_circulars as $jc): ?>
                                 <option value="<?= $jc->job_circular_id ?>"><?= $jc->job_title ?></option>
@@ -126,6 +126,46 @@ function toggleInterviewFields() {
     var type = $('#interview_type').val();
     $('#meeting_link_group').toggle(type === 'online');
     $('#location_group').toggle(type === 'face_to_face');
+}
+
+function loadApplications() {
+    var jobCircularId = $('#job_circular_id').val();
+    var $select = $('#job_appliactions_id');
+    $select.html('<option value="">Loading...</option>');
+
+    if (!jobCircularId) {
+        $select.html('<option value=""><?= lang('select') ?></option>');
+        return;
+    }
+
+    $.ajax({
+        url: '<?= base_url() ?>admin/job_circular/get_applications_ajax/' + jobCircularId,
+        dataType: 'json',
+        success: function(res) {
+            if (res.success && res.applications.length > 0) {
+                var html = '<option value=""><?= lang('select') ?></option>';
+                res.applications.forEach(function(app) {
+                    html += '<option value="' + app.job_appliactions_id + '">' + app.name + ' (' + app.email + ') - ATS: ' + app.ats_score + '%</option>';
+                });
+                $select.html(html);
+            } else {
+                $select.html('<option value="">No applications found</option>');
+            }
+        },
+        error: function() {
+            $select.html('<option value="">Error loading applications</option>');
+        }
+    });
+}
+
+function onApplicationChange() {
+    var appId = $('#job_appliactions_id').val();
+    if (appId) {
+        var option = $('#job_appliactions_id option:selected');
+        var text = option.text();
+        var match = text.match(/ATS: (\d+)%/);
+        var atsScore = match ? match[1] : '0';
+    }
 }
 
 function saveInterviewForm(e) {

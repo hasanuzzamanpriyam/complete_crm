@@ -568,8 +568,9 @@ class Job_Circular extends Admin_Controller
         $saved_id = $this->recruitment_model->save_skill($skill_data, $id);
 
         if ($this->input->is_ajax_request()) {
+            header('Content-Type: application/json');
             echo json_encode(['success' => true, 'id' => $saved_id]);
-            return;
+            exit;
         }
         set_message('success', lang('skill_saved'));
         redirect('admin/job_circular/manage_skills');
@@ -579,8 +580,9 @@ class Job_Circular extends Admin_Controller
     {
         $this->recruitment_model->delete_skill($id);
         if ($this->input->is_ajax_request()) {
+            header('Content-Type: application/json');
             echo json_encode(['success' => true]);
-            return;
+            exit;
         }
         set_message('success', lang('skill_deleted'));
         redirect('admin/job_circular/manage_skills');
@@ -597,7 +599,9 @@ class Job_Circular extends Admin_Controller
             });
         }
 
+        header('Content-Type: application/json');
         echo json_encode(['success' => true, 'skills' => $skills]);
+        exit;
     }
 
     // ==================== JOB SKILLS ASSIGNMENT ====================
@@ -625,7 +629,9 @@ class Job_Circular extends Admin_Controller
         // Recalculate ATS scores for existing applications
         $this->recruitment_model->recalculate_all_ats_scores($job_circular_id);
 
+        header('Content-Type: application/json');
         echo json_encode(['success' => true, 'message' => lang('job_skills_saved')]);
+        exit;
     }
 
     public function get_job_skills_ajax($job_circular_id)
@@ -635,12 +641,29 @@ class Job_Circular extends Admin_Controller
 
         $assigned_ids = array_map(function($s) { return $s->skill_id; }, $skills);
 
+        header('Content-Type: application/json');
         echo json_encode([
             'success' => true,
             'assigned' => $skills,
             'all_skills' => $all_skills,
             'assigned_ids' => $assigned_ids
         ]);
+        exit;
+    }
+
+    public function get_applications_ajax($job_circular_id = null)
+    {
+        $this->db->select('job_appliactions_id, name, email, ats_score, job_circular_id');
+        $this->db->from('tbl_job_appliactions');
+        if ($job_circular_id) {
+            $this->db->where('job_circular_id', $job_circular_id);
+        }
+        $this->db->order_by('ats_score', 'DESC');
+        $applications = $this->db->get()->result();
+
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true, 'applications' => $applications]);
+        exit;
     }
 
     // ==================== ATS APPLICATIONS DASHBOARD ====================
@@ -664,19 +687,22 @@ class Job_Circular extends Admin_Controller
 
         $app = $this->recruitment_model->get_application_detail($job_appliactions_id);
         if (empty($app) || empty($app->resume)) {
+            header('Content-Type: application/json');
             echo json_encode(['success' => false, 'message' => lang('resume_not_found')]);
-            return;
+            exit;
         }
 
         $resume_text = $this->ats_parser->extract_text($app->resume);
         if (empty($resume_text)) {
+            header('Content-Type: application/json');
             echo json_encode(['success' => false, 'message' => lang('resume_parse_failed')]);
-            return;
+            exit;
         }
 
         $ats_data = $this->recruitment_model->calculate_ats_score($app->job_circular_id, $resume_text);
         $this->recruitment_model->update_application_ats($job_appliactions_id, $ats_data);
 
+        header('Content-Type: application/json');
         echo json_encode([
             'success' => true,
             'ats_score' => $ats_data['ats_score'],
@@ -684,6 +710,7 @@ class Job_Circular extends Admin_Controller
             'missing_skills' => $ats_data['missing_skills'],
             'badge' => $this->ats_parser->get_score_badge($ats_data['ats_score'])
         ]);
+        exit;
     }
 
     public function ats_score_detail($job_appliactions_id)
@@ -775,8 +802,9 @@ class Job_Circular extends Admin_Controller
         }
 
         if ($this->input->is_ajax_request()) {
+            header('Content-Type: application/json');
             echo json_encode(['success' => true, 'interview_id' => $interview_id]);
-            return;
+            exit;
         }
 
         set_message('success', lang('interview_saved'));
@@ -849,14 +877,16 @@ class Job_Circular extends Admin_Controller
     {
         $interview = $this->recruitment_model->get_interview_by_id($interview_id);
         if (empty($interview)) {
+            header('Content-Type: application/json');
             echo json_encode(['success' => false, 'message' => 'Interview not found']);
-            return;
+            exit;
         }
 
         $email_template = email_templates(['email_group' => 'interview_invitation']);
         if (empty($email_template)) {
+            header('Content-Type: application/json');
             echo json_encode(['success' => false, 'message' => 'Email template not found']);
-            return;
+            exit;
         }
 
         $message = $email_template->template_body;
@@ -901,10 +931,14 @@ class Job_Circular extends Admin_Controller
         if ($sent) {
             $this->recruitment_model->mark_interview_email_sent($interview_id);
             log_message('info', "Interview email resent successfully to {$interview->candidate_email} for interview ID {$interview_id}");
+            header('Content-Type: application/json');
             echo json_encode(['success' => true, 'message' => 'Interview email resent successfully']);
+            exit;
         } else {
             log_message('error', "Failed to resend interview email to {$interview->candidate_email} for interview ID {$interview_id}");
+            header('Content-Type: application/json');
             echo json_encode(['success' => false, 'message' => 'Failed to send email. Check SMTP configuration.']);
+            exit;
         }
     }
 
@@ -920,7 +954,9 @@ class Job_Circular extends Admin_Controller
         $rating = $this->input->post('rating');
 
         $this->recruitment_model->update_interview_status($interview_id, $status, $feedback, $rating);
+        header('Content-Type: application/json');
         echo json_encode(['success' => true]);
+        exit;
     }
 
     public function interview_detail($interview_id)
@@ -937,8 +973,9 @@ class Job_Circular extends Admin_Controller
         $this->db->delete('tbl_interviews');
 
         if ($this->input->is_ajax_request()) {
+            header('Content-Type: application/json');
             echo json_encode(['success' => true]);
-            return;
+            exit;
         }
         set_message('success', lang('interview_deleted'));
         redirect('admin/job_circular/manage_interviews');
@@ -1002,8 +1039,9 @@ class Job_Circular extends Admin_Controller
         }
 
         if ($this->input->is_ajax_request()) {
+            header('Content-Type: application/json');
             echo json_encode(['success' => true, 'offer_id' => $offer_id]);
-            return;
+            exit;
         }
 
         set_message('success', lang('offer_saved'));
@@ -1069,8 +1107,9 @@ class Job_Circular extends Admin_Controller
     {
         $offer = $this->recruitment_model->get_offer_by_id($offer_id);
         if (empty($offer)) {
+            header('Content-Type: application/json');
             echo json_encode(['success' => false, 'message' => 'Offer not found']);
-            return;
+            exit;
         }
 
         $designation = '-';
@@ -1115,10 +1154,14 @@ class Job_Circular extends Admin_Controller
         if ($sent) {
             $this->recruitment_model->update_offer_status($offer_id, 'sent');
             log_message('info', "Offer email resent successfully to {$offer->candidate_email} for offer ID {$offer_id}");
+            header('Content-Type: application/json');
             echo json_encode(['success' => true, 'message' => 'Offer email resent successfully']);
+            exit;
         } else {
             log_message('error', "Failed to resend offer email to {$offer->candidate_email} for offer ID {$offer_id}");
+            header('Content-Type: application/json');
             echo json_encode(['success' => false, 'message' => 'Failed to send email. Check SMTP configuration.']);
+            exit;
         }
     }
 
@@ -1132,7 +1175,9 @@ class Job_Circular extends Admin_Controller
         $status = $this->input->post('status');
 
         $this->recruitment_model->update_offer_status($offer_id, $status);
+        header('Content-Type: application/json');
         echo json_encode(['success' => true]);
+        exit;
     }
 
     public function offer_detail($offer_id)
@@ -1149,8 +1194,9 @@ class Job_Circular extends Admin_Controller
         $this->db->delete('tbl_offer_letters');
 
         if ($this->input->is_ajax_request()) {
+            header('Content-Type: application/json');
             echo json_encode(['success' => true]);
-            return;
+            exit;
         }
         set_message('success', lang('offer_deleted'));
         redirect('admin/job_circular/manage_offers');
@@ -1159,11 +1205,13 @@ class Job_Circular extends Admin_Controller
     public function get_offer_template_ajax($template_id)
     {
         $template = $this->recruitment_model->get_offer_template_by_id($template_id);
+        header('Content-Type: application/json');
         if ($template) {
             echo json_encode(['success' => true, 'subject' => $template->template_subject, 'body' => $template->template_body]);
         } else {
             echo json_encode(['success' => false]);
         }
+        exit;
     }
 
     public function preview_offer()
@@ -1213,6 +1261,8 @@ class Job_Circular extends Admin_Controller
             }
         }
 
+        header('Content-Type: application/json');
         echo json_encode(['success' => true, 'subject' => $subject, 'body' => $body]);
+        exit;
     }
 }
