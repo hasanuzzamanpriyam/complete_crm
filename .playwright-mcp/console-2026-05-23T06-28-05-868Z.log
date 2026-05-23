@@ -1,0 +1,33 @@
+[     997ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost/tic_crm/login:0
+[   23714ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/PROFESONAL_PHOTO_2.jpg:0
+[   23754ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/mahfuz_Passport_Photo_(4).jpeg:0
+[   23783ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/photo_2026-02-24_07-43-26.jpg:0
+[   24710ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Sk__Md__Toukir_Islam_.jpg:0
+[   24747ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Gemini_Generated_Image_hcvlchhcvlchhcvl.png:0
+[   24748ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Screenshot_2026-05-16_161232.png:0
+[   24802ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/rsz_whatsapp_image_2025-01-24_at_95021_pm.jpg:0
+[   69018ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/admin/job_circular/building-o.png:0
+[   69019ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/PROFESONAL_PHOTO_2.jpg:0
+[   69019ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/mahfuz_Passport_Photo_(4).jpeg:0
+[   69026ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Gemini_Generated_Image_hcvlchhcvlchhcvl.png:0
+[   69026ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/photo_2026-02-24_07-43-26.jpg:0
+[   70028ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Screenshot_2026-05-16_161232.png:0
+[   70029ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/rsz_whatsapp_image_2025-01-24_at_95021_pm.jpg:0
+[   70029ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Sk__Md__Toukir_Islam_.jpg:0
+[   71802ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/PROFESONAL_PHOTO_2.jpg:0
+[   71813ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Sk__Md__Toukir_Islam_.jpg:0
+[   71813ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/mahfuz_Passport_Photo_(4).jpeg:0
+[   71813ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/rsz_whatsapp_image_2025-01-24_at_95021_pm.jpg:0
+[   71814ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Screenshot_2026-05-16_161232.png:0
+[   71814ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Gemini_Generated_Image_hcvlchhcvlchhcvl.png:0
+[   71814ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/photo_2026-02-24_07-43-26.jpg:0
+[   73756ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/PROFESONAL_PHOTO_2.jpg:0
+[   73756ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Sk__Md__Toukir_Islam_.jpg:0
+[   73756ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/mahfuz_Passport_Photo_(4).jpeg:0
+[   73757ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/rsz_whatsapp_image_2025-01-24_at_95021_pm.jpg:0
+[   73757ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Screenshot_2026-05-16_161232.png:0
+[   73757ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Gemini_Generated_Image_hcvlchhcvlchhcvl.png:0
+[   73757ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/photo_2026-02-24_07-43-26.jpg:0
+[   73796ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/admin/building-o.png:0
+[   77645ms] [ERROR] Error: <path> attribute d: Expected number, "M,0,0". @ http://localhost/tic_crm/assets/plugins/raphael/raphael.min.js:0
+[   77645ms] [ERROR] Error: <path> attribute d: Expected moveto path command ('M' or 'm'), "Z". @ http://localhost/tic_crm/assets/plugins/raphael/raphael.min.js:0

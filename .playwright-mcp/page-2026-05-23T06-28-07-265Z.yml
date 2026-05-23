@@ -1,0 +1,47 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - list [ref=e3]:
+      - listitem [ref=e4]:
+        - link " Languages" [ref=e5] [cursor=pointer]:
+          - /url: "#"
+          - generic [ref=e6]: 
+          - text: Languages
+    - generic [ref=e8]:
+      - img [ref=e10]
+      - generic [ref=e11]:
+        - link "TIC Limited" [ref=e13] [cursor=pointer]:
+          - /url: "#"
+        - generic [ref=e14]:
+          - paragraph [ref=e15]: SIGN IN TO CONTINUE.
+          - generic [ref=e16]:
+            - generic [ref=e17]:
+              - textbox "Username" [ref=e18]
+              - generic: 
+            - generic [ref=e19]:
+              - textbox "Password" [ref=e20]
+              - generic: 
+            - generic [ref=e21]:
+              - generic [ref=e23] [cursor=pointer]:
+                - checkbox " Remember Me" [ref=e24]
+                - generic [ref=e25]: 
+                - text: Remember Me
+              - link "Forgot password?" [ref=e27] [cursor=pointer]:
+                - /url: http://localhost/tic_crm/login/forgot_password
+            - button "Sign in " [ref=e28] [cursor=pointer]:
+              - text: Sign in
+              - generic [ref=e29]: 
+            - button " Mark Attendance" [ref=e30] [cursor=pointer]:
+              - generic [ref=e31]: 
+              - text: Mark Attendance
+          - paragraph [ref=e32]: Do not have an account?
+          - link " Get Your Account" [ref=e33] [cursor=pointer]:
+            - /url: http://localhost/tic_crm/login/register
+            - generic [ref=e34]: 
+            - text: Get Your Account
+      - generic [ref=e35]:
+        - text: ©
+        - link "TIC Limited" [ref=e37] [cursor=pointer]:
+          - /url: https://tic.com.bd
+        - text: 2015-2026 - Version 6.1.6
+  - link "Apply For a Job" [ref=e38] [cursor=pointer]:
+    - /url: http://localhost/tic_crm/career

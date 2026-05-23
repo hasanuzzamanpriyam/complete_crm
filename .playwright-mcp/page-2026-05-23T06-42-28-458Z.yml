@@ -1,0 +1,565 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - navigation [ref=e4]:
+        - link "App Logo" [ref=e6] [cursor=pointer]:
+          - /url: "#/"
+          - img "App Logo" [ref=e8]
+        - generic [ref=e9]:
+          - list [ref=e10]:
+            - listitem [ref=e11]:
+              - link "" [ref=e12] [cursor=pointer]:
+                - /url: "#"
+                - emphasis [ref=e13]: 
+              - text: 
+            - listitem [ref=e14]:
+              - link "TIC Limited" [ref=e15] [cursor=pointer]:
+                - /url: ""
+          - list [ref=e16]:
+            - listitem [ref=e17]:
+              - link "" [ref=e18] [cursor=pointer]:
+                - /url: "#"
+                - emphasis [ref=e19]: 
+            - listitem [ref=e20]:
+              - link "" [ref=e21] [cursor=pointer]:
+                - /url: "#"
+                - generic [ref=e22]: 
+            - listitem [ref=e23]:
+              - link " Languages" [ref=e24] [cursor=pointer]:
+                - /url: "#"
+                - generic [ref=e25]: 
+                - text: Languages
+            - listitem [ref=e26]:
+              - link "" [ref=e27] [cursor=pointer]:
+                - /url: "#"
+                - emphasis [ref=e28]: 
+              - text:          
+            - listitem [ref=e29]:
+              - link "User Image TIC" [ref=e30] [cursor=pointer]:
+                - /url: "#"
+                - img "User Image" [ref=e31]
+                - text: TIC
+            - listitem [ref=e32]:
+              - link "" [ref=e33] [cursor=pointer]:
+                - /url: "#"
+                - emphasis [ref=e34]: 
+        - generic [ref=e37]:
+          - combobox [ref=e39]:
+            - option "Projects" [selected]
+            - option "Tasks"
+            - option "Employee"
+            - option "Clients"
+            - option "Bugs"
+            - option "Opportunities"
+            - option "Leads"
+            - option "Purchase"
+            - option "Invoices"
+            - option "Credit Note"
+            - option "Estimates"
+            - option "Tickets"
+          - generic [ref=e40]:
+            - textbox "Search your need ...." [ref=e41]
+            - list
+            - status
+          - generic [ref=e42] [cursor=pointer]: 
+    - complementary [ref=e43]:
+      - navigation [ref=e45]:
+        - list [ref=e46]:
+          - listitem [ref=e47]:
+            - link "Avatar TIC Online" [ref=e48] [cursor=pointer]:
+              - /url: http://localhost/tic_crm/admin/user/user_details/94
+              - generic [ref=e50]:
+                - img "Avatar" [ref=e53]
+                - generic [ref=e55]:
+                  - generic [ref=e56]: TIC
+                  - generic [ref=e57]: Online
+        - generic [ref=e58]:
+          - generic: 
+          - searchbox "Search in menu..." [ref=e59]
+        - list
+        - list
+        - list [ref=e60]:
+          - listitem [ref=e61]:
+            - link " Dashboard" [ref=e62] [cursor=pointer]:
+              - /url: http://localhost/tic_crm/admin/dashboard
+              - emphasis [ref=e63]: 
+              - text: Dashboard
+          - listitem [ref=e64]:
+            - link " Calendar" [ref=e65] [cursor=pointer]:
+              - /url: http://localhost/tic_crm/admin/calendar
+              - emphasis [ref=e66]: 
+              - text: Calendar
+          - listitem [ref=e67]:
+            - link " Woocommerce " [ref=e68] [cursor=pointer]:
+              - /url: "#woocommerce"
+              - emphasis [ref=e69]: 
+              - text: Woocommerce 
+            - text:    
+          - listitem [ref=e70]:
+            - link " Mailbox" [ref=e71] [cursor=pointer]:
+              - /url: http://localhost/tic_crm/admin/mailbox
+              - emphasis [ref=e72]: 
+              - text: Mailbox
+          - listitem [ref=e73]:
+            - link " Spreadsheet" [ref=e74] [cursor=pointer]:
+              - /url: http://localhost/tic_crm/admin/spreadsheet
+              - emphasis [ref=e75]: 
+              - text: Spreadsheet
+          - listitem [ref=e76]:
+            - link " File Manager" [ref=e77] [cursor=pointer]:
+              - /url: http://localhost/tic_crm/admin/filemanager
+              - emphasis [ref=e78]: 
+              - text: File Manager
+          - listitem [ref=e79]:
+            - link " Warning" [ref=e80] [cursor=pointer]:
+              - /url: http://localhost/tic_crm/admin/warning
+              - emphasis [ref=e81]: 
+              - text: Warning
+          - listitem [ref=e82]:
+            - link " Contracts" [ref=e83] [cursor=pointer]:
+              - /url: http://localhost/tic_crm/admin/contracts
+              - emphasis [ref=e84]: 
+              - text: Contracts
+          - listitem [ref=e85]:
+            - link " Complaints" [ref=e86] [cursor=pointer]:
+              - /url: http://localhost/tic_crm/admin/complaints
+              - emphasis [ref=e87]: 
+              - text: Complaints
+          - listitem [ref=e88]:
+            - link " Zoom meeting" [ref=e89] [cursor=pointer]:
+              - /url: http://localhost/tic_crm/admin/zoom
+              - emphasis [ref=e90]: 
+              - text: Zoom meeting
+          - listitem [ref=e91]:
+            - link " Jitsi Meetings" [ref=e92] [cursor=pointer]:
+              - /url: http://localhost/tic_crm/admin/jitsi
+              - emphasis [ref=e93]: 
+              - text: Jitsi Meetings
+          - listitem [ref=e94]:
+            - link " Projects" [ref=e95] [cursor=pointer]:
+              - /url: http://localhost/tic_crm/admin/projects
+              - emphasis [ref=e96]: 
+              - text: Projects
+          - listitem [ref=e97]:
+            - link " Promotion" [ref=e98] [cursor=pointer]:
+              - /url: http://localhost/tic_crm/admin/promotion
+              - emphasis [ref=e99]: 
+              - text: Promotion
+          - listitem [ref=e100]:
+            - link " Accounting " [ref=e101] [cursor=pointer]:
+              - /url: "#accounting"
+              - emphasis [ref=e102]: 
+              - text: Accounting 
+            - text:      
+          - listitem [ref=e103]:
+            - link " Tasks" [ref=e104] [cursor=pointer]:
+              - /url: http://localhost/tic_crm/admin/tasks/all_task
+              - emphasis [ref=e105]: 
+              - text: Tasks
+          - listitem [ref=e106]:
+            - link " Termination" [ref=e107] [cursor=pointer]:
+              - /url: http://localhost/tic_crm/admin/termination
+              - emphasis [ref=e108]: 
+              - text: Termination
+          - listitem [ref=e109]:
+            - link " Bugs" [ref=e110] [cursor=pointer]:
+              - /url: http://localhost/tic_crm/admin/bugs
+              - emphasis [ref=e111]: 
+              - text: Bugs
+          - listitem [ref=e112]:
+            - link " Resignation" [ref=e113] [cursor=pointer]:
+              - /url: http://localhost/tic_crm/admin/resignation
+              - emphasis [ref=e114]: 
+              - text: Resignation
+          - listitem [ref=e115]:
+            - link " Opportunities" [ref=e116] [cursor=pointer]:
+              - /url: http://localhost/tic_crm/admin/opportunities
+              - emphasis [ref=e117]: 
+              - text: Opportunities
+          - listitem [ref=e118]:
+            - link " Leads" [ref=e119] [cursor=pointer]:
+              - /url: http://localhost/tic_crm/admin/leads
+              - emphasis [ref=e120]: 
+              - text: Leads
+          - listitem [ref=e121]:
+            - link " Stock " [ref=e122] [cursor=pointer]:
+              - /url: "#stock"
+              - emphasis [ref=e123]: 
+              - text: Stock 
+            - text:       
+          - listitem [ref=e124]:
+            - link " Sales " [ref=e125] [cursor=pointer]:
+              - /url: "#sales"
+              - emphasis [ref=e126]: 
+              - text: Sales 
+            - text:              
+          - listitem [ref=e127]:
+            - link " Tickets" [ref=e128] [cursor=pointer]:
+              - /url: http://localhost/tic_crm/admin/tickets
+              - emphasis [ref=e129]: 
+              - text: Tickets
+          - listitem [ref=e130]:
+            - link " Knowledge Base " [ref=e131] [cursor=pointer]:
+              - /url: "#knowledgebase"
+              - emphasis [ref=e132]: 
+              - text: Knowledge Base 
+            - text:   
+          - listitem [ref=e133]:
+            - link " Transactions " [ref=e134] [cursor=pointer]:
+              - /url: "#transactions_menu"
+              - emphasis [ref=e135]: 
+              - text: Transactions 
+            - text:       
+          - listitem [ref=e136]:
+            - link " Client" [ref=e137] [cursor=pointer]:
+              - /url: http://localhost/tic_crm/admin/client/manage_client
+              - emphasis [ref=e138]: 
+              - text: Client
+          - listitem [ref=e139]:
+            - link " Departments" [ref=e140] [cursor=pointer]:
+              - /url: http://localhost/tic_crm/admin/departments
+              - emphasis [ref=e141]: 
+              - text: Departments
+          - listitem [ref=e142]:
+            - link " Office Asset " [ref=e143] [cursor=pointer]:
+              - /url: "#office_stock"
+              - emphasis [ref=e144]: 
+              - text: Office Asset 
+            - text:          
+          - listitem [ref=e145]:
+            - link " Attendance " [ref=e146] [cursor=pointer]:
+              - /url: "#attendance"
+              - emphasis [ref=e147]: 
+              - text: Attendance 
+            - text:       
+          - listitem [ref=e148]:
+            - link " Recruitment " [ref=e149] [cursor=pointer]:
+              - /url: "#job_circular"
+              - emphasis [ref=e150]: 
+              - text: Recruitment 
+            - text:     
+          - listitem [ref=e151]:
+            - link " Payroll " [ref=e152] [cursor=pointer]:
+              - /url: "#payroll"
+              - emphasis [ref=e153]: 
+              - text: Payroll 
+            - text:           
+          - listitem [ref=e154]:
+            - link " Performance " [ref=e155] [cursor=pointer]:
+              - /url: "#performance"
+              - emphasis [ref=e156]: 
+              - text: Performance 
+            - text:   
+          - listitem [ref=e157]:
+            - link " Leave Management" [ref=e158] [cursor=pointer]:
+              - /url: http://localhost/tic_crm/admin/leave_management
+              - emphasis [ref=e159]: 
+              - text: Leave Management
+          - listitem [ref=e160]:
+            - link " Training" [ref=e161] [cursor=pointer]:
+              - /url: http://localhost/tic_crm/admin/training
+              - emphasis [ref=e162]: 
+              - text: Training
+          - listitem [ref=e163]:
+            - link " Announcements" [ref=e164] [cursor=pointer]:
+              - /url: http://localhost/tic_crm/admin/announcements
+              - emphasis [ref=e165]: 
+              - text: Announcements
+          - listitem [ref=e166]:
+            - link " Utilities " [ref=e167] [cursor=pointer]:
+              - /url: "#utilities"
+              - emphasis [ref=e168]: 
+              - text: Utilities 
+            - text:  
+          - listitem [ref=e169]:
+            - link " Reports " [ref=e170] [cursor=pointer]:
+              - /url: "#report"
+              - emphasis [ref=e171]: 
+              - text: Reports 
+            - text:                     
+          - listitem [ref=e172]:
+            - link " User" [ref=e173] [cursor=pointer]:
+              - /url: http://localhost/tic_crm/admin/user/user_list
+              - emphasis [ref=e174]: 
+              - text: User
+          - listitem [ref=e175]:
+            - link " Settings" [ref=e176] [cursor=pointer]:
+              - /url: http://localhost/tic_crm/admin/settings
+              - emphasis [ref=e177]: 
+              - text: Settings
+          - listitem [ref=e178]:
+            - link " Backup Database" [ref=e179] [cursor=pointer]:
+              - /url: http://localhost/tic_crm/admin/settings/database_backup
+              - emphasis [ref=e180]: 
+              - text: Backup Database
+          - listitem [ref=e181]:
+            - link " Private Chat" [ref=e182] [cursor=pointer]:
+              - /url: http://localhost/tic_crm/chat/conversations
+              - emphasis [ref=e183]: 
+              - text: Private Chat
+          - listitem [ref=e184]:
+            - link " Modules " [ref=e185] [cursor=pointer]:
+              - /url: "#modules"
+              - emphasis [ref=e186]: 
+              - text: Modules 
+            - text:  
+          - listitem [ref=e187]:
+            - link " Server Management " [ref=e188] [cursor=pointer]:
+              - /url: "#server_management"
+              - emphasis [ref=e189]: 
+              - text: Server Management 
+            - text:     
+        - list [ref=e190]:
+          - listitem [ref=e191]:
+            - link " Expense Schedules" [ref=e192] [cursor=pointer]:
+              - /url: http://localhost/tic_crm/admin/expenses
+              - emphasis [ref=e193]: 
+              - text: Expense Schedules
+          - listitem [ref=e194]:
+            - link " Payment Hub" [ref=e195] [cursor=pointer]:
+              - /url: http://localhost/tic_crm/admin/payment_hub
+              - emphasis [ref=e196]: 
+              - text: Payment Hub
+          - listitem [ref=e197]:
+            - link " API Routes" [ref=e198] [cursor=pointer]:
+              - /url: http://localhost/tic_crm/admin/api-routes
+              - emphasis [ref=e199]: 
+              - text: API Routes
+          - listitem [ref=e200]:
+            - link " API Documentation" [ref=e201] [cursor=pointer]:
+              - /url: http://localhost/tic_crm/admin/api-doc
+              - emphasis [ref=e202]: 
+              - text: API Documentation
+    - complementary [ref=e203]:
+      - generic [ref=e205]:
+        - heading "Saturday 23rd May, 2026" [level=2] [ref=e206]:
+          - text: Saturday
+          - text: 23rd May, 2026
+        - generic [ref=e210] [cursor=pointer]:
+          - textbox [ref=e211]: "0"
+          - button "Clear" [ref=e212]
+          - generic [ref=e213]:
+            - button "7" [ref=e215]
+            - button "8" [ref=e217]
+            - button "9" [ref=e219]
+            - button "+" [ref=e221]
+            - button "4" [ref=e223]
+            - button "5" [ref=e225]
+            - button "6" [ref=e227]
+            - button "-" [ref=e229]
+            - button "3" [ref=e231]
+            - button "2" [ref=e233]
+            - button "1" [ref=e235]
+            - button "*" [ref=e237]
+            - button "0" [ref=e239]
+            - button "." [ref=e241]
+            - button "=" [ref=e243]
+            - button / [ref=e245]
+    - generic [ref=e249]:
+      - generic [ref=e250]:
+        - link "Dashboard" [ref=e251] [cursor=pointer]:
+          - /url: http://localhost/tic_crm/admin/dashboard
+        - generic [ref=e252]:
+          - generic [ref=e253]: Saturday 23rd May - 2026, Time 12:42:27
+          - link " Clock In" [ref=e254] [cursor=pointer]:
+            - /url: http://localhost/tic_crm/admin/dashboard/set_clocking/0/94/1
+            - generic [ref=e255]: 
+            - text: Clock In
+      - generic [ref=e258]:
+        - generic [ref=e260]:
+          - strong [ref=e261]: Job Application List
+          - button [ref=e264] [cursor=pointer]:
+            - generic [ref=e265]: 
+        - generic [ref=e268]:
+          - combobox [ref=e271]:
+            - option "10" [selected]
+            - option "25"
+            - option "50"
+            - option "100"
+          - generic [ref=e272]:
+            - generic [ref=e275] [cursor=pointer]: 
+            - generic [ref=e277] [cursor=pointer]:
+              - generic [ref=e278]: 
+              - text: Selected
+            - generic [ref=e281] [cursor=pointer]: 
+            - generic [ref=e284] [cursor=pointer]: 
+            - generic [ref=e287] [cursor=pointer]: 
+          - generic [ref=e289]:
+            - text: "Search all columns:"
+            - searchbox "Search all columns:" [ref=e290]
+          - grid [ref=e291]:
+            - rowgroup [ref=e292]:
+              - 'row "Job Title: activate to sort column ascending Name: activate to sort column ascending Email: activate to sort column ascending Mobile: activate to sort column ascending ATS Score : activate to sort column ascending Apply On: activate to sort column ascending Status: activate to sort column ascending Action: activate to sort column ascending" [ref=e293]':
+                - 'columnheader "Job Title: activate to sort column ascending" [ref=e294] [cursor=pointer]': Job Title
+                - 'columnheader "Name: activate to sort column ascending" [ref=e295] [cursor=pointer]': Name
+                - 'columnheader "Email: activate to sort column ascending" [ref=e296] [cursor=pointer]': Email
+                - 'columnheader "Mobile: activate to sort column ascending" [ref=e297] [cursor=pointer]': Mobile
+                - 'columnheader "ATS Score : activate to sort column ascending" [ref=e298] [cursor=pointer]':
+                  - text: ATS Score
+                  - generic [ref=e299]: 
+                - 'columnheader "Apply On: activate to sort column ascending" [ref=e300] [cursor=pointer]': Apply On
+                - 'columnheader "Status: activate to sort column ascending" [ref=e301] [cursor=pointer]': Status
+                - 'columnheader "Action: activate to sort column ascending" [ref=e302] [cursor=pointer]': Action
+            - rowgroup [ref=e303]:
+              - row "Web Developer (PHP, Laravel, CodeIgniter, WordPress) Hasanuzzaman Priyam h.priyam1999@gmail.com 01794774636 92.5% - Excellent 21.05.2026 Unread      Status  " [ref=e304]:
+                - gridcell "Web Developer (PHP, Laravel, CodeIgniter, WordPress)" [ref=e305]:
+                  - link "Web Developer (PHP, Laravel, CodeIgniter, WordPress)" [ref=e306] [cursor=pointer]:
+                    - /url: http://localhost/tic_crm/admin/job_circular/view_circular_details/17
+                - gridcell "Hasanuzzaman Priyam" [ref=e307]
+                - gridcell "h.priyam1999@gmail.com" [ref=e308]
+                - gridcell "01794774636" [ref=e309]
+                - gridcell "92.5% - Excellent" [ref=e310]
+                - gridcell "21.05.2026" [ref=e311]
+                - gridcell "Unread" [ref=e312]
+                - gridcell "     Status  " [ref=e313]:
+                  - link "" [ref=e314] [cursor=pointer]:
+                    - /url: http://localhost/tic_crm/admin/job_circular/download_resume/261
+                    - generic [ref=e315]: 
+                  - link "" [ref=e316] [cursor=pointer]:
+                    - /url: http://localhost/tic_crm/admin/job_circular/ats_score_detail/261
+                    - generic [ref=e317]: 
+                  - link "" [ref=e318] [cursor=pointer]:
+                    - /url: http://localhost/tic_crm/admin/job_circular/schedule_interview/261
+                    - generic [ref=e319]: 
+                  - link "" [ref=e320] [cursor=pointer]:
+                    - /url: http://localhost/tic_crm/admin/job_circular/create_offer/261
+                    - generic [ref=e321]: 
+                  - link " Status" [ref=e322] [cursor=pointer]:
+                    - /url: http://localhost/tic_crm/admin/job_circular/change_application_status/261
+                    - generic [ref=e323]: 
+                    - text: Status
+                  - link "" [ref=e324] [cursor=pointer]:
+                    - /url: http://localhost/tic_crm/admin/job_circular/jobs_application_details/261
+                    - generic [ref=e325]: 
+                  - strong [ref=e326] [cursor=pointer]:
+                    - generic [ref=e327]: 
+              - row "Web Developer (PHP, Laravel, CodeIgniter, WordPress) test gsmforid@gmail.com 01896156701 17.5% - Low 01.08.2025 Unread      Status  " [ref=e328]:
+                - gridcell "Web Developer (PHP, Laravel, CodeIgniter, WordPress)" [ref=e329]:
+                  - link "Web Developer (PHP, Laravel, CodeIgniter, WordPress)" [ref=e330] [cursor=pointer]:
+                    - /url: http://localhost/tic_crm/admin/job_circular/view_circular_details/17
+                - gridcell "test" [ref=e331]
+                - gridcell "gsmforid@gmail.com" [ref=e332]
+                - gridcell "01896156701" [ref=e333]
+                - gridcell "17.5% - Low" [ref=e334]
+                - gridcell "01.08.2025" [ref=e335]
+                - gridcell "Unread" [ref=e336]
+                - gridcell "     Status  " [ref=e337]:
+                  - link "" [ref=e338] [cursor=pointer]:
+                    - /url: http://localhost/tic_crm/admin/job_circular/download_resume/204
+                    - generic [ref=e339]: 
+                  - link "" [ref=e340] [cursor=pointer]:
+                    - /url: http://localhost/tic_crm/admin/job_circular/ats_score_detail/204
+                    - generic [ref=e341]: 
+                  - link "" [ref=e342] [cursor=pointer]:
+                    - /url: http://localhost/tic_crm/admin/job_circular/schedule_interview/204
+                    - generic [ref=e343]: 
+                  - link "" [ref=e344] [cursor=pointer]:
+                    - /url: http://localhost/tic_crm/admin/job_circular/create_offer/204
+                    - generic [ref=e345]: 
+                  - link " Status" [ref=e346] [cursor=pointer]:
+                    - /url: http://localhost/tic_crm/admin/job_circular/change_application_status/204
+                    - generic [ref=e347]: 
+                    - text: Status
+                  - link "" [ref=e348] [cursor=pointer]:
+                    - /url: http://localhost/tic_crm/admin/job_circular/jobs_application_details/204
+                    - generic [ref=e349]: 
+                  - strong [ref=e350] [cursor=pointer]:
+                    - generic [ref=e351]: 
+              - row "Web Developer (PHP, Laravel, CodeIgniter, WordPress) Al Ramim sakibramim4@gmail.com 01590015140 0% - Pending 08.01.2026 Unread      Status  " [ref=e352]:
+                - gridcell "Web Developer (PHP, Laravel, CodeIgniter, WordPress)" [ref=e353]:
+                  - link "Web Developer (PHP, Laravel, CodeIgniter, WordPress)" [ref=e354] [cursor=pointer]:
+                    - /url: http://localhost/tic_crm/admin/job_circular/view_circular_details/17
+                - gridcell "Al Ramim" [ref=e355]
+                - gridcell "sakibramim4@gmail.com" [ref=e356]
+                - gridcell "01590015140" [ref=e357]
+                - gridcell "0% - Pending" [ref=e358]
+                - gridcell "08.01.2026" [ref=e359]
+                - gridcell "Unread" [ref=e360]
+                - gridcell "     Status  " [ref=e361]:
+                  - link "" [ref=e362] [cursor=pointer]:
+                    - /url: http://localhost/tic_crm/admin/job_circular/download_resume/256
+                    - generic [ref=e363]: 
+                  - link "" [ref=e364] [cursor=pointer]:
+                    - /url: http://localhost/tic_crm/admin/job_circular/ats_score_detail/256
+                    - generic [ref=e365]: 
+                  - link "" [ref=e366] [cursor=pointer]:
+                    - /url: http://localhost/tic_crm/admin/job_circular/schedule_interview/256
+                    - generic [ref=e367]: 
+                  - link "" [ref=e368] [cursor=pointer]:
+                    - /url: http://localhost/tic_crm/admin/job_circular/create_offer/256
+                    - generic [ref=e369]: 
+                  - link " Status" [ref=e370] [cursor=pointer]:
+                    - /url: http://localhost/tic_crm/admin/job_circular/change_application_status/256
+                    - generic [ref=e371]: 
+                    - text: Status
+                  - link "" [ref=e372] [cursor=pointer]:
+                    - /url: http://localhost/tic_crm/admin/job_circular/jobs_application_details/256
+                    - generic [ref=e373]: 
+                  - strong [ref=e374] [cursor=pointer]:
+                    - generic [ref=e375]: 
+          - status [ref=e376]:
+            - text: Showing 1 to 3 of 3 Entries
+            - generic [ref=e388]: 1 row selected
+          - list [ref=e378]:
+            - listitem:
+              - link "Previous" [ref=e379]:
+                - /url: "#"
+            - listitem:
+              - link "1" [ref=e380]:
+                - /url: "#"
+            - listitem:
+              - link "Next" [ref=e381]:
+                - /url: "#"
+    - contentinfo [ref=e382]:
+      - generic [ref=e383]: Version 6.1.6
+      - strong [ref=e384]:
+        - text: ©
+        - link "TIC Limited" [ref=e385] [cursor=pointer]:
+          - /url: https://tic.com.bd
+        - text: .
+      - text: All rights reserved.
+  - generic:
+    - button "" [ref=e386] [cursor=pointer]:
+      - generic [ref=e387]: 
+    - text: 
+  - dialog [active] [ref=e389]:
+    - generic [ref=e392]:
+      - generic [ref=e393]:
+        - button [ref=e394] [cursor=pointer]: ×
+        - heading [level=4] [ref=e395]: Schedule Interview
+      - generic [ref=e397]:
+        - generic [ref=e398]:
+          - strong [ref=e399]: "Candidate:"
+          - text: Hasanuzzaman Priyam (h.priyam1999@gmail.com)
+          - strong [ref=e400]: "Job Title:"
+          - text: Web Developer (PHP, Laravel, CodeIgniter, WordPress)
+          - strong [ref=e401]: "ATS Score:"
+          - text: 92.5%
+        - generic [ref=e402]:
+          - generic [ref=e403]: Interview Type *
+          - combobox [ref=e405]
+        - generic [ref=e406]:
+          - generic [ref=e407]: Interview Date *
+          - generic [ref=e409]:
+            - textbox [ref=e410]
+            - generic [ref=e412]: 
+        - generic [ref=e413]:
+          - generic [ref=e414]: Interview Time *
+          - textbox [ref=e416]
+        - generic [ref=e417]:
+          - generic [ref=e418]: Interviewer Name
+          - textbox [ref=e420]: TIC
+        - generic [ref=e421]:
+          - generic [ref=e422]: Interviewer Email
+          - textbox [ref=e424]: tic@gmail.com
+        - generic [ref=e425]:
+          - generic [ref=e426]: Meeting Link
+          - textbox [ref=e428]:
+            - /placeholder: https://meet.jit.si/room-name or Zoom link
+        - generic [ref=e429]:
+          - generic [ref=e430]: Interview Notes
+          - textbox [ref=e432]
+        - generic [ref=e436]:
+          - checkbox [checked] [ref=e437]
+          - text: Send interview invitation email
+        - button [ref=e441] [cursor=pointer]: Save

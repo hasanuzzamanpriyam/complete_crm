@@ -135,8 +135,12 @@ class Job_Circular extends Admin_Controller
         // Load all active skills for skill selection
         $data['all_skills'] = $this->db->where('status', 'active')->order_by('skill_category', 'ASC')->order_by('skill_name', 'ASC')->get('tbl_recruitment_skills')->result();
 
-        $data['subview'] = $this->load->view('admin/job_circular/new_jobs_posted', $data, FALSE);
-        $this->load->view('admin/_layout_modal_lg', $data); //page load
+        $data['subview'] = $this->load->view('admin/job_circular/new_jobs_posted', $data, TRUE);
+        if ($this->input->is_ajax_request()) {
+            echo $data['subview'];
+        } else {
+            $this->load->view('admin/_layout_main', $data);
+        }
     }
 
     public function save_job_posted($id = NULL)
@@ -310,8 +314,12 @@ class Job_Circular extends Admin_Controller
     {
         $data['title'] = lang('view_circular_details');
         $data['job_posted'] = $this->db->where('job_circular_id', $id)->get('tbl_job_circular')->row();
-        $data['subview'] = $this->load->view('admin/job_circular/circular_details', $data, FALSE);
-        $this->load->view('admin/_layout_modal_lg', $data); //page load
+        $data['subview'] = $this->load->view('admin/job_circular/circular_details', $data, TRUE);
+        if ($this->input->is_ajax_request()) {
+            echo $data['subview'];
+        } else {
+            $this->load->view('admin/_layout_main', $data);
+        }
     }
 
     public
@@ -869,8 +877,12 @@ class Job_Circular extends Admin_Controller
             $data['application'] = $this->recruitment_model->get_application_detail($job_appliactions_id);
         }
         $data['job_circulars'] = $this->db->where('status', 'published')->get('tbl_job_circular')->result();
-        $data['subview'] = $this->load->view('admin/job_circular/schedule_interview', $data, FALSE);
-        $this->load->view('admin/_layout_modal_lg', $data);
+        $data['subview'] = $this->load->view('admin/job_circular/schedule_interview', $data, TRUE);
+        if ($this->input->is_ajax_request()) {
+            echo $data['subview'];
+        } else {
+            $this->load->view('admin/_layout_main', $data);
+        }
     }
 
     public function save_interview($id = null)
@@ -1060,8 +1072,12 @@ class Job_Circular extends Admin_Controller
     {
         $data['title'] = lang('interview_detail');
         $data['interview'] = $this->recruitment_model->get_interview_by_id($interview_id);
-        $data['subview'] = $this->load->view('admin/job_circular/interview_detail', $data, FALSE);
-        $this->load->view('admin/_layout_modal_lg', $data);
+        $data['subview'] = $this->load->view('admin/job_circular/interview_detail', $data, TRUE);
+        if ($this->input->is_ajax_request()) {
+            echo $data['subview'];
+        } else {
+            $this->load->view('admin/_layout_main', $data);
+        }
     }
 
     public function delete_interview($interview_id)
@@ -1239,8 +1255,12 @@ class Job_Circular extends Admin_Controller
             }
         }
 
-        $data['subview'] = $this->load->view('admin/job_circular/create_offer', $data, FALSE);
-        $this->load->view('admin/_layout_modal_lg', $data);
+        $data['subview'] = $this->load->view('admin/job_circular/create_offer', $data, TRUE);
+        if ($this->input->is_ajax_request()) {
+            echo $data['subview'];
+        } else {
+            $this->load->view('admin/_layout_main', $data);
+        }
     }
 
     public function save_offer($id = null)
@@ -1412,8 +1432,12 @@ class Job_Circular extends Admin_Controller
     {
         $data['title'] = lang('offer_detail');
         $data['offer'] = $this->recruitment_model->get_offer_by_id($offer_id);
-        $data['subview'] = $this->load->view('admin/job_circular/offer_detail', $data, FALSE);
-        $this->load->view('admin/_layout_modal_lg', $data);
+        $data['subview'] = $this->load->view('admin/job_circular/offer_detail', $data, TRUE);
+        if ($this->input->is_ajax_request()) {
+            echo $data['subview'];
+        } else {
+            $this->load->view('admin/_layout_main', $data);
+        }
     }
 
     public function delete_offer($offer_id)
