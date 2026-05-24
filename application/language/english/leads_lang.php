@@ -53,6 +53,10 @@ $lang['lead_status_added'] = 'Leads Status Added Successfully Updated';
 $lang['lead_source_added'] = 'Leads Source Added Successfully Updated';
 $lang['lead_source_deleted'] = 'Leads Source Added Successfully Deleted';
 $lang['not_received_one_or_more_messages_lead'] = 'Received one more email message from lead';
+$lang['meeting_url'] = 'Meeting URL';
+$lang['meeting_invitation'] = 'Meeting Invitation';
+$lang['meeting_invitation_message'] = 'You have been invited to a meeting.';
+$lang['meeting_platform'] = 'Meeting Platform';
 
 
 

@@ -40,13 +40,20 @@ if ($task_timer_id) {
                         ?>
                                 <tr id="leads_meetings_<?= $leads_details->leads_id ?>">
                                     <td>
-                                        <a data-toggle="modal" data-target="#myModal" href="<?= base_url('admin/opportunities/meeting_details/' . $v_mettings->mettings_id) ?>"><?= $v_mettings->meeting_subject ?></a>
+                                        <?php
+    // Determine meeting URL based on platform (default zoom)
+    $meeting_url = base_url('admin/opportunities/meeting_details/' . $v_mettings->mettings_id);
+    if (!empty($v_mettings->platform) && $v_mettings->platform == 'jitsi') {
+        $meeting_url = base_url('admin/jitsi/join/' . url_encode($v_mettings->mettings_id));
+    }
+?>
+<a data-toggle="modal" data-target="#myModal" href="<?= $meeting_url ?>"><?= $v_mettings->meeting_subject ?></a>
                                     </td>
                                     <td><?= strftime(config_item('date_format'), ($v_mettings->end_date)) . '<span style="color:#3c8dbc"> at </span>' . display_time($v_mettings->end_date, true) ?>
                                     </td>
                                     <td><?= fullname($v_mettings->user_id) ?></td>
                                     <td>
-                                        <a href="<?= base_url('admin/leads/leads_details/' . $v_mettings->mettings_id) ?>" class="btn btn-xs btn-info" data-placement="top" data-toggle="modal" data-target="#myModal">
+                                        <a href="<?= base_url('admin/opportunities/meeting_details/' . $v_mettings->mettings_id) ?>" class="btn btn-xs btn-info" data-placement="top" data-toggle="modal" data-target="#myModal">
                                             <i class="fa fa-list "></i></a>
                                         <?= btn_edit('admin/leads/leads_details/' . $leads_details->leads_id . '/mettings/' . $v_mettings->mettings_id) ?>
                                         <?php echo ajax_anchor(base_url("admin/leads/delete_leads_mettings/" . $leads_details->leads_id . '/' . $v_mettings->mettings_id), "<i class='btn btn-danger btn-xs fa fa-trash-o'></i>", array("class" => "", "title" => lang('delete'), "data-fade-out-on-success" => "#table-meeting-" . $v_mettings->mettings_id)); ?>
@@ -68,14 +75,25 @@ if ($task_timer_id) {
                                                                                                                                                                     ?>" method="post" class="form-horizontal  ">
                 <div class="form-group terms">
                     <label class="col-lg-3 control-label"><?= lang('metting_subject') ?>
-                        <span class="text-danger"> *</span> </label>
+                        <span class="text-danger"> *</span>
+                    </label>
                     <div class="col-lg-9">
                         <input type="text" required="" name="meeting_subject" class="form-control" value="<?php
-                                                                                                            if (!empty($mettings_info->meeting_subject)) {
-                                                                                                                echo $mettings_info->meeting_subject;
-                                                                                                            }
-                                                                                                            ?>">
+                        if (!empty($mettings_info->meeting_subject)) {
+                            echo $mettings_info->meeting_subject;
+                        }
+                        ?>">
                     </div>
+                    <div class="form-group">
+                        <label class="col-lg-3 control-label"><?= lang('meeting_platform') ?></label>
+                        <div class="col-lg-9">
+                            <select name="meeting_platform" class="form-control select_box" required>
+                                <option value="zoom" <?php if (!empty($mettings_info->platform) && $mettings_info->platform == 'zoom') echo 'selected'; ?>>Zoom</option>
+                                <option value="jitsi" <?php if (!empty($mettings_info->platform) && $mettings_info->platform == 'jitsi') echo 'selected'; ?>>Jitsi</option>
+                            </select>
+                        </div>
+                    </div>
+
                 </div>
                 <div class="form-group">
                     <label class="col-lg-3 control-label"><?= lang('start_date') ?><span class="text-danger"> *</span></label>

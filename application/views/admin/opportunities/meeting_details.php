@@ -69,6 +69,22 @@
                         ?></p>
                 </div>
             </div>
+            <?php if (!empty($details->meeting_url)): ?>
+            <div class="col-md-12 notice-details-margin">
+                <div class="col-sm-4 text-right">
+                    <label class="control-label"><strong><?= lang('meeting_url') ?> :</strong></label>
+                </div>
+                <div class="col-sm-8">
+                    <p class="form-control-static">
+                        <a href="<?= $details->meeting_url ?>" target="_blank"><?= $details->meeting_url ?></a>
+                        <button class="btn btn-xs btn-default copy-url" data-url="<?= $details->meeting_url ?>"
+                                onclick="copyMeetingLink(this, '<?= $details->meeting_url ?>')" title="Copy">
+                            <i class="fa fa-copy"></i>
+                        </button>
+                    </p>
+                </div>
+            </div>
+            <?php endif; ?>
             <div class="col-md-12 notice-details-margin">
                 <div class="col-sm-4 text-right">
                     <label class="control-label"><strong><?= lang('description') ?> :</strong></label>
@@ -84,6 +100,17 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal"><?= lang('close') ?></button>
             </div>
+<script>
+function copyMeetingLink(btn, url) {
+    navigator.clipboard.writeText(url).then(function() {
+        var original = btn.innerHTML;
+        btn.innerHTML = '<i class="fa fa-check"></i> Copied';
+        setTimeout(function() {
+            btn.innerHTML = original;
+        }, 2000);
+    });
+}
+</script>
         </div>
     </div>
 </div>

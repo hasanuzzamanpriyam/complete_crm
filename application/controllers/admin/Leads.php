@@ -969,6 +969,12 @@ class Leads extends Admin_Controller
         $this->items_model->_primary_key = 'mettings_id';
 
         $data = $this->items_model->array_from_post(array('meeting_subject', 'user_id', 'location', 'description'));
+        // Get platform from posted field (default to zoom)
+        $platform = $this->input->post('meeting_platform', true);
+        if (empty($platform)) {
+            $platform = 'zoom';
+        }
+        $data['platform'] = $platform; // store in platform column
         $data['start_date'] = strtotime($this->input->post('start_date', true) . ' ' . display_time($this->input->post('start_time', true)));
         $data['end_date'] = strtotime($this->input->post('end_date', true) . ' ' . display_time($this->input->post('end_time', true)));
         $data['leads_id'] = $leads_id;
@@ -989,6 +995,59 @@ class Leads extends Admin_Controller
             $action = 'activity_save_leads_metting';
             $msg = lang('save_leads_metting');
         }
+
+        $leads_info = $this->items_model->check_by(array('leads_id' => $leads_id), 'tbl_leads');
+
+        // --- Generate meeting URL based on platform ---
+        $meeting_url = '';
+        if ($platform == 'jitsi') {
+            // Generate Jitsi room name
+            if (!function_exists('build_jitsi_url')) {
+                $this->load->helper('jitsi/jitsi');
+            }
+            if (!isset($this->jitsi_model)) {
+                $this->load->model('jitsi/Jitsi_model', 'jitsi_model');
+            }
+            $room_name = $this->jitsi_model->generate_room_name();
+            $lead_name = !empty($leads_info->lead_name) ? $leads_info->lead_name : '';
+            $lead_email = !empty($leads_info->email) ? $leads_info->email : '';
+            // Build full URL if JWT config exists, otherwise use plain domain+room
+            if (is_jitsi_configured()) {
+                $meeting_url = build_jitsi_url($room_name, $lead_email, $lead_name, true);
+            } else {
+                $jitsi_domain = config_item('jitsi_domain') ?: 'https://meet.jit.si';
+                $meeting_url = $jitsi_domain . '/' . $room_name;
+            }
+            // Store the meeting URL and room in tbl_mettings
+            $this->items_model->_table_name = 'tbl_mettings';
+            $this->items_model->_primary_key = 'mettings_id';
+            $this->items_model->save(array('meeting_url' => $meeting_url, 'meeting_room' => $room_name), $id);
+        } elseif ($platform == 'zoom') {
+            // Attempt to create Zoom meeting via API
+            if (config_item('zoom_api_key') && config_item('zoom_api_secret')) {
+                if (!class_exists('ZoomAPI', false)) {
+                    $this->load->library('zoom/ZoomAPI');
+                }
+                $zoomApi = new ZoomAPI();
+                $zoomData = array(
+                    'topic' => $data['meeting_subject'],
+                    'duration' => 30,
+                    'start_time' => date('Y-m-d\TH:i:s', $data['start_date']),
+                );
+                try {
+                    $response = $zoomApi->createMeeting($zoomData);
+                    if (!empty($response->join_url)) {
+                        $meeting_url = $response->join_url;
+                        $this->items_model->_table_name = 'tbl_mettings';
+                        $this->items_model->_primary_key = 'mettings_id';
+                        $this->items_model->save(array('meeting_url' => $meeting_url), $id);
+                    }
+                } catch (Exception $e) {
+                    // Zoom API failed – meeting URL stays empty
+                }
+            }
+        }
+
         $activity = array(
             'user' => $this->session->userdata('user_id'),
             'module' => 'leads',
@@ -1003,7 +1062,58 @@ class Leads extends Admin_Controller
         $this->items_model->_primary_key = 'activities_id';
         $this->items_model->save($activity);
 
-        $leads_info = $this->items_model->check_by(array('leads_id' => $leads_id), 'tbl_leads');
+        // --- Send meeting invitation emails ---
+        if (!empty($meeting_url)) {
+            $subject = lang('meeting_invitation') . ' - ' . $data['meeting_subject'];
+            $start_date_str = display_datetime($data['start_date'], true);
+
+            // Helper to build email body
+            $build_email_body = function ($recipient_name) use ($data, $meeting_url, $start_date_str) {
+                $message = '<p>' . lang('meeting_invitation_message') . '</p>';
+                $message .= '<p><strong>' . lang('metting_subject') . ':</strong> ' . $data['meeting_subject'] . '</p>';
+                $message .= '<p><strong>' . lang('start_date') . ':</strong> ' . $start_date_str . '</p>';
+                $message .= '<p><strong>' . lang('location') . ':</strong> ' . $data['location'] . '</p>';
+                $message .= '<p><strong>' . lang('meeting_url') . ':</strong> <a href="' . $meeting_url . '">' . $meeting_url . '</a></p>';
+                $data_arr['message'] = $message;
+                return $this->load->view('email_template', $data_arr, TRUE);
+            };
+
+            // 1. Send to attendees
+            $attendees_post = $this->input->post('attendees', true);
+            if (!empty($attendees_post) && is_array($attendees_post)) {
+                foreach ($attendees_post as $attendee_id) {
+                    $user_email = get_any_field('tbl_users', array('user_id' => $attendee_id), 'email');
+                    if (!empty($user_email)) {
+                        $user_name = fullname($attendee_id);
+                        $email_body = $build_email_body($user_name);
+                        queue_email($user_email, $subject, $email_body, 'leads_mettings');
+                    }
+                }
+            }
+
+            // 2. Send to responsible person
+            if (!empty($data['user_id'])) {
+                $responsible_email = get_any_field('tbl_users', array('user_id' => $data['user_id']), 'email');
+                if (!empty($responsible_email)) {
+                    $resp_name = fullname($data['user_id']);
+                    $email_body = $build_email_body($resp_name);
+                    queue_email($responsible_email, $subject, $email_body, 'leads_mettings');
+                }
+            }
+
+            // 3. Send to lead
+            if (!empty($leads_info->email)) {
+                $lead_name = !empty($leads_info->lead_name) ? $leads_info->lead_name : '';
+                $email_body = $build_email_body($lead_name);
+                queue_email($leads_info->email, $subject, $email_body, 'leads_mettings');
+            }
+        }
+
+        // Attempt to send queued emails immediately (up to 10)
+        if (function_exists('process_email_queue')) {
+            process_email_queue(10);
+        }
+
         $notifiedUsers = array();
         if (!empty($leads_info->permission) && $leads_info->permission != 'all') {
             $permissionUsers = json_decode($leads_info->permission);

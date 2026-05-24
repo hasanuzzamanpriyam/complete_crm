@@ -4345,7 +4345,7 @@ function tab_load_view($all_tab, $active)
     $tab = array_filter($all_tab, function ($tab) use ($active) {
         return $tab['name'] == $active;
     });
-    if (count(array($tab)) > 0) {
+    if (!empty($tab) && isset($tab[$active])) {
         return $tab[$active]['view'];
     } else {
         return false;

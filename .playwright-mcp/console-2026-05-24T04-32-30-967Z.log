@@ -1,0 +1,137 @@
+[     714ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/PROFESONAL_PHOTO_2.jpg:0
+[     714ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Sk__Md__Toukir_Islam_.jpg:0
+[     715ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/mahfuz_Passport_Photo_(4).jpeg:0
+[     751ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Gemini_Generated_Image_hcvlchhcvlchhcvl.png:0
+[     751ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/photo_2026-02-24_07-43-26.jpg:0
+[    1105ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost/tic_crm/admin/leads/leads_details/9/building-o.png:0
+[    1111ms] [WARNING] Notifications permission has been blocked as the user has dismissed the permission prompt several times. This can be reset in Page Info which can be accessed by clicking the tune icon next to the URL. See https://www.chromestatus.com/feature/6443143280984064 for more information. @ http://localhost/tic_crm/admin/leads/leads_details/9/mettings:0
+[    1683ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/rsz_whatsapp_image_2025-01-24_at_95021_pm.jpg:0
+[    1710ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Screenshot_2026-05-16_161232.png:0
+[   10700ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/PROFESONAL_PHOTO_2.jpg:0
+[   10700ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Sk__Md__Toukir_Islam_.jpg:0
+[   10700ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Gemini_Generated_Image_hcvlchhcvlchhcvl.png:0
+[   10700ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/photo_2026-02-24_07-43-26.jpg:0
+[   10701ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost/tic_crm/admin/leads/leads_details/9/building-o.png:0
+[   10701ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Screenshot_2026-05-16_161232.png:0
+[   10701ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/mahfuz_Passport_Photo_(4).jpeg:0
+[   10701ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/rsz_whatsapp_image_2025-01-24_at_95021_pm.jpg:0
+[   10729ms] [WARNING] Notifications permission has been blocked as the user has dismissed the permission prompt several times. This can be reset in Page Info which can be accessed by clicking the tune icon next to the URL. See https://www.chromestatus.com/feature/6443143280984064 for more information. @ http://localhost/tic_crm/admin/leads/leads_details/9/mettings:0
+[   91770ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/PROFESONAL_PHOTO_2.jpg:0
+[   91785ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/rsz_whatsapp_image_2025-01-24_at_95021_pm.jpg:0
+[   91785ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Sk__Md__Toukir_Islam_.jpg:0
+[   91801ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/mahfuz_Passport_Photo_(4).jpeg:0
+[   91833ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Gemini_Generated_Image_hcvlchhcvlchhcvl.png:0
+[   91845ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/photo_2026-02-24_07-43-26.jpg:0
+[   92170ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost/tic_crm/admin/leads/leads_details/9/building-o.png:0
+[   92176ms] [WARNING] Notifications permission has been blocked as the user has dismissed the permission prompt several times. This can be reset in Page Info which can be accessed by clicking the tune icon next to the URL. See https://www.chromestatus.com/feature/6443143280984064 for more information. @ http://localhost/tic_crm/admin/leads/leads_details/9/mettings:0
+[   92767ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Screenshot_2026-05-16_161232.png:0
+[   96095ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/PROFESONAL_PHOTO_2.jpg:0
+[   96095ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/rsz_whatsapp_image_2025-01-24_at_95021_pm.jpg:0
+[   96095ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/mahfuz_Passport_Photo_(4).jpeg:0
+[   96096ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Sk__Md__Toukir_Islam_.jpg:0
+[   96096ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Gemini_Generated_Image_hcvlchhcvlchhcvl.png:0
+[   96096ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/photo_2026-02-24_07-43-26.jpg:0
+[   96097ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost/tic_crm/admin/leads/leads_details/9/building-o.png:0
+[   96097ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Screenshot_2026-05-16_161232.png:0
+[   96149ms] [WARNING] Notifications permission has been blocked as the user has dismissed the permission prompt several times. This can be reset in Page Info which can be accessed by clicking the tune icon next to the URL. See https://www.chromestatus.com/feature/6443143280984064 for more information. @ http://localhost/tic_crm/admin/leads/leads_details/9/mettings:0
+[  193602ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/PROFESONAL_PHOTO_2.jpg:0
+[  193602ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/rsz_whatsapp_image_2025-01-24_at_95021_pm.jpg:0
+[  193602ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Sk__Md__Toukir_Islam_.jpg:0
+[  193603ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/mahfuz_Passport_Photo_(4).jpeg:0
+[  193627ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Gemini_Generated_Image_hcvlchhcvlchhcvl.png:0
+[  193630ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/photo_2026-02-24_07-43-26.jpg:0
+[  193770ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost/tic_crm/admin/leads/leads_details/9/building-o.png:0
+[  194594ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Screenshot_2026-05-16_161232.png:0
+[  203158ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/PROFESONAL_PHOTO_2.jpg:0
+[  203198ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/mahfuz_Passport_Photo_(4).jpeg:0
+[  203198ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Sk__Md__Toukir_Islam_.jpg:0
+[  203198ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/rsz_whatsapp_image_2025-01-24_at_95021_pm.jpg:0
+[  203199ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Gemini_Generated_Image_hcvlchhcvlchhcvl.png:0
+[  203220ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/photo_2026-02-24_07-43-26.jpg:0
+[  203636ms] [WARNING] Notifications permission has been blocked as the user has dismissed the permission prompt several times. This can be reset in Page Info which can be accessed by clicking the tune icon next to the URL. See https://www.chromestatus.com/feature/6443143280984064 for more information. @ http://localhost/tic_crm/admin/leads/leads_details/9/mettings/1:0
+[  204183ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Screenshot_2026-05-16_161232.png:0
+[  228832ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/PROFESONAL_PHOTO_2.jpg:0
+[  228851ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Sk__Md__Toukir_Islam_.jpg:0
+[  228863ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/mahfuz_Passport_Photo_(4).jpeg:0
+[  228864ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/rsz_whatsapp_image_2025-01-24_at_95021_pm.jpg:0
+[  228864ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Screenshot_2026-05-16_161232.png:0
+[  228864ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Gemini_Generated_Image_hcvlchhcvlchhcvl.png:0
+[  228865ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/photo_2026-02-24_07-43-26.jpg:0
+[  229302ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost/tic_crm/admin/leads/leads_details/9/building-o.png:0
+[  229308ms] [WARNING] Notifications permission has been blocked as the user has dismissed the permission prompt several times. This can be reset in Page Info which can be accessed by clicking the tune icon next to the URL. See https://www.chromestatus.com/feature/6443143280984064 for more information. @ http://localhost/tic_crm/admin/leads/leads_details/9/mettings:0
+[  307910ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/PROFESONAL_PHOTO_2.jpg:0
+[  307941ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/rsz_whatsapp_image_2025-01-24_at_95021_pm.jpg:0
+[  307941ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Sk__Md__Toukir_Islam_.jpg:0
+[  307942ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/mahfuz_Passport_Photo_(4).jpeg:0
+[  307967ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Gemini_Generated_Image_hcvlchhcvlchhcvl.png:0
+[  307975ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/photo_2026-02-24_07-43-26.jpg:0
+[  308469ms] [WARNING] Notifications permission has been blocked as the user has dismissed the permission prompt several times. This can be reset in Page Info which can be accessed by clicking the tune icon next to the URL. See https://www.chromestatus.com/feature/6443143280984064 for more information. @ http://localhost/tic_crm/admin/leads/leads_details/9/mettings/1:0
+[  308926ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Screenshot_2026-05-16_161232.png:0
+[  311461ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/PROFESONAL_PHOTO_2.jpg:0
+[  311472ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Sk__Md__Toukir_Islam_.jpg:0
+[  311472ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/mahfuz_Passport_Photo_(4).jpeg:0
+[  311472ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/rsz_whatsapp_image_2025-01-24_at_95021_pm.jpg:0
+[  311473ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Screenshot_2026-05-16_161232.png:0
+[  311473ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Gemini_Generated_Image_hcvlchhcvlchhcvl.png:0
+[  311473ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/photo_2026-02-24_07-43-26.jpg:0
+[  311785ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost/tic_crm/admin/leads/leads_details/9/building-o.png:0
+[  311790ms] [WARNING] Notifications permission has been blocked as the user has dismissed the permission prompt several times. This can be reset in Page Info which can be accessed by clicking the tune icon next to the URL. See https://www.chromestatus.com/feature/6443143280984064 for more information. @ http://localhost/tic_crm/admin/leads/leads_details/9/mettings:0
+[  317261ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/PROFESONAL_PHOTO_2.jpg:0
+[  317261ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Sk__Md__Toukir_Islam_.jpg:0
+[  317261ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/mahfuz_Passport_Photo_(4).jpeg:0
+[  317262ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/rsz_whatsapp_image_2025-01-24_at_95021_pm.jpg:0
+[  317262ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/photo_2026-02-24_07-43-26.jpg:0
+[  317262ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Gemini_Generated_Image_hcvlchhcvlchhcvl.png:0
+[  317263ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost/tic_crm/admin/leads/leads_details/9/building-o.png:0
+[  317263ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Screenshot_2026-05-16_161232.png:0
+[  317305ms] [WARNING] Notifications permission has been blocked as the user has dismissed the permission prompt several times. This can be reset in Page Info which can be accessed by clicking the tune icon next to the URL. See https://www.chromestatus.com/feature/6443143280984064 for more information. @ http://localhost/tic_crm/admin/leads/leads_details/9/mettings:0
+[  535607ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/PROFESONAL_PHOTO_2.jpg:0
+[  535607ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Sk__Md__Toukir_Islam_.jpg:0
+[  535607ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/rsz_whatsapp_image_2025-01-24_at_95021_pm.jpg:0
+[  535608ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/mahfuz_Passport_Photo_(4).jpeg:0
+[  535643ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/photo_2026-02-24_07-43-26.jpg:0
+[  535644ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Gemini_Generated_Image_hcvlchhcvlchhcvl.png:0
+[  535866ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost/tic_crm/admin/leads/leads_details/9/building-o.png:0
+[  536585ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Screenshot_2026-05-16_161232.png:0
+[ 2631897ms] [ERROR] Failed to load resource: net::ERR_NETWORK_IO_SUSPENDED @ http://localhost/tic_crm/chat/all_chat_messages/:0
+[ 6844149ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost/tic_crm/admin/leads/leads_details/9/building-o.png:0
+[ 6844181ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Gemini_Generated_Image_hcvlchhcvlchhcvl.png:0
+[ 6844207ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/photo_2026-02-24_07-43-26.jpg:0
+[ 6844956ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/rsz_whatsapp_image_2025-01-24_at_95021_pm.jpg:0
+[ 6845003ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/PROFESONAL_PHOTO_2.jpg:0
+[ 6845009ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Sk__Md__Toukir_Islam_.jpg:0
+[ 6845011ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/mahfuz_Passport_Photo_(4).jpeg:0
+[ 6845011ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Screenshot_2026-05-16_161232.png:0
+[ 6848739ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/PROFESONAL_PHOTO_2.jpg:0
+[ 6848739ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/mahfuz_Passport_Photo_(4).jpeg:0
+[ 6848748ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Sk__Md__Toukir_Islam_.jpg:0
+[ 6848749ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Screenshot_2026-05-16_161232.png:0
+[ 6848764ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Gemini_Generated_Image_hcvlchhcvlchhcvl.png:0
+[ 6848779ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/photo_2026-02-24_07-43-26.jpg:0
+[ 6849083ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost/tic_crm/admin/leads/leads_details/9/building-o.png:0
+[ 6849089ms] [WARNING] Notifications permission has been blocked as the user has dismissed the permission prompt several times. This can be reset in Page Info which can be accessed by clicking the tune icon next to the URL. See https://www.chromestatus.com/feature/6443143280984064 for more information. @ http://localhost/tic_crm/admin/leads/leads_details/9/mettings:0
+[ 6849736ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/rsz_whatsapp_image_2025-01-24_at_95021_pm.jpg:0
+[ 6856688ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/PROFESONAL_PHOTO_2.jpg:0
+[ 6856689ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Sk__Md__Toukir_Islam_.jpg:0
+[ 6856689ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/mahfuz_Passport_Photo_(4).jpeg:0
+[ 6856689ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/rsz_whatsapp_image_2025-01-24_at_95021_pm.jpg:0
+[ 6856714ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Gemini_Generated_Image_hcvlchhcvlchhcvl.png:0
+[ 6856715ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/photo_2026-02-24_07-43-26.jpg:0
+[ 6856855ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost/tic_crm/admin/leads/leads_details/9/building-o.png:0
+[ 6857670ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Screenshot_2026-05-16_161232.png:0
+[ 6862592ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/PROFESONAL_PHOTO_2.jpg:0
+[ 6862612ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/rsz_whatsapp_image_2025-01-24_at_95021_pm.jpg:0
+[ 6862613ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Sk__Md__Toukir_Islam_.jpg:0
+[ 6862613ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/mahfuz_Passport_Photo_(4).jpeg:0
+[ 6862630ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Gemini_Generated_Image_hcvlchhcvlchhcvl.png:0
+[ 6862640ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/photo_2026-02-24_07-43-26.jpg:0
+[ 6862919ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost/tic_crm/admin/leads/leads_details/9/building-o.png:0
+[ 6862925ms] [WARNING] Notifications permission has been blocked as the user has dismissed the permission prompt several times. This can be reset in Page Info which can be accessed by clicking the tune icon next to the URL. See https://www.chromestatus.com/feature/6443143280984064 for more information. @ http://localhost/tic_crm/admin/leads/leads_details/9/mettings:0
+[ 6863591ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/tic_crm/uploads/Screenshot_2026-05-16_161232.png:0
+[ 8414131ms] [ERROR] Failed to load resource: net::ERR_INSUFFICIENT_RESOURCES @ http://localhost/tic_crm/chat/all_chat_messages/:0
+[ 8444274ms] [ERROR] Failed to load resource: net::ERR_INSUFFICIENT_RESOURCES @ http://localhost/tic_crm/chat/all_chat_messages/:0
+[ 8459092ms] [ERROR] Failed to load resource: net::ERR_INSUFFICIENT_RESOURCES @ http://localhost/tic_crm/chat/all_chat_messages/:0
+[ 8464100ms] [ERROR] Failed to load resource: net::ERR_INSUFFICIENT_RESOURCES @ http://localhost/tic_crm/chat/all_chat_messages/:0
+[ 8469118ms] [ERROR] Failed to load resource: net::ERR_INSUFFICIENT_RESOURCES @ http://localhost/tic_crm/chat/all_chat_messages/:0
+[ 8474118ms] [ERROR] Failed to load resource: net::ERR_INSUFFICIENT_RESOURCES @ http://localhost/tic_crm/chat/all_chat_messages/:0
+[ 8524112ms] [ERROR] Failed to load resource: net::ERR_INSUFFICIENT_RESOURCES @ http://localhost/tic_crm/chat/all_chat_messages/:0
