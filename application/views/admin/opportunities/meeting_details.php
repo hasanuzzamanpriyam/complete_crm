@@ -69,19 +69,32 @@
                         ?></p>
                 </div>
             </div>
-            <?php if (!empty($details->meeting_url)): ?>
+            <?php
+            $m_url = '';
+            if (!empty($details->meeting_url)) {
+                $m_url = $details->meeting_url;
+            } elseif (!empty($details->platform) && $details->platform == 'jitsi') {
+                $m_url = base_url('admin/jitsi/join/' . url_encode($details->mettings_id));
+            }
+            if (!empty($m_url)):
+            ?>
             <div class="col-md-12 notice-details-margin">
                 <div class="col-sm-4 text-right">
                     <label class="control-label"><strong><?= lang('meeting_url') ?> :</strong></label>
                 </div>
                 <div class="col-sm-8">
-                    <p class="form-control-static">
-                        <a href="<?= $details->meeting_url ?>" target="_blank"><?= $details->meeting_url ?></a>
-                        <button class="btn btn-xs btn-default copy-url" data-url="<?= $details->meeting_url ?>"
-                                onclick="copyMeetingLink(this, '<?= $details->meeting_url ?>')" title="Copy">
-                            <i class="fa fa-copy"></i>
+                    <div class="form-control-static">
+                        <a href="<?= $m_url ?>" target="_blank" class="btn btn-xs btn-info" style="margin-right: 5px;">
+                            <i class="fa fa-video-camera"></i> Join Meeting
+                        </a>
+                        <button class="btn btn-xs btn-default copy-url" data-url="<?= $m_url ?>"
+                                onclick="copyMeetingLink(this, '<?= $m_url ?>')" title="Copy" style="margin-right: 5px;">
+                            <i class="fa fa-copy"></i> Copy Link
                         </button>
-                    </p>
+                        <div style="margin-top: 5px; word-break: break-all; white-space: normal;">
+                            <a href="<?= $m_url ?>" target="_blank" style="word-break: break-all; color: #555; font-size: 12px;"><?= $m_url ?></a>
+                        </div>
+                    </div>
                 </div>
             </div>
             <?php endif; ?>

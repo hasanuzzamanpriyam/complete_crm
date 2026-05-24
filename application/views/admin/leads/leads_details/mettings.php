@@ -38,16 +38,9 @@ if ($task_timer_id) {
                             foreach ($all_meetings_info as $v_mettings) :
                                 $user = $this->items_model->check_by(array('user_id' => $v_mettings->user_id), 'tbl_users');
                         ?>
-                                <tr id="leads_meetings_<?= $leads_details->leads_id ?>">
+                                <tr id="table-meeting-<?= $v_mettings->mettings_id ?>">
                                     <td>
-                                        <?php
-    // Determine meeting URL based on platform (default zoom)
-    $meeting_url = base_url('admin/opportunities/meeting_details/' . $v_mettings->mettings_id);
-    if (!empty($v_mettings->platform) && $v_mettings->platform == 'jitsi') {
-        $meeting_url = base_url('admin/jitsi/join/' . url_encode($v_mettings->mettings_id));
-    }
-?>
-<a data-toggle="modal" data-target="#myModal" href="<?= $meeting_url ?>"><?= $v_mettings->meeting_subject ?></a>
+                                        <a data-toggle="modal" data-target="#myModal" href="<?= base_url('admin/opportunities/meeting_details/' . $v_mettings->mettings_id) ?>"><?= $v_mettings->meeting_subject ?></a>
                                     </td>
                                     <td><?= strftime(config_item('date_format'), ($v_mettings->end_date)) . '<span style="color:#3c8dbc"> at </span>' . display_time($v_mettings->end_date, true) ?>
                                     </td>
@@ -73,7 +66,7 @@ if ($task_timer_id) {
                                                                                                                                                                         echo $mettings_info->mettings_id;
                                                                                                                                                                     }
                                                                                                                                                                     ?>" method="post" class="form-horizontal  ">
-                <div class="form-group terms">
+                <div class="form-group">
                     <label class="col-lg-3 control-label"><?= lang('metting_subject') ?>
                         <span class="text-danger"> *</span>
                     </label>
@@ -84,16 +77,17 @@ if ($task_timer_id) {
                         }
                         ?>">
                     </div>
-                    <div class="form-group">
-                        <label class="col-lg-3 control-label"><?= lang('meeting_platform') ?></label>
-                        <div class="col-lg-9">
-                            <select name="meeting_platform" class="form-control select_box" required>
-                                <option value="zoom" <?php if (!empty($mettings_info->platform) && $mettings_info->platform == 'zoom') echo 'selected'; ?>>Zoom</option>
-                                <option value="jitsi" <?php if (!empty($mettings_info->platform) && $mettings_info->platform == 'jitsi') echo 'selected'; ?>>Jitsi</option>
-                            </select>
-                        </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-lg-3 control-label"><?= lang('meeting_platform') ?>
+                        <span class="text-danger"> *</span>
+                    </label>
+                    <div class="col-lg-5">
+                        <select name="meeting_platform" class="form-control select_box" style="width: 100%" required>
+                            <option value="zoom" <?php if (!empty($mettings_info->platform) && $mettings_info->platform == 'zoom') echo 'selected'; ?>>Zoom</option>
+                            <option value="jitsi" <?php if (!empty($mettings_info->platform) && $mettings_info->platform == 'jitsi') echo 'selected'; ?>>Jitsi</option>
+                        </select>
                     </div>
-
                 </div>
                 <div class="form-group">
                     <label class="col-lg-3 control-label"><?= lang('start_date') ?><span class="text-danger"> *</span></label>
