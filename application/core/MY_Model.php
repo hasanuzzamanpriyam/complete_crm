@@ -1126,6 +1126,18 @@
             $this->email->to($params['recipient']);
 
             $this->email->subject($params['subject']);
+
+            // Embed company logo as inline attachment to support offline/local/proxy environments like Gmail/Gmail Proxy
+            $logo_path = ROOTPATH . '/' . config_item('company_logo');
+            if (!empty(config_item('company_logo')) && file_exists($logo_path)) {
+                $this->email->attach($logo_path, 'inline');
+                $cid = $this->email->attachment_cid($logo_path);
+                if ($cid) {
+                    $logo_url = base_url() . config_item('company_logo');
+                    $params['message'] = str_replace($logo_url, 'cid:' . $cid, $params['message']);
+                }
+            }
+
             $this->email->message($params['message']);
             if ($params['resourceed_file'] != '') {
                 $this->email->attach($params['resourceed_file']);
