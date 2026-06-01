@@ -965,6 +965,10 @@ class Job_Circular extends Admin_Controller
             $subject = str_replace($key, $val, $subject);
         }
 
+        $data['message'] = $message;
+        $data['subject'] = $subject;
+        $message = $this->load->view('email_template', $data, TRUE);
+
         $params = [
             'recipient' => $interview->candidate_email,
             'subject' => $subject,
@@ -1028,6 +1032,10 @@ class Job_Circular extends Admin_Controller
             $message = str_replace($key, $val, $message);
             $subject = str_replace($key, $val, $subject);
         }
+
+        $data['message'] = $message;
+        $data['subject'] = $subject;
+        $message = $this->load->view('email_template', $data, TRUE);
 
         $params = [
             'recipient' => $interview->candidate_email,
@@ -1334,6 +1342,10 @@ class Job_Circular extends Admin_Controller
             'offer_body' => $body
         ]);
 
+        $data['message'] = $body;
+        $data['subject'] = $subject;
+        $body = $this->load->view('email_template', $data, TRUE);
+
         $params = [
             'recipient' => $offer->candidate_email,
             'subject' => $subject,
@@ -1390,6 +1402,10 @@ class Job_Circular extends Admin_Controller
                 $body = str_replace($key, $val, $body);
             }
         }
+
+        $data['message'] = $body;
+        $data['subject'] = $subject;
+        $body = $this->load->view('email_template', $data, TRUE);
 
         $params = [
             'recipient' => $offer->candidate_email,
