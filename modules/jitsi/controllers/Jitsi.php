@@ -449,6 +449,10 @@ class Jitsi extends MY_Controller
             }
         }
 
+        if (function_exists('process_email_queue')) {
+            process_email_queue(10);
+        }
+
         return $queued_count;
     }
 
@@ -534,6 +538,10 @@ class Jitsi extends MY_Controller
                 queue_email($leadsInfo->email, $subject, $email_body, 'jitsi_meeting_invitation');
                 $queued_count++;
             }
+        }
+
+        if (function_exists('process_email_queue')) {
+            process_email_queue(10);
         }
 
         return $queued_count;
