@@ -11,7 +11,9 @@
     $logo_path = ROOTPATH . '/' . config_item('company_logo');
     $logo_src = null;
     if (!empty(config_item('company_logo')) && file_exists($logo_path)) {
-        $logo_src = base_url() . config_item('company_logo');
+        $image_data = base64_encode(file_get_contents($logo_path));
+        $mime_type = mime_content_type($logo_path);
+        $logo_src = 'data:' . $mime_type . ';base64,' . $image_data;
     }
     $accent_color = '#' . (config_item('button_color') ?: '23b7e5');
     ?>
