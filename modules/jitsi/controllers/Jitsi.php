@@ -376,6 +376,10 @@ class Jitsi extends MY_Controller
         $message = $email_template->template_body;
         $subject = $email_template->subject;
 
+        $subject = str_replace("{HOST}", fullname($meeting_info->host), $subject);
+        $subject = str_replace("{TOPIC}", $meeting_info->topic, $subject);
+        $subject = str_replace("{SITE_NAME}", config_item('company_name'), $subject);
+
         $host_name = str_replace("{HOST}", fullname($meeting_info->host), $message);
         $topic_name = str_replace("{TOPIC}", $meeting_info->topic, $host_name);
 
@@ -475,6 +479,10 @@ class Jitsi extends MY_Controller
 
         $message = $email_template->template_body;
         $subject = $email_template->subject;
+
+        $subject = str_replace("{HOST}", fullname($meeting_info->host), $subject);
+        $subject = str_replace("{TOPIC}", $meeting_info->topic, $subject);
+        $subject = str_replace("{SITE_NAME}", config_item('company_name'), $subject);
 
         $host_name = str_replace("{HOST}", fullname($meeting_info->host), $message);
         $topic_name = str_replace("{TOPIC}", $meeting_info->topic, $host_name);

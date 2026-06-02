@@ -2793,7 +2793,20 @@ if (!function_exists('process_email_queue')) {
             $CI->email->from(config_item('company_email'), config_item('company_name'));
             $CI->email->to($email->recipient);
             $CI->email->subject($email->subject);
-            $CI->email->message($email->message);
+
+            // Embed company logo as inline attachment to support offline/local/proxy environments like Gmail/Gmail Proxy
+            $email_message = $email->message;
+            $logo_path = ROOTPATH . '/' . config_item('company_logo');
+            if (!empty(config_item('company_logo')) && file_exists($logo_path)) {
+                $CI->email->attach($logo_path, 'inline');
+                $cid = $CI->email->attachment_cid($logo_path);
+                if ($cid) {
+                    $logo_url = base_url() . config_item('company_logo');
+                    $email_message = str_replace($logo_url, 'cid:' . $cid, $email_message);
+                }
+            }
+
+            $CI->email->message($email_message);
 
             if (!empty($email->attachments)) {
                 $files = json_decode($email->attachments, true);
