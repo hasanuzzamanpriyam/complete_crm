@@ -188,6 +188,81 @@ if (!empty($created) || !empty($edited)) {
                                                 </div>
                                             </div>
                                         </div>
+                                        <div class="">
+                                            <label class="control-label"><?= lang('lunch_allowance') ?> </label>
+                                            <div class="input-group">
+                                                <input type="text" data-parsley-type="number"
+                                                       name="lunch_allowance"
+                                                       value="" class="salary form-control">
+
+                                                <input type="hidden" data-parsley-type="number"
+                                                       name="lunch_allowance_amount"
+                                                       value="0"
+                                                       class="allowance_amount form-control">
+
+                                                <div class="input-group-addon p0 b0">
+                                                    <select name="lunch_allowance_type"
+                                                            class="p-sm b allowance_type"
+                                                            data-width="100%">
+                                                        <option value="percent"><?= lang('percent') ?></option>
+                                                        <option value="fixed"><?= lang('fixed') ?></option>
+                                                    </select>
+                                                </div>
+                                                <div class="input-group-addon calculated_amount">
+                                                    0
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="">
+                                            <label class="control-label"><?= lang('travel_allowance') ?> </label>
+                                            <div class="input-group">
+                                                <input type="text" data-parsley-type="number"
+                                                       name="travel_allowance"
+                                                       value="" class="salary form-control">
+
+                                                <input type="hidden" data-parsley-type="number"
+                                                       name="travel_allowance_amount"
+                                                       value="0"
+                                                       class="allowance_amount form-control">
+
+                                                <div class="input-group-addon p0 b0">
+                                                    <select name="travel_allowance_type"
+                                                            class="p-sm b allowance_type"
+                                                            data-width="100%">
+                                                        <option value="percent"><?= lang('percent') ?></option>
+                                                        <option value="fixed"><?= lang('fixed') ?></option>
+                                                    </select>
+                                                </div>
+                                                <div class="input-group-addon calculated_amount">
+                                                    0
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="">
+                                            <label class="control-label"><?= lang('mobile_allowance') ?> </label>
+                                            <div class="input-group">
+                                                <input type="text" data-parsley-type="number"
+                                                       name="mobile_allowance"
+                                                       value="" class="salary form-control">
+
+                                                <input type="hidden" data-parsley-type="number"
+                                                       name="mobile_allowance_amount"
+                                                       value="0"
+                                                       class="allowance_amount form-control">
+
+                                                <div class="input-group-addon p0 b0">
+                                                    <select name="mobile_allowance_type"
+                                                            class="p-sm b allowance_type"
+                                                            data-width="100%">
+                                                        <option value="percent"><?= lang('percent') ?></option>
+                                                        <option value="fixed"><?= lang('fixed') ?></option>
+                                                    </select>
+                                                </div>
+                                                <div class="input-group-addon calculated_amount">
+                                                    0
+                                                </div>
+                                            </div>
+                                        </div>
                                     <?php endif; ?>
 
                                 </div>

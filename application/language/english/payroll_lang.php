@@ -133,5 +133,9 @@ $lang['total_deductions'] = 'Total Deductions';
 $lang['the_percentage_value_will_be_calculated_based_on_basic_salary'] = 'The percentage value will be calculated based on basic salary';
 $lang['did_not_set_salary_yet'] = 'Salary did not set yet';
 $lang['this_expense_from_salary_payment'] = "This Expense from monthly salary payment.The Reference is %s";
+$lang['lunch_allowance'] = 'Lunch Allowance';
+$lang['travel_allowance'] = 'Travel Allowance';
+$lang['mobile_allowance'] = 'Mobile Allowance';
+
 
 

@@ -117,6 +117,15 @@ if (empty($salary_template_id) && !empty($id)) {
         $medical_allowance = $this->input->post('medical_allowance', TRUE);
         $medical_allowance_amount = $this->input->post('medical_allowance_amount', TRUE);
         $medical_allowance_type = $this->input->post('medical_allowance_type', TRUE);
+        $lunch_allowance = $this->input->post('lunch_allowance', TRUE);
+        $lunch_allowance_amount = $this->input->post('lunch_allowance_amount', TRUE);
+        $lunch_allowance_type = $this->input->post('lunch_allowance_type', TRUE);
+        $travel_allowance = $this->input->post('travel_allowance', TRUE);
+        $travel_allowance_amount = $this->input->post('travel_allowance_amount', TRUE);
+        $travel_allowance_type = $this->input->post('travel_allowance_type', TRUE);
+        $mobile_allowance = $this->input->post('mobile_allowance', TRUE);
+        $mobile_allowance_amount = $this->input->post('mobile_allowance_amount', TRUE);
+        $mobile_allowance_type = $this->input->post('mobile_allowance_type', TRUE);
 
         if (!empty($house_rent_allowance)) {
             $asalary_allowance_data['allowance_label'][] = lang('house_rent_allowance');
@@ -129,6 +138,24 @@ if (empty($salary_template_id) && !empty($id)) {
             $asalary_allowance_data['allowance_value'][] = $medical_allowance_amount;
             $asalary_allowance_data['allowance_percent'][] = $medical_allowance;
             $asalary_allowance_data['allowance_type'][] = $medical_allowance_type;
+        }
+        if (!empty($lunch_allowance)) {
+            $asalary_allowance_data['allowance_label'][] = lang('lunch_allowance');
+            $asalary_allowance_data['allowance_value'][] = $lunch_allowance_amount;
+            $asalary_allowance_data['allowance_percent'][] = $lunch_allowance;
+            $asalary_allowance_data['allowance_type'][] = $lunch_allowance_type;
+        }
+        if (!empty($travel_allowance)) {
+            $asalary_allowance_data['allowance_label'][] = lang('travel_allowance');
+            $asalary_allowance_data['allowance_value'][] = $travel_allowance_amount;
+            $asalary_allowance_data['allowance_percent'][] = $travel_allowance;
+            $asalary_allowance_data['allowance_type'][] = $travel_allowance_type;
+        }
+        if (!empty($mobile_allowance)) {
+            $asalary_allowance_data['allowance_label'][] = lang('mobile_allowance');
+            $asalary_allowance_data['allowance_value'][] = $mobile_allowance_amount;
+            $asalary_allowance_data['allowance_percent'][] = $mobile_allowance;
+            $asalary_allowance_data['allowance_type'][] = $mobile_allowance_type;
         }
 
         if (!empty($asalary_allowance_data['allowance_label'])) {
