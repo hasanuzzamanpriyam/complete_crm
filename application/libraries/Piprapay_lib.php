@@ -10,7 +10,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  *
  * All cURL calls are logged with CI3's log_message().
  */
-class Piprapay {
+class Piprapay_lib {
 
     /** @var CI_Controller */
     protected $CI;
@@ -27,7 +27,7 @@ class Piprapay {
         $this->CI =& get_instance();
         $this->CI->load->config('piprapay', TRUE);
 
-        $cfg = $this->CI->config->item('piprapay') ?: [];
+        $cfg = $this->CI->config->item('piprapay', 'piprapay') ?: [];
 
         $this->baseUrl     = rtrim(
             ($cfg['base_url'] ?? $this->CI->config->item('piprapay_api_url')) ?: '',

@@ -14,18 +14,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  */
 class Piprapay_gateway extends CI_Controller {
 
-    /** @var Piprapay */
-    protected $piprapay;
-
-    // --------------------------------------------------------------------
-
     public function __construct()
     {
         parent::__construct();
 
         // Load the PipraPay core driver library
-        $this->load->library('Piprapay');
-        $this->piprapay = $this->piprapay;
+        $this->load->library('piprapay_lib');
 
         // Load the ERP's invoice model
         $this->load->model('invoice_model');
@@ -97,7 +91,7 @@ class Piprapay_gateway extends CI_Controller {
 
         try {
             // --- Create checkout session via the PipraPay library ---
-            $session = $this->piprapay->create_checkout_session(
+            $session = $this->piprapay_lib->create_checkout_session(
                 $invoice_due,
                 $invoice->currency ?? 'BDT',
                 $returnUrl,
@@ -151,7 +145,7 @@ class Piprapay_gateway extends CI_Controller {
 
         try {
             // --- Verify the payment with PipraPay ---
-            $verification = $this->piprapay->verify_payment($ppId);
+            $verification = $this->piprapay_lib->verify_payment($ppId);
         } catch (\RuntimeException $e) {
             log_message('error', 'PipraPay callback_success verify: ' . $e->getMessage());
             $this->_flash_and_redirect('error', 'Payment verification failed. Please contact support.');
@@ -159,7 +153,7 @@ class Piprapay_gateway extends CI_Controller {
         }
 
         // --- Determine success ---
-        $isSuccess = $this->piprapay->is_successful($verification);
+        $isSuccess = $this->piprapay_lib->is_successful($verification);
 
         // --- Look up the pending transaction ---
         $transaction = $this->db
