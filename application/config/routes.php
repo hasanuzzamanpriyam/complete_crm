@@ -10,6 +10,11 @@ $route['payment/piprapay/success']         = 'payment/piprapay/success';
 $route['payment/piprapay/webhook']         = 'payment/piprapay/webhook';
 $route['payment/piprapay/refund/(:any)']   = 'payment/piprapay/refund/$1';
 
+// New unified PipraPay gateway routes (decoupled, module-agnostic)
+$route['piprapay/initiate/(:num)']         = 'Piprapay_gateway/initiate_payment/$1';
+$route['piprapay/callback_success']        = 'Piprapay_gateway/callback_success';
+$route['piprapay/callback_cancel']         = 'Piprapay_gateway/callback_cancel';
+
 $route['default_controller'] = 'login';
 $route['404'] = "login/not_found";
 $route['career'] = "frontend";

@@ -1,18 +1,31 @@
 <?php
+defined('BASEPATH') OR exit('No direct script access allowed');
 
-defined('BASEPATH') or exit('No direct script access allowed');
+/**
+ * PipraPay (PayTic) global configuration.
+ *
+ * All values are loadable via  $this->load->config('piprapay', TRUE)
+ * and accessible as $this->config->item('<key>', 'piprapay').
+ */
+$config['piprapay'] = [
 
-$config['piprapay_enabled'] = FALSE;
-$config['piprapay_api_url'] = 'https://payment.yourdomain.com/api/v1';
-$config['piprapay_api_key'] = '';
-$config['piprapay_api_secret'] = '';
-$config['piprapay_merchant_id'] = '';
-$config['piprapay_webhook_secret'] = '';
-$config['piprapay_test_mode'] = TRUE;
-$config['piprapay_timeout'] = 30;
-$config['piprapay_default_gateway'] = 'bkash';
+    // Global enable/disable – admin UI toggles this
+    'enabled'        => TRUE,
 
-$config['piprapay_gateway_cache_ttl'] = 3600;
-$config['piprapay_gateway_cache_enabled'] = TRUE;
+    // Base API URL (no trailing slash)
+    'base_url'       => 'https://pay.tic.bd/api',
 
-$config['piprapay_fallback_gateways'] = [];
+    // Endpoint paths (appended to base_url)
+    'checkout_path'  => '/checkout/redirect',
+    'verify_path'    => '/verify-payment',
+    'refund_path'    => '/refund-payment',
+
+    // Credentials
+    'api_key'        => '17f6f097f58f41431c9b33fa437c9ef289113ab45eee91ad08',
+
+    // Auth header – PipraPay custom header (not standard Bearer)
+    'auth_header'    => 'MHS-PIPRAPAY-API-KEY',
+
+    // Environment: TRUE = sandbox, FALSE = production
+    'test_mode'      => TRUE,
+];
