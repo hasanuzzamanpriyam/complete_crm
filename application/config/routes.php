@@ -1,4 +1,9 @@
-<?php if (!defined('BASEPATH'))
+$route['payment/piprapay/pay/(:num)']      = 'payment/piprapay/pay/$1';
+$route['payment/piprapay/purchase']        = 'payment/piprapay/purchase';
+$route['payment/piprapay/callback']        = 'payment/piprapay/callback';
+$route['payment/piprapay/success']         = 'payment/piprapay/success';
+$route['payment/piprapay/webhook']         = 'payment/piprapay/webhook';
+$route['payment/piprapay/refund/(:any)']   = 'payment/piprapay/refund/$1'; if (!defined('BASEPATH'))
     exit('No direct script access allowed');
 $route['default_controller'] = 'login';
 $route['404'] = "login/not_found";
