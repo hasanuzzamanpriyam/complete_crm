@@ -40,7 +40,7 @@
                     } ?>
                 </ul>
             </div>
-        </div>
+        <?php } ?>
         <?php if ($this->config->item('piprapay_enabled') == 'TRUE' || $this->config->item('piprapay_enabled') == TRUE): ?>
             <div style="margin-top:15px;">
                 <hr style="margin: 0 0 15px;">
@@ -57,6 +57,7 @@
                 </form>
             </div>
         <?php endif; ?>
+    </div>
     <div class="col-sm-4 pull-right">
         <a onclick="print_invoice('print_invoice')" href="#" data-toggle="tooltip" data-placement="top" title="" data-original-title="Print" class="btn btn-sm btn-danger pull-right">
             <i class="fa fa-print"></i>
