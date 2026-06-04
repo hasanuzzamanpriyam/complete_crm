@@ -2,105 +2,141 @@
 
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-/**
- * Piprapay payment controller – new PayTic integration.
- * Provides checkout, callback, webhook, success and refund handling.
- */
 class Piprapay extends CI_Controller {
+
     public function __construct() {
         parent::__construct();
+        $this->load->model('invoice_model');
         $this->load->library('gateways/Piprapay_gateway');
-        $this->load->model('Invoice_model'); // existing model
         $this->load->helper(['url', 'form']);
     }
 
-    /** Show checkout page for an invoice */
     public function pay($invoice_id) {
-        $invoice = $this->Invoice_model->get($invoice_id);
-        if (!$invoice) show_error('Invoice not found', 404);
+        $invoice = $this->invoice_model->check_by(['invoices_id' => $invoice_id], 'tbl_invoices');
+        if (!$invoice) show_404();
+        $total = $this->invoice_model->calculate_to('total', $invoice_id);
         $gateways = $this->piprapay_gateway->fetch_gateways();
         $data = [
             'invoice'   => $invoice,
+            'total'     => $total,
             'gateways'  => $gateways,
-            'actionUrl' => site_url('payment/piprapay/purchase')
+            'actionUrl' => site_url('payment/piprapay/purchase'),
         ];
         $this->load->view('payment/piprapay', $data);
     }
 
-    /** Build checkout request and redirect to Piprapay */
     public function purchase() {
         $post = $this->input->post();
         $invoice_id = $post['invoice_id'] ?? null;
         $gateway_id = $post['gateway_id'] ?? null;
         if (!$invoice_id || !$gateway_id) {
-            set_flash_error('Missing data');
+            set_message('error', 'Missing data');
             redirect($_SERVER['HTTP_REFERER']);
         }
-        $invoice = $this->Invoice_model->get($invoice_id);
+        $invoice = $this->invoice_model->check_by(['invoices_id' => $invoice_id], 'tbl_invoices');
+        if (!$invoice) show_404();
+        $total = $this->invoice_model->calculate_to('total', $invoice_id);
+        $client = $this->invoice_model->check_by(['client_id' => $invoice->client_id], 'tbl_client');
         $payload = [
             'gateway_id' => $gateway_id,
-            'amount'     => $invoice->total,
+            'amount'     => $total,
             'currency'   => $invoice->currency ?? 'BDT',
             'customer'   => [
-                'name'  => $invoice->client_name,
-                'email' => $invoice->client_email,
-                'phone' => $invoice->client_phone,
+                'name'  => $client->name ?? '',
+                'email' => $client->email ?? '',
+                'phone' => $client->phone ?? '',
             ],
             'return_url' => site_url('payment/piprapay/callback'),
             'webhook_url'=> site_url('payment/piprapay/webhook'),
-            'description'=> "Invoice #{$invoice->code}",
-            'test'       => $this->config->item('piprapay')['test_mode'],
+            'description'=> "Invoice #{$invoice->reference_no}",
         ];
         $resp = $this->piprapay_gateway->create_checkout($payload);
         if (empty($resp['pp_url'])) {
-            set_flash_error('Unable to start payment');
+            set_message('error', 'Unable to start payment');
             redirect($_SERVER['HTTP_REFERER']);
         }
-        // store pp_id for later verification
-        $this->Invoice_model->update($invoice_id, ['pp_id' => $resp['pp_id']]);
+        $this->db->where('invoices_id', $invoice_id)->update('tbl_invoices', ['pp_id' => $resp['pp_id']]);
         redirect($resp['pp_url']);
     }
 
-    /** Return URL – called after user completes payment */
     public function callback() {
         $pp_id = $this->input->get('pp_id');
         if (!$pp_id) {
-            set_flash_error('Missing payment reference');
+            set_message('error', 'Missing payment reference');
             redirect(site_url('invoices'));
         }
-        $verification = $this->piprapay_gateway->verify_payment($pp_id);
-        $ok = (!empty($verification['status']) && $verification['status'] === 'success');
-        $invoice = $this->Invoice_model->get_by_pp_id($pp_id);
-        if ($invoice && $ok) {
-            $this->Invoice_model->mark_paid($invoice->id, $verification);
+        try {
+            $verification = $this->piprapay_gateway->verify_payment($pp_id);
+        } catch (Exception $e) {
+            log_message('error', 'Piprapay callback verify error: ' . $e->getMessage());
+            set_message('error', 'Payment verification failed');
+            redirect(site_url('invoices'));
         }
-        set_flash_success('Payment successful');
+        $invoice = $this->invoice_model->check_by(['pp_id' => $pp_id], 'tbl_invoices');
+        if ($invoice && !empty($verification['status']) && $verification['status'] === 'success') {
+            $total = $this->invoice_model->calculate_to('total', $invoice->invoices_id);
+            $this->db->insert('tbl_payments', [
+                'invoices_id'    => $invoice->invoices_id,
+                'paid_by'        => $invoice->client_id,
+                'payment_method' => 'PipraPay',
+                'currency'       => $invoice->currency ?? 'BDT',
+                'amount'         => $total,
+                'payment_date'   => date('Y-m-d'),
+                'trans_id'       => $pp_id,
+                'notes'          => 'PipraPay (PayTic) – ' . ($verification['status'] ?? 'completed'),
+                'month_paid'     => date('m'),
+                'year_paid'      => date('Y'),
+            ]);
+            $this->db->where('invoices_id', $invoice->invoices_id)->update('tbl_invoices', [
+                'status'         => 'Paid',
+                'paid_date'      => date('Y-m-d'),
+                'payment_method' => 'PipraPay',
+            ]);
+        }
+        set_message('success', 'Payment successful');
         redirect(site_url('payment/piprapay/success'));
     }
 
-    /** Simple success page */
     public function success() {
         $this->load->view('payment/piprapay_success');
     }
 
-    /** Webhook endpoint – async notifications */
     public function webhook() {
         $payload = json_decode(file_get_contents('php://input'), true);
         if (empty($payload['pp_id'])) {
             http_response_code(400);
             exit;
         }
-        $verification = $this->piprapay_gateway->verify_payment($payload['pp_id']);
-        if (!empty($verification['status']) && $verification['status'] === 'success') {
-            $invoice = $this->Invoice_model->get_by_pp_id($payload['pp_id']);
-            if ($invoice) {
-                $this->Invoice_model->mark_paid($invoice->id, $verification);
-            }
+        try {
+            $verification = $this->piprapay_gateway->verify_payment($payload['pp_id']);
+        } catch (Exception $e) {
+            log_message('error', 'Piprapay webhook verify error: ' . $e->getMessage());
+            http_response_code(500);
+            exit;
+        }
+        $invoice = $this->invoice_model->check_by(['pp_id' => $payload['pp_id']], 'tbl_invoices');
+        if ($invoice && !empty($verification['status']) && $verification['status'] === 'success') {
+            $total = $this->invoice_model->calculate_to('total', $invoice->invoices_id);
+            $this->db->insert('tbl_payments', [
+                'invoices_id'    => $invoice->invoices_id,
+                'paid_by'        => $invoice->client_id,
+                'payment_method' => 'PipraPay',
+                'currency'       => $invoice->currency ?? 'BDT',
+                'amount'         => $total,
+                'payment_date'   => date('Y-m-d'),
+                'trans_id'       => $payload['pp_id'],
+                'month_paid'     => date('m'),
+                'year_paid'      => date('Y'),
+            ]);
+            $this->db->where('invoices_id', $invoice->invoices_id)->update('tbl_invoices', [
+                'status'         => 'Paid',
+                'paid_date'      => date('Y-m-d'),
+                'payment_method' => 'PipraPay',
+            ]);
         }
         http_response_code(200);
     }
 
-    /** Refund a payment */
     public function refund($pp_id) {
         $amount = $this->input->post('amount');
         $res = $this->piprapay_gateway->refund_payment($pp_id, (float)$amount);

@@ -265,18 +265,22 @@ class Piprapay_gateway extends CI_Controller {
         // Determine the paid amount from the verification response
         $amount = $verification['amount'] ?? $verification['paid_amount'] ?? 0;
 
-        // Insert payment into the CRM's standard payments table
-        $payment_data = array(
-            'invoices_id'    => $invoiceId,
-            'amount'         => $amount,
-            'payment_date'   => date('Y-m-d H:i:s'),
-            'payment_method' => 'PipraPay',
-            'transaction_id' => $ppId,
-            'notes'          => 'Paid via PipraPay (PayTic). Ref: ' . $ppId,
-            'month_paid'     => date('m-Y'),
-        );
+        // Look up the invoice to get client_id (paid_by)
+        $invoice = $this->invoice_model->check_by(array('invoices_id' => $invoiceId), 'tbl_invoices');
 
-        $this->db->insert('tbl_payments', $payment_data);
+        // Insert payment into the CRM's standard payments table
+        $this->db->insert('tbl_payments', array(
+            'invoices_id'    => $invoiceId,
+            'paid_by'        => $invoice->client_id ?? 0,
+            'amount'         => $amount,
+            'payment_date'   => date('Y-m-d'),
+            'payment_method' => 'PipraPay',
+            'trans_id'       => $ppId,
+            'currency'       => $invoice->currency ?? 'BDT',
+            'notes'          => 'Paid via PipraPay (PayTic). Ref: ' . $ppId,
+            'month_paid'     => date('m'),
+            'year_paid'      => date('Y'),
+        ));
 
         // Update invoice status if needed
         // The invoice status is calculated dynamically from payments, 
