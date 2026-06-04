@@ -88,12 +88,7 @@
                             <span>Expense Schedules</span>
                         </a>
                     </li>
-                    <li>
-                        <a title="Payment Hub" href="<?= base_url('admin/payment_hub') ?>">
-                            <em class="fa fa-credit-card"></em>
-                            <span>Payment Hub</span>
-                        </a>
-                    </li>
+
                     <li>
                         <a title="API Routes" href="<?= base_url('admin/api-routes') ?>">
                             <em class="fa fa-list-alt"></em>
