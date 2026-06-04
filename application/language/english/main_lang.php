@@ -571,6 +571,7 @@ $lang['allow_ccavenue'] = 'Allow CCAvenue';
 $lang['allow_braintree'] = 'Allow Braintree';
 $lang['allow_bitcoin'] = 'Allow Bitcoin';
 $lang['allow_tappayment'] = 'Allow Tap Payment';
+$lang['allow_piprapay'] = 'Allow PipraPay (PayTic)';
 $lang['2checkout'] = '2Checkout';
 $lang['stripe'] = 'Stripe';
 $lang['bitcoin'] = 'Bitcoin';

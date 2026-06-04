@@ -27,11 +27,15 @@ class Piprapay {
         $this->CI =& get_instance();
         $this->CI->load->config('piprapay', TRUE);
 
-        $cfg             = $this->CI->config->item('piprapay');
-        $this->baseUrl   = rtrim($cfg['base_url'], '/');
-        $this->apiKey    = $cfg['api_key'];
-        $this->authHeader = $cfg['auth_header'];
-        $this->testMode  = (bool) $cfg['test_mode'];
+        $cfg = $this->CI->config->item('piprapay') ?: [];
+
+        $this->baseUrl     = rtrim(
+            ($cfg['base_url'] ?? $this->CI->config->item('piprapay_api_url')) ?: '',
+            '/'
+        );
+        $this->apiKey      = $cfg['api_key']  ?? $this->CI->config->item('piprapay_api_key') ?: '';
+        $this->authHeader  = $cfg['auth_header'] ?? 'MHS-PIPRAPAY-API-KEY';
+        $this->testMode    = (bool) ($cfg['test_mode'] ?? $this->CI->config->item('piprapay_test_mode') ?: FALSE);
     }
 
     // --------------------------------------------------------------------

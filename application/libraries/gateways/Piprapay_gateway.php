@@ -12,15 +12,16 @@ class Piprapay_gateway {
 
     public function __construct() {
         $CI =& get_instance();
-        // Load the Piprapay config. Using the second parameter FALSE ensures the values are
-        // available as top‑level items (api_url, api_key, test_mode). If the file does not exist
-        // or a key is missing we fall back to safe defaults to avoid undefined‑index notices.
-        $CI->load->config('piprapay');
-        $this->apiUrl   = rtrim($CI->config->item('api_url') ?: '', '/');
-        $this->apiKey   = $CI->config->item('api_key') ?: '';
-        $this->testMode = $CI->config->item('test_mode') ?: FALSE;
-        // If the essential configuration is missing, raise a clear exception – this will be
-        // caught only when the gateway is actually used (e.g., in the payment controller).
+        $CI->load->config('piprapay', TRUE);
+        $cfg = $CI->config->item('piprapay') ?: [];
+
+        $this->apiUrl   = rtrim(
+            ($cfg['base_url'] ?? $CI->config->item('piprapay_api_url')) ?: '',
+            '/'
+        );
+        $this->apiKey   = $cfg['api_key'] ?? $CI->config->item('piprapay_api_key') ?: '';
+        $this->testMode = (bool) ($cfg['test_mode'] ?? $CI->config->item('piprapay_test_mode') ?: FALSE);
+
         if (empty($this->apiUrl) || empty($this->apiKey)) {
             log_message('error', 'Piprapay configuration missing or incomplete');
         }
