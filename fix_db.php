@@ -3,6 +3,7 @@
 // Standalone DB fixer script for PipraPay
 
 define('BASEPATH', true); // Bypass defined('BASEPATH') check in config files
+define('ENVIRONMENT', 'production');
 $db = [];
 $active_group = 'default';
 
