@@ -12,6 +12,7 @@
     <?= message_box('error'); ?>
 
     <?php
+    $h_s = config_item('proposal_state');
     $curency = $this->proposal_model->check_by(array('code' => config_item('default_currency')), 'tbl_currencies');
     ?>
     <div id="proposals_state_report_div"> <?php //$this->load->view("admin/proposals/proposals_state_report"); 
