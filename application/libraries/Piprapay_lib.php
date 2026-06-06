@@ -283,17 +283,24 @@ class Piprapay_lib {
             return $amount;
         }
 
-        // Look up currencies in the database
-        $bdtCur  = $this->CI->db->where("(code = 'BAN' OR code = 'BDT')")->get('tbl_currencies')->row();
-        $fromCur = $this->CI->db->where('code', $fromCurrency)->get('tbl_currencies')->row();
-
-        if ($bdtCur && $fromCur) {
-            $fromXrate = !empty($fromCur->xrate) ? (float) $fromCur->xrate : 1.0;
-            $bdtXrate  = !empty($bdtCur->xrate) ? (float) $bdtCur->xrate : 0.0085; // Approx BDT to USD
-
-            if ($bdtXrate > 0 && $fromXrate > 0) {
-                return ($amount * $fromXrate) / $bdtXrate;
+        try {
+            if (!isset($this->CI->db)) {
+                $this->CI->load->database();
             }
+            // Look up currencies in the database
+            $bdtCur  = $this->CI->db->where("(code = 'BAN' OR code = 'BDT')")->get('tbl_currencies')->row();
+            $fromCur = $this->CI->db->where('code', $fromCurrency)->get('tbl_currencies')->row();
+
+            if ($bdtCur && $fromCur) {
+                $fromXrate = !empty($fromCur->xrate) ? (float) $fromCur->xrate : 1.0;
+                $bdtXrate  = !empty($bdtCur->xrate) ? (float) $bdtCur->xrate : 0.0085; // Approx BDT to USD
+
+                if ($bdtXrate > 0 && $fromXrate > 0) {
+                    return ($amount * $fromXrate) / $bdtXrate;
+                }
+            }
+        } catch (Throwable $e) {
+            log_message('error', 'Piprapay _convert_to_bdt database error: ' . $e->getMessage());
         }
 
         // Standard hardcoded fallback rate: 1 USD = 117 BDT

@@ -18,10 +18,12 @@ class Piprapay extends CI_Controller {
         $total  = $this->invoice_model->calculate_to('total', $invoice_id);
         $client = $this->invoice_model->check_by(['client_id' => $invoice->client_id], 'tbl_client');
 
-        $customer_name  = $client->name ?? '';
-        $customer_email = $client->email ?? '';
+        $customer_name  = '';
+        $customer_email = '';
         $customer_phone = '';
         if ($client) {
+            $customer_name  = $client->name ?? '';
+            $customer_email = $client->email ?? '';
             $customer_phone = !empty($client->phone) ? $client->phone : (!empty($client->mobile) ? $client->mobile : '');
         }
 
@@ -40,9 +42,9 @@ class Piprapay extends CI_Controller {
                     'customer_phone' => $customer_phone,
                 ]
             );
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             log_message('error', 'Piprapay checkout error: ' . $e->getMessage());
-            set_message('error', 'Unable to start payment. Please try again.');
+            set_message('error', 'Unable to start payment. Please try again. Error: ' . $e->getMessage());
             $referer = $_SERVER['HTTP_REFERER'] ?? site_url('frontend/view_invoice/' . url_encode($invoice_id));
             redirect($referer);
         }
@@ -59,7 +61,7 @@ class Piprapay extends CI_Controller {
         }
         try {
             $verification = $this->piprapay_lib->verify_payment($pp_id);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             log_message('error', 'Piprapay callback verify error: ' . $e->getMessage());
             set_message('error', 'Payment verification failed');
             redirect(site_url('invoices'));
@@ -106,7 +108,7 @@ class Piprapay extends CI_Controller {
         }
         try {
             $verification = $this->piprapay_lib->verify_payment($payload['pp_id']);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             log_message('error', 'Piprapay webhook verify error: ' . $e->getMessage());
             http_response_code(500);
             exit;
@@ -138,7 +140,7 @@ class Piprapay extends CI_Controller {
         $amount = $this->input->post('amount');
         try {
             $res = $this->piprapay_lib->refund_payment($pp_id, (float)$amount);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $res = ['error' => $e->getMessage()];
         }
         $this->output->set_content_type('application/json')->set_output(json_encode($res));
