@@ -1,49 +1,83 @@
 <?php
 // fix_db.php
-define('ENVIRONMENT', 'production');
-define('BASEPATH', dirname(__FILE__) . '/system/');
-define('APPPATH', dirname(__FILE__) . '/application/');
-define('VIEWPATH', dirname(__FILE__) . '/application/views/');
-define('FCPATH', dirname(__FILE__) . '/');
-define('SELF', 'fix_db.php');
+// Standalone DB fixer script for PipraPay
 
-$_SERVER['HTTP_HOST'] = 'localhost';
-$_SERVER['SCRIPT_NAME'] = '/fix_db.php';
-$_SERVER['SCRIPT_FILENAME'] = __FILE__;
-$_SERVER['REQUEST_URI'] = '/fix_db.php';
-$_SERVER['REMOTE_ADDR'] = '127.0.0.1';
-$_SERVER['REQUEST_METHOD'] = 'GET';
+define('BASEPATH', true); // Bypass defined('BASEPATH') check in config files
+$db = [];
+$active_group = 'default';
 
-require_once BASEPATH . 'core/CodeIgniter.php';
-
-$CI =& get_instance();
-
-echo "<h2>Database Cleanup for PipraPay</h2>";
-
-// Clean up duplicate PipraPay rows in tbl_online_payment
-$query = $CI->db->where('gateway_name', 'PipraPay')->get('tbl_online_payment');
-$rows = $query->result_array();
-
-if (count($rows) > 1) {
-    echo "<p style='color: orange;'>Found " . count($rows) . " duplicate PipraPay gateway entries.</p>";
-    $keep_id = $rows[0]['online_payment_id'];
-    echo "Keeping online_payment_id: <strong>$keep_id</strong><br>";
-    
-    foreach ($rows as $index => $row) {
-        if ($index > 0) {
-            $CI->db->where('online_payment_id', $row['online_payment_id'])->delete('tbl_online_payment');
-            echo "Deleted duplicate entry with ID: " . $row['online_payment_id'] . "<br>";
-        }
-    }
+// Include the database configuration
+if (file_exists(__DIR__ . '/application/config/database.php')) {
+    include __DIR__ . '/application/config/database.php';
 } else {
-    echo "<p style='color: green;'>No duplicate PipraPay gateway entries found in tbl_online_payment.</p>";
+    die("Error: application/config/database.php not found.\n");
 }
 
-// Ensure modal is 'No' and link is set correctly
-$CI->db->where('gateway_name', 'PipraPay')->update('tbl_online_payment', [
-    'modal' => 'No',
-    'link' => 'payment/piprapay'
-]);
-echo "<p style='color: green;'>✓ Set PipraPay gateway modal to 'No' and link to 'payment/piprapay'.</p>";
+$db_config = $db[$active_group] ?? null;
+if (!$db_config) {
+    die("Error: Database configuration group '$active_group' not found.\n");
+}
 
-echo "<h3>Cleanup finished! Please delete this file (fix_db.php) from your server now.</h3>";
+$host = $db_config['hostname'];
+$user = $db_config['username'];
+$pass = $db_config['password'];
+$dbname = $db_config['database'];
+
+$is_cli = (PHP_SAPI === 'cli');
+
+if (!$is_cli) {
+    echo "<html><head><title>Database Cleanup</title></head><body style='font-family: sans-serif; padding: 20px;'>";
+}
+
+echo "<h3>Connecting to database...</h3>";
+$mysqli = @new mysqli($host, $user, $pass, $dbname);
+
+if ($mysqli->connect_error) {
+    $err = "Database connection failed: " . $mysqli->connect_error;
+    if ($is_cli) {
+        die($err . "\n");
+    } else {
+        die("<p style='color: red;'>$err</p></body></html>");
+    }
+}
+
+echo "<p style='color: green;'>✓ Database connected successfully.</p>";
+
+// 1. Clean up duplicate PipraPay entries in tbl_online_payment
+$result = $mysqli->query("SELECT * FROM tbl_online_payment WHERE gateway_name = 'PipraPay'");
+if ($result) {
+    $rows = [];
+    while ($row = $result->fetch_assoc()) {
+        $rows[] = $row;
+    }
+    
+    if (count($rows) > 1) {
+        echo "<p style='color: orange;'>Found " . count($rows) . " duplicate PipraPay gateway entries.</p>";
+        $keep_id = $rows[0]['online_payment_id'];
+        echo "Keeping entry ID: <strong>$keep_id</strong><br>";
+        
+        foreach ($rows as $index => $row) {
+            if ($index > 0) {
+                $id_to_delete = $row['online_payment_id'];
+                $mysqli->query("DELETE FROM tbl_online_payment WHERE online_payment_id = $id_to_delete");
+                echo "Deleted duplicate entry ID: $id_to_delete<br>";
+            }
+        }
+    } else {
+        echo "<p>No duplicate PipraPay entries found in tbl_online_payment.</p>";
+    }
+}
+
+// 2. Ensure modal = 'No' and link = 'payment/piprapay' for the remaining PipraPay entry
+$update_sql = "UPDATE tbl_online_payment SET modal = 'No', link = 'payment/piprapay' WHERE gateway_name = 'PipraPay'";
+if ($mysqli->query($update_sql)) {
+    echo "<p style='color: green;'>✓ Successfully updated PipraPay modal setting to 'No' and link to 'payment/piprapay'.</p>";
+} else {
+    echo "<p style='color: red;'>Error updating PipraPay setting: " . $mysqli->error . "</p>";
+}
+
+echo "<h3>Cleanup finished successfully! Please delete this file (fix_db.php) from your server.</h3>";
+
+if (!$is_cli) {
+    echo "</body></html>";
+}
