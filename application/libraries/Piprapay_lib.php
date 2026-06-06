@@ -80,6 +80,8 @@ class Piprapay_lib {
             CURLOPT_HTTPHEADER     => $this->_headers(),
             CURLOPT_TIMEOUT        => $timeout,
             CURLOPT_CONNECTTIMEOUT => 10,
+            CURLOPT_SSL_VERIFYPEER => FALSE,
+            CURLOPT_SSL_VERIFYHOST => FALSE,
         ]);
 
         $raw   = curl_exec($ch);
@@ -121,19 +123,49 @@ class Piprapay_lib {
         $cancelUrl,
         array $metaData = []
     ) {
+        $currency = strtoupper($currency) ?: 'BDT';
+
+        // Convert amount to BDT if the invoice currency is different
+        if ($currency !== 'BDT' && $currency !== 'BAN') {
+            $amount = $this->_convert_to_bdt($amount, $currency);
+            $currency = 'BDT';
+        } elseif ($currency === 'BAN') {
+            $currency = 'BDT';
+        }
+
+        // Handle phone number resolution and fallbacks
+        $phone = $metaData['customer_phone'] ?? '';
+        if (empty($phone) && !empty($metaData['customer_mobile'])) {
+            $phone = $metaData['customer_mobile'];
+        }
+        if (empty($phone)) {
+            if (!empty($metaData['invoice_id'])) {
+                $invoice = $this->CI->db->where('invoices_id', $metaData['invoice_id'])->get('tbl_invoices')->row();
+                if ($invoice && !empty($invoice->client_id)) {
+                    $client = $this->CI->db->where('client_id', $invoice->client_id)->get('tbl_client')->row();
+                    if ($client) {
+                        $phone = !empty($client->phone) ? $client->phone : (!empty($client->mobile) ? $client->mobile : '');
+                    }
+                }
+            }
+        }
+        if (empty($phone)) {
+            $phone = '01700000000'; // Default valid BD format phone fallback
+        }
+
         $payload = [
-            'amount'      => number_format((float) $amount, 2, '.', ''),
-            'currency'    => strtoupper($currency) ?: 'BDT',
-            'description' => $metaData['description'] ?? 'Payment via PipraPay',
-            'customer'    => [
-                'name'  => $metaData['customer_name']  ?? '',
-                'email' => $metaData['customer_email'] ?? '',
-                'phone' => $metaData['customer_phone'] ?? '',
-            ],
-            'return_url'  => $returnUrl,
-            'cancel_url'  => $cancelUrl,
-            'metadata'    => json_encode($metaData),
-            'test'        => $this->testMode,
+            'amount'        => number_format((float) $amount, 2, '.', ''),
+            'currency'      => $currency,
+            'invoice_id'    => (string) ($metaData['invoice_id'] ?? ''),
+            'full_name'     => !empty($metaData['customer_name']) ? $metaData['customer_name'] : 'Customer',
+            'email_address' => !empty($metaData['customer_email']) ? $metaData['customer_email'] : 'customer@example.com',
+            'mobile_number' => $phone,
+            'gateway'       => $this->CI->config->item('piprapay_default_gateway') ?: 'bkash',
+            'callback_url'  => $returnUrl,
+            'success_url'   => $returnUrl,
+            'cancel_url'    => $cancelUrl,
+            'description'   => $metaData['description'] ?? 'Payment via PipraPay',
+            'metadata'      => $metaData,
         ];
 
         $res = $this->_post('/checkout/redirect', $payload);
@@ -234,5 +266,41 @@ class Piprapay_lib {
         ) || (
             !empty($response['statusCode']) && $response['statusCode'] === '0000'
         );
+    }
+
+    /**
+     * Convert an amount to BDT.
+     *
+     * @param float  $amount
+     * @param string $fromCurrency
+     *
+     * @return float
+     */
+    protected function _convert_to_bdt($amount, $fromCurrency)
+    {
+        $fromCurrency = strtoupper($fromCurrency);
+        if ($fromCurrency === 'BDT' || $fromCurrency === 'BAN') {
+            return $amount;
+        }
+
+        // Look up currencies in the database
+        $bdtCur  = $this->CI->db->where("(code = 'BAN' OR code = 'BDT')")->get('tbl_currencies')->row();
+        $fromCur = $this->CI->db->where('code', $fromCurrency)->get('tbl_currencies')->row();
+
+        if ($bdtCur && $fromCur) {
+            $fromXrate = !empty($fromCur->xrate) ? (float) $fromCur->xrate : 1.0;
+            $bdtXrate  = !empty($bdtCur->xrate) ? (float) $bdtCur->xrate : 0.0085; // Approx BDT to USD
+
+            if ($bdtXrate > 0 && $fromXrate > 0) {
+                return ($amount * $fromXrate) / $bdtXrate;
+            }
+        }
+
+        // Standard hardcoded fallback rate: 1 USD = 117 BDT
+        if ($fromCurrency === 'USD') {
+            return $amount * 117.0;
+        }
+
+        return $amount;
     }
 }

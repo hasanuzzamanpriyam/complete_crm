@@ -18,6 +18,13 @@ class Piprapay extends CI_Controller {
         $total  = $this->invoice_model->calculate_to('total', $invoice_id);
         $client = $this->invoice_model->check_by(['client_id' => $invoice->client_id], 'tbl_client');
 
+        $customer_name  = $client->name ?? '';
+        $customer_email = $client->email ?? '';
+        $customer_phone = '';
+        if ($client) {
+            $customer_phone = !empty($client->phone) ? $client->phone : (!empty($client->mobile) ? $client->mobile : '');
+        }
+
         try {
             $resp = $this->piprapay_lib->create_checkout_session(
                 $total,
@@ -28,9 +35,9 @@ class Piprapay extends CI_Controller {
                     'invoice_id'     => $invoice_id,
                     'reference_no'   => $invoice->reference_no,
                     'description'    => "Invoice #{$invoice->reference_no}",
-                    'customer_name'  => $client->name ?? '',
-                    'customer_email' => $client->email ?? '',
-                    'customer_phone' => $client->phone ?? '',
+                    'customer_name'  => $customer_name,
+                    'customer_email' => $customer_email,
+                    'customer_phone' => $customer_phone,
                 ]
             );
         } catch (Exception $e) {
