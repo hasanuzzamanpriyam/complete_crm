@@ -24,6 +24,14 @@ class Admin_Controller extends MY_Controller
             include_once(APPPATH . 'views/admin/settings/db_update_required.php');
             die;
         }
+        // Super admin bypasses all permission restrictions
+        $is_super_admin = $this->session->userdata('is_super_admin');
+        if (!empty($is_super_admin)) {
+            $all_menu = get_result('tbl_menu');
+            $_SESSION['user_roll'] = $all_menu;
+            return;
+        }
+
         if (strpos($this->uri->uri_string(), 'login') === FALSE) {
             $this->session->set_userdata(array(
                 'url' => $this->uri->uri_string()

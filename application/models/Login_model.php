@@ -59,6 +59,7 @@ class Login_Model extends MY_Model
                 'loggedin' => TRUE,
                 'user_type' => $admin->role_id,
                 'user_flag' => $admin->role_id,
+                'is_super_admin' => !empty($admin->is_super_admin) ? $admin->is_super_admin : 0,
                 'direction' => $direction,
             );
             

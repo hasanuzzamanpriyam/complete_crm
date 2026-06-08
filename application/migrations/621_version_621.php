@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Migration_Add_meeting_url_columns extends CI_Migration {
+class Migration_Version_621 extends CI_Migration {
     public function up(){
         if (!$this->db->field_exists('meeting_url', 'tbl_mettings')) {
             $fields = array(

@@ -115,6 +115,15 @@ class Menu
             $module_menu = json_decode(json_encode(array_merge($module, $server_management)));
             $user_menu = array_merge($user_menu, $module_menu);
         }
+        // Filter super admin menu items for non-super-admin users
+        $is_super_admin = $CI->session->userdata('is_super_admin');
+        if (empty($is_super_admin)) {
+            $super_admin_labels = array('super_admin', 'super_admin_dashboard', 'user_permissions', 'audit_logs', 'super_admin_settings');
+            $user_menu = array_values(array_filter($user_menu, function($item) use ($super_admin_labels) {
+                return !in_array($item->label, $super_admin_labels);
+            }));
+        }
+
         $user_menu = apply_filters('sidebar_menu', $user_menu);
         // Create a multidimensional array to conatin a list of items and parents
         $menu = array(

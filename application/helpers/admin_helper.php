@@ -1429,25 +1429,82 @@ function decrypt($data)
     return get_instance()->cencryption->mdecrypt($data);
 }
 
+function is_super_admin($user_id = null)
+{
+    $CI = &get_instance();
+    if (empty($user_id)) {
+        $session_val = $CI->session->userdata('is_super_admin');
+        if ($session_val !== null) {
+            return (bool) $session_val;
+        }
+        $user_id = $CI->session->userdata('user_id');
+    }
+    $user = $CI->db->select('is_super_admin')->where('user_id', $user_id)->get('tbl_users')->row();
+    return !empty($user) && $user->is_super_admin == 1;
+}
+
+function audit_log($action, $module = null, $module_id = null, $details = null)
+{
+    $CI = &get_instance();
+    $user_id = $CI->session->userdata('user_id');
+    $username = $CI->session->userdata('user_name');
+
+    $data = array(
+        'user_id'    => $user_id,
+        'username'   => $username,
+        'action'     => $action,
+        'module'     => $module,
+        'module_id'  => $module_id,
+        'details'    => is_array($details) ? json_encode($details) : $details,
+        'ip_address' => $CI->input->ip_address(),
+        'user_agent' => $CI->input->server('HTTP_USER_AGENT'),
+        'created_at' => date('Y-m-d H:i:s'),
+    );
+
+    $CI->db->insert('tbl_audit_logs', $data);
+}
+
 function can_action($menu_id, $action)
 {
     $CI = &get_instance();
+
+    // Super admin always has access
+    if (is_super_admin()) {
+        return true;
+    }
+
     $designations_id = $CI->session->userdata('designations_id');
-    $where = array('designations_id' => $designations_id, $action => $menu_id);
+    $user_id = $CI->session->userdata('user_id');
     $user_type = $CI->session->userdata('user_type');
+
+    // Check per-user override first
+    $override = $CI->db->where(array('user_id' => $user_id, 'menu_id' => $menu_id, $action => 1))->get('tbl_user_permissions')->row();
+    if (!empty($override)) {
+        return true;
+    }
+
+    // Fallback to designation-based permission
     if ($user_type == 1) {
         return true;
-    } else {
-        $can_do = $CI->db->where($where)->get('tbl_user_role')->row();
-        if (!empty($can_do)) {
-            return true;
-        }
     }
+
+    $where = array('designations_id' => $designations_id, $action => $menu_id);
+    $can_do = $CI->db->where($where)->get('tbl_user_role')->row();
+    if (!empty($can_do)) {
+        return true;
+    }
+
+    return false;
 }
 
 function can_action_record($permission_json, $action)
 {
     $CI = &get_instance();
+
+    if (is_super_admin()) {
+        return true;
+    }
+
     $user_type = $CI->session->userdata('user_type');
     if ($user_type == 1) {
         return true;
@@ -1476,33 +1533,48 @@ function can_action_record($permission_json, $action)
 function can_action_by_label($label, $action)
 {
     $CI = &get_instance();
-    $menu_id = get_any_field('tbl_menu', array('label' => $label), 'menu_id');
-    $designations_id = $CI->session->userdata('designations_id');
-    $where = array('designations_id' => $designations_id, $action => $menu_id);
-    $user_type = $CI->session->userdata('user_type');
-    if ($user_type == 1) {
+
+    if (is_super_admin()) {
         return true;
-    } else {
-        $can_do = $CI->db->where($where)->get('tbl_user_role')->row();
-        if (!empty($can_do)) {
-            return true;
-        }
     }
+
+    $menu_id = get_any_field('tbl_menu', array('label' => $label), 'menu_id');
+
+    if (empty($menu_id)) {
+        return false;
+    }
+
+    return can_action($menu_id, $action);
 }
 
 function can_do($menu_id)
 {
     $CI = &get_instance();
+
+    if (is_super_admin()) {
+        return true;
+    }
+
+    $user_id = $CI->session->userdata('user_id');
     $designations_id = $CI->session->userdata('designations_id');
     $user_type = $CI->session->userdata('user_type');
+
+    // Check per-user override
+    $override = $CI->db->where(array('user_id' => $user_id, 'menu_id' => $menu_id, 'view' => 1))->get('tbl_user_permissions')->row();
+    if (!empty($override)) {
+        return true;
+    }
+
     if ($user_type == 1) {
         return true;
-    } else {
-        $can_do = $CI->db->where(array('designations_id' => $designations_id, 'menu_id' => $menu_id))->get('tbl_user_role')->result();
-        if (!empty($can_do)) {
-            return true;
-        }
     }
+
+    $can_do = $CI->db->where(array('designations_id' => $designations_id, 'menu_id' => $menu_id))->get('tbl_user_role')->result();
+    if (!empty($can_do)) {
+        return true;
+    }
+
+    return false;
 }
 
 function value_exists_in_array_by_key($array, $key, $val)
@@ -4768,5 +4840,58 @@ function generate_qrcode($data, $number = 6)
 if (!function_exists('strtolower')) {
     function strtolower($str)
     {
+    }
+}
+
+if (!function_exists('_render_permission_row')) {
+    function _render_permission_row($menu, $designation_perms, $user_perms, $depth, $parents)
+    {
+        $prefix = str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $depth);
+        $d_perm = isset($designation_perms[$menu->menu_id]) ? $designation_perms[$menu->menu_id] : null;
+        $u_perm = isset($user_perms[$menu->menu_id]) ? $user_perms[$menu->menu_id] : null;
+        $is_overridden = !empty($u_perm);
+        $label_class = $is_overridden ? 'label-info' : '';
+
+        $d_view = !empty($d_perm->view) ? 1 : 0;
+        $d_create = !empty($d_perm->created) ? 1 : 0;
+        $d_edit = !empty($d_perm->edited) ? 1 : 0;
+        $d_delete = !empty($d_perm->deleted) ? 1 : 0;
+
+        $u_view = !empty($u_perm->view) ? 1 : 0;
+        $u_create = !empty($u_perm->created) ? 1 : 0;
+        $u_edit = !empty($u_perm->edited) ? 1 : 0;
+        $u_delete = !empty($u_perm->deleted) ? 1 : 0;
+
+        $html = '<tr class="' . $label_class . '">';
+        $html .= '<td>' . $prefix . ' ' . lang($menu->label) . '<input type="hidden" name="menu_id[]" value="' . $menu->menu_id . '"></td>';
+
+        $fields = ['view', 'created', 'edited', 'deleted'];
+        $d_keys = ['view' => 'd_view', 'created' => 'd_create', 'edited' => 'd_edit', 'deleted' => 'd_delete'];
+        $u_keys = ['view' => 'u_view', 'created' => 'u_create', 'edited' => 'u_edit', 'deleted' => 'u_delete'];
+
+        foreach ($fields as $field) {
+            $d_val = ${$d_keys[$field]};
+            $u_val = ${$u_keys[$field]};
+            $checked = $u_val ? 'checked' : '';
+            $inherited_checked = $d_val && !$u_val ? '&#10003;' : '';
+
+            $html .= '<td class="text-center">';
+            $html .= '<input type="checkbox" name="' . $field . '_' . $menu->menu_id . '" value="1" ' . $checked . '>';
+            if (!empty($inherited_checked)) {
+                $html .= '<br><small class="text-muted">' . $inherited_checked . '</small>';
+            }
+            $html .= '</td>';
+        }
+
+        $html .= '<td class="text-center"><small class="text-muted">UID:' . $menu->menu_id . '</small></td>';
+        $html .= '</tr>';
+
+        if (!empty($menu->children)) {
+            foreach ($menu->children as $child) {
+                $html .= _render_permission_row($child, $designation_perms, $user_perms, $depth + 1, $parents);
+            }
+        }
+
+        return $html;
     }
 }

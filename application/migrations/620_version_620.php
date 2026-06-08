@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Migration_Add_platform_to_mettings extends CI_Migration {
+class Migration_Version_620 extends CI_Migration {
     public function up(){
         // Add platform column if it does not exist
         if (!$this->db->field_exists('platform', 'tbl_mettings')) {
