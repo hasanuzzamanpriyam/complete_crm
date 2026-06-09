@@ -552,7 +552,18 @@
             if (!empty($this->db->field_exists('permission', $table))) {
                 $query_table = (!empty($alias) ? $alias : $table);
                 $this->db->group_start();
-                if ($this->db->version() >= 8) {
+                
+                $version = $this->db->version();
+                $major_version = 0;
+                if (preg_match('/^(?:5\.5\.5-)?(\d+)/', $version, $matches)) {
+                    $major_version = (int)$matches[1];
+                } else {
+                    $major_version = (int)$version;
+                }
+                
+                $is_mariadb = (stripos($version, 'mariadb') !== false);
+                
+                if ($major_version >= 8 || $is_mariadb || $major_version >= 10) {
                     $sq = $this->db->escape('\\b' . ($userid) . '\\b');
                 } else {
                     $sq = $this->db->escape('[[:<:]]' . ($userid) . '[[:>:]]');

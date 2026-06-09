@@ -540,8 +540,22 @@ function slug_it($str, $options = array())
 
 function display_money($value, $currency = false, $decimal = 2)
 {
-    if (!empty(config_item('decimal_separator'))) {
-        $decimal = config_item('decimal_separator');
+    if ($value === null || $value === '') {
+        $value = 0;
+    }
+    if (!is_numeric($value)) {
+        $clean_value = preg_replace('/[^0-9.-]/', '', $value);
+        if (is_numeric($clean_value)) {
+            $value = $clean_value;
+        } else {
+            $value = 0;
+        }
+    }
+    $db_decimal = config_item('decimal_separator');
+    if ($db_decimal !== null && $db_decimal !== '' && is_numeric($db_decimal)) {
+        $decimal = (int)$db_decimal;
+    } else {
+        $decimal = is_numeric($decimal) ? (int)$decimal : 2;
     }
     switch (config_item('money_format')) {
         case 1:
@@ -1439,8 +1453,12 @@ function is_super_admin($user_id = null)
         }
         $user_id = $CI->session->userdata('user_id');
     }
-    $user = $CI->db->select('is_super_admin')->where('user_id', $user_id)->get('tbl_users')->row();
-    return !empty($user) && $user->is_super_admin == 1;
+    if ($CI->db->field_exists('is_super_admin', 'tbl_users')) {
+        $user = $CI->db->select('is_super_admin')->where('user_id', $user_id)->get('tbl_users')->row();
+        return !empty($user) && $user->is_super_admin == 1;
+    }
+    $user = $CI->db->select('role_id')->where('user_id', $user_id)->get('tbl_users')->row();
+    return !empty($user) && $user->role_id == 1;
 }
 
 function audit_log($action, $module = null, $module_id = null, $details = null)
@@ -1461,7 +1479,9 @@ function audit_log($action, $module = null, $module_id = null, $details = null)
         'created_at' => date('Y-m-d H:i:s'),
     );
 
-    $CI->db->insert('tbl_audit_logs', $data);
+    if ($CI->db->table_exists('tbl_audit_logs')) {
+        $CI->db->insert('tbl_audit_logs', $data);
+    }
 }
 
 function can_action($menu_id, $action)
@@ -1478,9 +1498,11 @@ function can_action($menu_id, $action)
     $user_type = $CI->session->userdata('user_type');
 
     // Check per-user override first
-    $override = $CI->db->where(array('user_id' => $user_id, 'menu_id' => $menu_id, $action => 1))->get('tbl_user_permissions')->row();
-    if (!empty($override)) {
-        return true;
+    if ($CI->db->table_exists('tbl_user_permissions')) {
+        $override = $CI->db->where(array('user_id' => $user_id, 'menu_id' => $menu_id, $action => 1))->get('tbl_user_permissions')->row();
+        if (!empty($override)) {
+            return true;
+        }
     }
 
     // Fallback to designation-based permission
@@ -1560,9 +1582,11 @@ function can_do($menu_id)
     $user_type = $CI->session->userdata('user_type');
 
     // Check per-user override
-    $override = $CI->db->where(array('user_id' => $user_id, 'menu_id' => $menu_id, 'view' => 1))->get('tbl_user_permissions')->row();
-    if (!empty($override)) {
-        return true;
+    if ($CI->db->table_exists('tbl_user_permissions')) {
+        $override = $CI->db->where(array('user_id' => $user_id, 'menu_id' => $menu_id, 'view' => 1))->get('tbl_user_permissions')->row();
+        if (!empty($override)) {
+            return true;
+        }
     }
 
     if ($user_type == 1) {
