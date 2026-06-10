@@ -43,6 +43,14 @@ class Superadmin extends Admin_Controller
     public function users()
     {
         $data['title'] = lang('user_management');
+        // Fetch menu lookup for permission names
+        $data['menu_lookup'] = $this->db
+            ->select('menu_id, label AS name')
+            ->where('status', 1)
+            ->get('tbl_menu')
+            ->result_array();
+        $data['menu_lookup'] = array_column($data['menu_lookup'], 'name', 'menu_id');
+
         $data['all_users'] = $this->db
             ->select('tbl_users.*, tbl_account_details.fullname, tbl_account_details.avatar, tbl_designations.designations, tbl_departments.deptname')
             ->from('tbl_users')
@@ -52,7 +60,10 @@ class Superadmin extends Admin_Controller
             ->order_by('tbl_users.user_id', 'ASC')
             ->get()
             ->result();
-
+        // Attach effective permissions for each user
+        foreach ($data['all_users'] as $u) {
+            $u->effective_permissions = $this->get_user_effective_permissions($u->user_id);
+        }
         $data['subview'] = $this->load->view('admin/superadmin/user_list', $data, true);
         $this->load->view('admin/_layout_main', $data);
     }
@@ -150,47 +161,39 @@ class Superadmin extends Admin_Controller
         return $result;
     }
 
-    public function save_permissions()
+    private function get_user_effective_permissions($user_id)
     {
-        $user_id = $this->input->post('user_id', true);
-        $menu_ids = $this->input->post('menu_id', true);
-
-        if (empty($user_id) || empty($menu_ids)) {
-            set_message('error', 'Invalid request');
-            redirect('admin/superadmin/permissions/' . $user_id);
-        }
-
-        // Delete existing overrides for this user
-        $this->db->where('user_id', $user_id)->delete('tbl_user_permissions');
-
-        foreach ($menu_ids as $menu_id) {
-            $view = $this->input->post('view_' . $menu_id, true) ? 1 : 0;
-            $created = $this->input->post('created_' . $menu_id, true) ? 1 : 0;
-            $edited = $this->input->post('edited_' . $menu_id, true) ? 1 : 0;
-            $deleted = $this->input->post('deleted_' . $menu_id, true) ? 1 : 0;
-
-            // Only save if there's an override (at least one flag is set)
-            if ($view || $created || $edited || $deleted) {
-                $data = array(
-                    'user_id' => $user_id,
-                    'menu_id' => $menu_id,
-                    'view' => $view,
-                    'created' => $created,
-                    'edited' => $edited,
-                    'deleted' => $deleted,
-                    'updated_at' => date('Y-m-d H:i:s'),
-                );
-                $this->db->insert('tbl_user_permissions', $data);
+        // Get designation based permissions
+        $acc_details = $this->db->where('user_id', $user_id)->get('tbl_account_details')->row();
+        $designation_perms = [];
+        if (!empty($acc_details->designations_id)) {
+            $dp_rows = $this->db->where('designations_id', $acc_details->designations_id)->get('tbl_user_role')->result();
+            foreach ($dp_rows as $dp) {
+                $designation_perms[$dp->menu_id] = $dp;
             }
         }
 
-        audit_log('permissions_updated', 'user_permissions', $user_id);
+        // Get per‑user overrides
+        $user_perm_rows = $this->db->where('user_id', $user_id)->get('tbl_user_permissions')->result();
+        $user_perms = [];
+        foreach ($user_perm_rows as $up) {
+            $user_perms[$up->menu_id] = $up;
+        }
 
-        $type = 'success';
-        $message = lang('permission_updated');
-        set_message($type, $message);
-        redirect('admin/superadmin/permissions/' . $user_id);
+        // Merge: overrides take precedence
+        $effective = [];
+        $all_menu_ids = array_unique(array_merge(array_keys($designation_perms), array_keys($user_perms)));
+        foreach ($all_menu_ids as $mid) {
+            if (isset($user_perms[$mid])) {
+                $effective[$mid] = $user_perms[$mid];
+            } elseif (isset($designation_perms[$mid])) {
+                $effective[$mid] = $designation_perms[$mid];
+            }
+        }
+        return $effective;
     }
+
+
 
     public function audit_logs()
     {
