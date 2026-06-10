@@ -1,4 +1,25 @@
 <?php
+if (!function_exists('apply_user_scope')) {
+    function apply_user_scope($exclude_self = false)
+    {
+        $CI =& get_instance();
+        // Super admin sees everything
+        if (is_super_admin()) {
+            return;
+        }
+        $admin_id = $CI->session->userdata('user_id');
+        // Never show super admin or other admins
+        $CI->db->where('tbl_users.is_super_admin', 0);
+        $CI->db->where('(tbl_users.role_id != 1 OR tbl_users.user_id = ' . $admin_id . ')');
+        // Scope to users created by this admin (or the admin themselves)
+        if ($exclude_self) {
+            $CI->db->where('tbl_users.created_by', $admin_id);
+        } else {
+            $CI->db->where('(tbl_users.created_by = ' . $admin_id . ' OR tbl_users.user_id = ' . $admin_id . ')');
+        }
+    }
+}
+
 define('UPDATE_URL', 'https://update.uniquecoder.com/');
 define('TEMP_FOLDER', FCPATH . 'uploads/temp' . '/');
 define('PurchaseitemID', '16292398');
@@ -1806,7 +1827,9 @@ function client($user_id = null)
 function all_admin()
 {
     $CI = &get_instance();
-    $all_admin = $CI->db->where('role_id', 1)->get('tbl_users')->result();
+    $CI->db->where('role_id', 1);
+        apply_user_scope();
+        $all_admin = $CI->db->get('tbl_users')->result();
     if (!empty($all_admin)) {
         return $all_admin;
     } else {
@@ -1817,10 +1840,10 @@ function all_admin()
 function get_admin_number()
 {
     $CI = &get_instance();
-    $admin = $CI->db
-        ->where("tbl_users.role_id", 1)
-        ->join("tbl_account_details", "tbl_account_details.user_id = tbl_users.user_id")
-        ->get("tbl_users")->row();
+    $CI->db->where('tbl_users.role_id', 1);
+        apply_user_scope();
+        $CI->db->join('tbl_account_details', 'tbl_account_details.user_id = tbl_users.user_id');
+        $admin = $CI->db->get('tbl_users')->row();
     if (!empty($admin)) {
         return $admin->mobile;
     } else {
@@ -2373,11 +2396,13 @@ function get_staff_details($user_id = null, $type = null, $where = null)
         $CI->db->where($where);
     }
     if (!empty($user_id)) {
-        $CI->db->where('tbl_users.user_id', $user_id);
+$CI->db->where('tbl_users.user_id', $user_id);
+        // Apply scope for specific user fetch (exclude others)
+        apply_user_scope(true);
         $query_result = $CI->db->get();
         $result = $query_result->row();
     } else {
-        $CI->db->where('tbl_users.role_id !=', 2);
+apply_user_scope();
         $CI->db->where('tbl_users.activated', 1);
         $query_result = $CI->db->get();
         if (!empty($type)) {
