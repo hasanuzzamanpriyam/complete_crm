@@ -1993,10 +1993,34 @@ class Tasks extends Admin_Controller
         }
     }
 
-    public
     function tasks_timer($status, $task_id, $inline = NULL)
     {
         $task_start = $this->tasks_model->check_by(array('task_id' => $task_id), 'tbl_task');
+
+        if ($status == 'off' || $status == 'pause' || $status == 'hold') {
+            // Find active timer to identify the owner
+            $active_timer = $this->db->where(array('task_id' => $task_id, 'timer_status' => 'on'))->get('tbl_tasks_timer')->row();
+            $paused_timer = null;
+            if (empty($active_timer)) {
+                $paused_timer = $this->db->where('task_id', $task_id)
+                    ->where_in('timer_status', array('pause', 'hold'))
+                    ->order_by('tasks_timer_id', 'DESC')
+                    ->get('tbl_tasks_timer')->row();
+            }
+            $timer_owner_id = !empty($active_timer) ? $active_timer->user_id : (!empty($paused_timer) ? $paused_timer->user_id : (!empty($task_start->timer_started_by) ? $task_start->timer_started_by : 0));
+
+            if ($timer_owner_id > 0 && $timer_owner_id != $this->session->userdata('user_id')) {
+                if (!handle_timer_stop($timer_owner_id, 'tasks', $task_id, $task_start->task_name)) {
+                    set_message('error', 'You are not permitted to stop this user\'s timer.');
+                    if (empty($_SERVER['HTTP_REFERER'])) {
+                        redirect('admin/tasks/all_task');
+                    } else {
+                        redirect($_SERVER['HTTP_REFERER']);
+                    }
+                }
+            }
+        }
+
         $notifiedUsers = array();
         if (!empty($task_start->permission) && $task_start->permission != 'all') {
             $permissionUsers = json_decode($task_start->permission);

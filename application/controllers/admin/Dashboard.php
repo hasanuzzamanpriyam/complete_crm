@@ -31,11 +31,15 @@ class Dashboard extends Admin_Controller
         if ($this->input->is_ajax_request()) {
             $user_id = $this->session->userdata('user_id');
             if ($this->session->userdata('user_type') == '1') {
-                $data['active_timers'] = $this->db
-                    ->select('tbl_tasks_timer.*, tbl_account_details.fullname')
-                    ->join('tbl_account_details', 'tbl_account_details.user_id = tbl_tasks_timer.user_id', 'left')
-                    ->where_in('tbl_tasks_timer.timer_status', array('on', 'pause', 'hold'))
-                    ->get('tbl_tasks_timer')->result();
+                $this->db->select('tbl_tasks_timer.*, tbl_account_details.fullname');
+                $this->db->join('tbl_account_details', 'tbl_account_details.user_id = tbl_tasks_timer.user_id', 'left');
+                $this->db->where_in('tbl_tasks_timer.timer_status', array('on', 'pause', 'hold'));
+                if (!is_super_admin()) {
+                    // Standard Admin: filter to only non-admins (role_id != 1) or themselves
+                    $this->db->join('tbl_users', 'tbl_users.user_id = tbl_tasks_timer.user_id', 'left');
+                    $this->db->where("(tbl_users.role_id != 1 OR tbl_tasks_timer.user_id = " . intval($user_id) . ")");
+                }
+                $data['active_timers'] = $this->db->get('tbl_tasks_timer')->result();
             } else {
                 $data['active_timers'] = $this->db
                     ->where('user_id', $user_id)

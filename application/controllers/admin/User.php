@@ -1290,7 +1290,7 @@ class User extends Admin_Controller
             }
             else {
                 $msg = lang('unbanned');
-                $action = array('activated' => 1, 'banned' => $flag);
+                $action = array('activated' => 1, 'banned' => $flag, 'timer_stopped_warnings' => 0);
             }
             $where = array('user_id' => $id);
 

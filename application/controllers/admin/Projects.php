@@ -2813,11 +2813,35 @@ class Projects extends Admin_Controller
         }
     }
 
-    public
     function tasks_timer($status, $project_id, $inline = null)
     {
         $task_start = $this->items_model->check_by(array('project_id' => $project_id), 'tbl_project');
         $project_info = $this->items_model->check_by(array('project_id' => $project_id), 'tbl_project');
+
+        if ($status == 'off' || $status == 'pause' || $status == 'hold') {
+            // Find active timer to identify the owner
+            $active_timer = $this->db->where(array('project_id' => $project_id, 'timer_status' => 'on'))->get('tbl_tasks_timer')->row();
+            $paused_timer = null;
+            if (empty($active_timer)) {
+                $paused_timer = $this->db->where('project_id', $project_id)
+                    ->where_in('timer_status', array('pause', 'hold'))
+                    ->order_by('tasks_timer_id', 'DESC')
+                    ->get('tbl_tasks_timer')->row();
+            }
+            $timer_owner_id = !empty($active_timer) ? $active_timer->user_id : (!empty($paused_timer) ? $paused_timer->user_id : (!empty($task_start->timer_started_by) ? $task_start->timer_started_by : 0));
+
+            if ($timer_owner_id > 0 && $timer_owner_id != $this->session->userdata('user_id')) {
+                if (!handle_timer_stop($timer_owner_id, 'projects', $project_id, $project_info->project_name)) {
+                    set_message('error', 'You are not permitted to stop this user\'s timer.');
+                    if (empty($_SERVER['HTTP_REFERER'])) {
+                        redirect('admin/projects/project_details/' . $project_id . '/timesheet');
+                    } else {
+                        redirect($_SERVER['HTTP_REFERER']);
+                    }
+                }
+            }
+        }
+
         $notifiedUsers = array();
         if (!empty($project_info->permission) && $project_info->permission != 'all') {
             $permissionUsers = json_decode($project_info->permission);
@@ -2833,7 +2857,7 @@ class Projects extends Admin_Controller
             // else do not off time
             $check_user = $this->timer_started_by($project_id);
 
-            if ($check_user == TRUE) {
+            if ($check_user == TRUE || $this->session->userdata('user_type') == '1') {
 
                 $task_logged_time = $this->items_model->task_spent_time_by_id($project_id, true);
 
@@ -2848,14 +2872,26 @@ class Projects extends Admin_Controller
                 $this->items_model->_table_name = "tbl_project"; //table name
                 $this->items_model->_primary_key = "project_id";
                 $this->items_model->save($data, $project_id);
+
+                // Find active timer to update
+                $active_timer = $this->db->where(array('project_id' => $project_id, 'timer_status' => 'on'))->get('tbl_tasks_timer')->row();
+                $tasks_timer_id = !empty($active_timer) ? $active_timer->tasks_timer_id : 0;
+                if (empty($tasks_timer_id)) {
+                    $paused_timer = $this->db->where('project_id', $project_id)
+                        ->where_in('timer_status', array('pause', 'hold'))
+                        ->order_by('tasks_timer_id', 'DESC')
+                        ->get('tbl_tasks_timer')->row();
+                    if (!empty($paused_timer)) {
+                        $tasks_timer_id = $paused_timer->tasks_timer_id;
+                    }
+                }
+
                 // save into tbl_task_timer
                 $t_data = array(
                     'project_id' => $project_id,
-                    'user_id' => $this->session->userdata('user_id'),
                     'timer_status' => $status,
                     'end_time' => time()
                 );
-                $tasks_timer_id = timer_status('projects', $project_id, 'on', true);
                 // insert into tbl_task_timer
                 $this->items_model->_table_name = "tbl_tasks_timer"; //table name
                 $this->items_model->_primary_key = "tasks_timer_id";

@@ -56,6 +56,12 @@
                     </p>
                 </div>
             </div>
+            <div class="form-group mb0  col-sm-6">
+                <label class="control-label col-sm-5"><strong>Timer Warnings:</strong></label>
+                <div class="col-sm-7 ">
+                    <p class="form-control-static"><?= isset($user_info->timer_stopped_warnings) ? $user_info->timer_stopped_warnings : 0 ?> / 3</p>
+                </div>
+            </div>
         <?php } ?>
         <div class="form-group mb0  col-sm-6">
             <label class="col-sm-5 control-label"><?= lang('joining_date') ?>: </label>

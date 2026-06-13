@@ -7,6 +7,19 @@ class Client_Controller extends MY_Controller
     {
         parent::__construct();
 
+        // Check if currently logged in user account is deactivated or banned
+        $user_id = $this->session->userdata('user_id');
+        if (!empty($user_id)) {
+            $user_status = $this->db->select('activated, banned')->where('user_id', $user_id)->get('tbl_users')->row();
+            if (empty($user_status) || $user_status->activated == 0 || $user_status->banned == 1) {
+                $this->session->sess_destroy();
+                $type = 'error';
+                $message = 'Your account has been locked. Please contact an administrator.';
+                set_message($type, $message);
+                redirect('login');
+            }
+        }
+
         //get all navigation data
         $all_menu = $this->db->get('tbl_client_menu')->result();
 

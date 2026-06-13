@@ -15,6 +15,19 @@ class Admin_Controller extends MY_Controller
         $this->load->model('common_model');
         $this->load->model('admin_model');
 
+        // Check if currently logged in user account is deactivated or banned
+        $user_id = $this->session->userdata('user_id');
+        if (!empty($user_id)) {
+            $user_status = $this->db->select('activated, banned')->where('user_id', $user_id)->get('tbl_users')->row();
+            if (empty($user_status) || $user_status->activated == 0 || $user_status->banned == 1) {
+                $this->session->sess_destroy();
+                $type = 'error';
+                $message = 'Your account has been locked. Please contact an administrator.';
+                set_message($type, $message);
+                redirect('login');
+            }
+        }
+
         $this->_current_version = $this->admin_model->get_current_db_version();
 
         if ($this->admin_model->is_db_upgrade_required($this->_current_version) && !$this->input->post('auto_update', true)) {

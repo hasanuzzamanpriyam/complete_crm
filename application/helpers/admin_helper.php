@@ -4944,3 +4944,70 @@ if (!function_exists('_render_permission_row')) {
         return $html;
     }
 }
+
+
+if (!function_exists('handle_timer_stop')) {
+    function handle_timer_stop($timer_owner_id, $module, $id, $name)
+    {
+        $CI =& get_instance();
+        $current_user_id = my_id();
+
+        // If stopping their own timer, allowed, no warnings
+        if ($current_user_id == $timer_owner_id) {
+            return true;
+        }
+
+        // Use raw queries to bypass query builder visibility filters
+        $current_user = $CI->db->query("SELECT role_id, is_super_admin FROM tbl_users WHERE user_id = ?", array($current_user_id))->row();
+        $target_user = $CI->db->query("SELECT role_id, is_super_admin, timer_stopped_warnings FROM tbl_users WHERE user_id = ?", array($timer_owner_id))->row();
+
+        if (empty($current_user) || empty($target_user)) {
+            return false;
+        }
+
+        $is_super = ($current_user->is_super_admin == 1);
+        $is_admin = ($current_user->role_id == 1);
+
+        $allowed = false;
+        if ($is_super) {
+            $allowed = true;
+        } elseif ($is_admin) {
+            // Standard admin can stop timers of non-admins (role_id != 1)
+            if ($target_user->role_id != 1) {
+                $allowed = true;
+            }
+        }
+
+        if (!$allowed) {
+            return false;
+        }
+
+        // Target user is super admin?
+        $target_is_super = ($target_user->is_super_admin == 1);
+        $warnings = $target_user->timer_stopped_warnings + 1;
+
+        // Create the warning notification first while active is still 1
+        $warning_msg = "Your timer on " . ($module == 'tasks' ? 'task' : 'project') . " \"{$name}\" was stopped by an administrator. Warning {$warnings}/3.";
+        if ($warnings >= 3 && $timer_owner_id != 1 && !$target_is_super) {
+            $warning_msg .= " Your account has been locked.";
+        }
+
+        add_notification(array(
+            'to_user_id' => $timer_owner_id,
+            'from_user_id' => true,
+            'description' => 'timer_stop_warning',
+            'link' => $module == 'tasks' ? 'admin/tasks/details/' . $id : 'admin/projects/project_details/' . $id,
+            'value' => $warning_msg,
+        ));
+
+        // Increment warnings in DB
+        $CI->db->query("UPDATE tbl_users SET timer_stopped_warnings = timer_stopped_warnings + 1 WHERE user_id = ?", array($timer_owner_id));
+
+        if ($warnings >= 3 && $timer_owner_id != 1 && !$target_is_super) {
+            // Lock the account
+            $CI->db->query("UPDATE tbl_users SET activated = 0, banned = 1, ban_reason = 'Locked due to multiple timer stops by admin.' WHERE user_id = ?", array($timer_owner_id));
+        }
+
+        return true;
+    }
+}
