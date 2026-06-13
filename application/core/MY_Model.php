@@ -579,10 +579,29 @@
     public function my_permission($table, $userid)
     {
         $this->db->from($table);
-        if (!empty($where)) {
-            $this->db->where($where);
-        }
         $this->staff_query($table);
+
+        if (!empty($userid) && !empty($this->db->field_exists('permission', $table))) {
+            $this->db->group_start();
+            $version = $this->db->version();
+            $major_version = 0;
+            if (preg_match('/^(?:5\.5\.5-)?(\d+)/', $version, $matches)) {
+                $major_version = (int)$matches[1];
+            } else {
+                $major_version = (int)$version;
+            }
+            $is_mariadb = (stripos($version, 'mariadb') !== false);
+            
+            if ($major_version >= 8 || $is_mariadb || $major_version >= 10) {
+                $sq = $this->db->escape('\\b' . ($userid) . '\\b');
+            } else {
+                $sq = $this->db->escape('[[:<:]]' . ($userid) . '[[:>:]]');
+            }
+            $this->db->where($table . '.permission REGEXP', $sq, false);
+            $this->db->or_where(array($table . '.permission' => 'all'));
+            $this->db->group_end();
+        }
+
         if (!empty($_POST["length"]) && $_POST["length"] != -1) {
             $this->db->limit($_POST['length'], $_POST['start']);
         }

@@ -145,6 +145,9 @@ if (!empty($user_id)) {
                                                                     $total_mm = 0;
 
                                                                     if (!empty($time_info)) : foreach ($time_info as $key => $v_mytime) :
+                                                                        if ($key === 'total_overtime' || !is_array($v_mytime)) {
+                                                                            continue;
+                                                                        }
                                                                     ?>
                                                 <td colspan="5" class="attendance_report"><?php echo $key; ?></td>
 

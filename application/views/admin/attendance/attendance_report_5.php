@@ -85,6 +85,9 @@ if ((!empty($date)) && !empty($attendace_info)) : ?>
                                             // $total_mm = 0;
                                             $location = '';
                                             foreach ($attendaceInfo as  $attendace) {
+                                                if (!is_object($attendace)) {
+                                                    continue;
+                                                }
                                                 if ($attendace->attendance_status == 1 && !empty($attendace->clockout_time)) {
                                                     // calculate the start timestamp
                                                     $startdatetime = strtotime($attendace->date_in . " " . $attendace->clockin_time);

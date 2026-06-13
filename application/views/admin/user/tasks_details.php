@@ -6,6 +6,20 @@
         <div class="form-group col-sm-12">
             <?php
             $tasks_info = $this->user_model->my_permission('tbl_task', $profile_info->user_id);
+            if (!empty($tasks_info)) {
+                foreach ($tasks_info as $key => $v_tasks) {
+                    $assigned = false;
+                    if ($v_tasks->permission != 'all') {
+                        $decoded = json_decode($v_tasks->permission, true);
+                        if (is_array($decoded) && isset($decoded[$profile_info->user_id])) {
+                            $assigned = true;
+                        }
+                    }
+                    if (!$assigned) {
+                        unset($tasks_info[$key]);
+                    }
+                }
+            }
             $task_time = 0;
             $task_time = $this->user_model->my_spent_time($profile_info->user_id);
             if (!empty($tasks_info)) {
@@ -125,3 +139,68 @@ endif;
 
     </script>
 <?php } ?>
+
+<div class="panel panel-custom">
+    <div class="panel-heading">
+        <div class="panel-title"><strong><?= lang('all') . ' ' . lang('tasks') ?></strong></div>
+    </div>
+    <div class="panel-body">
+        <div class="table-responsive">
+            <table class="table table-striped" cellspacing="0" width="100%">
+                <thead>
+                    <tr>
+                        <th><?= lang('task_name') ?></th>
+                        <th><?= lang('due_date') ?></th>
+                        <th><?= lang('progress') ?></th>
+                        <th><?= lang('status') ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (!empty($tasks_info)) : foreach ($tasks_info as $v_task) : ?>
+                        <tr>
+                            <td>
+                                <a class="text-info" style="<?php if ($v_task->task_status == 'completed') { echo 'text-decoration: line-through;'; } ?>" href="<?= base_url() ?>admin/tasks/details/<?= $v_task->task_id ?>"><?= $v_task->task_name ?></a>
+                            </td>
+                            <td>
+                                <?php
+                                $due_date = $v_task->due_date;
+                                $due_time = strtotime($due_date);
+                                $current_time = strtotime(date('Y-m-d'));
+                                ?>
+                                <?= strftime(config_item('date_format'), strtotime($due_date)) ?>
+                                <?php if ($current_time > $due_time && $v_task->task_progress < 100) { ?>
+                                    <span class="label label-danger"><?= lang('overdue') ?></span>
+                                <?php } ?>
+                            </td>
+                            <td>
+                                <div class="progress progress-xs progress-striped active" style="margin-top: 5px; margin-bottom: 0px;">
+                                    <div class="progress-bar progress-bar-<?php echo ($v_task->task_progress >= 100) ? 'success' : 'primary'; ?>"
+                                         data-toggle="tooltip" data-original-title="<?= $v_task->task_progress ?>%"
+                                         style="width: <?= $v_task->task_progress; ?>%"></div>
+                                </div>
+                            </td>
+                            <td>
+                                <?php
+                                if ($v_task->task_status == 'completed') {
+                                    $label = 'success';
+                                } elseif ($v_task->task_status == 'not_started') {
+                                    $label = 'info';
+                                } elseif ($v_task->task_status == 'deferred') {
+                                    $label = 'danger';
+                                } else {
+                                    $label = 'warning';
+                                }
+                                ?>
+                                <span class="label label-<?= $label ?>"><?= lang($v_task->task_status) ?></span>
+                            </td>
+                        </tr>
+                    <?php endforeach; else: ?>
+                        <tr>
+                            <td colspan="4" class="text-center"><?= lang('no_data') ?></td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

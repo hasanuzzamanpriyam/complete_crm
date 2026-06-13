@@ -130,6 +130,9 @@ if(!file_exists($img)){
                                     if (!empty($v_attendace)) {
                                         $hourly_leave = null;
                                         foreach ($v_attendace as $v_attandc) {
+                                            if (!is_object($v_attandc)) {
+                                                continue;
+                                            }
                                             if ($v_attandc->attendance_status == 1) {
 
                                                 // calculate the start timestamp

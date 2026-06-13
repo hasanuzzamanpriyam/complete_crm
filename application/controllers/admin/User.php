@@ -212,7 +212,8 @@ class User extends Admin_Controller
 
     public function user_details($id, $active = null)
     {
-        if ($id == my_id() || !empty(admin_head())) {
+        $can_view = $this->user_model->can_action('tbl_users', 'view', array('user_id' => $id));
+        if ($id == my_id() || !empty(admin_head()) || !empty($can_view)) {
             $data['title'] = lang('user_details');
             $data['id'] = $id;
             if (!empty($active)) {
@@ -321,7 +322,21 @@ class User extends Admin_Controller
 
             $data['this_month_working_hour'] = $this->all_attendance_id_by_date($id);
             $data['module'] = 'user';
-            $data['all_tabs'] = user_details_tabs($id);
+            
+            $all_tabs = user_details_tabs($id);
+            if ($id != my_id() && empty(admin_head())) {
+                $allowed_tabs = array('user_details', 'tasks', 'projects', 'bugs');
+                foreach ($all_tabs as $key => $tab) {
+                    if (!in_array($key, $allowed_tabs)) {
+                        unset($all_tabs[$key]);
+                    }
+                }
+                if (!empty($active) && !in_array($active, $allowed_tabs)) {
+                    $active = 'user_details';
+                    $data['active'] = $active;
+                }
+            }
+            $data['all_tabs'] = $all_tabs;
 
             $data['subview'] = $this->load->view('admin/user/user_details', $data, TRUE);
             $this->load->view('admin/_layout_main', $data);

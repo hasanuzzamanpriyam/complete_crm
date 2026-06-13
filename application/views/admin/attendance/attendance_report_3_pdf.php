@@ -136,6 +136,9 @@
                                 if (!empty($v_attendace)) {
                                     $hourly_leave = null;
                                     foreach ($v_attendace as $date => $v_mytime) {
+                                        if ($date === 'total_overtime' || !is_array($v_mytime)) {
+                                            continue;
+                                        }
                                         foreach ($v_mytime as $hmytime) {
                                             if ($hmytime->attendance_status == 1) {
                                                 if (!empty($hmytime->leave_application_id)) { // check leave type is hours

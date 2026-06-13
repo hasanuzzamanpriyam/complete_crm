@@ -120,6 +120,9 @@ $department = $this->db->where('departments_id', $designation->departments_id)->
                         <?php
                         if (!empty($v_attendace)) {
                             foreach ($v_attendace as $v_attandc) {
+                                if (!is_object($v_attandc)) {
+                                    continue;
+                                }
                                 if ($v_attandc->attendance_status == 1) {
 
                                     // calculate the start timestamp

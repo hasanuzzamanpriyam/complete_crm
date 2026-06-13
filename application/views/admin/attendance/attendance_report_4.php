@@ -97,7 +97,9 @@ if ((!empty($date)) && !empty($attendace_info)) : ?>
                                                             if (!empty($v_attendace)) :
                                                                 $hourly_leave = null;
                                                                 foreach ($v_attendace as $ddd =>  $v_mytime) :
-
+                                                                    if (!is_object($v_mytime)) {
+                                                                        continue;
+                                                                    }
                                                                     // foreach ($v_mytime as $v_mytime) {
                                                                     if ($v_mytime->attendance_status == 1) {
                                                                         if (!empty($v_mytime->leave_application_id)) { // check leave type is hours

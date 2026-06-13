@@ -75,6 +75,7 @@
                 <?php } ?>
             </div>
         </div>
+        <?php if ($profile_info->user_id == my_id() || !empty(admin_head())) { ?>
         <div class="form-group mb0  col-sm-6">
 
             <label class="col-sm-5 control-label"><?= lang('date_of_birth') ?>: </label>
@@ -110,6 +111,7 @@
                 <?php } ?>
             </div>
         </div>
+        <?php } ?>
         <div class="form-group mb0  col-sm-6">
             <label class="col-sm-5 control-label"><?= lang('email') ?> : </label>
             <div class="col-sm-7">
@@ -134,6 +136,7 @@
                 <p class="form-control-static"><?php echo "$profile_info->skype"; ?></p>
             </div>
         </div>
+        <?php if ($profile_info->user_id == my_id() || !empty(admin_head())) { ?>
         <?php if (!empty($profile_info->passport)) { ?>
             <div class="form-group mb0  col-sm-6">
                 <label class="col-sm-5 control-label"><?= lang('passport') ?>
@@ -150,6 +153,7 @@
                 <p class="form-control-static"><?php echo "$profile_info->present_address"; ?></p>
             </div>
         </div>
+        <?php } ?>
         <?php $show_custom_fields = custom_form_label(13, $profile_info->user_id);
 
         if (!empty($show_custom_fields)) {

@@ -30,6 +30,21 @@ if (!empty($all_project_info)) {
 }
 
 $tasks_info = $this->user_model->my_permission('tbl_task', $profile_info->user_id);
+if (!empty($tasks_info)) {
+    foreach ($tasks_info as $key => $v_tasks) {
+        $assigned = false;
+        if ($v_tasks->permission != 'all') {
+            $decoded = json_decode($v_tasks->permission, true);
+            if (is_array($decoded) && isset($decoded[$profile_info->user_id])) {
+                $assigned = true;
+            }
+        }
+        if (!$assigned) {
+            unset($tasks_info[$key]);
+        }
+    }
+}
+
 
 $t_not_started = 0;
 $t_in_progress = 0;
@@ -112,7 +127,7 @@ endif;
                         <div class="pull-left">
                             <div class="">
                                 <h4 class="mt-sm mb0"><?php
-                                    echo $t_in_progress;
+                                    echo $t_completed;
                                     ?>
                                 </h4>
                                 <p class="mb0 text-muted"><?= lang('complete') . ' ' . lang('tasks') ?></p>
@@ -159,6 +174,7 @@ endif;
                 
                 </p>
             </div>
+            <?php if ($profile_info->user_id == my_id() || !empty(admin_head())) { ?>
             <div class="col-sm-5">
                 <div class="pull-left col-sm-6">
                     <div class=" row-table row-flush">
@@ -239,9 +255,11 @@ endif;
                     </div>
                 </div>
             </div>
+            <?php } ?>
         </div>
     
     </div>
+    <?php if ($profile_info->user_id == my_id() || !empty(admin_head())) { ?>
     <div class="text-center bg-gray-dark p-lg mb-xl">
         <div class="row row-table">
             <style type="text/css">
@@ -313,6 +331,7 @@ endif;
             </div>
         </div>
     </div>
+    <?php } ?>
 
 </div>
 <?php include_once 'asset/admin-ajax.php'; ?>

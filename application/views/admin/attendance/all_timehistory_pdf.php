@@ -127,7 +127,11 @@ if(!file_exists($img)){
                                     $total_hh = 0;
                                     $total_mm = 0;
                                     if (!empty($v_attendace)) {
-                                        foreach ($v_attendace as $key => $v_mytime) { ?>
+                                        foreach ($v_attendace as $key => $v_mytime) {
+                                            if ($key === 'total_overtime' || !is_array($v_mytime)) {
+                                                continue;
+                                            }
+                                            ?>
                                             <tr>
                                                 <td class="td" colspan="4"
                                                     style="font-weight: bold"><?php echo $key; ?></td>

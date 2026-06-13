@@ -136,6 +136,9 @@
                             $last_clock_out = '';
                             $location = '';
                             foreach ($attendaceInfo as  $attendace) {
+                                if (!is_object($attendace)) {
+                                    continue;
+                                }
                                 if ($attendace->attendance_status == 1 && !empty($attendace->clockout_time)) {
                                     // get first object and last object of attendance info
                                     $first_clock_in = $attendaceInfo[0]->clockin_time;
