@@ -857,18 +857,47 @@ class User extends Admin_Controller
         $edited = can_action('24', 'edited');
         if (!empty($created) || !empty($edited) && !empty($id)) {
             $login_data = $this->user_model->array_from_post(array('username', 'email', 'role_id'));
-            $admin = admin();
+            
+            // Only super admins can assign the admin role
             if (!empty($login_data['role_id']) && $login_data['role_id'] == 1) {
-                if (empty($admin)) {
-                    // massage for user
+                if (!is_super_admin()) {
                     $type = 'error';
-                    $message = lang('you_can_not_create_admin');
+                    $message = 'Only super admins can create or edit admin users.';
                     set_message($type, $message);
-                    redirect('admin/user/user_list'); //redirect page
+                    redirect('admin/user/user_list');
                 }
             }
 
             $user_id = $this->input->post('user_id', true);
+            
+            // If editing an existing user, check if they are trying to edit an admin/super admin
+            if (!empty($user_id)) {
+                $existing_user = $this->db->where('user_id', $user_id)->get('tbl_users')->row();
+                if (!empty($existing_user) && ($existing_user->role_id == 1 || $existing_user->is_super_admin == 1) && $user_id != my_id()) {
+                    if (!is_super_admin()) {
+                        $type = 'error';
+                        $message = 'You are not permitted to edit other admins.';
+                        set_message($type, $message);
+                        redirect('admin/user/user_list');
+                    }
+                }
+            }
+
+            // Only super admins can manage the is_super_admin status
+            if (is_super_admin()) {
+                $is_super_admin_post = $this->input->post('is_super_admin', true);
+                if ($is_super_admin_post !== null) {
+                    $login_data['is_super_admin'] = $is_super_admin_post ? 1 : 0;
+                }
+            } else {
+                unset($login_data['is_super_admin']);
+            }
+
+            // Primary super admin safety: user ID 1 must always remain admin and super admin
+            if (!empty($user_id) && $user_id == 1) {
+                $login_data['is_super_admin'] = 1;
+                $login_data['role_id'] = 1;
+            }
             // update root category
             $where = array('username' => $login_data['username']);
             $email = array('email' => $login_data['email']);
@@ -1072,6 +1101,25 @@ class User extends Admin_Controller
         $deleted = can_action('24', 'deleted');
         if (!empty($deleted)) {
             if (!empty($id)) {
+                // Primary super admin cannot be deleted
+                if ($id == 1) {
+                    $type = 'error';
+                    $message = 'The primary super admin cannot be deleted.';
+                    set_message($type, $message);
+                    redirect('admin/user/user_list');
+                }
+
+                // Check if deleting an admin or super admin
+                $target_user = $this->db->where('user_id', $id)->get('tbl_users')->row();
+                if (!empty($target_user) && ($target_user->role_id == 1 || $target_user->is_super_admin == 1)) {
+                    if (!is_super_admin()) {
+                        $type = 'error';
+                        $message = 'Only super admins can delete admin users.';
+                        set_message($type, $message);
+                        redirect('admin/user/user_list');
+                    }
+                }
+
                 $user_id = $this->session->userdata('user_id');
                 //checking login user trying delete his own account
                 if ($id == $user_id) {
@@ -1157,6 +1205,22 @@ class User extends Admin_Controller
 
     public function change_status($flag, $id)
     {
+        // Check if modifying an admin or super admin
+        if (!empty($id)) {
+            $target_user = $this->db->where('user_id', $id)->get('tbl_users')->row();
+            if (!empty($target_user) && ($target_user->role_id == 1 || $target_user->is_super_admin == 1)) {
+                if (!is_super_admin()) {
+                    echo json_encode(array("status" => "error", "message" => "Only super admins can modify admin status."));
+                    exit();
+                }
+            }
+            // Primary super admin safety: cannot be deactivated
+            if ($id == 1 && $flag == 0) {
+                echo json_encode(array("status" => "error", "message" => "The primary super admin cannot be deactivated."));
+                exit();
+            }
+        }
+
         $can_edit = $this->user_model->can_action('tbl_users', 'edit', array('user_id' => $id));
         $edited = can_action('24', 'edited');
         if (!empty($can_edit) && !empty($edited)) {
@@ -1197,6 +1261,26 @@ class User extends Admin_Controller
 
     public function set_banned($flag, $id)
     {
+        // Check if modifying an admin or super admin
+        if (!empty($id)) {
+            $target_user = $this->db->where('user_id', $id)->get('tbl_users')->row();
+            if (!empty($target_user) && ($target_user->role_id == 1 || $target_user->is_super_admin == 1)) {
+                if (!is_super_admin()) {
+                    $type = 'error';
+                    $message = 'Only super admins can ban/unban admin users.';
+                    set_message($type, $message);
+                    redirect('admin/user/user_list');
+                }
+            }
+            // Primary super admin safety: cannot be banned
+            if ($id == 1 && $flag == 1) {
+                $type = 'error';
+                $message = 'The primary super admin cannot be banned.';
+                set_message($type, $message);
+                redirect('admin/user/user_list');
+            }
+        }
+
         $can_edit = $this->user_model->can_action('tbl_users', 'edit', array('user_id' => $id));
         $edited = can_action('24', 'edited');
         if (!empty($can_edit) && !empty($edited)) {
@@ -1383,6 +1467,19 @@ class User extends Admin_Controller
 
     public function reset_password($id)
     {
+        // Restrict resetting admin passwords to only super admins (except self)
+        if (!empty($id)) {
+            $target_user = $this->db->where('user_id', $id)->get('tbl_users')->row();
+            if (!empty($target_user) && ($target_user->role_id == 1 || $target_user->is_super_admin == 1)) {
+                if (!is_super_admin() && $id != my_id()) {
+                    $type = 'error';
+                    $message = 'Only super admins can reset passwords for other admins.';
+                    set_message($type, $message);
+                    redirect('admin/user/user_list');
+                }
+            }
+        }
+
         if ($this->session->userdata('user_type') == 1) {
             $new_password = $this->input->post('password', true);
             $old_password = $this->input->post('my_password', true);

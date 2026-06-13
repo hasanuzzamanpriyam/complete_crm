@@ -76,6 +76,15 @@ class Superadmin extends Admin_Controller
         }
 
         $new_val = $user->is_super_admin ? 0 : 1;
+
+        // Prevent revoking super admin status for the primary super admin (ID 1)
+        if ($user_id == 1 && $new_val == 0) {
+            $type = 'error';
+            $message = 'Cannot revoke super admin status for the primary super admin!';
+            set_message($type, $message);
+            redirect('admin/superadmin/users');
+        }
+
         $this->db->where('user_id', $user_id)->update('tbl_users', array('is_super_admin' => $new_val));
 
         audit_log(

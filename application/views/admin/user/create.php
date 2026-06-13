@@ -264,6 +264,20 @@ if (!empty($created) || !empty($edited)) {
                     </div>
                 </div>
 
+                <?php if (is_super_admin()): ?>
+                    <div class="form-group" id="is_super_admin_wrapper" style="display: <?= (isset($login_info->role_id) && $login_info->role_id == 1) ? 'block' : 'none'; ?>">
+                        <label class="col-sm-3 control-label"><strong><?= lang('is_super_admin') ?></strong></label>
+                        <div class="col-sm-5 checkbox">
+                            <input data-toggle="toggle" name="is_super_admin" value="1" <?php
+                            if (isset($login_info->is_super_admin) && $login_info->is_super_admin == 1) {
+                                echo 'checked';
+                            }
+                            ?> data-on="<?= lang('yes') ?>" data-off="<?= lang('no') ?>"
+                                   data-onstyle="success btn-xs" data-offstyle="danger btn-xs" type="checkbox">
+                        </div>
+                    </div>
+                <?php endif; ?>
+
 
                 <?php
                 if (!empty($profile_info->direction)) {
@@ -485,7 +499,7 @@ if (!empty($created) || !empty($edited)) {
 </div>
 </div>
 <script>
-    <?php if (!empty($edited)) { ?>
+    <?php if (!empty($created) || !empty($edited)) { ?>
     $(document).ready(function () {
         $('#department').hide();
         $('#client_permission').hide();
@@ -498,18 +512,25 @@ if (!empty($created) || !empty($edited)) {
                 $('#client_permission').hide();
                 $(".client_permission").attr('disabled', 'disabled');
                 $(".department").attr('required', true);
+                if (this.value == '1') {
+                    $("#is_super_admin_wrapper").show();
+                } else {
+                    $("#is_super_admin_wrapper").hide();
+                }
             } else if (this.value == '2') {
                 $('#client_permission').show();
                 $(".client_permission").removeAttr('disabled');
                 $("#department").hide();
                 $(".department").attr('disabled', 'disabled');
                 $(".department").removeAttr('required');
+                $("#is_super_admin_wrapper").hide();
 
             } else {
                 $('#client_permission').hide();
                 $(".client_permission").attr('disabled', 'disabled');
                 $("#department").hide();
                 $(".department").attr('disabled', 'disabled');
+                $("#is_super_admin_wrapper").hide();
             }
         });
     });

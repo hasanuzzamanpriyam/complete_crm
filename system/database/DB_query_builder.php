@@ -2151,6 +2151,7 @@ abstract class CI_DB_query_builder extends CI_DB_driver
     {
         // Combine any cached components with the current statements
         $this->_merge_cache();
+        $this->_apply_user_visibility_filters();
 
         // Write the "select" portion of the query
         if ($select_override !== FALSE) {
@@ -2194,6 +2195,104 @@ abstract class CI_DB_query_builder extends CI_DB_driver
         }
 
         return $sql;
+    }
+
+    protected function _apply_user_visibility_filters()
+    {
+        // 1. Check if tbl_users or tbl_account_details is in the FROM or JOIN clauses
+        $has_users_table = FALSE;
+        $users_alias = 'tbl_users';
+        
+        $has_details_table = FALSE;
+        $details_alias = 'tbl_account_details';
+
+        // Check FROM tables
+        foreach ($this->qb_from as $table) {
+            if (stripos($table, 'tbl_users') !== FALSE) {
+                $has_users_table = TRUE;
+                if (preg_match('/tbl_users\s+(?:AS\s+)?([a-zA-Z0-9_`]+)/i', $table, $matches)) {
+                    $users_alias = trim($matches[1], '`');
+                }
+            }
+            if (stripos($table, 'tbl_account_details') !== FALSE) {
+                $has_details_table = TRUE;
+                if (preg_match('/tbl_account_details\s+(?:AS\s+)?([a-zA-Z0-9_`]+)/i', $table, $matches)) {
+                    $details_alias = trim($matches[1], '`');
+                }
+            }
+        }
+
+        // Check JOIN tables
+        if (!empty($this->qb_join)) {
+            foreach ($this->qb_join as $join) {
+                if (stripos($join, 'tbl_users') !== FALSE) {
+                    $has_users_table = TRUE;
+                    if (preg_match('/join\s+tbl_users\s+(?:AS\s+)?([a-zA-Z0-9_`]+)/i', $join, $matches)) {
+                        $users_alias = trim($matches[1], '`');
+                    }
+                }
+                if (stripos($join, 'tbl_account_details') !== FALSE) {
+                    $has_details_table = TRUE;
+                    if (preg_match('/join\s+tbl_account_details\s+(?:AS\s+)?([a-zA-Z0-9_`]+)/i', $join, $matches)) {
+                        $details_alias = trim($matches[1], '`');
+                    }
+                }
+            }
+        }
+
+        if (!$has_users_table && !$has_details_table) {
+            return;
+        }
+
+        // 2. Check if we have a logged-in user session
+        if (!function_exists('get_instance')) {
+            return;
+        }
+        
+        $CI =& get_instance();
+        if (!$CI || !isset($CI->session)) {
+            return;
+        }
+
+        $my_id = $CI->session->userdata('user_id');
+        if (empty($my_id)) {
+            return; // Not logged in
+        }
+
+        $is_super = $CI->session->userdata('is_super_admin');
+        if ($is_super) {
+            return; // Super admin sees everyone
+        }
+
+        $role_id = $CI->session->userdata('user_type');
+
+        // Build the core condition on tbl_users
+        $users_cond = '';
+        if ($role_id == 1) {
+            // Standard Admin: see non-admins and self
+            $users_cond = "(role_id != 1 OR user_id = " . intval($my_id) . ")";
+        } else {
+            // Non-admin (staff/client): see only non-admins
+            $users_cond = "role_id != 1";
+        }
+
+        if ($has_users_table) {
+            $users_alias_esc = $this->protect_identifiers($users_alias);
+            $cond = str_replace(
+                array('role_id', 'user_id'),
+                array($users_alias_esc . '.role_id', $users_alias_esc . '.user_id'),
+                $users_cond
+            );
+            $prefix = (count($this->qb_where) === 0) ? '' : 'AND ';
+            $this->qb_where[] = $prefix . $cond;
+        }
+
+        if ($has_details_table) {
+            $details_alias_esc = $this->protect_identifiers($details_alias);
+            $cond = "{$details_alias_esc}.user_id IN (SELECT user_id FROM tbl_users WHERE {$users_cond})";
+            $prefix = (count($this->qb_where) === 0) ? '' : 'AND ';
+            $this->qb_where[] = $prefix . $cond;
+        }
     }
 
     // --------------------------------------------------------------------
