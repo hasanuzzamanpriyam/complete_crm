@@ -440,3 +440,21 @@ $lang['mandatory'] = 'Mandatory';
 $lang['preferred'] = 'Preferred';
 $lang['ats_resume_info'] = 'Upload your resume in PDF or DOCX format. Our system will automatically analyze your skills match.';
 
+$lang['probation_start_date'] = 'Probation Start Date';
+$lang['probation_end_date'] = 'Probation End Date';
+$lang['work_anniversary'] = 'Work Anniversary';
+$lang['permanent_joining_date'] = 'Permanent Joining Date';
+$lang['telegram_id'] = 'Telegram ID';
+$lang['notice_period_start_date'] = 'Notice Period Start Date';
+$lang['notice_period_end_date'] = 'Notice Period End Date';
+$lang['resignation_date'] = 'Resignation Date';
+$lang['emergency_contact_name'] = 'Emergency Contact Name';
+$lang['emergency_contact_relationship'] = 'Emergency Contact Relationship';
+$lang['emergency_contact_number'] = 'Emergency Contact Number';
+$lang['spouse'] = 'Spouse';
+$lang['parent'] = 'Parent';
+$lang['sibling'] = 'Sibling';
+$lang['child'] = 'Child';
+$lang['friend'] = 'Friend';
+
+

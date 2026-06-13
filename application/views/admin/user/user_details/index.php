@@ -68,6 +68,16 @@
             </div>
         </div>
         <div class="form-group mb0  col-sm-6">
+            <label class="col-sm-5 control-label"><?= lang('work_anniversary') ?>: </label>
+            <div class="col-sm-7">
+                <?php if (!empty($profile_info->work_anniversary) && $profile_info->work_anniversary != '0000-00-00') { ?>
+                    <p class="form-control-static">
+                        <?php echo strftime(config_item('date_format'), strtotime($profile_info->work_anniversary)); ?>
+                    </p>
+                <?php } ?>
+            </div>
+        </div>
+        <div class="form-group mb0  col-sm-6">
             <label class="col-sm-5 control-label"><?= lang('gender') ?>:</label>
             <div class="col-sm-7">
                 <?php if (!empty($profile_info->gender)) { ?>
@@ -136,6 +146,12 @@
                 <p class="form-control-static"><?php echo "$profile_info->skype"; ?></p>
             </div>
         </div>
+        <div class="form-group mb0  col-sm-6">
+            <label class="col-sm-5 control-label"><?= lang('telegram_id') ?> : </label>
+            <div class="col-sm-7">
+                <p class="form-control-static"><?php echo "$profile_info->telegram_id"; ?></p>
+            </div>
+        </div>
         <?php if ($profile_info->user_id == my_id() || !empty(admin_head())) { ?>
         <?php if (!empty($profile_info->passport)) { ?>
             <div class="form-group mb0  col-sm-6">
@@ -151,6 +167,84 @@
                 : </label>
             <div class="col-sm-7">
                 <p class="form-control-static"><?php echo "$profile_info->present_address"; ?></p>
+            </div>
+        </div>
+        <div class="form-group mb0  col-sm-6">
+            <label class="col-sm-5 control-label"><?= lang('probation_start_date') ?>: </label>
+            <div class="col-sm-7">
+                <?php if (!empty($profile_info->probation_start_date) && $profile_info->probation_start_date != '0000-00-00') { ?>
+                    <p class="form-control-static">
+                        <?php echo strftime(config_item('date_format'), strtotime($profile_info->probation_start_date)); ?>
+                    </p>
+                <?php } ?>
+            </div>
+        </div>
+        <div class="form-group mb0  col-sm-6">
+            <label class="col-sm-5 control-label"><?= lang('probation_end_date') ?>: </label>
+            <div class="col-sm-7">
+                <?php if (!empty($profile_info->probation_end_date) && $profile_info->probation_end_date != '0000-00-00') { ?>
+                    <p class="form-control-static">
+                        <?php echo strftime(config_item('date_format'), strtotime($profile_info->probation_end_date)); ?>
+                    </p>
+                <?php } ?>
+            </div>
+        </div>
+        <div class="form-group mb0  col-sm-6">
+            <label class="col-sm-5 control-label"><?= lang('permanent_joining_date') ?>: </label>
+            <div class="col-sm-7">
+                <?php if (!empty($profile_info->permanent_joining_date) && $profile_info->permanent_joining_date != '0000-00-00') { ?>
+                    <p class="form-control-static">
+                        <?php echo strftime(config_item('date_format'), strtotime($profile_info->permanent_joining_date)); ?>
+                    </p>
+                <?php } ?>
+            </div>
+        </div>
+        <div class="form-group mb0  col-sm-6">
+            <label class="col-sm-5 control-label"><?= lang('notice_period_start_date') ?>: </label>
+            <div class="col-sm-7">
+                <?php if (!empty($profile_info->notice_period_start_date) && $profile_info->notice_period_start_date != '0000-00-00') { ?>
+                    <p class="form-control-static">
+                        <?php echo strftime(config_item('date_format'), strtotime($profile_info->notice_period_start_date)); ?>
+                    </p>
+                <?php } ?>
+            </div>
+        </div>
+        <div class="form-group mb0  col-sm-6">
+            <label class="col-sm-5 control-label"><?= lang('notice_period_end_date') ?>: </label>
+            <div class="col-sm-7">
+                <?php if (!empty($profile_info->notice_period_end_date) && $profile_info->notice_period_end_date != '0000-00-00') { ?>
+                    <p class="form-control-static">
+                        <?php echo strftime(config_item('date_format'), strtotime($profile_info->notice_period_end_date)); ?>
+                    </p>
+                <?php } ?>
+            </div>
+        </div>
+        <div class="form-group mb0  col-sm-6">
+            <label class="col-sm-5 control-label"><?= lang('resignation_date') ?>: </label>
+            <div class="col-sm-7">
+                <?php if (!empty($profile_info->resignation_date) && $profile_info->resignation_date != '0000-00-00') { ?>
+                    <p class="form-control-static">
+                        <?php echo strftime(config_item('date_format'), strtotime($profile_info->resignation_date)); ?>
+                    </p>
+                <?php } ?>
+            </div>
+        </div>
+        <div class="form-group mb0  col-sm-6">
+            <label class="col-sm-5 control-label"><?= lang('emergency_contact_name') ?>: </label>
+            <div class="col-sm-7">
+                <p class="form-control-static"><?php echo "$profile_info->emergency_contact_name"; ?></p>
+            </div>
+        </div>
+        <div class="form-group mb0  col-sm-6">
+            <label class="col-sm-5 control-label"><?= lang('emergency_contact_relationship') ?>: </label>
+            <div class="col-sm-7">
+                <p class="form-control-static"><?php echo lang($profile_info->emergency_contact_relationship) ? lang($profile_info->emergency_contact_relationship) : $profile_info->emergency_contact_relationship; ?></p>
+            </div>
+        </div>
+        <div class="form-group mb0  col-sm-6">
+            <label class="col-sm-5 control-label"><?= lang('emergency_contact_number') ?>: </label>
+            <div class="col-sm-7">
+                <p class="form-control-static"><?php echo "$profile_info->emergency_contact_number"; ?></p>
             </div>
         </div>
         <?php } ?>

@@ -567,7 +567,13 @@ class User extends Admin_Controller
 
     public function update_details($id)
     {
-        $data = $this->user_model->array_from_post(array('employment_id', 'joining_date', 'gender', 'date_of_birth', 'maratial_status', 'father_name', 'mother_name', 'phone', 'mobile', 'skype', 'present_address', 'passport'));
+        $data = $this->user_model->array_from_post(array(
+            'employment_id', 'joining_date', 'gender', 'date_of_birth', 'maratial_status', 
+            'father_name', 'mother_name', 'phone', 'mobile', 'skype', 'present_address', 'passport',
+            'probation_start_date', 'probation_end_date', 'work_anniversary', 'permanent_joining_date',
+            'telegram_id', 'notice_period_start_date', 'notice_period_end_date', 'resignation_date',
+            'emergency_contact_name', 'emergency_contact_relationship', 'emergency_contact_number'
+        ));
 
         $this->user_model->_table_name = 'tbl_account_details'; // table name
         $this->user_model->_primary_key = 'account_details_id'; // $id

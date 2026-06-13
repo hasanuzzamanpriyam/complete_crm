@@ -42,6 +42,60 @@
                 </div>
             </div>
             <div class="form-group">
+                <label class="col-sm-3 control-label"><?= lang('probation_start_date') ?></label>
+
+                <div class="col-sm-7">
+                    <div class="input-group">
+                        <input type="text" name="probation_start_date"
+                               placeholder="<?= lang('enter') . ' ' . lang('probation_start_date') ?>"
+                               class="form-control datepicker" value="<?php
+                        if (!empty($profile_info->probation_start_date) && $profile_info->probation_start_date != '0000-00-00') {
+                            echo $profile_info->probation_start_date;
+                        }
+                        ?>">
+                        <div class="input-group-addon">
+                            <a href="#"><i class="fa fa-calendar"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><?= lang('probation_end_date') ?></label>
+
+                <div class="col-sm-7">
+                    <div class="input-group">
+                        <input type="text" name="probation_end_date"
+                               placeholder="<?= lang('enter') . ' ' . lang('probation_end_date') ?>"
+                               class="form-control datepicker" value="<?php
+                        if (!empty($profile_info->probation_end_date) && $profile_info->probation_end_date != '0000-00-00') {
+                            echo $profile_info->probation_end_date;
+                        }
+                        ?>">
+                        <div class="input-group-addon">
+                            <a href="#"><i class="fa fa-calendar"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><?= lang('permanent_joining_date') ?></label>
+
+                <div class="col-sm-7">
+                    <div class="input-group">
+                        <input type="text" name="permanent_joining_date"
+                               placeholder="<?= lang('enter') . ' ' . lang('permanent_joining_date') ?>"
+                               class="form-control datepicker" value="<?php
+                        if (!empty($profile_info->permanent_joining_date) && $profile_info->permanent_joining_date != '0000-00-00') {
+                            echo $profile_info->permanent_joining_date;
+                        }
+                        ?>">
+                        <div class="input-group-addon">
+                            <a href="#"><i class="fa fa-calendar"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
                 <label for="field-1" class="col-sm-3 control-label"><?= lang('gender') ?>
                     <span class="required">*</span></label>
                 <div class="col-sm-7">
@@ -66,6 +120,24 @@
                                class="form-control datepicker" required value="<?php
                         if (!empty($profile_info->date_of_birth)) {
                             echo $profile_info->date_of_birth;
+                        }
+                        ?>">
+                        <div class="input-group-addon">
+                            <a href="#"><i class="fa fa-calendar"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><?= lang('work_anniversary') ?></label>
+
+                <div class="col-sm-7">
+                    <div class="input-group">
+                        <input type="text" name="work_anniversary"
+                               placeholder="<?= lang('enter') . ' ' . lang('work_anniversary') ?>"
+                               class="form-control datepicker" value="<?php
+                        if (!empty($profile_info->work_anniversary) && $profile_info->work_anniversary != '0000-00-00') {
+                            echo $profile_info->work_anniversary;
                         }
                         ?>">
                         <div class="input-group-addon">
@@ -153,6 +225,16 @@
                 </div>
             </div>
             <div class="form-group">
+                <label class="col-sm-3 control-label"><strong><?= lang('telegram_id') ?> </strong></label>
+                <div class="col-sm-5">
+                    <input type="text" class="input-sm form-control" value="<?php
+                    if (!empty($profile_info)) {
+                        echo $profile_info->telegram_id;
+                    }
+                    ?>" name="telegram_id" placeholder="<?= lang('eg') ?> @username">
+                </div>
+            </div>
+            <div class="form-group">
                 <label class="col-sm-3 control-label"><strong><?= lang('passport') ?> </strong></label>
                 <div class="col-sm-5">
                     <input type="text" class="input-sm form-control" value="<?php
@@ -160,6 +242,94 @@
                         echo $profile_info->passport;
                     }
                     ?>" name="passport">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><?= lang('notice_period_start_date') ?></label>
+
+                <div class="col-sm-7">
+                    <div class="input-group">
+                        <input type="text" name="notice_period_start_date"
+                               placeholder="<?= lang('enter') . ' ' . lang('notice_period_start_date') ?>"
+                               class="form-control datepicker" value="<?php
+                        if (!empty($profile_info->notice_period_start_date) && $profile_info->notice_period_start_date != '0000-00-00') {
+                            echo $profile_info->notice_period_start_date;
+                        }
+                        ?>">
+                        <div class="input-group-addon">
+                            <a href="#"><i class="fa fa-calendar"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><?= lang('notice_period_end_date') ?></label>
+
+                <div class="col-sm-7">
+                    <div class="input-group">
+                        <input type="text" name="notice_period_end_date"
+                               placeholder="<?= lang('enter') . ' ' . lang('notice_period_end_date') ?>"
+                               class="form-control datepicker" value="<?php
+                        if (!empty($profile_info->notice_period_end_date) && $profile_info->notice_period_end_date != '0000-00-00') {
+                            echo $profile_info->notice_period_end_date;
+                        }
+                        ?>">
+                        <div class="input-group-addon">
+                            <a href="#"><i class="fa fa-calendar"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><?= lang('resignation_date') ?></label>
+
+                <div class="col-sm-7">
+                    <div class="input-group">
+                        <input type="text" name="resignation_date"
+                               placeholder="<?= lang('enter') . ' ' . lang('resignation_date') ?>"
+                               class="form-control datepicker" value="<?php
+                        if (!empty($profile_info->resignation_date) && $profile_info->resignation_date != '0000-00-00') {
+                            echo $profile_info->resignation_date;
+                        }
+                        ?>">
+                        <div class="input-group-addon">
+                            <a href="#"><i class="fa fa-calendar"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><strong><?= lang('emergency_contact_name') ?> </strong></label>
+                <div class="col-sm-5">
+                    <input type="text" class="input-sm form-control" value="<?php
+                    if (!empty($profile_info)) {
+                        echo $profile_info->emergency_contact_name;
+                    }
+                    ?>" name="emergency_contact_name">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><strong><?= lang('emergency_contact_relationship') ?> </strong></label>
+                <div class="col-sm-5">
+                    <select name="emergency_contact_relationship" class="form-control">
+                        <option value=""><?= lang('select') . ' ' . lang('relationship') ?></option>
+                        <option value="spouse" <?= (!empty($profile_info->emergency_contact_relationship) && $profile_info->emergency_contact_relationship == 'spouse' ? 'selected' : null) ?>><?= lang('spouse') ?></option>
+                        <option value="parent" <?= (!empty($profile_info->emergency_contact_relationship) && $profile_info->emergency_contact_relationship == 'parent' ? 'selected' : null) ?>><?= lang('parent') ?></option>
+                        <option value="sibling" <?= (!empty($profile_info->emergency_contact_relationship) && $profile_info->emergency_contact_relationship == 'sibling' ? 'selected' : null) ?>><?= lang('sibling') ?></option>
+                        <option value="child" <?= (!empty($profile_info->emergency_contact_relationship) && $profile_info->emergency_contact_relationship == 'child' ? 'selected' : null) ?>><?= lang('child') ?></option>
+                        <option value="friend" <?= (!empty($profile_info->emergency_contact_relationship) && $profile_info->emergency_contact_relationship == 'friend' ? 'selected' : null) ?>><?= lang('friend') ?></option>
+                        <option value="other" <?= (!empty($profile_info->emergency_contact_relationship) && $profile_info->emergency_contact_relationship == 'other' ? 'selected' : null) ?>><?= lang('other') ?></option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><strong><?= lang('emergency_contact_number') ?> </strong></label>
+                <div class="col-sm-5">
+                    <input type="text" class="input-sm form-control" value="<?php
+                    if (!empty($profile_info)) {
+                        echo $profile_info->emergency_contact_number;
+                    }
+                    ?>" name="emergency_contact_number">
                 </div>
             </div>
             <div class="form-group">
