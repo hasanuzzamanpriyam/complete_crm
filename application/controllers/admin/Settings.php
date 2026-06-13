@@ -24,6 +24,15 @@ class Settings extends Admin_Controller
             )
         );
         $this->language_files = $this->settings_model->all_files();
+
+        // Override config with admin-specific values for non-super-admins
+        $this->_admin_id = is_super_admin() ? null : $this->session->userdata('user_id');
+        if ($this->_admin_id) {
+            $admin_config = $this->settings_model->get_admin_config($this->_admin_id);
+            foreach ($admin_config as $row) {
+                $this->config->set_item($row['config_key'], $row['config_value']);
+            }
+        }
     }
 
     public function index()
@@ -69,14 +78,7 @@ class Settings extends Admin_Controller
                 'company_vat'
             ));
 
-            foreach ($input_data as $key => $value) {
-                $data = array('value' => $value);
-                $this->db->where('config_key', $key)->update('tbl_config', $data);
-                $exists = $this->db->where('config_key', $key)->get('tbl_config');
-                if ($exists->num_rows() == 0) {
-                    $this->db->insert('tbl_config', array("config_key" => $key, "value" => $value));
-                }
-            }
+            $this->settings_model->save_config_batch($input_data, $this->_admin_id);
             $activity = array(
                 'user' => $this->session->userdata('user_id'),
                 'module' => 'settings',
@@ -189,12 +191,7 @@ class Settings extends Admin_Controller
                         $value = '1';
                     }
                 }
-                $data = array('value' => $value);
-                $this->db->where('config_key', $key)->update('tbl_config', $data);
-                $exists = $this->db->where('config_key', $key)->get('tbl_config');
-                if ($exists->num_rows() == 0) {
-                    $this->db->insert('tbl_config', array("config_key" => $key, "value" => $value));
-                }
+                $this->settings_model->save_config_value($key, $value, $this->_admin_id);
             }
             $date_format = $this->input->post('date_format', true);
             //Set date format for date picker
@@ -225,8 +222,8 @@ class Settings extends Admin_Controller
                     break;
             }
 
-            $this->db->where('config_key', 'date_picker_format')->update('tbl_config', array("value" => $picker));
-            $this->db->where('config_key', 'date_php_format')->update('tbl_config', array("value" => $phptime));
+            $this->settings_model->save_config_value('date_picker_format', $picker, $this->_admin_id);
+            $this->settings_model->save_config_value('date_php_format', $phptime, $this->_admin_id);
 
             $activity = array(
                 'user' => $this->session->userdata('user_id'),
@@ -294,12 +291,7 @@ class Settings extends Admin_Controller
                 } elseif (strtolower($value) == 'off') {
                     $value = 'FALSE';
                 }
-                $data = array('value' => $value);
-                $this->db->where('config_key', $key)->update('tbl_config', $data);
-                $exists = $this->db->where('config_key', $key)->get('tbl_config');
-                if ($exists->num_rows() == 0) {
-                    $this->db->insert('tbl_config', array("config_key" => $key, "value" => $value));
-                }
+                $this->settings_model->save_config_value($key, $value, $this->_admin_id);
             }
 
             // messages for user
@@ -381,14 +373,7 @@ class Settings extends Admin_Controller
                 $input_data['login_background'] = $val['path'];
             }
 
-            foreach ($input_data as $key => $value) {
-                $data = array('value' => $value);
-                $this->db->where('config_key', $key)->update('tbl_config', $data);
-                $exists = $this->db->where('config_key', $key)->get('tbl_config');
-                if ($exists->num_rows() == 0) {
-                    $this->db->insert('tbl_config', array("config_key" => $key, "value" => $value));
-                }
-            }
+            $this->settings_model->save_config_batch($input_data, $this->_admin_id);
             $activity = array(
                 'user' => $this->session->userdata('user_id'),
                 'module' => 'settings',
@@ -507,22 +492,12 @@ class Settings extends Admin_Controller
                 } elseif (strtolower($value) == 'off') {
                     $value = 'FALSE';
                 }
-                $data = array('value' => $value);
-                $this->db->where('config_key', $key)->update('tbl_config', $data);
-                $exists = $this->db->where('config_key', $key)->get('tbl_config');
-                if ($exists->num_rows() == 0) {
-                    $this->db->insert('tbl_config', array("config_key" => $key, "value" => $value));
-                }
+                $this->settings_model->save_config_value($key, $value, $this->_admin_id);
             }
             $smtp_pass = $this->input->post('smtp_pass', true);
 
             if (!empty($smtp_pass)) {
-                $smtp_data['value'] = encrypt($smtp_pass);
-                $this->db->where('config_key', 'smtp_pass')->update('tbl_config', $smtp_data);
-                $exists = $this->db->where('config_key', 'smtp_pass')->get('tbl_config');
-                if ($exists->num_rows() == 0) {
-                    $this->db->insert('tbl_config', array("config_key" => $key, "value" => $value));
-                }
+                $this->settings_model->save_config_value('smtp_pass', encrypt($smtp_pass), $this->_admin_id);
             }
 
             $activity = array(
@@ -602,12 +577,7 @@ class Settings extends Admin_Controller
                 } elseif (strtolower($value) == 'off') {
                     $value = 'FALSE';
                 }
-                $data = array('value' => $value);
-                $this->db->where('config_key', $key)->update('tbl_config', $data);
-                $exists = $this->db->where('config_key', $key)->get('tbl_config');
-                if ($exists->num_rows() == 0) {
-                    $this->db->insert('tbl_config', array("config_key" => $key, "value" => $value));
-                }
+                $this->settings_model->save_config_value($key, $value, $this->_admin_id);
             }
 
             $activity = array(
@@ -654,12 +624,7 @@ class Settings extends Admin_Controller
                 } elseif (strtolower($value) == 'off') {
                     $value = 'FALSE';
                 }
-                $data = array('value' => $value);
-                $this->db->where('config_key', $key)->update('tbl_config', $data);
-                $exists = $this->db->where('config_key', $key)->get('tbl_config');
-                if ($exists->num_rows() == 0) {
-                    $this->db->insert('tbl_config', array("config_key" => $key, "value" => $value));
-                }
+                $this->settings_model->save_config_value($key, $value, $this->_admin_id);
             }
 
             $activity = array(
@@ -705,12 +670,7 @@ class Settings extends Admin_Controller
                 } elseif (strtolower($value) == 'off') {
                     $value = 'FALSE';
                 }
-                $data = array('value' => $value);
-                $this->db->where('config_key', $key)->update('tbl_config', $data);
-                $exists = $this->db->where('config_key', $key)->get('tbl_config');
-                if ($exists->num_rows() == 0) {
-                    $this->db->insert('tbl_config', array("config_key" => $key, "value" => $value));
-                }
+                $this->settings_model->save_config_value($key, $value, $this->_admin_id);
             }
 
             $activity = array(
@@ -775,12 +735,7 @@ class Settings extends Admin_Controller
                 } elseif (strtolower($value) == 'off') {
                     $value = 'FALSE';
                 }
-                $data = array('value' => $value);
-                $this->db->where('config_key', $key)->update('tbl_config', $data);
-                $exists = $this->db->where('config_key', $key)->get('tbl_config');
-                if ($exists->num_rows() == 0) {
-                    $this->db->insert('tbl_config', array("config_key" => $key, "value" => $value));
-                }
+                $this->settings_model->save_config_value($key, $value, $this->_admin_id);
             }
             $activity = array(
                 'user' => $this->session->userdata('user_id'),
@@ -826,12 +781,7 @@ class Settings extends Admin_Controller
                 } elseif (strtolower($value) == 'off') {
                     $value = 'FALSE';
                 }
-                $data = array('value' => $value);
-                $this->db->where('config_key', $key)->update('tbl_config', $data);
-                $exists = $this->db->where('config_key', $key)->get('tbl_config');
-                if ($exists->num_rows() == 0) {
-                    $this->db->insert('tbl_config', array("config_key" => $key, "value" => $value));
-                }
+                $this->settings_model->save_config_value($key, $value, $this->_admin_id);
             }
             $activity = array(
                 'user' => $this->session->userdata('user_id'),
@@ -937,12 +887,7 @@ class Settings extends Admin_Controller
                 } elseif (strtolower($value) == 'off') {
                     $value = 'FALSE';
                 }
-                $data = array('value' => $value);
-                $this->db->where('config_key', $key)->update('tbl_config', $data);
-                $exists = $this->db->where('config_key', $key)->get('tbl_config');
-                if ($exists->num_rows() == 0) {
-                    $this->db->insert('tbl_config', array("config_key" => $key, "value" => $value));
-                }
+                $this->settings_model->save_config_value($key, $value, $this->_admin_id);
             }
             $activity = array(
                 'user' => $this->session->userdata('user_id'),
@@ -988,12 +933,7 @@ class Settings extends Admin_Controller
                 } elseif (strtolower($value) == 'off') {
                     $value = 'FALSE';
                 }
-                $data = array('value' => $value);
-                $this->db->where('config_key', $key)->update('tbl_config', $data);
-                $exists = $this->db->where('config_key', $key)->get('tbl_config');
-                if ($exists->num_rows() == 0) {
-                    $this->db->insert('tbl_config', array("config_key" => $key, "value" => $value));
-                }
+                $this->settings_model->save_config_value($key, $value, $this->_admin_id);
             }
             $activity = array(
                 'user' => $this->session->userdata('user_id'),
@@ -1040,12 +980,7 @@ class Settings extends Admin_Controller
                 } elseif (strtolower($value) == 'off') {
                     $value = 'FALSE';
                 }
-                $data = array('value' => $value);
-                $this->db->where('config_key', $key)->update('tbl_config', $data);
-                $exists = $this->db->where('config_key', $key)->get('tbl_config');
-                if ($exists->num_rows() == 0) {
-                    $this->db->insert('tbl_config', array("config_key" => $key, "value" => $value));
-                }
+                $this->settings_model->save_config_value($key, $value, $this->_admin_id);
             }
             $activity = array(
                 'user' => $this->session->userdata('user_id'),
@@ -2165,15 +2100,7 @@ class Settings extends Admin_Controller
             $input_data['realtime_notification'] = 0;
         }
 
-        foreach ($input_data as $key => $value) {
-
-            $data = array('value' => $value);
-            $this->db->where('config_key', $key)->update('tbl_config', $data);
-            $exists = $this->db->where('config_key', $key)->get('tbl_config');
-            if ($exists->num_rows() == 0) {
-                $this->db->insert('tbl_config', array("config_key" => $key, "value" => $value));
-            }
-        }
+            $this->settings_model->save_config_batch($input_data, $this->_admin_id);
 
         $type = "success";
         $message = lang('notification_settings_changes');
@@ -2224,12 +2151,7 @@ class Settings extends Admin_Controller
                 } elseif (strtolower($value) == 'off') {
                     $value = 'FALSE';
                 }
-                $data = array('value' => $value);
-                $this->db->where('config_key', $key)->update('tbl_config', $data);
-                $exists = $this->db->where('config_key', $key)->get('tbl_config');
-                if ($exists->num_rows() == 0) {
-                    $this->db->insert('tbl_config', array("config_key" => $key, "value" => $value));
-                }
+                $this->settings_model->save_config_value($key, $value, $this->_admin_id);
             }
 
             $activity = array(
@@ -3039,12 +2961,7 @@ class Settings extends Admin_Controller
 
             $input_data['notified_user'] = json_encode($this->input->post('notified_user'), true);
             foreach ($input_data as $key => $value) {
-                $data = array('value' => $value);
-                $this->db->where('config_key', $key)->update('tbl_config', $data);
-                $exists = $this->db->where('config_key', $key)->get('tbl_config');
-                if ($exists->num_rows() == 0) {
-                    $this->db->insert('tbl_config', array("config_key" => $key, "value" => $value));
-                }
+                $this->settings_model->save_config_value($key, $value, $this->_admin_id);
             }
         }
         $activity = array(
@@ -3131,14 +3048,7 @@ class Settings extends Admin_Controller
     public function save_cronjob()
     {
         $input_data = $this->settings_model->array_from_post(array('active_cronjob', 'automatic_database_backup'));
-        foreach ($input_data as $key => $value) {
-            $data = array('value' => $value);
-            $this->db->where('config_key', $key)->update('tbl_config', $data);
-            $exists = $this->db->where('config_key', $key)->get('tbl_config');
-            if ($exists->num_rows() == 0) {
-                $this->db->insert('tbl_config', array("config_key" => $key, "value" => $value));
-            }
-        }
+        $this->settings_model->save_config_batch($input_data, $this->_admin_id);
 
         $activity = array(
             'user' => $this->session->userdata('user_id'),
@@ -3181,14 +3091,7 @@ class Settings extends Admin_Controller
     {
         $office_time['office_time'] = $this->input->post('office_time', TRUE);
         if (!empty($office_time)) {
-            foreach ($office_time as $key => $value) {
-                $office_data = array('value' => $value);
-                $this->db->where('config_key', $key)->update('tbl_config', $office_data);
-                $exists = $this->db->where('config_key', $key)->get('tbl_config');
-                if ($exists->num_rows() == 0) {
-                    $this->db->insert('tbl_config', array("config_key" => $key, "value" => $value));
-                }
-            }
+            $this->settings_model->save_config_batch($office_time, $this->_admin_id);
         }
         $get_day = $this->input->post('day', TRUE);
 
@@ -3541,14 +3444,7 @@ class Settings extends Admin_Controller
             'expense_email',
             'deposit_email'
         ));
-        foreach ($input_data as $key => $value) {
-            $data = array('value' => $value);
-            $this->db->where('config_key', $key)->update('tbl_config', $data);
-            $exists = $this->db->where('config_key', $key)->get('tbl_config');
-            if ($exists->num_rows() == 0) {
-                $this->db->insert('tbl_config', array("config_key" => $key, "value" => $value));
-            }
-        }
+        $this->settings_model->save_config_batch($input_data, $this->_admin_id);
         // messages for user
         $type = "success";
         $message = lang('notification_settings_changes');
@@ -3559,14 +3455,7 @@ class Settings extends Admin_Controller
     public function set_default($key, $value)
     {
         $input_data = array($key => $value);
-        foreach ($input_data as $key => $value) {
-            $data = array('value' => $value);
-            $this->db->where('config_key', $key)->update('tbl_config', $data);
-            $exists = $this->db->where('config_key', $key)->get('tbl_config');
-            if ($exists->num_rows() == 0) {
-                $this->db->insert('tbl_config', array("config_key" => $key, "value" => $value));
-            }
-        }
+        $this->settings_model->save_config_batch($input_data, $this->_admin_id);
         // messages for user
         $type = "success";
         $message = lang('successfully_set_default');
@@ -3874,14 +3763,7 @@ class Settings extends Admin_Controller
                 $this->input->post($gateway_status, true);
         }
 
-        foreach ($input_data as $key => $value) {
-            $data = array('value' => $value);
-            $this->db->where('config_key', $key)->update('tbl_config', $data);
-            $exists = $this->db->where('config_key', $key)->get('tbl_config');
-            if ($exists->num_rows() == 0) {
-                $this->db->insert('tbl_config', array("config_key" => $key, "value" => $value));
-            }
-        }
+        $this->settings_model->save_config_batch($input_data, $this->_admin_id);
         // messages for user
         $type = "success";
         $message = lang('notification_settings_changes');
@@ -3941,12 +3823,7 @@ class Settings extends Admin_Controller
                 } elseif (strtolower($value) == 'off') {
                     $value = 'FALSE';
                 }
-                $data = array('value' => $value);
-                $this->db->where('config_key', $key)->update('tbl_config', $data);
-                $exists = $this->db->where('config_key', $key)->get('tbl_config');
-                if ($exists->num_rows() == 0) {
-                    $this->db->insert('tbl_config', array("config_key" => $key, "value" => $value));
-                }
+                $this->settings_model->save_config_value($key, $value, $this->_admin_id);
             }
 
             $activity = array(

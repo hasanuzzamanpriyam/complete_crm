@@ -284,4 +284,44 @@ class Settings_Model extends MY_Model
         return array_merge($result1, $result2);
     }
 
+    public function get_admin_config($admin_id)
+    {
+        return $this->db->select('config_key, config_value')
+                        ->where('admin_user_id', $admin_id)
+                        ->get('tbl_admin_config')
+                        ->result_array();
+    }
+
+    public function save_config_value($key, $value, $admin_id = null)
+    {
+        if ($admin_id) {
+            $exists = $this->db->where(['admin_user_id' => $admin_id, 'config_key' => $key])
+                               ->count_all_results('tbl_admin_config');
+            if ($exists) {
+                $this->db->where(['admin_user_id' => $admin_id, 'config_key' => $key])
+                         ->update('tbl_admin_config', ['config_value' => $value]);
+            } else {
+                $this->db->insert('tbl_admin_config', [
+                    'admin_user_id' => $admin_id,
+                    'config_key'    => $key,
+                    'config_value'  => $value
+                ]);
+            }
+        } else {
+            $update_data = ['value' => $value];
+            $this->db->where('config_key', $key)->update('tbl_config', $update_data);
+            $exists = $this->db->where('config_key', $key)->get('tbl_config');
+            if ($exists->num_rows() == 0) {
+                $this->db->insert('tbl_config', $update_data);
+            }
+        }
+    }
+
+    public function save_config_batch($input_data, $admin_id = null)
+    {
+        foreach ($input_data as $key => $value) {
+            $this->save_config_value($key, $value, $admin_id);
+        }
+    }
+
 }
