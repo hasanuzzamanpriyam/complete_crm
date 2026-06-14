@@ -2259,7 +2259,7 @@ abstract class CI_DB_query_builder extends CI_DB_driver
             return; // Not logged in
         }
 
-        $is_super = $CI->session->userdata('is_super_admin');
+        $is_super = $CI->session->userdata('is_super_admin') || $my_id == 1;
         if ($is_super) {
             return; // Super admin sees everyone
         }

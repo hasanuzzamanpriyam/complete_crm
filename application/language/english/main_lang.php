@@ -738,3 +738,5 @@ $lang['generated_letter'] = 'Generated Letter';
 $lang['all_generated_letter'] = 'All Generated Letters';
 $lang['generate_letter'] = 'Generate Letter';
 $lang['add_generate_letter'] = 'Add Letter';
+$lang['biometric_device_logs'] = 'Biometric Device Logs';
+$lang['daily_attendance'] = 'Daily Attendance';

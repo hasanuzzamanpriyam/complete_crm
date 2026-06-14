@@ -27,7 +27,7 @@ class Letter extends Admin_Controller
     public function view_template($id)
     {
         $user_id = $this->session->userdata('user_id');
-        $is_super_admin = $this->session->userdata('is_super_admin');
+        $is_super_admin = is_super_admin();
 
         $where = array('id' => $id);
         if (empty($is_super_admin)) {
@@ -60,7 +60,7 @@ class Letter extends Admin_Controller
         $this->datatables->order = array('tbl_letter_templates.id' => 'desc');
 
         $where = array();
-        $is_super_admin = $this->session->userdata('is_super_admin');
+        $is_super_admin = is_super_admin();
         if (empty($is_super_admin)) {
             $where = array('tbl_letter_templates.admin_id' => $this->session->userdata('user_id'));
         }
@@ -99,7 +99,7 @@ class Letter extends Admin_Controller
         $data['title'] = !empty($id) ? 'Edit Template' : 'New Template';
 
         if (!empty($id)) {
-            $is_super_admin = $this->session->userdata('is_super_admin');
+            $is_super_admin = is_super_admin();
             $where = array('id' => $id);
             if (empty($is_super_admin)) {
                 $where['admin_id'] = $this->session->userdata('user_id');
@@ -150,7 +150,7 @@ class Letter extends Admin_Controller
         $this->letter_model->_primary_key = 'id';
 
         if (!empty($id)) {
-            $is_super_admin = $this->session->userdata('is_super_admin');
+            $is_super_admin = is_super_admin();
             $update_where = array('id' => $id);
             if (empty($is_super_admin)) {
                 $update_where['admin_id'] = $this->session->userdata('user_id');
@@ -185,7 +185,7 @@ class Letter extends Admin_Controller
 
     public function delete($id)
     {
-        $is_super_admin = $this->session->userdata('is_super_admin');
+        $is_super_admin = is_super_admin();
         $where = array('id' => $id);
         if (empty($is_super_admin)) {
             $where['admin_id'] = $this->session->userdata('user_id');
@@ -220,7 +220,7 @@ class Letter extends Admin_Controller
         }
 
         $user_id = $this->session->userdata('user_id');
-        $is_super_admin = $this->session->userdata('is_super_admin');
+        $is_super_admin = is_super_admin();
 
         $this->load->model('datatables');
         $this->datatables->table = 'tbl_generated_letters';
@@ -283,7 +283,7 @@ class Letter extends Admin_Controller
     public function add_generate($id = null)
     {
         $user_id = $this->session->userdata('user_id');
-        $is_super_admin = $this->session->userdata('is_super_admin');
+        $is_super_admin = is_super_admin();
 
         $data['title'] = 'Generate Letter';
         $data['active'] = 2;
@@ -441,7 +441,7 @@ class Letter extends Admin_Controller
         }
 
         $user_id = $this->session->userdata('user_id');
-        $is_super_admin = $this->session->userdata('is_super_admin');
+        $is_super_admin = is_super_admin();
 
         $this->form_validation->set_rules('template_id', 'Template', 'required|trim');
         $this->form_validation->set_rules('employee_id', 'Employee', 'required|trim');
@@ -490,7 +490,7 @@ class Letter extends Admin_Controller
     public function view_generated($id)
     {
         $user_id = $this->session->userdata('user_id');
-        $is_super_admin = $this->session->userdata('is_super_admin');
+        $is_super_admin = is_super_admin();
 
         $where = array('tbl_generated_letters.id' => $id);
         if (empty($is_super_admin)) {
@@ -517,7 +517,7 @@ class Letter extends Admin_Controller
     public function download_pdf($id)
     {
         $user_id = $this->session->userdata('user_id');
-        $is_super_admin = $this->session->userdata('is_super_admin');
+        $is_super_admin = is_super_admin();
 
         $where = array('tbl_generated_letters.id' => $id);
         if (empty($is_super_admin)) {
@@ -551,7 +551,7 @@ class Letter extends Admin_Controller
     public function delete_generated($id)
     {
         $user_id = $this->session->userdata('user_id');
-        $is_super_admin = $this->session->userdata('is_super_admin');
+        $is_super_admin = is_super_admin();
 
         $where = array('id' => $id);
         if (empty($is_super_admin)) {
@@ -575,7 +575,7 @@ class Letter extends Admin_Controller
     public function print_letter($id)
     {
         $user_id = $this->session->userdata('user_id');
-        $is_super_admin = $this->session->userdata('is_super_admin');
+        $is_super_admin = is_super_admin();
 
         $where = array('tbl_generated_letters.id' => $id);
         if (empty($is_super_admin)) {

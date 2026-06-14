@@ -38,8 +38,7 @@ class Admin_Controller extends MY_Controller
             die;
         }
         // Super admin bypasses all permission restrictions
-        $is_super_admin = $this->session->userdata('is_super_admin');
-        if (!empty($is_super_admin)) {
+        if (is_super_admin()) {
             $all_menu = get_result('tbl_menu');
             $_SESSION['user_roll'] = $all_menu;
             return;

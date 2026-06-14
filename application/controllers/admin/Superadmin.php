@@ -155,6 +155,54 @@ class Superadmin extends Admin_Controller
         $this->load->view('admin/_layout_main', $data);
     }
 
+    public function save_permissions()
+    {
+        $user_id = $this->input->post('user_id', true);
+        if (empty($user_id)) {
+            redirect('admin/superadmin/users');
+        }
+
+        // Only super admin can access this method
+        if (!is_super_admin()) {
+            redirect('404');
+        }
+
+        // Delete existing overrides for this user
+        $this->db->where('user_id', $user_id)->delete('tbl_user_permissions');
+
+        $menu_ids = $this->input->post('menu_id', true);
+        if (!empty($menu_ids)) {
+            foreach ($menu_ids as $menu_id) {
+                $view = $this->input->post('view_' . $menu_id, true) ? 1 : 0;
+                $created = $this->input->post('created_' . $menu_id, true) ? 1 : 0;
+                $edited = $this->input->post('edited_' . $menu_id, true) ? 1 : 0;
+                $deleted = $this->input->post('deleted_' . $menu_id, true) ? 1 : 0;
+
+                // Save only if at least one checkbox is checked
+                if ($view || $created || $edited || $deleted) {
+                    $data = array(
+                        'user_id' => $user_id,
+                        'menu_id' => $menu_id,
+                        'view' => $view,
+                        'created' => $created,
+                        'edited' => $edited,
+                        'deleted' => $deleted,
+                        'updated_at' => date('Y-m-d H:i:s')
+                    );
+                    $this->db->insert('tbl_user_permissions', $data);
+                }
+            }
+        }
+
+        $user = $this->db->where('user_id', $user_id)->get('tbl_users')->row();
+        $username = !empty($user) ? $user->username : '';
+
+        audit_log('user_permissions_updated', 'user', $user_id, array('username' => $username));
+
+        set_message('success', lang('settings_updated'));
+        redirect('admin/superadmin/permissions/' . $user_id);
+    }
+
     private function _build_menu_tree($parent, $parents)
     {
         $result = array();

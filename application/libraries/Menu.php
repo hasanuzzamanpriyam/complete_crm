@@ -9,7 +9,7 @@ class Menu
         $CI = &get_instance();
         $designations_id = $CI->session->userdata('designations_id');
         $user_type = $CI->session->userdata('user_type');
-        if ($user_type != 1) { // query for employee user role
+        if ($user_type != 1 && !is_super_admin()) { // query for employee user role
             $CI->db->select('tbl_user_role.*', FALSE);
             $CI->db->select('tbl_menu.*', FALSE);
             $CI->db->from('tbl_user_role');
@@ -24,7 +24,7 @@ class Menu
         }
 
         // Add Server Management menu for both admins and authorized staff
-        if ($user_type == 1 || $this->hasServerManagementAccess($CI->session->userdata('user_id'))) {
+        if ($user_type == 1 || is_super_admin() || $this->hasServerManagementAccess($CI->session->userdata('user_id'))) {
             $module = [
                 [
                     'menu_id' => '111122222222',
@@ -116,8 +116,7 @@ class Menu
             $user_menu = array_merge($user_menu, $module_menu);
         }
         // Filter super admin menu items for non-super-admin users
-        $is_super_admin = $CI->session->userdata('is_super_admin');
-        if (empty($is_super_admin)) {
+        if (!is_super_admin()) {
             $super_admin_labels = array('super_admin', 'super_admin_dashboard', 'user_permissions', 'audit_logs', 'super_admin_settings');
             $user_menu = array_values(array_filter($user_menu, function($item) use ($super_admin_labels) {
                 return !in_array($item->label, $super_admin_labels);

@@ -1468,11 +1468,14 @@ function is_super_admin($user_id = null)
 {
     $CI = &get_instance();
     if (empty($user_id)) {
-        $session_val = $CI->session->userdata('is_super_admin');
-        if ($session_val !== null) {
-            return (bool) $session_val;
-        }
         $user_id = $CI->session->userdata('user_id');
+    }
+    if ($user_id == 1) {
+        return true;
+    }
+    $session_val = $CI->session->userdata('is_super_admin');
+    if ($session_val !== null) {
+        return (bool) $session_val;
     }
     if ($CI->db->field_exists('is_super_admin', 'tbl_users')) {
         $user = $CI->db->select('is_super_admin')->where('user_id', $user_id)->get('tbl_users')->row();

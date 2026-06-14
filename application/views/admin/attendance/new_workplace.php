@@ -58,8 +58,8 @@ $edited = can_action_by_label('workplace', 'edited');
                     </div>
                 </div>
 
-                <input type="hidden" class="form-control" value="<?= set_value('lat', config_item('office_lat')); ?>" name="office_lat" id="lat">
-                <input type="hidden" class="form-control" value="<?= set_value('long', config_item('office_long')); ?>" name="office_long" id="long">
+                <input type="hidden" class="form-control" value="<?php if (!empty($workplace_info)) { echo $workplace_info->latitude; } else { echo set_value('lat', config_item('office_lat')); } ?>" name="latitude" id="lat">
+                <input type="hidden" class="form-control" value="<?php if (!empty($workplace_info)) { echo $workplace_info->longitude; } else { echo set_value('long', config_item('office_long')); } ?>" name="longitude" id="long">
 
                 <div class="form-group">
                     <label class="col-lg-3 control-label"><?= lang('allowed_distance') . ' ' . lang('for') . ' ' . lang('clock'); ?>
