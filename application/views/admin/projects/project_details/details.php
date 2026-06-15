@@ -282,12 +282,13 @@ if (empty(admin())) {
                                         if (!empty($get_permission)) :
                                             foreach ($get_permission as $permission => $v_permission) :
                                                 $user_info = $this->db->where(array('user_id' => $permission))->get('tbl_users')->row();
-                                                if ($user_info->role_id == 1) {
+                                                if (!empty($user_info) && $user_info->role_id == 1) {
                                                     $label = 'circle-danger';
                                                 } else {
                                                     $label = 'circle-success';
                                                 }
                                                 $profile_info = $this->db->where(array('user_id' => $permission))->get('tbl_account_details')->row();
+                                                if (!empty($profile_info)) {
                                                 ?>
                                                 
                                                 
@@ -298,6 +299,7 @@ if (empty(admin())) {
                                                     <span class="custom-permission circle <?= $label ?>  circle-lg"></span>
                                                 </a>
                                             <?php
+                                                }
                                             endforeach;
                                         endif;
                                     } else { ?>
@@ -803,12 +805,13 @@ if (empty(admin())) {
                             if (!empty($get_permission)) :
                                 foreach ($get_permission as $permission => $v_permission) :
                                     $user_info = $this->db->where(array('user_id' => $permission))->get('tbl_users')->row();
-                                    if ($user_info->role_id == 1) {
+                                    if (!empty($user_info) && $user_info->role_id == 1) {
                                         $label = 'circle-danger';
                                     } else {
                                         $label = 'circle-success';
                                     }
                                     $profile_info = $this->db->where(array('user_id' => $permission))->get('tbl_account_details')->row();
+                                    if (!empty($profile_info)) {
                                     ?>
                                     
                                     
@@ -819,6 +822,7 @@ if (empty(admin())) {
                                         <span class="custom-permission circle <?= $label ?>  circle-lg"></span>
                                     </a>
                                 <?php
+                                    }
                                 endforeach;
                             endif;
                         } else { ?>
