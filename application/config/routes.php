@@ -94,6 +94,30 @@ $route['api/jobs-posted-list'] = 'api/Main/jobs_postedList';
 
 /*
 ------------------------------------------
+TimeSync API routes
+------------------------------------------
+*/
+$route['api/health'] = 'api/auth/health';
+$route['api/auth/login'] = 'api/auth/login';
+$route['api/auth/refresh'] = 'api/auth/refresh';
+$route['api/auth/logout'] = 'api/auth/logout';
+$route['api/auth/me'] = 'api/auth/me';
+$route['api/auth/register'] = 'api/auth/register';
+$route['api/tasks'] = 'api/tasks/index';
+$route['api/tasks/(:num)'] = 'api/tasks/index/$1';
+$route['api/projects'] = 'api/projects/index';
+$route['api/users'] = 'api/users/index';
+$route['api/time-entries'] = 'api/time_entries/index';
+$route['api/time-entries/(:num)'] = 'api/time_entries/index/$1';
+$route['api/attendance/check-in'] = 'api/attendance/check_in';
+$route['api/attendance/check-out'] = 'api/attendance/check_out';
+$route['api/attendance'] = 'api/attendance/index';
+$route['api/screenshots'] = 'api/screenshots/index';
+$route['api/screenshots/(:num)'] = 'api/screenshots/index/$1';
+$route['api/screenshots/(:num)/image'] = 'api/screenshots/index/$1';
+
+/*
+------------------------------------------
 Payment Hub API routes (v1)
 ------------------------------------------
 */

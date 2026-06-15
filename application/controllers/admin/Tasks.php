@@ -1960,6 +1960,19 @@ class Tasks extends Admin_Controller
                     $this->tasks_model->delete_multiple(array('module_name' => 'tasks', 'module_id' => $id));
                 }
                 //delete into table.
+                // cascade delete screenshots (files + DB)
+                $screenshots = $this->db->where('task_id', $id)->get('tbl_screenshots')->result();
+                foreach ($screenshots as $s) {
+                    if (!empty($s->file_path) && file_exists($s->file_path)) {
+                        unlink($s->file_path);
+                    }
+                }
+                $this->db->where('task_id', $id)->delete('tbl_screenshots');
+
+                // cascade delete desktop time entries
+                $this->db->where('task_id', $id)->delete('tbl_desktop_time_entries');
+
+                //delete into table.
                 $this->tasks_model->_table_name = "tbl_tasks_timer"; // table name
                 $this->tasks_model->delete_multiple(array('task_id' => $id));
 
