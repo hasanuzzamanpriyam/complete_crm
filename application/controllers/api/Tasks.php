@@ -70,9 +70,10 @@ class Tasks extends CI_Controller
                 'description' => $t->task_description ?? '',
                 'project_id' => $t->project_id ? (int)$t->project_id : null,
                 'assigned_to' => null,
-                'priority' => 'medium',
+                'priority' => $t->priority ?? 'medium',
                 'status' => $this->_map_status($t->task_status),
                 'estimated_minutes' => $hours,
+                'task_progress' => (int)($t->task_progress ?? 0),
                 'erp_id' => (int)$t->task_id,
                 'created_by' => (int)$t->created_by,
                 'created_at' => $t->task_created_date ?? date('Y-m-d H:i:s'),
@@ -97,6 +98,8 @@ class Tasks extends CI_Controller
             'title' => $task->task_name ?? '',
             'description' => $task->task_description ?? '',
             'status' => $this->_map_status($task->task_status),
+            'priority' => $task->priority ?? 'medium',
+            'task_progress' => (int)($task->task_progress ?? 0),
         ]]);
     }
 
@@ -126,6 +129,8 @@ class Tasks extends CI_Controller
             'created_by' => $user->user_id,
             'permission' => 'all',
             'task_created_date' => date('Y-m-d H:i:s'),
+            'priority' => $input['priority'] ?? 'medium',
+            'task_progress' => !empty($input['task_progress']) ? (int)$input['task_progress'] : (!empty($input['progress']) ? (int)$input['progress'] : 0),
         ];
 
         if (!empty($input['due_date'])) {
@@ -162,6 +167,9 @@ class Tasks extends CI_Controller
             $mins = (int)$input['estimated_minutes'];
             $update['task_hour'] = sprintf('%d:%02d', intdiv($mins, 60), $mins % 60);
         }
+        if (isset($input['priority'])) $update['priority'] = $input['priority'];
+        $progress = $input['task_progress'] ?? $input['progress'] ?? null;
+        if ($progress !== null) $update['task_progress'] = (int)$progress;
 
         if (!empty($update)) {
             $this->db->where('task_id', $id)->update('tbl_task', $update);

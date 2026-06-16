@@ -13,18 +13,32 @@ class Projects extends CI_Controller
     {
         $this->api_auth->authenticate();
 
-        $projects = $this->db
-            ->select('project_id, project_name, description')
-            ->where('status', 'in_progress')
-            ->or_where('status', 'completed')
-            ->get('tbl_project')
-            ->result();
+        $user_id = $user->user_id;
+
+        $this->db->select('project_id, project_name, description, progress');
+        $this->db->group_start();
+        $this->db->where('project_status', 'in_progress');
+        $this->db->or_where('project_status', 'completed');
+        $this->db->group_end();
+        $this->db->group_start();
+        $this->db->where('created_by', $user_id);
+        if ($this->db->version() >= 8) {
+            $sq = '\\b' . ($user_id) . '\\b';
+        } else {
+            $sq = '[[:<:]]' . ($user_id) . '[[:>:]]';
+        }
+        $this->db->or_where('permission REGEXP', $this->db->escape($sq), false);
+        $this->db->or_where('permission', 'all');
+        $this->db->group_end();
+
+        $projects = $this->db->get('tbl_project')->result();
 
         $result = array_map(function ($p) {
             return [
                 'id' => (int)$p->project_id,
                 'name' => $p->project_name ?? '',
                 'description' => $p->description ?? '',
+                'progress' => (int)$p->progress,
                 'erp_id' => (int)$p->project_id,
                 'is_active' => true,
                 'created_at' => '',
