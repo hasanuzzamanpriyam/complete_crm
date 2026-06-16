@@ -461,22 +461,26 @@ $percentage = $this->tasks_model->get_estime_time($estimate_hours);
                                     if (is_object($get_permission)) :
                                         foreach ($get_permission as $permission => $v_permission) :
                                             $user_info = $this->db->where(array('user_id' => $permission))->get('tbl_users')->row();
-                                            if ($user_info->role_id == 1) {
-                                                $label = 'circle-danger';
-                                            } else {
-                                                $label = 'circle-success';
-                                            }
-                                            $profile_info = $this->db->where(array('user_id' => $permission))->get('tbl_account_details')->row();
-                                ?>
+                                            if (!empty($user_info)) {
+                                                if ($user_info->role_id == 1) {
+                                                    $label = 'circle-danger';
+                                                } else {
+                                                    $label = 'circle-success';
+                                                }
+                                                $profile_info = $this->db->where(array('user_id' => $permission))->get('tbl_account_details')->row();
+                                                $fullname = !empty($profile_info) ? $profile_info->fullname : '';
+                                                $avatar = (!empty($profile_info) && !empty($profile_info->avatar)) ? $profile_info->avatar : 'uploads/default_avatar.jpg';
+                                    ?>
 
 
-                                            <a href="#" data-toggle="tooltip" data-placement="top"
-                                                title="<?= $profile_info->fullname ?>"><img
-                                                    src="<?= base_url() . $profile_info->avatar ?>"
-                                                    class="img-circle img-xs" alt="">
-                                                <span class="custom-permission circle <?= $label ?>  circle-lg"></span>
-                                            </a>
+                                                <a href="#" data-toggle="tooltip" data-placement="top"
+                                                    title="<?= $fullname ?>"><img
+                                                        src="<?= base_url() . $avatar ?>"
+                                                        class="img-circle img-xs" alt="">
+                                                    <span class="custom-permission circle <?= $label ?>  circle-lg"></span>
+                                                </a>
                                     <?php
+                                            }
                                         endforeach;
                                     endif;
                                 } else { ?><strong><?= lang('everyone') ?></strong>
@@ -1013,12 +1017,14 @@ $percentage = $this->tasks_model->get_estime_time($estimate_hours);
                                         $label = 'circle-success';
                                     }
                                     $profile_info = $this->db->where(array('user_id' => $permission))->get('tbl_account_details')->row();
+                                    $fullname = !empty($profile_info) ? $profile_info->fullname : '';
+                                    $avatar = (!empty($profile_info) && !empty($profile_info->avatar)) ? $profile_info->avatar : 'uploads/default_avatar.jpg';
                     ?>
 
 
                                     <a href="#" data-toggle="tooltip" data-placement="top"
-                                        title="<?= $profile_info->fullname ?>"><img
-                                            src="<?= base_url() . $profile_info->avatar ?>"
+                                        title="<?= $fullname ?>"><img
+                                            src="<?= base_url() . $avatar ?>"
                                             class="img-circle img-xs" alt="">
                                         <span class="custom-permission circle <?= $label ?>  circle-lg"></span>
                                     </a>

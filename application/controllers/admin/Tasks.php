@@ -37,7 +37,7 @@ class Tasks extends Admin_Controller
     public function create($id = NULL, $opt_id = NULL)
     {
         $data['title'] = lang('all_task');
-        $data['assign_user'] = $this->tasks_model->allowed_user('54');
+        $data['assign_user'] = $this->db->where('activated', 1)->get('tbl_users')->result();
         $data['all_customer_group'] = $this->tasks_model->select_data('tbl_customer_group', 'customer_group_id', 'customer_group', array('type' => 'tasks'));
         $filterBy = null;
         if ($id) { // retrive data from db by id
@@ -633,7 +633,59 @@ class Tasks extends Admin_Controller
 
                 if ($permission == 'everyone') {
                     $assigned = 'all';
-                    $assigned_to['assigned_to'] = $this->tasks_model->allowed_user_id('54');
+                    $assigned_to['assigned_to'] = array();
+                    if (!empty($data['project_id'])) {
+                        $project_info = get_row('tbl_project', array('project_id' => $data['project_id']));
+                        if (!empty($project_info)) {
+                            if ($project_info->permission == 'all') {
+                                $assigned_to['assigned_to'] = $this->tasks_model->allowed_user_id('57');
+                            } else {
+                                $assigned_to['assigned_to'] = array_keys(json_decode($project_info->permission, true) ?: []);
+                            }
+                        }
+                    } elseif (!empty($data['opportunities_id'])) {
+                        $option_info = get_row('tbl_opportunities', array('opportunities_id' => $data['opportunities_id']));
+                        if (!empty($option_info)) {
+                            if ($option_info->permission == 'all') {
+                                $assigned_to['assigned_to'] = $this->tasks_model->allowed_user_id('56');
+                            } else {
+                                $assigned_to['assigned_to'] = array_keys(json_decode($option_info->permission, true) ?: []);
+                            }
+                        }
+                    } elseif (!empty($data['leads_id'])) {
+                        $option_info = get_row('tbl_leads', array('leads_id' => $data['leads_id']));
+                        if (!empty($option_info)) {
+                            if ($option_info->permission == 'all') {
+                                $assigned_to['assigned_to'] = $this->tasks_model->allowed_user_id('55');
+                            } else {
+                                $assigned_to['assigned_to'] = array_keys(json_decode($option_info->permission, true) ?: []);
+                            }
+                        }
+                    } elseif (!empty($data['bug_id'])) {
+                        $option_info = get_row('tbl_bug', array('bug_id' => $data['bug_id']));
+                        if (!empty($option_info)) {
+                            if ($option_info->permission == 'all') {
+                                $assigned_to['assigned_to'] = $this->tasks_model->allowed_user_id('58');
+                            } else {
+                                $assigned_to['assigned_to'] = array_keys(json_decode($option_info->permission, true) ?: []);
+                            }
+                        }
+                    } elseif (!empty($data['goal_tracking_id'])) {
+                        $option_info = get_row('tbl_goal_tracking', array('goal_tracking_id' => $data['goal_tracking_id']));
+                        if (!empty($option_info)) {
+                            if ($option_info->permission == 'all') {
+                                $assigned_to['assigned_to'] = $this->tasks_model->allowed_user_id('69');
+                            } else {
+                                $assigned_to['assigned_to'] = array_keys(json_decode($option_info->permission, true) ?: []);
+                            }
+                        }
+                    } else {
+                        $all_active_users = $this->db->select('user_id')->where('activated', 1)->get('tbl_users')->result_array();
+                        $assigned_to['assigned_to'] = array_column($all_active_users, 'user_id');
+                    }
+                    if (empty($assigned_to['assigned_to'])) {
+                        $assigned_to['assigned_to'] = $this->tasks_model->allowed_user_id('54');
+                    }
                 } else {
                     $assigned_to = $this->tasks_model->array_from_post(array('assigned_to'));
                     if (!empty($assigned_to['assigned_to'])) {
@@ -681,7 +733,59 @@ class Tasks extends Admin_Controller
             save_custom_field(3, $id);
 
             if ($assigned == 'all') {
-                $assigned_to['assigned_to'] = $this->tasks_model->allowed_user_id('54');
+                $assigned_to['assigned_to'] = array();
+                if (!empty($data['project_id'])) {
+                    $project_info = get_row('tbl_project', array('project_id' => $data['project_id']));
+                    if (!empty($project_info)) {
+                        if ($project_info->permission == 'all') {
+                            $assigned_to['assigned_to'] = $this->tasks_model->allowed_user_id('57');
+                        } else {
+                            $assigned_to['assigned_to'] = array_keys(json_decode($project_info->permission, true) ?: []);
+                        }
+                    }
+                } elseif (!empty($data['opportunities_id'])) {
+                    $option_info = get_row('tbl_opportunities', array('opportunities_id' => $data['opportunities_id']));
+                    if (!empty($option_info)) {
+                        if ($option_info->permission == 'all') {
+                            $assigned_to['assigned_to'] = $this->tasks_model->allowed_user_id('56');
+                        } else {
+                            $assigned_to['assigned_to'] = array_keys(json_decode($option_info->permission, true) ?: []);
+                        }
+                    }
+                } elseif (!empty($data['leads_id'])) {
+                    $option_info = get_row('tbl_leads', array('leads_id' => $data['leads_id']));
+                    if (!empty($option_info)) {
+                        if ($option_info->permission == 'all') {
+                            $assigned_to['assigned_to'] = $this->tasks_model->allowed_user_id('55');
+                        } else {
+                            $assigned_to['assigned_to'] = array_keys(json_decode($option_info->permission, true) ?: []);
+                        }
+                    }
+                } elseif (!empty($data['bug_id'])) {
+                    $option_info = get_row('tbl_bug', array('bug_id' => $data['bug_id']));
+                    if (!empty($option_info)) {
+                        if ($option_info->permission == 'all') {
+                            $assigned_to['assigned_to'] = $this->tasks_model->allowed_user_id('58');
+                        } else {
+                            $assigned_to['assigned_to'] = array_keys(json_decode($option_info->permission, true) ?: []);
+                        }
+                    }
+                } elseif (!empty($data['goal_tracking_id'])) {
+                    $option_info = get_row('tbl_goal_tracking', array('goal_tracking_id' => $data['goal_tracking_id']));
+                    if (!empty($option_info)) {
+                        if ($option_info->permission == 'all') {
+                            $assigned_to['assigned_to'] = $this->tasks_model->allowed_user_id('69');
+                        } else {
+                            $assigned_to['assigned_to'] = array_keys(json_decode($option_info->permission, true) ?: []);
+                        }
+                    }
+                } else {
+                    $all_active_users = $this->db->select('user_id')->where('activated', 1)->get('tbl_users')->result_array();
+                    $assigned_to['assigned_to'] = array_column($all_active_users, 'user_id');
+                }
+                if (empty($assigned_to['assigned_to'])) {
+                    $assigned_to['assigned_to'] = $this->tasks_model->allowed_user_id('54');
+                }
             }
 
             if (!empty($id)) {
@@ -788,9 +892,61 @@ class Tasks extends Admin_Controller
     {
         $can_edit = $this->tasks_model->can_action('tbl_task', 'edit', array('task_id' => $id));
         if (!empty($can_edit)) {
+            $task_info = $this->tasks_model->check_by(array('task_id' => $id), 'tbl_task');
+            if (!empty($task_info->project_id)) {
+                $project_info = get_row('tbl_project', array('project_id' => $task_info->project_id));
+                if (!empty($project_info)) {
+                    if ($project_info->permission == 'all') {
+                        $data['assign_user'] = $this->tasks_model->allowed_user('57');
+                    } else {
+                        $data['assign_user'] = $this->tasks_model->permitted_allowed_user($project_info->permission);
+                    }
+                }
+            } elseif (!empty($task_info->opportunities_id)) {
+                $option_info = get_row('tbl_opportunities', array('opportunities_id' => $task_info->opportunities_id));
+                if (!empty($option_info)) {
+                    if ($option_info->permission == 'all') {
+                        $data['assign_user'] = $this->tasks_model->allowed_user('56');
+                    } else {
+                        $data['assign_user'] = $this->tasks_model->permitted_allowed_user($option_info->permission);
+                    }
+                }
+            } elseif (!empty($task_info->leads_id)) {
+                $option_info = get_row('tbl_leads', array('leads_id' => $task_info->leads_id));
+                if (!empty($option_info)) {
+                    if ($option_info->permission == 'all') {
+                        $data['assign_user'] = $this->tasks_model->allowed_user('55');
+                    } else {
+                        $data['assign_user'] = $this->tasks_model->permitted_allowed_user($option_info->permission);
+                    }
+                }
+            } elseif (!empty($task_info->bug_id)) {
+                $option_info = get_row('tbl_bug', array('bug_id' => $task_info->bug_id));
+                if (!empty($option_info)) {
+                    if ($option_info->permission == 'all') {
+                        $data['assign_user'] = $this->tasks_model->allowed_user('58');
+                    } else {
+                        $data['assign_user'] = $this->tasks_model->permitted_allowed_user($option_info->permission);
+                    }
+                }
+            } elseif (!empty($task_info->goal_tracking_id)) {
+                $option_info = get_row('tbl_goal_tracking', array('goal_tracking_id' => $task_info->goal_tracking_id));
+                if (!empty($option_info)) {
+                    if ($option_info->permission == 'all') {
+                        $data['assign_user'] = $this->tasks_model->allowed_user('69');
+                    } else {
+                        $data['assign_user'] = $this->tasks_model->permitted_allowed_user($option_info->permission);
+                    }
+                }
+            } else {
+                $data['assign_user'] = $this->db->where('activated', 1)->get('tbl_users')->result();
+            }
 
-            $data['assign_user'] = $this->tasks_model->allowed_user('54');
-            $data['task_info'] = $this->tasks_model->check_by(array('task_id' => $id), 'tbl_task');
+            if (empty($data['assign_user'])) {
+                $data['assign_user'] = $this->tasks_model->allowed_user('54');
+            }
+
+            $data['task_info'] = $task_info;
             $data['modal_subview'] = $this->load->view('admin/tasks/_modal_users', $data, FALSE);
             $this->load->view('admin/_layout_modal', $data);
         } else {
@@ -815,7 +971,59 @@ class Tasks extends Admin_Controller
 
                 if ($permission == 'everyone') {
                     $assigned = 'all';
-                    $assigned_to['assigned_to'] = $this->tasks_model->allowed_user_id('54');
+                    $assigned_to['assigned_to'] = array();
+                    if (!empty($tasks_info->project_id)) {
+                        $project_info = get_row('tbl_project', array('project_id' => $tasks_info->project_id));
+                        if (!empty($project_info)) {
+                            if ($project_info->permission == 'all') {
+                                $assigned_to['assigned_to'] = $this->tasks_model->allowed_user_id('57');
+                            } else {
+                                $assigned_to['assigned_to'] = array_keys(json_decode($project_info->permission, true) ?: []);
+                            }
+                        }
+                    } elseif (!empty($tasks_info->opportunities_id)) {
+                        $option_info = get_row('tbl_opportunities', array('opportunities_id' => $tasks_info->opportunities_id));
+                        if (!empty($option_info)) {
+                            if ($option_info->permission == 'all') {
+                                $assigned_to['assigned_to'] = $this->tasks_model->allowed_user_id('56');
+                            } else {
+                                $assigned_to['assigned_to'] = array_keys(json_decode($option_info->permission, true) ?: []);
+                            }
+                        }
+                    } elseif (!empty($tasks_info->leads_id)) {
+                        $option_info = get_row('tbl_leads', array('leads_id' => $tasks_info->leads_id));
+                        if (!empty($option_info)) {
+                            if ($option_info->permission == 'all') {
+                                $assigned_to['assigned_to'] = $this->tasks_model->allowed_user_id('55');
+                            } else {
+                                $assigned_to['assigned_to'] = array_keys(json_decode($option_info->permission, true) ?: []);
+                            }
+                        }
+                    } elseif (!empty($tasks_info->bug_id)) {
+                        $option_info = get_row('tbl_bug', array('bug_id' => $tasks_info->bug_id));
+                        if (!empty($option_info)) {
+                            if ($option_info->permission == 'all') {
+                                $assigned_to['assigned_to'] = $this->tasks_model->allowed_user_id('58');
+                            } else {
+                                $assigned_to['assigned_to'] = array_keys(json_decode($option_info->permission, true) ?: []);
+                            }
+                        }
+                    } elseif (!empty($tasks_info->goal_tracking_id)) {
+                        $option_info = get_row('tbl_goal_tracking', array('goal_tracking_id' => $tasks_info->goal_tracking_id));
+                        if (!empty($option_info)) {
+                            if ($option_info->permission == 'all') {
+                                $assigned_to['assigned_to'] = $this->tasks_model->allowed_user_id('69');
+                            } else {
+                                $assigned_to['assigned_to'] = array_keys(json_decode($option_info->permission, true) ?: []);
+                            }
+                        }
+                    } else {
+                        $all_active_users = $this->db->select('user_id')->where('activated', 1)->get('tbl_users')->result_array();
+                        $assigned_to['assigned_to'] = array_column($all_active_users, 'user_id');
+                    }
+                    if (empty($assigned_to['assigned_to'])) {
+                        $assigned_to['assigned_to'] = $this->tasks_model->allowed_user_id('54');
+                    }
                 } else {
                     $assigned_to = $this->tasks_model->array_from_post(array('assigned_to'));
                     if (!empty($assigned_to['assigned_to'])) {
