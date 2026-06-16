@@ -11,29 +11,22 @@ class Projects extends CI_Controller
 
     public function index()
     {
-        $this->api_auth->authenticate();
-
+        $user = $this->api_auth->authenticate();
         $user_id = $user->user_id;
 
-        $this->db->select('project_id, project_name, description, progress');
-        $this->db->group_start();
-        $this->db->where('project_status', 'in_progress');
-        $this->db->or_where('project_status', 'completed');
-        $this->db->group_end();
-        $this->db->group_start();
-        $this->db->where('created_by', $user_id);
-        if ($this->db->version() >= 8) {
-            $sq = '\\b' . ($user_id) . '\\b';
-        } else {
-            $sq = '[[:<:]]' . ($user_id) . '[[:>:]]';
-        }
-        $this->db->or_where('permission REGEXP', $this->db->escape($sq), false);
-        $this->db->or_where('permission', 'all');
-        $this->db->group_end();
+        $projects = $this->db
+            ->select('project_id, project_name, description, progress, created_by, permission')
+            ->where('project_status', 'in_progress')
+            ->or_where('project_status', 'completed')
+            ->get('tbl_project')
+            ->result();
 
-        $projects = $this->db->get('tbl_project')->result();
+        $result = array_map(function ($p) use ($user_id) {
+            $perm = $p->permission ?? '';
+            $is_assigned = ($p->created_by == $user_id)
+                || $perm === 'all'
+                || preg_match('/\b' . $user_id . '\b/', $perm);
 
-        $result = array_map(function ($p) {
             return [
                 'id' => (int)$p->project_id,
                 'name' => $p->project_name ?? '',
@@ -41,10 +34,18 @@ class Projects extends CI_Controller
                 'progress' => (int)$p->progress,
                 'erp_id' => (int)$p->project_id,
                 'is_active' => true,
+                'is_assigned' => $is_assigned,
                 'created_at' => '',
                 'updated_at' => '',
             ];
         }, $projects);
+
+        usort($result, function ($a, $b) {
+            if ($a['is_assigned'] !== $b['is_assigned']) {
+                return $b['is_assigned'] <=> $a['is_assigned'];
+            }
+            return $a['name'] <=> $b['name'];
+        });
 
         return $this->_respond(200, true, 'OK', ['projects' => $result]);
     }
