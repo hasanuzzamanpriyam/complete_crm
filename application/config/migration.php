@@ -67,7 +67,7 @@ $config['migration_auto_latest'] = FALSE;
 | be upgraded / downgraded to.
 |
 */
-$config['migration_version'] = 627;
+$config['migration_version'] = 628;
 /*
 |--------------------------------------------------------------------------
 | Migrations Path

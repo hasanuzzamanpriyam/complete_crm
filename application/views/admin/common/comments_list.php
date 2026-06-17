@@ -1,7 +1,7 @@
 <?php if (!empty($comment_details)) {
     foreach ($comment_details as $key => $v_comment) { ?><div class="mb-mails col-sm-12"
              id="<?php echo $comment_type . "-comment-form-container-" . $v_comment->task_comment_id ?>"><img
-                    alt="Mail Avatar" src="<?php echo base_url() . $v_comment->avatar ?>"
+                    alt="Mail Avatar" src="<?php echo base_url(get_avatar_url($v_comment->avatar ?? null)) ?>"
                     class="mb-mail-avatar pull-left">
             <div class="mb-mail-date pull-right"><?= time_ago($v_comment->comment_datetime) ?>
                 <?php if ($v_comment->user_id == $this->session->userdata('user_id')) { ?>

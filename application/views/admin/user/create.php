@@ -202,7 +202,7 @@ if (!empty($created) || !empty($edited)) {
                                 <?php
                                 if (!empty($profile_info)) :
                                     ?>
-                                    <img src="<?php echo base_url() . $profile_info->avatar; ?>">
+                                    <img src="<?php echo base_url(get_avatar_url($profile_info->avatar ?? null)); ?>">
                                 <?php else : ?>
                                     <img src="<?= base_url('uploads/default_avatar.jpg') ?>"
                                          alt="Please Connect Your Internet">

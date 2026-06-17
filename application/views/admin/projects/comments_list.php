@@ -8,7 +8,7 @@ if (!empty($comment_details)) {
         ?>
 <div class="mb-mails col-sm-12"
              id="<?php echo $comment_type . "-comment-form-container-" . $v_comment->task_comment_id ?>"><img
-                    alt="Mail Avatar" src="<?php echo base_url() . $profile_info->avatar ?>"
+                    alt="Mail Avatar" src="<?php echo base_url(get_avatar_url($profile_info->avatar ?? null)) ?>"
                     class="mb-mail-avatar pull-left">
             <div class="mb-mail-date pull-right"><?= time_ago($v_comment->comment_datetime) ?>
                 <?php if ($v_comment->user_id == $this->session->userdata('user_id')) { ?>

@@ -185,7 +185,7 @@ $edited = can_action('69', 'edited');
 
                                 <a href="#" data-toggle="tooltip" data-placement="top"
                                     title="<?= $profile_info->fullname ?>"><img
-                                        src="<?= base_url() . $profile_info->avatar ?>" class="img-circle img-xs"
+                                        src="<?= base_url(get_avatar_url($profile_info->avatar ?? null)) ?>" class="img-circle img-xs"
                                         alt="">
                                     <span class="custom-permission circle <?= $label ?>  circle-lg"></span>
                                 </a>
@@ -294,7 +294,7 @@ $edited = can_action('69', 'edited');
 
                         <div class="col-sm-12 item ">
 
-                            <img src="<?php echo base_url() . $profile_info->avatar ?>" alt="user image"
+                            <img src="<?php echo base_url(get_avatar_url($profile_info->avatar ?? null)) ?>" alt="user image"
                                 class="img-circle" />
 
 

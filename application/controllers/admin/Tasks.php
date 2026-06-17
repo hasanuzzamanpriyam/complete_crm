@@ -893,55 +893,7 @@ class Tasks extends Admin_Controller
         $can_edit = $this->tasks_model->can_action('tbl_task', 'edit', array('task_id' => $id));
         if (!empty($can_edit)) {
             $task_info = $this->tasks_model->check_by(array('task_id' => $id), 'tbl_task');
-            if (!empty($task_info->project_id)) {
-                $project_info = get_row('tbl_project', array('project_id' => $task_info->project_id));
-                if (!empty($project_info)) {
-                    if ($project_info->permission == 'all') {
-                        $data['assign_user'] = $this->tasks_model->allowed_user('57');
-                    } else {
-                        $data['assign_user'] = $this->tasks_model->permitted_allowed_user($project_info->permission);
-                    }
-                }
-            } elseif (!empty($task_info->opportunities_id)) {
-                $option_info = get_row('tbl_opportunities', array('opportunities_id' => $task_info->opportunities_id));
-                if (!empty($option_info)) {
-                    if ($option_info->permission == 'all') {
-                        $data['assign_user'] = $this->tasks_model->allowed_user('56');
-                    } else {
-                        $data['assign_user'] = $this->tasks_model->permitted_allowed_user($option_info->permission);
-                    }
-                }
-            } elseif (!empty($task_info->leads_id)) {
-                $option_info = get_row('tbl_leads', array('leads_id' => $task_info->leads_id));
-                if (!empty($option_info)) {
-                    if ($option_info->permission == 'all') {
-                        $data['assign_user'] = $this->tasks_model->allowed_user('55');
-                    } else {
-                        $data['assign_user'] = $this->tasks_model->permitted_allowed_user($option_info->permission);
-                    }
-                }
-            } elseif (!empty($task_info->bug_id)) {
-                $option_info = get_row('tbl_bug', array('bug_id' => $task_info->bug_id));
-                if (!empty($option_info)) {
-                    if ($option_info->permission == 'all') {
-                        $data['assign_user'] = $this->tasks_model->allowed_user('58');
-                    } else {
-                        $data['assign_user'] = $this->tasks_model->permitted_allowed_user($option_info->permission);
-                    }
-                }
-            } elseif (!empty($task_info->goal_tracking_id)) {
-                $option_info = get_row('tbl_goal_tracking', array('goal_tracking_id' => $task_info->goal_tracking_id));
-                if (!empty($option_info)) {
-                    if ($option_info->permission == 'all') {
-                        $data['assign_user'] = $this->tasks_model->allowed_user('69');
-                    } else {
-                        $data['assign_user'] = $this->tasks_model->permitted_allowed_user($option_info->permission);
-                    }
-                }
-            } else {
-                $data['assign_user'] = $this->db->where('activated', 1)->get('tbl_users')->result();
-            }
-
+            $data['assign_user'] = $this->db->where('activated', 1)->get('tbl_users')->result();
             if (empty($data['assign_user'])) {
                 $data['assign_user'] = $this->tasks_model->allowed_user('54');
             }

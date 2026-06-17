@@ -76,7 +76,7 @@
                     <label class="col-lg-3 control-label">Employee Name</label>
                     <div class="col-lg-8">
                         <input type="text" id="employee_name_display" class="form-control" readonly
-                               value="<?= !empty($letter_info) ? $this->db->select('fullname')->where('user_id', $letter_info->employee_id)->get('tbl_account_details')->row()->fullname : '' ?>">
+                               value="<?= !empty($letter_info) ? fullname($letter_info->employee_id) : '' ?>">
                     </div>
                 </div>
 

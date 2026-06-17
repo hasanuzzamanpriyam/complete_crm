@@ -188,11 +188,14 @@ class Screenshots extends CI_Controller
 
     private function _respond($status_code, $success, $message, $data = null)
     {
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
         $response = ['success' => $success, 'message' => $message];
         if ($data !== null) {
             $response = array_merge($response, $data);
         }
-        return $this->output
+        $this->output
             ->set_status_header($status_code)
             ->set_content_type('application/json')
             ->set_output(json_encode($response));

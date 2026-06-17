@@ -53,8 +53,7 @@
                     <label class="control-label"><strong><?= lang('action_by') ?> : </strong></label>
                 </div>
                 <div class="col-sm-8">
-                    <p class="form-control-static"><span
-                            ><?= $this->db->where('user_id', $advance_salary_info->approve_by)->get('tbl_account_details')->row()->fullname ?></span>
+                    <p class="form-control-static"><span><?= fullname($advance_salary_info->approve_by) ?></span>
                     </p>
                 </div>
             </div>

@@ -43,7 +43,7 @@ $department = $this->db->where('departments_id', $designation->departments_id)->
                         <tr>
                             <td style="background-color: lightgray; border-radius: 2px;">
                                 <?php if ($profile_info->avatar): ?>
-                                    <img src="<?php echo base_url() . $profile_info->avatar; ?>"
+                                    <img src="<?php echo base_url(get_avatar_url($profile_info->avatar ?? null)); ?>"
                                          style="width: 138px; height: 144px; border-radius: 3px;">
                                 <?php else: ?>
                                     <img alt="Employee_Image">

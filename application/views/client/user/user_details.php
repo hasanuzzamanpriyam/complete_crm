@@ -336,7 +336,7 @@ $user_info = $this->db->where('user_id', $profile_info->user_id)->get('tbl_users
                                 ?>
                                         <tr>
                                             <td><?= display_datetime($v_activity->activity_date); ?></td>
-                                            <td><?= $this->db->where('user_id', $v_activity->user)->get('tbl_account_details')->row()->fullname; ?></td>
+                                            <td><?= fullname($v_activity->user); ?></td>
                                             <td><?= lang($v_activity->module) ?></td>
                                             <td>
                                                 <?= lang($v_activity->activity) ?>

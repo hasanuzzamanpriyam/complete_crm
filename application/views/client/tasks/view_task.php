@@ -158,7 +158,7 @@ $activities_info = $this->db->where(array('module' => 'tasks', 'module_field_id'
                             <div class="col-sm-7 ">
                                 <p class="form-control-static"><?php
                                     if (!empty($task_details->created_by)) {
-                                        echo $this->db->where('user_id', $task_details->created_by)->get('tbl_account_details')->row()->fullname;
+                                        echo fullname($task_details->created_by);
                                     }
                                     ?></p>
 

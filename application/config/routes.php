@@ -115,6 +115,8 @@ $route['api/attendance'] = 'api/attendance/index';
 $route['api/screenshots'] = 'api/screenshots/index';
 $route['api/screenshots/(:num)'] = 'api/screenshots/index/$1';
 $route['api/screenshots/(:num)/image'] = 'api/screenshots/index/$1';
+$route['api/app-usage'] = 'api/app_usage/index';
+$route['api/app-usage/(:num)'] = 'api/app_usage/index/$1';
 
 /*
 ------------------------------------------

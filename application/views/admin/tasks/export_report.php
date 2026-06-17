@@ -183,7 +183,7 @@ if (!empty($p_category)) {
             <div class="name"><strong><?= lang('created_by') ?>
                     :</strong><?php
                 if (!empty($task_details->created_by)) {
-                    echo $this->db->where('user_id', $task_details->created_by)->get('tbl_account_details')->row()->fullname;
+                    echo fullname($task_details->created_by);
                 }
                 ?>
             </div>

@@ -142,7 +142,7 @@ endif;
             <div class="col-sm-3">
                 <div class="text-center ">
                     <?php if ($profile_info->avatar) : ?>
-                        <img src="<?php echo base_url() . $profile_info->avatar; ?>"
+                        <img src="<?php echo base_url(get_avatar_url($profile_info->avatar ?? null)); ?>"
                              class="img-thumbnail img-circle thumb128 ">
                     <?php else : ?>
                         <img src="<?php echo base_url() ?>assets/img/user/default_avatar.jpg" alt="Employee_Image"

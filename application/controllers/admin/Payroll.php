@@ -914,7 +914,7 @@ if (empty($salary_template_id) && !empty($id)) {
             'activity' => 'activity_apply_advance_salary',
             'icon' => 'cc-mastercard',
             'link' => 'admin/payroll/view_advance_salary/' . $id,
-            'value1' => $this->db->where('user_id', $data['user_id'])->get('tbl_account_details')->row()->fullname,
+            'value1' => fullname($data['user_id']),
             'value2' => $data['advance_amount'],
         );
 

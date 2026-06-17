@@ -1028,6 +1028,12 @@ function get_permission($colL, $col, $permission_user, $permissionL = null, $tex
 <div class="col-lg-' . $col . '">';
     if (!empty($permission_user)) {
         foreach ($permission_user as $key => $v_user) {
+            if (is_array($v_user)) {
+                $v_user = (object)$v_user;
+            }
+            if (empty($v_user) || !is_object($v_user)) {
+                continue;
+            }
             if ($v_user->role_id == 1) {
                 $disable = true;
                 $role = '<strong class="badge btn-danger">' . lang('admin') . '</strong>';
@@ -1141,6 +1147,12 @@ function get_permission_modal($colL, $col, $permission_user, $permissionL = null
 <div class="col-lg-' . $col . '">';
     if (!empty($permission_user)) {
         foreach ($permission_user as $key => $v_user) {
+            if (is_array($v_user)) {
+                $v_user = (object)$v_user;
+            }
+            if (empty($v_user) || !is_object($v_user)) {
+                continue;
+            }
             if ($v_user->role_id == 1) {
                 $disable = true;
                 $role = '<strong class="badge btn-danger">' . lang('admin') . '</strong>';
@@ -1890,12 +1902,23 @@ function staffImage($user_id = null)
     if (empty($user_id)) {
         $user_id = $CI->session->userdata('user_id');
     }
+    $original_bypass = isset($CI->db->bypass_visibility_filters) ? $CI->db->bypass_visibility_filters : FALSE;
+    $CI->db->bypass_visibility_filters = TRUE;
     $userInfo = $CI->db->where('user_id', $user_id)->get('tbl_account_details')->row();
-    if (!empty($userInfo) && file_exists($userInfo->avatar)) {
+    $CI->db->bypass_visibility_filters = $original_bypass;
+    if (!empty($userInfo) && file_exists(FCPATH . $userInfo->avatar)) {
         return $userInfo->avatar;
     } else {
         return 'assets/img/user/default_avatar.jpg';
     }
+}
+
+function get_avatar_url($avatar_path = null)
+{
+    if (!empty($avatar_path) && file_exists(FCPATH . $avatar_path)) {
+        return $avatar_path;
+    }
+    return 'assets/img/user/default_avatar.jpg';
 }
 
 function fullname($user_id = null)
@@ -1904,7 +1927,10 @@ function fullname($user_id = null)
     if (empty($user_id)) {
         $user_id = $CI->session->userdata('user_id');
     }
+    $original_bypass = isset($CI->db->bypass_visibility_filters) ? $CI->db->bypass_visibility_filters : FALSE;
+    $CI->db->bypass_visibility_filters = TRUE;
     $userInfo = $CI->db->where('user_id', $user_id)->get('tbl_account_details')->row();
+    $CI->db->bypass_visibility_filters = $original_bypass;
     if (!empty($userInfo)) {
         return $userInfo->fullname;
     } else {
@@ -1988,12 +2014,15 @@ function designation($id = null)
     if (empty($id)) {
         $id = $CI->session->userdata('user_id');
     }
+    $original_bypass = isset($CI->db->bypass_visibility_filters) ? $CI->db->bypass_visibility_filters : FALSE;
+    $CI->db->bypass_visibility_filters = TRUE;
     $userInfo = $CI->db->where('user_id', $id)->get('tbl_account_details')->row();
     if (!empty($userInfo->designations_id)) {
         $designation = $CI->db->where('designations_id', $userInfo->designations_id)->get('tbl_designations')->row()->designations;
     } else {
         $designation = '-';
     }
+    $CI->db->bypass_visibility_filters = $original_bypass;
     return $designation;
 }
 
@@ -2391,6 +2420,10 @@ function MyDetails($user_id = null)
 function get_staff_details($user_id = null, $type = null, $where = null)
 {
     $CI = &get_instance();
+    $original_bypass = isset($CI->db->bypass_visibility_filters) ? $CI->db->bypass_visibility_filters : FALSE;
+    if (!empty($user_id)) {
+        $CI->db->bypass_visibility_filters = TRUE;
+    }
     $CI->db->select('tbl_users.*', FALSE);
     $CI->db->select('tbl_account_details.*', FALSE);
     $CI->db->from('tbl_users');
@@ -2399,13 +2432,13 @@ function get_staff_details($user_id = null, $type = null, $where = null)
         $CI->db->where($where);
     }
     if (!empty($user_id)) {
-$CI->db->where('tbl_users.user_id', $user_id);
+        $CI->db->where('tbl_users.user_id', $user_id);
         // Apply scope for specific user fetch (exclude others)
         apply_user_scope(true);
         $query_result = $CI->db->get();
         $result = $query_result->row();
     } else {
-apply_user_scope();
+        apply_user_scope();
         $CI->db->where('tbl_users.activated', 1);
         $query_result = $CI->db->get();
         if (!empty($type)) {

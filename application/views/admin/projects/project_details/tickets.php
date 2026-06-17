@@ -70,7 +70,7 @@
                                                     ?>
                                                         <img style="width: 30px;margin-left: 18px;
                                                          height: 29px;
-                                                         border: 1px solid #aaa;" src="<?= base_url() . $profile_info->avatar ?>" class="img-circle">
+                                                         border: 1px solid #aaa;" src="<?= base_url(get_avatar_url($profile_info->avatar ?? null)) ?>" class="img-circle">
 
 
                                                         <?=

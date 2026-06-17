@@ -161,7 +161,7 @@ $can_edit = $this->items_model->can_action('tbl_opportunities', 'edit', array('o
                     ?>
 
 
-                                <a href="#" data-toggle="tooltip" data-placement="top" title="<?= $profile_info->fullname ?>"><img src="<?= base_url() . $profile_info->avatar ?>" class="img-circle img-xs" alt="">
+                                <a href="#" data-toggle="tooltip" data-placement="top" title="<?= $profile_info->fullname ?>"><img src="<?= base_url(get_avatar_url($profile_info->avatar ?? null)) ?>" class="img-circle img-xs" alt="">
                                     <span class="custom-permission circle <?= $label ?>  circle-lg"></span>
                                 </a>
                         <?php

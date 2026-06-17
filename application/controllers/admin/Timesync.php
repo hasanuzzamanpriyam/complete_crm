@@ -145,6 +145,114 @@ class Timesync extends Admin_Controller
         $this->load->view('admin/_layout_main', $data);
     }
 
+    public function usage()
+    {
+        if (!is_super_admin()) {
+            $can_view = can_action('timesync', 'view');
+            if (!$can_view) {
+                redirect('404');
+            }
+        }
+
+        $data['title'] = 'App Usage Reports';
+
+        $user_id = $this->input->get('user_id');
+        $from = $this->input->get('from');
+        $to = $this->input->get('to');
+        if (empty($from)) $from = date('Y-m-01');
+        if (empty($to)) $to = date('Y-m-d');
+
+        $this->db->select('a.*, u.username, ad.fullname');
+        $this->db->from('tbl_desktop_app_usage a');
+        $this->db->join('tbl_users u', 'u.user_id = a.user_id', 'left');
+        $this->db->join('tbl_account_details ad', 'ad.user_id = a.user_id', 'left');
+
+        if (!empty($user_id)) $this->db->where('a.user_id', (int)$user_id);
+        $this->db->where('a.recorded_at >=', $from);
+        $this->db->where('a.recorded_at <=', $to);
+        $this->db->order_by('a.recorded_at', 'DESC');
+        $this->db->order_by('a.total_seconds', 'DESC');
+        $data['records'] = $this->db->get()->result();
+
+        // Compute per-user totals and focus scores
+        $user_totals = [];
+        $user_apps = [];
+        foreach ($data['records'] as $r) {
+            $uid = $r->user_id;
+            if (!isset($user_totals[$uid])) {
+                $user_totals[$uid] = 0;
+                $user_apps[$uid] = [];
+            }
+            $user_totals[$uid] += $r->total_seconds;
+            if (!isset($user_apps[$uid][$r->app_name])) {
+                $user_apps[$uid][$r->app_name] = 0;
+            }
+            $user_apps[$uid][$r->app_name] += $r->total_seconds;
+        }
+
+        $data['user_scores'] = [];
+        foreach ($user_totals as $uid => $total) {
+            $top_app_seconds = 0;
+            if (!empty($user_apps[$uid])) {
+                $top_app_seconds = max($user_apps[$uid]);
+            }
+            $focus_score = $total > 0 ? round(($top_app_seconds / $total) * 100) : 0;
+            $data['user_scores'][$uid] = [
+                'total_seconds' => $total,
+                'focus_score' => $focus_score,
+            ];
+        }
+
+        $data['users'] = $this->db
+            ->select('tbl_users.user_id, tbl_account_details.fullname')
+            ->join('tbl_account_details', 'tbl_account_details.user_id = tbl_users.user_id', 'left')
+            ->where('tbl_users.activated', 1)
+            ->get('tbl_users')
+            ->result();
+
+        $data['selected_user_id'] = $user_id;
+
+        $data['subview'] = $this->load->view('admin/timesync/usage_report', $data, true);
+        $this->load->view('admin/_layout_main', $data);
+    }
+
+    public function view_image($id)
+    {
+        $screenshot = $this->db->where('id', $id)->get('tbl_screenshots')->row();
+        if (empty($screenshot)) {
+            $this->_output_transparent_pixel();
+        }
+
+        $file_path = FCPATH . $screenshot->file_path;
+        if (!file_exists($file_path)) {
+            $this->_output_transparent_pixel();
+        }
+
+        $ext = strtolower(pathinfo($file_path, PATHINFO_EXTENSION));
+        $mime_types = [
+            'png' => 'image/png',
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'gif' => 'image/gif',
+            'webp' => 'image/webp',
+        ];
+        $content_type = $mime_types[$ext] ?? 'image/png';
+
+        header('Content-Type: ' . $content_type);
+        header('Content-Length: ' . filesize($file_path));
+        header('Cache-Control: public, max-age=86400');
+        readfile($file_path);
+        exit;
+    }
+
+    private function _output_transparent_pixel()
+    {
+        header('Content-Type: image/png');
+        header('Content-Length: 68');
+        echo base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==');
+        exit;
+    }
+
     public function settings()
     {
         if (!is_super_admin()) {

@@ -14,7 +14,7 @@ if (!empty($ticket_replies)) :
             $reply_day = strtotime($v_replies->time);
 ?>
             <div class="col-sm-12 mb-mails" id="ticket-reply-container-<?php echo $v_replies->tickets_replies_id ?>">
-                <img alt="Mail Avatar" src="<?php echo base_url() . $profile_info->avatar ?>" class="mb-mail-avatar pull-left">
+                <img alt="Mail Avatar" src="<?php echo base_url(get_avatar_url($profile_info->avatar ?? null)) ?>" class="mb-mail-avatar pull-left">
                 <div class="mb-mail-date pull-right"><?= time_ago($v_replies->time) ?>
                     <?php if ($v_replies->replierid == $this->session->userdata('user_id')) { ?>
                         <?php echo ajax_anchor(base_url("admin/tickets/delete/delete_ticket_replay/" . $v_replies->tickets_id . '/' . $v_replies->tickets_replies_id), "<i class='text-danger fa fa-trash-o'></i>", array("class" => "", "title" => lang('delete'), "data-fade-out-on-success" => "#ticket-reply-container-" . $v_replies->tickets_replies_id)); ?>

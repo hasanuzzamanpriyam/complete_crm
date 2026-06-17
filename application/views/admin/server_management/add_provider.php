@@ -125,7 +125,7 @@
                                                     <input type="checkbox" value="<?= $staff->user_id ?>" name="assigned_to[]" class="needsclick assigned_to_task <?= $is_admin ? 'is-admin' : '' ?>" <?= !empty($user_permission) ? 'checked' : '' ?>>
                                                     <span class="fa fa-check" style="margin-top: -10px; left: 12px;"></span>
                                                     <div style="display: flex; align-items: center; margin-left: 25px; flex: 1; overflow: hidden;">
-                                                        <img src="<?= base_url() . (!empty($staff->avatar) ? $staff->avatar : 'assets/img/user/default.png') ?>" class="img-circle" style="width: 32px; height: 32px; border: 1px solid #eee; margin-right: 12px; flex-shrink: 0; object-fit: cover;">
+                                                        <img src="<?= base_url(get_avatar_url($staff->avatar ?? null)) ?>" class="img-circle" style="width: 32px; height: 32px; border: 1px solid #eee; margin-right: 12px; flex-shrink: 0; object-fit: cover;">
                                                         <div style="overflow: hidden; line-height: 1.3;">
                                                             <div style="font-weight: 700; font-size: 13px; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><?= htmlspecialchars($staff->username) ?></div>
                                                             <div style="font-size: 11px; color: #888; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px;">

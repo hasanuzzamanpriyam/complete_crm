@@ -138,10 +138,21 @@ class Api_auth
         $header = $this->ci->input->server('HTTP_AUTHORIZATION');
 
         if (empty($header)) {
+            $header = $this->ci->input->server('REDIRECT_HTTP_AUTHORIZATION');
+        }
+
+        if (empty($header)) {
             if (function_exists('apache_request_headers')) {
                 $h = apache_request_headers();
                 $header = $h['Authorization'] ?? $h['authorization'] ?? null;
+            } elseif (function_exists('getallheaders')) {
+                $h = getallheaders();
+                $header = $h['Authorization'] ?? $h['authorization'] ?? null;
             }
+        }
+
+        if (empty($header) && !empty($_SERVER['HTTP_AUTHORIZATION'])) {
+            $header = $_SERVER['HTTP_AUTHORIZATION'];
         }
 
         if (!empty($header) && preg_match('/^Bearer\s+(.+)$/i', $header, $m)) {
@@ -153,11 +164,12 @@ class Api_auth
 
     private function _deny($message, $http_code = 401)
     {
-        $this->ci->output
-            ->set_status_header($http_code)
-            ->set_content_type('application/json')
-            ->set_output(json_encode(['success' => false, 'message' => $message]))
-            ->_display();
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+        http_response_code($http_code);
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'message' => $message]);
         exit;
     }
 }

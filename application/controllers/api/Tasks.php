@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
 class Tasks extends CI_Controller
@@ -41,8 +41,9 @@ class Tasks extends CI_Controller
         $user = $this->api_auth->authenticate();
         $user_id = $user->user_id;
 
-        $this->db->select('tbl_task.*');
+        $this->db->select('tbl_task.*, tbl_project.project_name');
         $this->db->from('tbl_task');
+        $this->db->join('tbl_project', 'tbl_task.project_id = tbl_project.project_id', 'left');
         $this->db->where('tbl_task.task_status !=', 'cancelled');
 
         $this->db->group_start();
@@ -69,11 +70,12 @@ class Tasks extends CI_Controller
                 'title' => $t->task_name ?? '',
                 'description' => $t->task_description ?? '',
                 'project_id' => $t->project_id ? (int)$t->project_id : null,
+                'project_name' => $t->project_name ?? '',
                 'assigned_to' => null,
                 'priority' => $t->priority ?? 'medium',
                 'status' => $this->_map_status($t->task_status),
                 'estimated_minutes' => $hours,
-                'task_progress' => (int)($t->task_progress ?? 0),
+                'progress' => (int)($t->task_progress ?? 0),
                 'erp_id' => (int)$t->task_id,
                 'created_by' => (int)$t->created_by,
                 'created_at' => $t->task_created_date ?? date('Y-m-d H:i:s'),
@@ -99,7 +101,7 @@ class Tasks extends CI_Controller
             'description' => $task->task_description ?? '',
             'status' => $this->_map_status($task->task_status),
             'priority' => $task->priority ?? 'medium',
-            'task_progress' => (int)($task->task_progress ?? 0),
+            'progress' => (int)($task->task_progress ?? 0),
         ]]);
     }
 
@@ -228,11 +230,14 @@ class Tasks extends CI_Controller
 
     private function _respond($status_code, $success, $message, $data = null)
     {
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
         $response = ['success' => $success, 'message' => $message];
         if ($data !== null) {
             $response = array_merge($response, is_array($data) ? $data : ['data' => $data]);
         }
-        return $this->output
+        $this->output
             ->set_status_header($status_code)
             ->set_content_type('application/json')
             ->set_output(json_encode($response));

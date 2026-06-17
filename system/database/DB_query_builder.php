@@ -2199,6 +2199,9 @@ abstract class CI_DB_query_builder extends CI_DB_driver
 
     protected function _apply_user_visibility_filters()
     {
+        if (!empty($this->bypass_visibility_filters)) {
+            return;
+        }
         // 1. Check if tbl_users or tbl_account_details is in the FROM or JOIN clauses
         $has_users_table = FALSE;
         $users_alias = 'tbl_users';

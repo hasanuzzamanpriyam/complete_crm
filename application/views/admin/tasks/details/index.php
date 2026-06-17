@@ -469,7 +469,7 @@ $percentage = $this->tasks_model->get_estime_time($estimate_hours);
                                                 }
                                                 $profile_info = $this->db->where(array('user_id' => $permission))->get('tbl_account_details')->row();
                                                 $fullname = !empty($profile_info) ? $profile_info->fullname : '';
-                                                $avatar = (!empty($profile_info) && !empty($profile_info->avatar)) ? $profile_info->avatar : 'uploads/default_avatar.jpg';
+                                                $avatar = get_avatar_url(!empty($profile_info) ? $profile_info->avatar : null);
                                     ?>
 
 
@@ -908,7 +908,7 @@ $percentage = $this->tasks_model->get_estime_time($estimate_hours);
                 <div class="col-sm-7 ">
                     <p class="form-control-static"><?php
                                                     if (!empty($task_details->created_by)) {
-                                                        echo $this->db->where('user_id', $task_details->created_by)->get('tbl_account_details')->row()->fullname;
+                                                        echo fullname($task_details->created_by);
                                                     }
                                                     ?></p>
 
@@ -1018,7 +1018,7 @@ $percentage = $this->tasks_model->get_estime_time($estimate_hours);
                                     }
                                     $profile_info = $this->db->where(array('user_id' => $permission))->get('tbl_account_details')->row();
                                     $fullname = !empty($profile_info) ? $profile_info->fullname : '';
-                                    $avatar = (!empty($profile_info) && !empty($profile_info->avatar)) ? $profile_info->avatar : 'uploads/default_avatar.jpg';
+                                    $avatar = get_avatar_url(!empty($profile_info) ? $profile_info->avatar : null);
                     ?>
 
 

@@ -6,7 +6,7 @@ if (!empty($comment_details)) {
         $user_info = $this->db->where(array('user_id' => $v_comment->user_id))->get('tbl_users')->row();
         $profile_info = $this->db->where(array('user_id' => $v_comment->user_id))->get('tbl_account_details')->row();
         ?>
-<div class="mb-mails col-sm-12" id="<?php echo $comment_type . "-comment-form-container-" . $v_comment->task_comment_id ?>"><img alt="Mail Avatar" src="<?php echo base_url() . $profile_info->avatar ?>" class="mb-mail-avatar pull-left">
+<div class="mb-mails col-sm-12" id="<?php echo $comment_type . "-comment-form-container-" . $v_comment->task_comment_id ?>"><img alt="Mail Avatar" src="<?php echo base_url(get_avatar_url($profile_info->avatar ?? null)) ?>" class="mb-mail-avatar pull-left">
 <div class="mb-mail-date pull-right"><?= time_ago($v_comment->comment_datetime) ?>
                 <?php if ($v_comment->user_id == $this->session->userdata('user_id')) { ?>
                     <?php echo ajax_anchor(base_url("admin/opportunities/delete_comments/" . $v_comment->task_comment_id), "<i class='text-danger fa fa-trash-o'></i>", array("class" => "", "title" => lang('delete'), "data-fade-out-on-success" => "#" . $comment_type . "-comment-form-container-" . $v_comment->task_comment_id)); ?>

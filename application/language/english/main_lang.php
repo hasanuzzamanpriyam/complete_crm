@@ -668,6 +668,13 @@ $lang['domain_management'] = 'Domain Management';
 $lang['provider_management'] = 'Provider Management';
 $lang['billing_order'] = 'Billing Order';
 
+// TimeSync menu labels
+$lang['timesync'] = 'TimeSync';
+$lang['timesync_reports'] = 'Reports';
+$lang['timesync_screenshots'] = 'Screenshots';
+$lang['timesync_settings'] = 'Settings';
+$lang['timesync_usage_report'] = 'Usage Reports';
+
 // Breadcrumb fallbacks
 $lang['domain'] = 'Domain Management';
 $lang['hosting'] = 'Hosting Management';

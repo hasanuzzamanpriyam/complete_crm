@@ -33,8 +33,8 @@
                         <?php foreach ($screenshots as $s): ?>
                             <div class="col-md-3 col-sm-4 col-xs-6 mb-sm">
                                 <div class="panel panel-default">
-                                    <a href="<?= base_url($s->file_path) ?>" target="_blank" rel="noopener">
-                                        <img src="<?= base_url($s->file_path) ?>" class="img-responsive" style="width: 100%; height: 160px; object-fit: cover;">
+                                    <a href="<?= base_url('admin/timesync/view_image/' . $s->id) ?>" target="_blank" rel="noopener">
+                                        <img src="<?= base_url('admin/timesync/view_image/' . $s->id) ?>" class="img-responsive" style="width: 100%; height: 160px; object-fit: cover;">
                                     </a>
                                     <div class="panel-body" style="padding: 8px;">
                                         <p class="small" style="margin: 0;">
