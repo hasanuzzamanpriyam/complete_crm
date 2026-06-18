@@ -117,7 +117,9 @@ class Screenshots extends CI_Controller
 
         $upload_dir = FCPATH . 'uploads/screenshots/' . $user_id;
         if (!is_dir($upload_dir)) {
-            @mkdir($upload_dir, 0777, true);
+            if (!@mkdir($upload_dir, 0777, true)) {
+                return $this->_respond(500, false, 'Failed to create upload directory');
+            }
         }
 
         $filename = date('Ymd_His') . '_' . uniqid() . '.png';

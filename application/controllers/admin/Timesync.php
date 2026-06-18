@@ -225,6 +225,7 @@ class Timesync extends Admin_Controller
 
         $file_path = FCPATH . $screenshot->file_path;
         if (!file_exists($file_path)) {
+            log_message('error', 'Screenshot file missing: ' . $file_path . ' (DB id: ' . $id . ')');
             $this->_output_transparent_pixel();
         }
 

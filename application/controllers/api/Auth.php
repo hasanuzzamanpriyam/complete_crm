@@ -26,11 +26,13 @@ class Auth extends CI_Controller
         $tokens = $this->_create_session($user->user_id);
 
         $profile = $this->_user_profile($user);
+        $allow_demo = $this->db->where('config_key', 'timesync_demo_mode')->get('tbl_config')->row()->value == '1';
 
         return $this->_respond(200, true, 'Login successful', [
             'access_token' => $tokens['access_token'],
             'refresh_token' => $tokens['refresh_token'],
             'user' => $profile,
+            'allow_demo' => $allow_demo,
             'expires_in' => 86400,
         ]);
     }
@@ -162,12 +164,12 @@ class Auth extends CI_Controller
 
         return [
             'id' => (int)$user->user_id,
+            'erp_id' => (int)$user->user_id,
             'username' => $user->username,
             'email' => $user->email,
             'role' => $user->role_id == 1 ? 'admin' : 'employee',
             'full_name' => $account->fullname ?? $user->username,
             'is_active' => $user->activated == 1,
-            'allow_demo' => $this->db->where('config_key', 'timesync_demo_mode')->get('tbl_config')->row()->value == '1',
             'created_at' => $user->created ?? date('Y-m-d H:i:s'),
         ];
     }
