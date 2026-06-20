@@ -133,6 +133,7 @@ class Timesync extends Admin_Controller
         if (!empty($to)) $this->db->where('tbl_screenshots.captured_at <=', $to . ' 23:59:59');
 
         $this->db->order_by('tbl_screenshots.captured_at', 'DESC');
+        $this->db->limit(50);
         $data['screenshots'] = $this->db->get()->result();
 
         $data['users'] = $this->db->select('tbl_users.user_id, tbl_account_details.fullname')
@@ -218,6 +219,10 @@ class Timesync extends Admin_Controller
 
     public function view_image($id)
     {
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+
         $screenshot = $this->db->where('id', $id)->get('tbl_screenshots')->row();
         if (empty($screenshot)) {
             $this->_output_transparent_pixel();
@@ -248,6 +253,9 @@ class Timesync extends Admin_Controller
 
     private function _output_transparent_pixel()
     {
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
         header('Content-Type: image/png');
         header('Content-Length: 68');
         echo base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==');

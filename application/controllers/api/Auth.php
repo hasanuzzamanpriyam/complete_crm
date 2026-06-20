@@ -142,7 +142,7 @@ class Auth extends CI_Controller
     {
         $access_token = bin2hex(random_bytes(32));
         $refresh_token = bin2hex(random_bytes(32));
-        $expires_at = date('Y-m-d H:i:s', time() + 86400);
+        $expires_at = date('Y-m-d H:i:s', time() + 2592000); // 30 days
 
         $this->db->insert('tbl_user_api_sessions', [
             'user_id' => $user_id,
