@@ -1,7 +1,7 @@
 ﻿<?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class Tasks extends CI_Controller
+class Tasks extends MY_Controller
 {
     public function __construct()
     {
@@ -46,16 +46,18 @@ class Tasks extends CI_Controller
         $this->db->join('tbl_project', 'tbl_task.project_id = tbl_project.project_id', 'left');
         $this->db->where('tbl_task.task_status !=', 'cancelled');
 
-        $this->db->group_start();
-        $this->db->where('tbl_task.created_by', $user_id);
-        if ($this->db->version() >= 8) {
-            $sq = '\\b' . ($user_id) . '\\b';
-        } else {
-            $sq = '[[:<:]]' . ($user_id) . '[[:>:]]';
+        if (!$this->api_auth->is_super_admin() && $user->role_id != 1) {
+            $this->db->group_start();
+            $this->db->where('tbl_task.created_by', $user_id);
+            if ($this->db->version() >= 8) {
+                $sq = '\\b' . ($user_id) . '\\b';
+            } else {
+                $sq = '[[:<:]]' . ($user_id) . '[[:>:]]';
+            }
+            $this->db->or_where('tbl_task.permission REGEXP', $this->db->escape($sq), false);
+            $this->db->or_where('tbl_task.permission', 'all');
+            $this->db->group_end();
         }
-        $this->db->or_where('tbl_task.permission REGEXP', $this->db->escape($sq), false);
-        $this->db->or_where('tbl_task.permission', 'all');
-        $this->db->group_end();
 
         $tasks = $this->db->order_by('tbl_task.task_created_date', 'DESC')->get()->result();
 
@@ -65,13 +67,22 @@ class Tasks extends CI_Controller
                 $parts = explode(':', $t->task_hour);
                 $hours = (int)$parts[0] * 60 + ((int)($parts[1] ?? 0));
             }
+            $assigned = 'everyone';
+            if (!empty($t->permission) && $t->permission !== 'all') {
+                $perm = @json_decode($t->permission, true);
+                if (is_array($perm)) {
+                    $assigned = array_map('intval', array_keys($perm));
+                }
+            }
+
             return [
                 'id' => (int)$t->task_id,
                 'title' => $t->task_name ?? '',
                 'description' => $t->task_description ?? '',
                 'project_id' => $t->project_id ? (int)$t->project_id : null,
                 'project_name' => $t->project_name ?? '',
-                'assigned_to' => null,
+                'assigned_to' => $assigned,
+                'report_to' => $t->report_to ? (int)$t->report_to : null,
                 'priority' => $t->priority ?? 'medium',
                 'status' => $this->_map_status($t->task_status),
                 'estimated_minutes' => $hours,
@@ -120,6 +131,17 @@ class Tasks extends CI_Controller
             $hours_minutes = sprintf('%d:%02d', intdiv($mins, 60), $mins % 60);
         }
 
+        $permission = 'all';
+        if (isset($input['assigned_to'])) {
+            if (is_array($input['assigned_to'])) {
+                $perm_map = [];
+                foreach ($input['assigned_to'] as $uid) {
+                    $perm_map[(int)$uid] = ['view', 'edit', 'delete'];
+                }
+                $permission = json_encode($perm_map);
+            }
+        }
+
         $task_data = [
             'task_name' => $input['title'],
             'task_description' => $input['description'] ?? '',
@@ -129,7 +151,8 @@ class Tasks extends CI_Controller
             'task_start_date' => date('Y-m-d'),
             'due_date' => null,
             'created_by' => $user->user_id,
-            'permission' => 'all',
+            'permission' => $permission,
+            'report_to' => !empty($input['report_to']) ? (int)$input['report_to'] : null,
             'task_created_date' => date('Y-m-d H:i:s'),
             'priority' => $input['priority'] ?? 'medium',
             'task_progress' => !empty($input['task_progress']) ? (int)$input['task_progress'] : (!empty($input['progress']) ? (int)$input['progress'] : 0),
@@ -172,6 +195,20 @@ class Tasks extends CI_Controller
         if (isset($input['priority'])) $update['priority'] = $input['priority'];
         $progress = $input['task_progress'] ?? $input['progress'] ?? null;
         if ($progress !== null) $update['task_progress'] = (int)$progress;
+        if (isset($input['assigned_to'])) {
+            if (is_array($input['assigned_to'])) {
+                $perm_map = [];
+                foreach ($input['assigned_to'] as $uid) {
+                    $perm_map[(int)$uid] = ['view', 'edit', 'delete'];
+                }
+                $update['permission'] = json_encode($perm_map);
+            } else {
+                $update['permission'] = 'all';
+            }
+        }
+        if (array_key_exists('report_to', $input)) {
+            $update['report_to'] = !empty($input['report_to']) ? (int)$input['report_to'] : null;
+        }
 
         if (!empty($update)) {
             $this->db->where('task_id', $id)->update('tbl_task', $update);
@@ -190,6 +227,7 @@ class Tasks extends CI_Controller
         }
 
         $this->db->where('task_id', $id)->delete('tbl_tasks_timer');
+        $this->db->query('DELETE FROM tbl_desktop_app_usage WHERE time_entry_id IN (SELECT id FROM tbl_desktop_time_entries WHERE task_id = ' . (int)$id . ')');
         $this->db->where('task_id', $id)->delete('tbl_desktop_time_entries');
 
         $screenshots = $this->db->where('task_id', $id)->get('tbl_screenshots')->result();

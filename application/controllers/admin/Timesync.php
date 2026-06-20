@@ -123,9 +123,10 @@ class Timesync extends Admin_Controller
         $from = $this->input->get('from');
         $to = $this->input->get('to');
 
-        $this->db->select('tbl_screenshots.*, tbl_account_details.fullname');
+        $this->db->select('tbl_screenshots.*, tbl_account_details.fullname, tbl_task.task_name');
         $this->db->from('tbl_screenshots');
         $this->db->join('tbl_account_details', 'tbl_account_details.user_id = tbl_screenshots.user_id', 'left');
+        $this->db->join('tbl_task', 'tbl_task.task_id = tbl_screenshots.task_id', 'left');
 
         if (!empty($user_id)) $this->db->where('tbl_screenshots.user_id', (int)$user_id);
         if (!empty($task_id)) $this->db->where('tbl_screenshots.task_id', (int)$task_id);

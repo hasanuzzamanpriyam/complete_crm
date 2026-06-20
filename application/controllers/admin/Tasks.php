@@ -2129,6 +2129,9 @@ class Tasks extends Admin_Controller
                 }
                 $this->db->where('task_id', $id)->delete('tbl_screenshots');
 
+                // cascade delete desktop app usage
+                $this->db->query('DELETE FROM tbl_desktop_app_usage WHERE time_entry_id IN (SELECT id FROM tbl_desktop_time_entries WHERE task_id = ' . (int)$id . ')');
+
                 // cascade delete desktop time entries
                 $this->db->where('task_id', $id)->delete('tbl_desktop_time_entries');
 

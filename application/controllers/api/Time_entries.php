@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class Time_entries extends CI_Controller
+class Time_entries extends MY_Controller
 {
     public function __construct()
     {

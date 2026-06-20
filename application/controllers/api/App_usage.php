@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class App_usage extends CI_Controller
+class App_usage extends MY_Controller
 {
     public function __construct()
     {
@@ -36,9 +36,10 @@ class App_usage extends CI_Controller
         $to = $this->input->get('to');
         $limit = (int)$this->input->get('limit') ?: 100;
 
-        $this->db->select('a.*, u.username, u.fullname');
+        $this->db->select('a.*, u.username, ad.fullname');
         $this->db->from('tbl_desktop_app_usage a');
         $this->db->join('tbl_users u', 'u.user_id = a.user_id', 'left');
+        $this->db->join('tbl_account_details ad', 'ad.user_id = a.user_id', 'left');
 
         if (!$is_admin) {
             $this->db->where('a.user_id', $user->user_id);

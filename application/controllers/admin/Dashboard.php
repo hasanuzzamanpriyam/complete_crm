@@ -639,6 +639,7 @@ class Dashboard extends Admin_Controller
 
     public function set_clocking($id = NULL, $user_id = null, $row = null, $redirect = null, $long = null)
     {
+        log_message('error', '[CLOCK_DEBUG] timezone config: ' . config_item('timezone') . ' | current php timezone: ' . date_default_timezone_get() . ' | current php time: ' . date('H:i:s'));
         $date = date('Y-m-d');
         // get all month by date
         $month = date('m', strtotime($date));
@@ -701,7 +702,7 @@ class Dashboard extends Admin_Controller
             }
             $time = $this->input->post('clock_time', TRUE);
             if (empty($time)) {
-                $time = date('h:i:s');;
+                $time = date('H:i:s');
             }
             //        $already_clocking = $this->admin_model->check_by(array('user_id' => $adata['user_id'], 'clocking_status' => 1), 'tbl_attendance');
 

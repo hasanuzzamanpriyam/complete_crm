@@ -4,7 +4,7 @@ if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
-class Jobs_postedList extends CI_Controller
+class Jobs_postedList extends MY_Controller
 {
     public function __construct()
     {

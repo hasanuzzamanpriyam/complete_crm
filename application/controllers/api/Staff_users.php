@@ -4,7 +4,7 @@ if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
-class Staff_users extends CI_Controller
+class Staff_users extends MY_Controller
 {
     public function __construct()
     {

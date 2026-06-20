@@ -42,7 +42,7 @@
                                             <?= date('M d, Y H:i', strtotime($s->captured_at)) ?>
                                         </p>
                                         <?php if (!empty($s->task_id)): ?>
-                                            <a href="<?= base_url('admin/tasks/view/' . $s->task_id) ?>" class="small">Task #<?= $s->task_id ?></a>
+                                            <a href="<?= base_url('admin/tasks/view/' . $s->task_id) ?>" class="small"><?= htmlspecialchars($s->task_name ?? 'Task #' . $s->task_id) ?></a>
                                         <?php endif; ?>
                                     </div>
                                 </div>
