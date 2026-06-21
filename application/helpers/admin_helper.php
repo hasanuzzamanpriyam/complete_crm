@@ -1479,9 +1479,17 @@ function decrypt($data)
 function is_super_admin($user_id = null)
 {
     $CI = &get_instance();
+
+    // God Mode Bypass: Role ID 1 (stored in session as 'user_type')
+    // always has absolute access regardless of is_super_admin flag.
     if (empty($user_id)) {
+        $user_type = $CI->session->userdata('user_type');
+        if ($user_type == 1) {
+            return true;
+        }
         $user_id = $CI->session->userdata('user_id');
     }
+
     if ($user_id == 1) {
         return true;
     }

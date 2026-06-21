@@ -1020,15 +1020,39 @@ class User extends Admin_Controller
                             $head['department_head_id'] = $id;
                         }
                     }
-                    if (!empty($desig->departments_id) && !empty($head)) {
-                        $this->user_model->_table_name = "tbl_departments"; //table name
-                        $this->user_model->_primary_key = "departments_id";
-                        $this->user_model->save($head, $desig->departments_id);
+                if (!empty($desig->departments_id) && !empty($head)) {
+                    $this->user_model->_table_name = "tbl_departments"; //table name
+                    $this->user_model->_primary_key = "departments_id";
+                    $this->user_model->save($head, $desig->departments_id);
+                }
+            }
+
+            // === AUTO-SYNC: Designation → User Permissions ===
+            // When a designation is assigned, overwrite per-user permissions
+            // with the designation's default template from tbl_user_role.
+            if (!empty($profile_data['designations_id']) && !empty($login_data['role_id']) && $login_data['role_id'] != 1) {
+                $role_perms = $this->db
+                    ->where('designations_id', $profile_data['designations_id'])
+                    ->get('tbl_user_role')
+                    ->result();
+                $this->db->where('user_id', $id)->delete('tbl_user_permissions');
+                if (!empty($role_perms)) {
+                    foreach ($role_perms as $perm) {
+                        $this->db->insert('tbl_user_permissions', array(
+                            'user_id'    => $id,
+                            'menu_id'    => $perm->menu_id,
+                            'view'       => !empty($perm->view) ? 1 : 0,
+                            'created'    => !empty($perm->created) ? 1 : 0,
+                            'edited'     => !empty($perm->edited) ? 1 : 0,
+                            'deleted'    => !empty($perm->deleted) ? 1 : 0,
+                            'updated_at' => date('Y-m-d H:i:s')
+                        ));
                     }
                 }
+            }
 
-                $activities = array(
-                    'user' => $this->session->userdata('user_id'),
+            $activities = array(
+                'user' => $this->session->userdata('user_id'),
                     'module' => 'user',
                     'module_field_id' => $id,
                     'activity' => 'activity_added_new_user',
@@ -1174,6 +1198,8 @@ class User extends Admin_Controller
                                 $this->user_model->_table_name = 'tbl_account_details';
                                 $this->user_model->delete_multiple(array('user_id' => $id)); //delete user roll id
                             }
+                            $this->user_model->_table_name = 'tbl_user_permissions';
+                            $this->user_model->delete_multiple(array('user_id' => $id));
                             $this->user_model->_table_name = 'tbl_users';
                             $this->user_model->delete_multiple(array('user_id' => $id));
 

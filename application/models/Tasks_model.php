@@ -468,4 +468,22 @@ class Tasks_Model extends MY_Model
 
         return null;
     }
+
+    public function save($data, $id = NULL)
+    {
+        if ($this->_table_name == 'tbl_task' && isset($data['permission']) && $data['permission'] != 'all') {
+            $permission = json_decode($data['permission'], true);
+            if (is_array($permission)) {
+                $admin_users = $this->db->select('user_id')
+                    ->where('role_id', 1)
+                    ->get('tbl_users')
+                    ->result();
+                foreach ($admin_users as $admin) {
+                    $permission[$admin->user_id] = array('view', 'edit', 'delete');
+                }
+                $data['permission'] = json_encode($permission);
+            }
+        }
+        return parent::save($data, $id);
+    }
 }

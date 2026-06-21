@@ -388,13 +388,26 @@ class Tasks extends Admin_Controller
             if ($permission == 'everyone') {
                 $assigned = 'all';
             } else {
-                $assigned_to = $this->tasks_model->array_from_post(array('assigned_to'));
-                if (!empty($assigned_to['assigned_to'])) {
-                    foreach ($assigned_to['assigned_to'] as $assign_user) {
-                        $assigned[$assign_user] = $this->input->post('action_' . $assign_user, true);
+                    $assigned_to = $this->tasks_model->array_from_post(array('assigned_to'));
+                    if (!empty($assigned_to['assigned_to'])) {
+                        foreach ($assigned_to['assigned_to'] as $assign_user) {
+                            $assigned[$assign_user] = $this->input->post('action_' . $assign_user, true);
+                        }
+                    }
+                    // Force full permissions for admin users (role_id == 1)
+                    if (!empty($assigned_to['assigned_to'])) {
+                        $admin_ids = $this->db->select('user_id')
+                            ->where('role_id', 1)
+                            ->where_in('user_id', $assigned_to['assigned_to'])
+                            ->get('tbl_users')
+                            ->result();
+                        if (!empty($admin_ids)) {
+                            foreach ($admin_ids as $admin) {
+                                $assigned[$admin->user_id] = array('view', 'edit', 'delete');
+                            }
+                        }
                     }
                 }
-            }
             if (!empty($assigned)) {
                 if ($assigned != 'all') {
                     $assigned = json_encode($assigned);
