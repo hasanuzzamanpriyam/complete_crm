@@ -42,5 +42,15 @@
         ?>
         <?= $content ?>
     </div>
+    <?php if (!empty($print)): ?>
+        <script type="text/javascript">
+            window.onload = function() {
+                window.print();
+                window.onafterprint = function() {
+                    window.close();
+                }
+            }
+        </script>
+    <?php endif; ?>
 </body>
 </html>
