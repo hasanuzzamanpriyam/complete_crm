@@ -25,15 +25,51 @@ class Screenshots extends MY_Controller
             case 'POST':
                 $this->_upload();
                 break;
+            case 'DELETE':
+                if (!$id) return $this->_respond(400, false, 'Screenshot ID required');
+                $this->delete($id);
+                break;
             default:
                 $this->_respond(405, false, 'Method not allowed');
         }
     }
 
+    private function _get_managed_user_ids()
+    {
+        $user = $this->api_auth->get_user();
+        if ($this->api_auth->is_super_admin()) return null;
+
+        $departments = $this->db
+            ->where('department_head_id', $user->user_id)
+            ->get('tbl_departments')
+            ->result();
+
+        if (empty($departments)) return [];
+
+        $dept_ids = array_map(function ($d) { return $d->departments_id; }, $departments);
+
+        $designations = $this->db
+            ->where_in('departments_id', $dept_ids)
+            ->get('tbl_designations')
+            ->result();
+
+        if (empty($designations)) return [];
+
+        $desig_ids = array_map(function ($d) { return $d->designations_id; }, $designations);
+
+        $accounts = $this->db
+            ->select('user_id')
+            ->where_in('designations_id', $desig_ids)
+            ->get('tbl_account_details')
+            ->result();
+
+        return array_map(function ($a) { return (int)$a->user_id; }, $accounts);
+    }
+
     private function _list()
     {
         $user = $this->api_auth->authenticate();
-        $is_admin = $this->api_auth->is_super_admin();
+        $managed_ids = $this->_get_managed_user_ids();
 
         $user_id = $this->input->get('user_id');
         $task_id = $this->input->get('task_id');
@@ -45,10 +81,13 @@ class Screenshots extends MY_Controller
         $this->db->from('tbl_screenshots');
         $this->db->join('tbl_account_details', 'tbl_account_details.user_id = tbl_screenshots.user_id', 'left');
 
-        if (!$is_admin) {
+        if ($managed_ids === null) {
+            if (!empty($user_id)) $this->db->where('tbl_screenshots.user_id', (int)$user_id);
+        } elseif (empty($managed_ids)) {
             $this->db->where('tbl_screenshots.user_id', $user->user_id);
-        } elseif (!empty($user_id)) {
-            $this->db->where('tbl_screenshots.user_id', (int)$user_id);
+        } else {
+            $this->db->where_in('tbl_screenshots.user_id', $managed_ids);
+            if (!empty($user_id)) $this->db->where('tbl_screenshots.user_id', (int)$user_id);
         }
 
         if (!empty($task_id)) $this->db->where('tbl_screenshots.task_id', (int)$task_id);
@@ -60,7 +99,7 @@ class Screenshots extends MY_Controller
         $screenshots = $this->db->get()->result();
 
         $result = array_map(function ($s) {
-            return [
+            $row = [
                 'id' => (int)$s->id,
                 'user_id' => (int)$s->user_id,
                 'task_id' => $s->task_id ? (int)$s->task_id : null,
@@ -70,6 +109,16 @@ class Screenshots extends MY_Controller
                 'captured_at' => $s->captured_at,
                 'uploaded_at' => $s->uploaded_at,
             ];
+            if (isset($s->keystroke_count)) {
+                $row['keystroke_count'] = (int)$s->keystroke_count;
+            }
+            if (isset($s->mouse_click_count)) {
+                $row['mouse_click_count'] = (int)$s->mouse_click_count;
+            }
+            if (isset($s->activity_percentage)) {
+                $row['activity_percentage'] = (float)$s->activity_percentage;
+            }
+            return $row;
         }, $screenshots);
 
         return $this->_respond(200, true, 'OK', ['screenshots' => $result]);
@@ -78,11 +127,15 @@ class Screenshots extends MY_Controller
     private function _get($id)
     {
         $user = $this->api_auth->authenticate();
-        $is_admin = $this->api_auth->is_super_admin();
+        $managed_ids = $this->_get_managed_user_ids();
 
         $this->db->where('id', $id);
-        if (!$is_admin) {
-            $this->db->where('user_id', $user->user_id);
+        if ($managed_ids !== null) {
+            if (empty($managed_ids)) {
+                $this->db->where('user_id', $user->user_id);
+            } else {
+                $this->db->where_in('user_id', $managed_ids);
+            }
         }
         $screenshot = $this->db->get('tbl_screenshots')->row();
 
@@ -100,6 +153,53 @@ class Screenshots extends MY_Controller
             ->set_status_header(200)
             ->set_content_type('image/png')
             ->set_output($file_content);
+    }
+
+    public function context($id)
+    {
+        $user = $this->api_auth->authenticate();
+        $managed_ids = $this->_get_managed_user_ids();
+
+        $this->db->where('id', $id);
+        if ($managed_ids !== null) {
+            if (empty($managed_ids)) {
+                $this->db->where('user_id', $user->user_id);
+            } else {
+                $this->db->where_in('user_id', $managed_ids);
+            }
+        }
+        $screenshot = $this->db->get('tbl_screenshots')->row();
+
+        if (empty($screenshot)) {
+            return $this->_respond(404, false, 'Screenshot not found');
+        }
+
+        $usage = $this->db
+            ->where('user_id', $screenshot->user_id)
+            ->where('recorded_at', date('Y-m-d', strtotime($screenshot->captured_at)))
+            ->order_by('total_seconds', 'DESC')
+            ->limit(50)
+            ->get('tbl_desktop_app_usage')
+            ->result();
+
+        $context_data = array_map(function ($u) {
+            return [
+                'id' => (int)$u->id,
+                'app_name' => $u->app_name,
+                'window_title' => $u->window_title,
+                'total_seconds' => (int)$u->total_seconds,
+            ];
+        }, $usage);
+
+        return $this->_respond(200, true, 'OK', [
+            'screenshot' => [
+                'id' => (int)$screenshot->id,
+                'user_id' => (int)$screenshot->user_id,
+                'captured_at' => $screenshot->captured_at,
+                'file_url' => base_url($screenshot->file_path),
+            ],
+            'app_usage' => $context_data,
+        ]);
     }
 
     private function _upload()
@@ -150,13 +250,23 @@ class Screenshots extends MY_Controller
             $file_size = $file_data['file_size'];
         }
 
-        $this->db->insert('tbl_screenshots', [
+        $insert_data = [
             'user_id' => $user_id,
             'task_id' => $task_id,
             'file_path' => $file_path,
             'file_size' => $file_size,
             'captured_at' => $captured_at,
-        ]);
+        ];
+        if (isset($input['keystroke_count'])) {
+            $insert_data['keystroke_count'] = (int)$input['keystroke_count'];
+        }
+        if (isset($input['mouse_click_count'])) {
+            $insert_data['mouse_click_count'] = (int)$input['mouse_click_count'];
+        }
+        if (isset($input['activity_percentage'])) {
+            $insert_data['activity_percentage'] = (float)$input['activity_percentage'];
+        }
+        $this->db->insert('tbl_screenshots', $insert_data);
         $screenshot_id = $this->db->insert_id();
 
         return $this->_respond(201, true, 'Screenshot uploaded', [
@@ -168,13 +278,18 @@ class Screenshots extends MY_Controller
     public function delete($id)
     {
         $user = $this->api_auth->authenticate();
-        $is_admin = $this->api_auth->is_super_admin();
+        $managed_ids = $this->_get_managed_user_ids();
 
-        if (!$is_admin) {
-            return $this->_respond(403, false, 'Only admins can delete screenshots');
+        $this->db->where('id', $id);
+        if ($managed_ids !== null) {
+            if (empty($managed_ids)) {
+                $this->db->where('user_id', $user->user_id);
+            } else {
+                $this->db->where_in('user_id', $managed_ids);
+            }
         }
+        $screenshot = $this->db->get('tbl_screenshots')->row();
 
-        $screenshot = $this->db->where('id', $id)->get('tbl_screenshots')->row();
         if (empty($screenshot)) {
             return $this->_respond(404, false, 'Screenshot not found');
         }

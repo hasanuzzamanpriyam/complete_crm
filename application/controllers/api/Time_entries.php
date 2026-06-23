@@ -39,7 +39,7 @@ class Time_entries extends MY_Controller
         $result = array_map(function ($e) {
             return [
                 'id' => (int)$e->id,
-                'task_id' => (int)$e->task_id,
+                'task_id' => $e->task_id ? (int)$e->task_id : null,
                 'user_id' => (int)$e->user_id,
                 'type' => $e->type,
                 'started_at' => $e->started_at,
@@ -60,12 +60,12 @@ class Time_entries extends MY_Controller
         $user = $this->api_auth->authenticate();
         $input = json_decode(file_get_contents('php://input'), true);
 
-        if (empty($input['task_id'])) {
+        if (!array_key_exists('task_id', $input)) {
             return $this->_respond(400, false, 'Task ID is required');
         }
 
         $data = [
-            'task_id' => (int)$input['task_id'],
+            'task_id' => !empty($input['task_id']) ? (int)$input['task_id'] : null,
             'user_id' => $user->user_id,
             'type' => $input['type'] ?? 'work',
             'started_at' => $input['started_at'] ?? date('Y-m-d H:i:s'),
@@ -81,7 +81,7 @@ class Time_entries extends MY_Controller
 
         return $this->_respond(201, true, 'Time entry created', [
             'id' => (int)$entry_id,
-            'task_id' => (int)$data['task_id'],
+            'task_id' => $data['task_id'] ? (int)$data['task_id'] : null,
             'total_seconds' => $data['total_seconds'],
         ]);
     }
