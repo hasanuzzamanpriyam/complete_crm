@@ -37,7 +37,9 @@ class Tasks extends Admin_Controller
     public function create($id = NULL, $opt_id = NULL)
     {
         $data['title'] = lang('all_task');
+        $this->db->bypass_visibility_filters = TRUE;
         $data['assign_user'] = $this->db->where('activated', 1)->get('tbl_users')->result();
+        $this->db->bypass_visibility_filters = FALSE;
         $data['all_customer_group'] = $this->tasks_model->select_data('tbl_customer_group', 'customer_group_id', 'customer_group', array('type' => 'tasks'));
         $filterBy = null;
         if ($id) { // retrive data from db by id
@@ -906,7 +908,9 @@ class Tasks extends Admin_Controller
         $can_edit = $this->tasks_model->can_action('tbl_task', 'edit', array('task_id' => $id));
         if (!empty($can_edit)) {
             $task_info = $this->tasks_model->check_by(array('task_id' => $id), 'tbl_task');
+            $this->db->bypass_visibility_filters = TRUE;
             $data['assign_user'] = $this->db->where('activated', 1)->get('tbl_users')->result();
+            $this->db->bypass_visibility_filters = FALSE;
             if (empty($data['assign_user'])) {
                 $data['assign_user'] = $this->tasks_model->allowed_user('54');
             }

@@ -467,7 +467,9 @@
     {
         $permission_user = $this->all_permission_user($menu_id);
         // get all admin user
+        $this->db->bypass_visibility_filters = TRUE;
         $admin_user = $this->db->where('role_id', 1)->get('tbl_users')->result();
+        $this->db->bypass_visibility_filters = FALSE;
         // if not exist data show empty array.
         if (!empty($permission_user)) {
             $permission_user = $permission_user;
@@ -488,7 +490,9 @@
         $users = array();
         if (!empty($r_result)) {
             foreach ($r_result as $v_user) {
+                $this->db->bypass_visibility_filters = TRUE;
                 array_push($users, $this->db->where('user_id', $v_user)->get('tbl_users')->row());
+                $this->db->bypass_visibility_filters = FALSE;
             }
         }
         return $users;
@@ -499,7 +503,9 @@
         $users = array();
         $get_permission = json_decode($permission);
         foreach ($get_permission as $user_id => $v_permission) {
+            $this->db->bypass_visibility_filters = TRUE;
             array_push($users, $this->db->where('user_id', $user_id)->get('tbl_users')->row());
+            $this->db->bypass_visibility_filters = FALSE;
         }
         return $users;
     }

@@ -338,6 +338,51 @@ if (!empty($login_position) && $login_position == 'left') {
     <?php } ?>
 </div>
 
+<!-- Tracker Download Modal -->
+<div class="modal fade" id="trackerDownloadModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">Download TimeSync Desktop Tracker</h4>
+            </div>
+            <div class="modal-body text-center">
+                <p class="lead mb-lg">
+                    Track your time effortlessly with the TimeSync desktop app.
+                </p>
+                <div id="tracker-download-buttons" class="row">
+                    <div class="col-sm-4">
+                        <a id="dl-win" class="btn btn-success btn-lg btn-block" href="https://github.com/hasanuzzamanpriyam/TimeSync/releases/latest/download/TimeSync_0.1.0_x64-setup.exe" target="_blank">
+                            <i class="fa fa-windows fa-2x"></i><br>
+                            <span class="h4">Windows</span><br>
+                            <small>.exe installer</small>
+                        </a>
+                    </div>
+                    <div class="col-sm-4">
+                        <a id="dl-mac" class="btn btn-info btn-lg btn-block" href="https://github.com/hasanuzzamanpriyam/TimeSync/releases/latest/download/TimeSync_0.1.0_x64.dmg" target="_blank">
+                            <i class="fa fa-apple fa-2x"></i><br>
+                            <span class="h4">macOS</span><br>
+                            <small>.dmg</small>
+                        </a>
+                    </div>
+                    <div class="col-sm-4">
+                        <a id="dl-linux" class="btn btn-warning btn-lg btn-block" href="https://github.com/hasanuzzamanpriyam/TimeSync/releases/latest/download/TimeSync_0.1.0_amd64.AppImage" target="_blank">
+                            <i class="fa fa-linux fa-2x"></i><br>
+                            <span class="h4">Linux</span><br>
+                            <small>.AppImage</small>
+                        </a>
+                    </div>
+                </div>
+                <p class="mt-lg text-muted">
+                    <a href="#" id="tracker-download-dismiss">I already have it &mdash; don't show again</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- =============== VENDOR SCRIPTS ===============-->
 
 <!-- =============== Toastr ===============-->
@@ -347,6 +392,36 @@ if (!empty($login_position) && $login_position == 'left') {
 <!-- STORAGE API-->
 <script src="<?php echo base_url(); ?>assets/plugins/jQuery-Storage-API/jquery.storageapi.min.js"></script>
 <script src="<?php echo base_url() ?>assets/plugins/parsleyjs/parsley.min.js"></script>
+
+<script>
+$(function () {
+    // OS detection — highlight matching platform
+    var plat = navigator.platform || '';
+    if (plat.indexOf('Win') !== -1) {
+        $('#dl-win').addClass('active');
+    } else if (plat.indexOf('Mac') !== -1) {
+        $('#dl-mac').addClass('active');
+    } else if (plat.indexOf('Linux') !== -1) {
+        $('#dl-linux').addClass('active');
+    }
+
+    // Show modal unless dismissed via cookie
+    if (typeof $.cookie !== 'undefined') {
+        if (!$.cookie('tracker_download_dismissed')) {
+            $('#trackerDownloadModal').modal('show');
+        }
+    }
+
+    // Dismiss and set cookie
+    $('#tracker-download-dismiss').on('click', function (e) {
+        e.preventDefault();
+        if (typeof $.cookie !== 'undefined') {
+            $.cookie('tracker_download_dismissed', '1', { expires: 1 });
+        }
+        $('#trackerDownloadModal').modal('hide');
+    });
+});
+</script>
 
 </body>
 

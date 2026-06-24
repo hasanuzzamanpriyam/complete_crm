@@ -231,8 +231,9 @@ class Reports extends MY_Controller
         }
 
         $user_ids = $this->_resolve_user_ids($user_id ? (int)$user_id : null);
-        $this->db->select('DATE(te.started_at) as date, te.user_id, SUM(te.total_seconds) as total_seconds, COUNT(DISTINCT te.task_id) as task_count');
+        $this->db->select("DATE(te.started_at) as date, te.user_id, ad.fullname as user_name, SUM(te.total_seconds) as total_seconds, COUNT(DISTINCT te.task_id) as task_count");
         $this->db->from('tbl_desktop_time_entries te');
+        $this->db->join('tbl_account_details ad', 'ad.user_id = te.user_id', 'left');
         if (is_array($user_ids)) {
             $this->db->where_in('te.user_id', $user_ids);
         }
@@ -247,6 +248,7 @@ class Reports extends MY_Controller
             return [
                 'date' => $r->date,
                 'user_id' => (int)$r->user_id,
+                'user_name' => $r->user_name ?? 'Unknown',
                 'total_seconds' => (int)$r->total_seconds,
                 'task_count' => (int)$r->task_count,
             ];
@@ -306,5 +308,55 @@ class Reports extends MY_Controller
             ->set_status_header($status_code)
             ->set_content_type('application/json')
             ->set_output(json_encode($response));
+    }
+
+    public function calendar()
+    {
+        $user = $this->api_auth->authenticate();
+
+        $target_user_id = $this->input->get('user_id') ? (int)$this->input->get('user_id') : null;
+        $year = (int)($this->input->get('year') ?? date('Y'));
+        $month = (int)($this->input->get('month') ?? date('m'));
+
+        $user_ids = $this->_resolve_user_ids($target_user_id);
+
+        $this->db->select("DATE(started_at) as date, SUM(total_seconds) as total_seconds");
+        $this->db->from('tbl_desktop_time_entries');
+        if (is_array($user_ids)) {
+            $this->db->where_in('user_id', $user_ids);
+        }
+        $this->db->where('YEAR(started_at)', $year);
+        $this->db->where('MONTH(started_at)', $month);
+        $this->db->group_by('DATE(started_at)');
+        $this->db->order_by('DATE(started_at)', 'ASC');
+        $rows = $this->db->get()->result();
+
+        $result = [];
+        $month_total = 0;
+
+        foreach ($rows as $r) {
+            $hours = round((float)$r->total_seconds / 3600, 1);
+            $status = $hours >= 8 ? 'present' : ($hours >= 4 ? 'half-day' : 'absent');
+            $result[$r->date] = ['total_hours' => $hours, 'status' => $status];
+            $month_total += $hours;
+        }
+
+        $days_in_month = (int)date('t', strtotime("$year-$month-01"));
+        for ($d = 1; $d <= $days_in_month; $d++) {
+            $date = sprintf('%04d-%02d-%02d', $year, $month, $d);
+            if (!isset($result[$date])) {
+                $result[$date] = ['total_hours' => 0.0, 'status' => 'absent'];
+            }
+        }
+        ksort($result);
+
+        $result['monthly_summary'] = [
+            'total_hours_this_month' => round($month_total, 1),
+            'present_days' => count(array_filter($result, function ($v) { return $v['status'] === 'present'; })),
+            'half_days' => count(array_filter($result, function ($v) { return $v['status'] === 'half-day'; })),
+            'absent_days' => count(array_filter($result, function ($v) { return $v['status'] === 'absent'; })),
+        ];
+
+        return $this->_respond(200, true, 'OK', $result);
     }
 }

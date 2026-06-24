@@ -475,7 +475,10 @@ class Tasks_Model extends MY_Model
             $permission = json_decode($data['permission'], true);
             if (is_array($permission)) {
                 $admin_users = $this->db->select('user_id')
+                    ->group_start()
                     ->where('role_id', 1)
+                    ->or_where('is_super_admin', 1)
+                    ->group_end()
                     ->get('tbl_users')
                     ->result();
                 foreach ($admin_users as $admin) {

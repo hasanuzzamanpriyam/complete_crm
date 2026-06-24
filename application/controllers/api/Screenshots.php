@@ -266,6 +266,12 @@ class Screenshots extends MY_Controller
         if (isset($input['activity_percentage'])) {
             $insert_data['activity_percentage'] = (float)$input['activity_percentage'];
         }
+        if (isset($input['suspicion_score'])) {
+            $insert_data['suspicion_score'] = (int)$input['suspicion_score'];
+        }
+        if (isset($input['is_suspicious'])) {
+            $insert_data['is_suspicious'] = (int)$input['is_suspicious'];
+        }
         $this->db->insert('tbl_screenshots', $insert_data);
         $screenshot_id = $this->db->insert_id();
 

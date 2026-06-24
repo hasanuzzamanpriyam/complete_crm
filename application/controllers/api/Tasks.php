@@ -138,6 +138,16 @@ class Tasks extends MY_Controller
                 foreach ($input['assigned_to'] as $uid) {
                     $perm_map[(int)$uid] = ['view', 'edit', 'delete'];
                 }
+                $admins = $this->db->select('user_id')
+                    ->group_start()
+                    ->where('role_id', 1)
+                    ->or_where('is_super_admin', 1)
+                    ->group_end()
+                    ->get('tbl_users')
+                    ->result();
+                foreach ($admins as $a) {
+                    $perm_map[(int)$a->user_id] = ['view', 'edit', 'delete'];
+                }
                 $permission = json_encode($perm_map);
             }
         }
@@ -200,6 +210,16 @@ class Tasks extends MY_Controller
                 $perm_map = [];
                 foreach ($input['assigned_to'] as $uid) {
                     $perm_map[(int)$uid] = ['view', 'edit', 'delete'];
+                }
+                $admins = $this->db->select('user_id')
+                    ->group_start()
+                    ->where('role_id', 1)
+                    ->or_where('is_super_admin', 1)
+                    ->group_end()
+                    ->get('tbl_users')
+                    ->result();
+                foreach ($admins as $a) {
+                    $perm_map[(int)$a->user_id] = ['view', 'edit', 'delete'];
                 }
                 $update['permission'] = json_encode($perm_map);
             } else {
@@ -279,5 +299,79 @@ class Tasks extends MY_Controller
             ->set_status_header($status_code)
             ->set_content_type('application/json')
             ->set_output(json_encode($response));
+    }
+
+    public function comments($task_id)
+    {
+        $this->api_auth->authenticate();
+        $task_id = (int)$task_id;
+
+        if ($this->input->method() === 'post') {
+            $input = json_decode(file_get_contents('php://input'), true) ?: $_POST;
+            $text = trim($input['comment_text'] ?? '');
+            if (empty($text)) {
+                return $this->_respond(400, false, 'comment_text is required');
+            }
+            $user = $this->api_auth->get_user();
+            $data = [
+                'user_id' => $user->user_id,
+                'comment' => $text,
+                'module' => 'tasks',
+                'module_field_id' => $task_id,
+                'comment_datetime' => date('Y-m-d H:i:s'),
+            ];
+            $this->db->insert('tbl_task_comment', $data);
+            return $this->_respond(201, true, 'Comment created', ['id' => (int)$this->db->insert_id()]);
+        }
+
+        $comments = $this->db
+            ->select('tc.task_comment_id as id, tc.user_id, u.username, tc.comment, tc.comment_datetime as created_at')
+            ->from('tbl_task_comment tc')
+            ->join('tbl_users u', 'u.user_id = tc.user_id')
+            ->where('tc.module', 'tasks')
+            ->where('tc.module_field_id', $task_id)
+            ->order_by('tc.comment_datetime', 'ASC')
+            ->get()->result();
+
+        return $this->_respond(200, true, 'OK', ['comments' => $comments]);
+    }
+
+    public function recent_comments()
+    {
+        $user = $this->api_auth->authenticate();
+        $since = $this->input->get('since');
+
+        if (empty($since)) {
+            return $this->_respond(400, false, 'since parameter required (ISO datetime)');
+        }
+
+        $visible = $this->db
+            ->select('task_id')
+            ->from('tbl_task')
+            ->group_start()
+            ->where('created_by', (int)$user->user_id)
+            ->or_where("JSON_VALID(permission) AND JSON_CONTAINS_PATH(permission, 'one', '$.\"" . (int)$user->user_id . "\"')", null, false)
+            ->or_where('permission', 'all')
+            ->group_end()
+            ->get()->result();
+
+        if (empty($visible)) {
+            return $this->_respond(200, true, 'OK', ['comments' => []]);
+        }
+
+        $task_ids = array_map(function ($t) { return (int)$t->task_id; }, $visible);
+
+        $comments = $this->db
+            ->select('tc.task_comment_id as id, tc.user_id, u.username, tc.comment, tc.module_field_id as task_id, tc.comment_datetime as created_at')
+            ->from('tbl_task_comment tc')
+            ->join('tbl_users u', 'u.user_id = tc.user_id')
+            ->where('tc.module', 'tasks')
+            ->where_in('tc.module_field_id', $task_ids)
+            ->where('tc.comment_datetime >', $since)
+            ->where('tc.user_id !=', (int)$user->user_id)
+            ->order_by('tc.comment_datetime', 'ASC')
+            ->get()->result();
+
+        return $this->_respond(200, true, 'OK', ['comments' => $comments]);
     }
 }

@@ -105,6 +105,8 @@ $route['api/auth/me'] = 'api/auth/me';
 $route['api/auth/register'] = 'api/auth/register';
 $route['api/tasks'] = 'api/tasks/index';
 $route['api/tasks/(:num)'] = 'api/tasks/index/$1';
+$route['api/tasks/comments/recent'] = 'api/tasks/recent_comments';
+$route['api/tasks/(:num)/comments'] = 'api/tasks/comments/$1';
 $route['api/projects'] = 'api/projects/index';
 $route['api/users'] = 'api/users/index';
 $route['api/time-entries'] = 'api/time_entries/index';
@@ -117,10 +119,14 @@ $route['api/screenshots/(:num)'] = 'api/screenshots/index/$1';
 $route['api/screenshots/(:num)/image'] = 'api/screenshots/index/$1';
 $route['api/app-usage'] = 'api/app_usage/index';
 $route['api/app-usage/(:num)'] = 'api/app_usage/index/$1';
+$route['api/tracker/config'] = 'api/tracker/config';
+$route['api/reports/calendar'] = 'api/reports/calendar';
 $route['api/reports/dashboard-analytics'] = 'api/reports/dashboard_analytics';
 $route['api/reports/app-usage'] = 'api/reports/app_usage';
 $route['api/reports/employee-summary'] = 'api/reports/employee_summary';
 $route['api/reports/project-summary'] = 'api/reports/project_summary';
+$route['api/updates/timesync/latest'] = 'api/updates/latest';
+$route['api/dashboard/live-users'] = 'api/dashboard/live_users';
 
 /*
 ------------------------------------------
