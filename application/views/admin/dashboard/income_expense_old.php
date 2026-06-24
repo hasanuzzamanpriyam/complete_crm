@@ -38,7 +38,7 @@ if (!empty($income_expense)) { ?>
             initdatepicker();
         });
     </script>
-    <?php if (!empty($income_expense)) { ?>
+    <?php if (!empty($income_expense) && ($income_expense['total_income'] > 0 || $income_expense['total_expense'] > 0)) { ?>
 
         <script type="text/javascript">
             $(function() {

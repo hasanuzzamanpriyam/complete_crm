@@ -133,7 +133,7 @@
 
         // Poll every 5 seconds only if viewing today's date
         if (isToday) {
-            setInterval(fetchLiveStatus, 5000);
+            setInterval(fetchLiveStatus, 30000);
         }
     });
 </script>

@@ -74,51 +74,42 @@ if (empty($timezone)) {
     }
 </script>
 
-<body>
-<?php if (empty($this->input->cookie('tracker_download_dismissed'))): ?>
-<div class="alert alert-info alert-dismissible text-center" style="margin-bottom:0;border-radius:0">
+<body onload="startTime();" class="<?php if (!empty($opened)) {
+    echo 'offsidebar-open';
+} ?> <?= config_item('layout-h') . ' ' . config_item('aside-float') . ' ' . config_item('aside-collapsed') . ' ' . config_item('layout-boxed') . ' ' . config_item('layout-fixed') ?>">
+<div class="alert alert-info alert-dismissible text-center" style="margin-bottom:0;border-radius:0" id="timesync-banner">
     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
     </button>
     <strong>TimeSync Desktop Tracker</strong>
     &mdash; Track your time with the desktop app.
-    <a href="https://github.com/hasanuzzamanpriyam/TimeSync/releases/latest/download/TimeSync_0.1.0_x64-setup.exe" class="btn btn-xs btn-success ml-sm" id="banner-dl-win" target="_blank">
+    <a href="<?= base_url() ?>api/updates/timesync/download?platform=windows" class="btn btn-xs btn-success ml-sm">
         <i class="fa fa-windows"></i> Windows
     </a>
-    <a href="https://github.com/hasanuzzamanpriyam/TimeSync/releases/latest/download/TimeSync_0.1.0_x64.dmg" class="btn btn-xs btn-info ml-sm" id="banner-dl-mac" target="_blank">
+    <a href="<?= base_url() ?>api/updates/timesync/download?platform=macos" class="btn btn-xs btn-info ml-sm">
         <i class="fa fa-apple"></i> macOS
     </a>
-    <a href="https://github.com/hasanuzzamanpriyam/TimeSync/releases/latest/download/TimeSync_0.1.0_amd64.AppImage" class="btn btn-xs btn-warning ml-sm" id="banner-dl-linux" target="_blank">
+    <a href="<?= base_url() ?>api/updates/timesync/download?platform=linux" class="btn btn-xs btn-warning ml-sm">
         <i class="fa fa-linux"></i> Linux
     </a>
     <span style="margin:0 8px">|</span>
     <a href="#" id="banner-dismiss"><small>Don't show again</small></a>
 </div>
-<?php endif; ?>
 <script>
 $(function () {
-    // OS detection for dashboard banner
-    var plat = navigator.platform || '';
-    if (plat.indexOf('Win') === -1) $('#banner-dl-win').hide();
-    if (plat.indexOf('Mac') === -1) $('#banner-dl-mac').hide();
-    if (plat.indexOf('Linux') === -1) $('#banner-dl-linux').hide();
-
-    // Dismiss permanently with cookie
+    if (localStorage.getItem('timesync_banner_dismissed') === 'true') {
+        $('#timesync-banner').hide();
+    }
     $('#banner-dismiss').on('click', function (e) {
         e.preventDefault();
-        $.cookie('tracker_download_dismissed', '1', { expires: 1 });
-        $(this).closest('.alert').fadeOut();
+        localStorage.setItem('timesync_banner_dismissed', 'true');
+        $('#timesync-banner').slideUp();
     });
-
-    // Also dismiss on the X button
     $('.alert-dismissible .close').on('click', function () {
-        $.cookie('tracker_download_dismissed', '1', { expires: 1 });
+        localStorage.setItem('timesync_banner_dismissed', 'true');
     });
 });
 </script>
-onload="startTime();" class="<?php if (!empty($opened)) {
-    echo 'offsidebar-open';
-} ?> <?= config_item('layout-h') . ' ' . config_item('aside-float') . ' ' . config_item('aside-collapsed') . ' ' . config_item('layout-boxed') . ' ' . config_item('layout-fixed') ?>">
 <div class="wrapper">
     <!-- top navbar-->
     <?php $this->load->view('admin/components/header'); ?>

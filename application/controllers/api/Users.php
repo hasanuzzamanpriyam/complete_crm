@@ -11,13 +11,17 @@ class Users extends MY_Controller
 
     public function index()
     {
-        $this->api_auth->authenticate();
+        $auth_user = $this->api_auth->authenticate();
+        $allowed_ids = $this->api_auth->get_allowed_user_ids();
 
         $this->db->select('tbl_users.user_id, tbl_users.username, tbl_users.email, tbl_users.role_id, tbl_account_details.fullname');
         $this->db->from('tbl_users');
         $this->db->join('tbl_account_details', 'tbl_account_details.user_id = tbl_users.user_id', 'left');
         $this->db->where('tbl_users.activated', 1);
         $this->db->where('tbl_users.banned', 0);
+        if (is_array($allowed_ids)) {
+            $this->db->where_in('tbl_users.user_id', $allowed_ids);
+        }
         $users = $this->db->get()->result();
 
         $result = array_map(function ($u) {

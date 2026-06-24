@@ -90,6 +90,25 @@ class Api_auth
         return $this->session;
     }
 
+    public function get_allowed_user_ids()
+    {
+        $user = $this->get_user();
+        if (!$user) return [];
+
+        $user_id = (int)$user->user_id;
+
+        if ($this->is_super_admin()) return null;
+
+        if ((int)$user->role_id === 3) {
+            $managed = $this->_get_managed_user_ids();
+            if ($managed === null) return null;
+            $managed[] = $user_id;
+            return array_values(array_unique(array_map('intval', $managed)));
+        }
+
+        return [$user_id];
+    }
+
     public function is_super_admin()
     {
         if (empty($this->user)) {
@@ -171,5 +190,39 @@ class Api_auth
         header('Content-Type: application/json');
         echo json_encode(['success' => false, 'message' => $message]);
         exit;
+    }
+
+    private function _get_managed_user_ids()
+    {
+        $user = $this->get_user();
+        if (!$user) return [];
+        $user_id = (int)$user->user_id;
+        $ci = $this->ci;
+
+        $departments = $ci->db
+            ->where('department_head_id', $user_id)
+            ->get('tbl_departments')
+            ->result();
+
+        if (empty($departments)) return [];
+
+        $dept_ids = array_map(function ($d) { return (int)$d->departments_id; }, $departments);
+
+        $designations = $ci->db
+            ->where_in('departments_id', $dept_ids)
+            ->get('tbl_designations')
+            ->result();
+
+        if (empty($designations)) return [];
+
+        $desig_ids = array_map(function ($d) { return (int)$d->designations_id; }, $designations);
+
+        $accounts = $ci->db
+            ->select('user_id')
+            ->where_in('designations_id', $desig_ids)
+            ->get('tbl_account_details')
+            ->result();
+
+        return array_map(function ($a) { return (int)$a->user_id; }, $accounts);
     }
 }

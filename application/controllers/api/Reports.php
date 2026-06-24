@@ -21,10 +21,10 @@ class Reports extends MY_Controller
         }
 
         $requested_user = (int)$user_id;
-        $viewing_self = $requested_user === (int)$user->user_id;
+        $allowed_ids = $this->_resolve_allowed_user_ids($requested_user);
 
-        if (!$viewing_self && !$this->api_auth->is_super_admin()) {
-            return $this->_respond(403, false, 'Only admins can view other users analytics');
+        if (is_array($allowed_ids) && !in_array($requested_user, $allowed_ids)) {
+            return $this->_respond(403, false, 'You do not have permission to view this users analytics');
         }
 
         switch ($period) {
@@ -132,56 +132,17 @@ class Reports extends MY_Controller
         }, $rows);
     }
 
-    private function _resolve_user_ids($requested_user_id = null)
+    private function _resolve_allowed_user_ids($requested_user_id = null)
     {
-        $user = $this->api_auth->get_user();
-        if ($this->api_auth->is_super_admin()) {
-            if ($requested_user_id) return [(int)$requested_user_id];
-            return null;
+        $allowed = $this->api_auth->get_allowed_user_ids();
+        if ($allowed === null) {
+            return $requested_user_id ? [(int)$requested_user_id] : null;
         }
-
-        $managed_ids = $this->_get_managed_user_ids();
-        if ($managed_ids === null) return null;
-        if (empty($managed_ids)) return [$user->user_id];
-
-        if ($requested_user_id) {
-            return in_array((int)$requested_user_id, $managed_ids)
-                ? [(int)$requested_user_id]
-                : [$user->user_id];
+        if (!$requested_user_id) {
+            return $allowed;
         }
-        return $managed_ids;
-    }
-
-    private function _get_managed_user_ids()
-    {
-        $user = $this->api_auth->get_user();
-        if ($this->api_auth->is_super_admin()) return null;
-
-        $departments = $this->db
-            ->where('department_head_id', $user->user_id)
-            ->get('tbl_departments')
-            ->result();
-
-        if (empty($departments)) return [];
-
-        $dept_ids = array_map(function ($d) { return $d->departments_id; }, $departments);
-
-        $designations = $this->db
-            ->where_in('departments_id', $dept_ids)
-            ->get('tbl_designations')
-            ->result();
-
-        if (empty($designations)) return [];
-
-        $desig_ids = array_map(function ($d) { return $d->designations_id; }, $designations);
-
-        $accounts = $this->db
-            ->select('user_id')
-            ->where_in('designations_id', $desig_ids)
-            ->get('tbl_account_details')
-            ->result();
-
-        return array_map(function ($a) { return (int)$a->user_id; }, $accounts);
+        $target = (int)$requested_user_id;
+        return in_array($target, $allowed) ? [$target] : $allowed;
     }
 
     public function app_usage()
@@ -195,7 +156,7 @@ class Reports extends MY_Controller
             return $this->_respond(400, false, 'start_date and end_date required');
         }
 
-        $user_ids = $this->_resolve_user_ids($user_id ? (int)$user_id : null);
+        $user_ids = $this->_resolve_allowed_user_ids($user_id ? (int)$user_id : null);
         $this->db->select('app_name, window_title, SUM(total_seconds) as total_seconds');
         $this->db->from('tbl_desktop_app_usage');
         if (is_array($user_ids)) {
@@ -230,7 +191,7 @@ class Reports extends MY_Controller
             return $this->_respond(400, false, 'start_date and end_date required');
         }
 
-        $user_ids = $this->_resolve_user_ids($user_id ? (int)$user_id : null);
+        $user_ids = $this->_resolve_allowed_user_ids($user_id ? (int)$user_id : null);
         $this->db->select("DATE(te.started_at) as date, te.user_id, ad.fullname as user_name, SUM(te.total_seconds) as total_seconds, COUNT(DISTINCT te.task_id) as task_count");
         $this->db->from('tbl_desktop_time_entries te');
         $this->db->join('tbl_account_details ad', 'ad.user_id = te.user_id', 'left');
@@ -268,7 +229,7 @@ class Reports extends MY_Controller
             return $this->_respond(400, false, 'start_date and end_date required');
         }
 
-        $user_ids = $this->_resolve_user_ids($user_id ? (int)$user_id : null);
+        $user_ids = $this->_resolve_allowed_user_ids($user_id ? (int)$user_id : null);
         $this->db->select('p.project_id, p.project_name, SUM(te.total_seconds) as total_seconds');
         $this->db->from('tbl_desktop_time_entries te');
         $this->db->join('tbl_task t', 't.task_id = te.task_id');
@@ -318,7 +279,7 @@ class Reports extends MY_Controller
         $year = (int)($this->input->get('year') ?? date('Y'));
         $month = (int)($this->input->get('month') ?? date('m'));
 
-        $user_ids = $this->_resolve_user_ids($target_user_id);
+        $user_ids = $this->_resolve_allowed_user_ids($target_user_id);
 
         $this->db->select("DATE(started_at) as date, SUM(total_seconds) as total_seconds");
         $this->db->from('tbl_desktop_time_entries');

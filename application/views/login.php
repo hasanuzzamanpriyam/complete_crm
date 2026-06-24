@@ -354,21 +354,21 @@ if (!empty($login_position) && $login_position == 'left') {
                 </p>
                 <div id="tracker-download-buttons" class="row">
                     <div class="col-sm-4">
-                        <a id="dl-win" class="btn btn-success btn-lg btn-block" href="https://github.com/hasanuzzamanpriyam/TimeSync/releases/latest/download/TimeSync_0.1.0_x64-setup.exe" target="_blank">
+                        <a id="dl-win" class="btn btn-success btn-lg btn-block" href="<?= base_url() ?>api/updates/timesync/download?platform=windows">
                             <i class="fa fa-windows fa-2x"></i><br>
                             <span class="h4">Windows</span><br>
                             <small>.exe installer</small>
                         </a>
                     </div>
                     <div class="col-sm-4">
-                        <a id="dl-mac" class="btn btn-info btn-lg btn-block" href="https://github.com/hasanuzzamanpriyam/TimeSync/releases/latest/download/TimeSync_0.1.0_x64.dmg" target="_blank">
+                        <a id="dl-mac" class="btn btn-info btn-lg btn-block" href="<?= base_url() ?>api/updates/timesync/download?platform=macos">
                             <i class="fa fa-apple fa-2x"></i><br>
                             <span class="h4">macOS</span><br>
                             <small>.dmg</small>
                         </a>
                     </div>
                     <div class="col-sm-4">
-                        <a id="dl-linux" class="btn btn-warning btn-lg btn-block" href="https://github.com/hasanuzzamanpriyam/TimeSync/releases/latest/download/TimeSync_0.1.0_amd64.AppImage" target="_blank">
+                        <a id="dl-linux" class="btn btn-warning btn-lg btn-block" href="<?= base_url() ?>api/updates/timesync/download?platform=linux">
                             <i class="fa fa-linux fa-2x"></i><br>
                             <span class="h4">Linux</span><br>
                             <small>.AppImage</small>
@@ -395,29 +395,15 @@ if (!empty($login_position) && $login_position == 'left') {
 
 <script>
 $(function () {
-    // OS detection — highlight matching platform
-    var plat = navigator.platform || '';
-    if (plat.indexOf('Win') !== -1) {
-        $('#dl-win').addClass('active');
-    } else if (plat.indexOf('Mac') !== -1) {
-        $('#dl-mac').addClass('active');
-    } else if (plat.indexOf('Linux') !== -1) {
-        $('#dl-linux').addClass('active');
+    // Show modal unless dismissed via localStorage
+    if (localStorage.getItem('tracker_download_dismissed') !== 'true') {
+        $('#trackerDownloadModal').modal('show');
     }
 
-    // Show modal unless dismissed via cookie
-    if (typeof $.cookie !== 'undefined') {
-        if (!$.cookie('tracker_download_dismissed')) {
-            $('#trackerDownloadModal').modal('show');
-        }
-    }
-
-    // Dismiss and set cookie
+    // Dismiss and set localStorage
     $('#tracker-download-dismiss').on('click', function (e) {
         e.preventDefault();
-        if (typeof $.cookie !== 'undefined') {
-            $.cookie('tracker_download_dismissed', '1', { expires: 1 });
-        }
+        localStorage.setItem('tracker_download_dismissed', 'true');
         $('#trackerDownloadModal').modal('hide');
     });
 });

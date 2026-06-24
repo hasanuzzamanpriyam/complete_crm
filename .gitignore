@@ -26,3 +26,6 @@ Thumbs.db
 
 # Node (if any root-level)
 node_modules/
+
+# TimeSync installer builds
+/downloads/

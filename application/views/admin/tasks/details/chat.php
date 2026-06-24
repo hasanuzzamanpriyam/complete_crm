@@ -38,7 +38,7 @@
 
         loadChatMessages();
         // Poll for new messages every 5 seconds
-        setInterval(loadChatMessages, 5000);
+        setInterval(loadChatMessages, 30000);
 
         $('#chat-form').submit(function (e) {
             e.preventDefault();

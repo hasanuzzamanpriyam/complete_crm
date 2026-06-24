@@ -126,6 +126,8 @@ $route['api/reports/app-usage'] = 'api/reports/app_usage';
 $route['api/reports/employee-summary'] = 'api/reports/employee_summary';
 $route['api/reports/project-summary'] = 'api/reports/project_summary';
 $route['api/updates/timesync/latest'] = 'api/updates/latest';
+$route['api/updates/timesync/download'] = 'api/updates/download';
+$route['api/updates/publish'] = 'api/updates/publish';
 $route['api/dashboard/live-users'] = 'api/dashboard/live_users';
 
 /*

@@ -104,7 +104,7 @@
 
     var interval_time = "<?= (int)config_item('chat_interval_time') * 1000?>";
     if (!interval_time) {
-        interval_time = 5000;
+        interval_time = 30000;
     }
     var open_chats = new Array();
 
