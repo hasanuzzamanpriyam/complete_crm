@@ -132,6 +132,167 @@ class Reports extends MY_Controller
         }, $rows);
     }
 
+    private function _resolve_user_ids($requested_user_id = null)
+    {
+        $user = $this->api_auth->get_user();
+        if ($this->api_auth->is_super_admin()) {
+            if ($requested_user_id) return [(int)$requested_user_id];
+            return null;
+        }
+
+        $managed_ids = $this->_get_managed_user_ids();
+        if ($managed_ids === null) return null;
+        if (empty($managed_ids)) return [$user->user_id];
+
+        if ($requested_user_id) {
+            return in_array((int)$requested_user_id, $managed_ids)
+                ? [(int)$requested_user_id]
+                : [$user->user_id];
+        }
+        return $managed_ids;
+    }
+
+    private function _get_managed_user_ids()
+    {
+        $user = $this->api_auth->get_user();
+        if ($this->api_auth->is_super_admin()) return null;
+
+        $departments = $this->db
+            ->where('department_head_id', $user->user_id)
+            ->get('tbl_departments')
+            ->result();
+
+        if (empty($departments)) return [];
+
+        $dept_ids = array_map(function ($d) { return $d->departments_id; }, $departments);
+
+        $designations = $this->db
+            ->where_in('departments_id', $dept_ids)
+            ->get('tbl_designations')
+            ->result();
+
+        if (empty($designations)) return [];
+
+        $desig_ids = array_map(function ($d) { return $d->designations_id; }, $designations);
+
+        $accounts = $this->db
+            ->select('user_id')
+            ->where_in('designations_id', $desig_ids)
+            ->get('tbl_account_details')
+            ->result();
+
+        return array_map(function ($a) { return (int)$a->user_id; }, $accounts);
+    }
+
+    public function app_usage()
+    {
+        $user = $this->api_auth->authenticate();
+        $start_date = $this->input->get('start_date');
+        $end_date = $this->input->get('end_date');
+        $user_id = $this->input->get('user_id');
+
+        if (empty($start_date) || empty($end_date)) {
+            return $this->_respond(400, false, 'start_date and end_date required');
+        }
+
+        $user_ids = $this->_resolve_user_ids($user_id ? (int)$user_id : null);
+        $this->db->select('app_name, window_title, SUM(total_seconds) as total_seconds');
+        $this->db->from('tbl_desktop_app_usage');
+        if (is_array($user_ids)) {
+            $this->db->where_in('user_id', $user_ids);
+        }
+        $this->db->where('recorded_at >=', $start_date);
+        $this->db->where('recorded_at <=', $end_date);
+        $this->db->group_by('app_name, window_title');
+        $this->db->order_by('total_seconds', 'DESC');
+        $this->db->limit(100);
+        $data = $this->db->get()->result();
+
+        $result = array_map(function ($r) {
+            return [
+                'app_name' => $r->app_name,
+                'window_title' => $r->window_title ?? '',
+                'total_seconds' => (int)$r->total_seconds,
+            ];
+        }, $data);
+
+        return $this->_respond(200, true, 'OK', ['app_usage' => $result]);
+    }
+
+    public function employee_summary()
+    {
+        $user = $this->api_auth->authenticate();
+        $start_date = $this->input->get('start_date');
+        $end_date = $this->input->get('end_date');
+        $user_id = $this->input->get('user_id');
+
+        if (empty($start_date) || empty($end_date)) {
+            return $this->_respond(400, false, 'start_date and end_date required');
+        }
+
+        $user_ids = $this->_resolve_user_ids($user_id ? (int)$user_id : null);
+        $this->db->select('DATE(te.started_at) as date, te.user_id, SUM(te.total_seconds) as total_seconds, COUNT(DISTINCT te.task_id) as task_count');
+        $this->db->from('tbl_desktop_time_entries te');
+        if (is_array($user_ids)) {
+            $this->db->where_in('te.user_id', $user_ids);
+        }
+        $this->db->where('DATE(te.started_at) >=', $start_date);
+        $this->db->where('DATE(te.started_at) <=', $end_date);
+        $this->db->where('te.type', 'work');
+        $this->db->group_by('DATE(te.started_at), te.user_id');
+        $this->db->order_by('date', 'ASC');
+        $data = $this->db->get()->result();
+
+        $result = array_map(function ($r) {
+            return [
+                'date' => $r->date,
+                'user_id' => (int)$r->user_id,
+                'total_seconds' => (int)$r->total_seconds,
+                'task_count' => (int)$r->task_count,
+            ];
+        }, $data);
+
+        return $this->_respond(200, true, 'OK', ['employee_summary' => $result]);
+    }
+
+    public function project_summary()
+    {
+        $user = $this->api_auth->authenticate();
+        $start_date = $this->input->get('start_date');
+        $end_date = $this->input->get('end_date');
+        $user_id = $this->input->get('user_id');
+
+        if (empty($start_date) || empty($end_date)) {
+            return $this->_respond(400, false, 'start_date and end_date required');
+        }
+
+        $user_ids = $this->_resolve_user_ids($user_id ? (int)$user_id : null);
+        $this->db->select('p.project_id, p.project_name, SUM(te.total_seconds) as total_seconds');
+        $this->db->from('tbl_desktop_time_entries te');
+        $this->db->join('tbl_task t', 't.task_id = te.task_id');
+        $this->db->join('tbl_project p', 'p.project_id = t.project_id');
+        if (is_array($user_ids)) {
+            $this->db->where_in('te.user_id', $user_ids);
+        }
+        $this->db->where('DATE(te.started_at) >=', $start_date);
+        $this->db->where('DATE(te.started_at) <=', $end_date);
+        $this->db->where('te.type', 'work');
+        $this->db->where('te.task_id IS NOT NULL');
+        $this->db->group_by('p.project_id, p.project_name');
+        $this->db->order_by('total_seconds', 'DESC');
+        $data = $this->db->get()->result();
+
+        $result = array_map(function ($r) {
+            return [
+                'project_id' => (int)$r->project_id,
+                'project_name' => $r->project_name,
+                'total_seconds' => (int)$r->total_seconds,
+            ];
+        }, $data);
+
+        return $this->_respond(200, true, 'OK', ['project_summary' => $result]);
+    }
+
     private function _respond($status_code, $success, $message, $data = null)
     {
         while (ob_get_level() > 0) {

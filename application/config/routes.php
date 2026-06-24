@@ -118,6 +118,9 @@ $route['api/screenshots/(:num)/image'] = 'api/screenshots/index/$1';
 $route['api/app-usage'] = 'api/app_usage/index';
 $route['api/app-usage/(:num)'] = 'api/app_usage/index/$1';
 $route['api/reports/dashboard-analytics'] = 'api/reports/dashboard_analytics';
+$route['api/reports/app-usage'] = 'api/reports/app_usage';
+$route['api/reports/employee-summary'] = 'api/reports/employee_summary';
+$route['api/reports/project-summary'] = 'api/reports/project_summary';
 
 /*
 ------------------------------------------
