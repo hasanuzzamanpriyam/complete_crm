@@ -320,4 +320,46 @@ class Reports extends MY_Controller
 
         return $this->_respond(200, true, 'OK', $result);
     }
+
+    public function day_details()
+    {
+        $user = $this->api_auth->authenticate();
+
+        $year = $this->input->get('year');
+        $month = $this->input->get('month');
+        $day = $this->input->get('day');
+
+        if (empty($year) || empty($month) || empty($day)) {
+            return $this->_respond(400, false, 'year, month, and day are required');
+        }
+
+        $target_user_id = $this->input->get('user_id') ? (int)$this->input->get('user_id') : null;
+        $user_ids = $this->_resolve_allowed_user_ids($target_user_id);
+
+        $date = sprintf('%04d-%02d-%02d', (int)$year, (int)$month, (int)$day);
+
+        $this->db->select("te.task_id, t.task_name as task_title, p.project_name, SUM(te.total_seconds) as total_seconds");
+        $this->db->from('tbl_desktop_time_entries te');
+        $this->db->join('tbl_task t', 't.task_id = te.task_id', 'left');
+        $this->db->join('tbl_project p', 'p.project_id = t.project_id', 'left');
+        if (is_array($user_ids)) {
+            $this->db->where_in('te.user_id', $user_ids);
+        }
+        $this->db->where('DATE(te.started_at)', $date);
+        $this->db->where('te.type', 'work');
+        $this->db->group_by('te.task_id, t.task_name, p.project_name');
+        $this->db->order_by('total_seconds', 'DESC');
+        $rows = $this->db->get()->result();
+
+        $result = array_map(function ($r) {
+            return [
+                'task_id' => (int)$r->task_id,
+                'task_title' => $r->task_title ?? 'Unknown',
+                'project_name' => $r->project_name ?? 'No Project',
+                'total_seconds' => (int)$r->total_seconds,
+            ];
+        }, $rows);
+
+        return $this->_respond(200, true, 'OK', ['day_details' => $result]);
+    }
 }

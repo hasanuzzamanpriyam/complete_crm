@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+    bootstrap="Bootstrap.php"
+    colors="true"
+    verbose="true"
+>
+    <testsuites>
+        <testsuite name="Application">
+            <directory>./</directory>
+        </testsuite>
+    </testsuites>
+    <php>
+        <env name="CI_ENVIRONMENT" value="testing"/>
+    </php>
+</phpunit>
