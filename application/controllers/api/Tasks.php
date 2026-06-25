@@ -36,14 +36,8 @@ class Tasks extends MY_Controller
         }
     }
 
-    private function _list()
+    private function _apply_task_visibility($user_id, $user)
     {
-        $user = $this->api_auth->authenticate();
-        $user_id = $user->user_id;
-
-        $this->db->select('tbl_task.*, tbl_project.project_name');
-        $this->db->from('tbl_task');
-        $this->db->join('tbl_project', 'tbl_task.project_id = tbl_project.project_id', 'left');
         $this->db->where('tbl_task.task_status !=', 'cancelled');
 
         if (!$this->api_auth->is_super_admin() && $user->role_id != 1) {
@@ -58,8 +52,31 @@ class Tasks extends MY_Controller
             $this->db->or_where('tbl_task.permission', 'all');
             $this->db->group_end();
         }
+    }
 
-        $tasks = $this->db->order_by('tbl_task.task_created_date', 'DESC')->get()->result();
+    private function _list()
+    {
+        $user = $this->api_auth->authenticate();
+        $user_id = $user->user_id;
+
+        $page = max(1, (int)($this->input->get('page') ?: 1));
+        $limit = max(1, min(100, (int)($this->input->get('limit') ?: 20)));
+        $offset = ($page - 1) * $limit;
+
+        // Count total matching rows
+        $this->db->from('tbl_task');
+        $this->db->join('tbl_project', 'tbl_task.project_id = tbl_project.project_id', 'left');
+        $this->_apply_task_visibility($user_id, $user);
+        $total = (int)$this->db->count_all_results();
+
+        // Fetch paginated results
+        $this->db->select('tbl_task.*, tbl_project.project_name');
+        $this->db->from('tbl_task');
+        $this->db->join('tbl_project', 'tbl_task.project_id = tbl_project.project_id', 'left');
+        $this->_apply_task_visibility($user_id, $user);
+        $this->db->order_by('tbl_task.task_created_date', 'DESC');
+        $this->db->limit($limit, $offset);
+        $tasks = $this->db->get()->result();
 
         $result = array_map(function ($t) {
             $hours = 0;
@@ -94,7 +111,17 @@ class Tasks extends MY_Controller
             ];
         }, $tasks);
 
-        return $this->_respond(200, true, 'OK', ['tasks' => $result]);
+        $total_pages = (int)ceil($total / $limit);
+
+        return $this->_respond(200, true, 'OK', [
+            'tasks' => $result,
+            'pagination' => [
+                'total' => $total,
+                'page' => $page,
+                'limit' => $limit,
+                'total_pages' => $total_pages,
+            ],
+        ]);
     }
 
     private function _get($id)
