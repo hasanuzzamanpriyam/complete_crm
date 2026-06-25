@@ -1,0 +1,23 @@
+{
+  "version": "v0.1.0",
+  "notes": "Initial release with time tracking, screenshots, activity monitoring, and reporting.",
+  "pub_date": "2026-06-24T23:00:00+06:00",
+  "platforms": {
+    "windows-x86_64": {
+      "signature": "",
+      "url": "https://crm.bizcrm247.com/api/updates/timesync/download?platform=windows-msi"
+    },
+    "darwin-x86_64": {
+      "signature": "",
+      "url": "https://crm.bizcrm247.com/api/updates/timesync/download?platform=macos"
+    },
+    "darwin-aarch64": {
+      "signature": "",
+      "url": "https://crm.bizcrm247.com/api/updates/timesync/download?platform=macos"
+    },
+    "linux-x86_64": {
+      "signature": "",
+      "url": "https://crm.bizcrm247.com/api/updates/timesync/download?platform=linux"
+    }
+  }
+}
