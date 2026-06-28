@@ -88,4 +88,17 @@ class TimesyncTest extends TestCase
         $this->assertStringContainsString('user_distribution', $res['body']);
         $this->assertStringContainsString('user_grid', $res['body']);
     }
+
+    public function testCalendarReturns200()
+    {
+        $res = $this->get('http://localhost/tic_crm/index.php/admin/timesync/calendar');
+        $this->assertEquals(200, $res['code']);
+        $this->assertStringContainsString('TimeSync Calendar', $res['body']);
+    }
+
+    public function testDayDetailsReturns200()
+    {
+        $res = $this->get('http://localhost/tic_crm/index.php/admin/timesync/day_details/2026-06-01');
+        $this->assertEquals(200, $res['code']);
+    }
 }

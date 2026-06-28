@@ -92,6 +92,9 @@ $route['api/staff-users'] = 'api/Main/staff_users';
 $route['api/clients'] = 'api/Main/clients';
 $route['api/jobs-posted-list'] = 'api/Main/jobs_postedList';
 
+$route['admin/timesync/calendar'] = 'admin/timesync/calendar';
+$route['admin/timesync/day_details/(:any)'] = 'admin/timesync/day_details/$1';
+
 /*
 ------------------------------------------
 TimeSync API routes

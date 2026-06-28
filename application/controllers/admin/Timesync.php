@@ -56,6 +56,153 @@ class Timesync extends Admin_Controller
         $this->load->view('admin/_layout_main', $data);
     }
 
+    public function calendar()
+    {
+        if (!is_super_admin()) {
+            $can_view = can_action('timesync', 'view');
+            if (!$can_view) {
+                redirect('404');
+            }
+        }
+
+        $data['title'] = 'TimeSync Calendar';
+
+        $year = (int)($this->input->get('year') ?: date('Y'));
+        $month = (int)($this->input->get('month') ?: date('m'));
+        $data['year'] = $year;
+        $data['month'] = $month;
+
+        $start = sprintf('%04d-%02d-01', $year, $month);
+        $end = date('Y-m-t', strtotime($start));
+
+        $data['entries'] = $this->db
+            ->select('tbl_desktop_time_entries.*, tbl_account_details.fullname')
+            ->from('tbl_desktop_time_entries')
+            ->join('tbl_account_details', 'tbl_account_details.user_id = tbl_desktop_time_entries.user_id', 'left')
+            ->where('tbl_desktop_time_entries.started_at >=', $start . ' 00:00:00')
+            ->where('tbl_desktop_time_entries.started_at <=', $end . ' 23:59:59')
+            ->order_by('tbl_desktop_time_entries.started_at', 'DESC')
+            ->get()
+            ->result();
+
+        $data['daily_totals'] = [];
+        foreach ($data['entries'] as $e) {
+            $day = date('Y-m-d', strtotime($e->started_at));
+            if (!isset($data['daily_totals'][$day])) {
+                $data['daily_totals'][$day] = 0;
+            }
+            $data['daily_totals'][$day] += (int)$e->total_seconds;
+        }
+
+        $data['subview'] = $this->load->view('admin/timesync/calendar', $data, true);
+        $this->load->view('admin/_layout_main', $data);
+    }
+
+    public function day_details($date = null)
+    {
+        if (!is_super_admin()) {
+            $can_view = can_action('timesync', 'view');
+            if (!$can_view) {
+                redirect('404');
+            }
+        }
+
+        if (empty($date) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+            $date = date('Y-m-d');
+        }
+
+        $data['title'] = 'Details for ' . $date;
+        $data['selected_date'] = $date;
+
+        $data['entries'] = $this->db
+            ->select('tbl_desktop_time_entries.*, tbl_account_details.fullname, tbl_task.task_name')
+            ->from('tbl_desktop_time_entries')
+            ->join('tbl_account_details', 'tbl_account_details.user_id = tbl_desktop_time_entries.user_id', 'left')
+            ->join('tbl_task', 'tbl_task.task_id = tbl_desktop_time_entries.task_id', 'left')
+            ->where('tbl_desktop_time_entries.started_at >=', $date . ' 00:00:00')
+            ->where('tbl_desktop_time_entries.started_at <=', $date . ' 23:59:59')
+            ->order_by('tbl_desktop_time_entries.started_at', 'ASC')
+            ->get()
+            ->result();
+
+        $data['total_seconds'] = 0;
+        foreach ($data['entries'] as $e) {
+            $data['total_seconds'] += (int)$e->total_seconds;
+        }
+
+        $data['subview'] = $this->load->view('admin/timesync/day_details', $data, true);
+        $this->load->view('admin/_layout_main', $data);
+    }
+
+    public function entries_datatable()
+    {
+        if (!$this->input->is_ajax_request()) {
+            show_404();
+        }
+
+        if (!is_super_admin()) {
+            $can_view = can_action('timesync', 'view');
+            if (!$can_view) {
+                redirect('404');
+            }
+        }
+
+        $draw = (int)$this->input->post('draw');
+        $start = (int)$this->input->post('start');
+        $length = (int)$this->input->post('length');
+        if ($length <= 0) $length = 25;
+
+        $columns = ['tbl_desktop_time_entries.id', 'fullname', 'task_name', 'started_at', 'stopped_at', 'total_seconds', 'is_running'];
+        $order_col = (int)$this->input->post('order[0][column]');
+        $order_dir = $this->input->post('order[0][dir]') === 'asc' ? 'ASC' : 'DESC';
+        $order_by = $columns[$order_col] ?? 'tbl_desktop_time_entries.id';
+
+        $search_val = $this->input->post('search[value]');
+
+        $this->db->select('tbl_desktop_time_entries.*, tbl_account_details.fullname, tbl_task.task_name');
+        $this->db->from('tbl_desktop_time_entries');
+        $this->db->join('tbl_account_details', 'tbl_account_details.user_id = tbl_desktop_time_entries.user_id', 'left');
+        $this->db->join('tbl_task', 'tbl_task.task_id = tbl_desktop_time_entries.task_id', 'left');
+
+        if (!empty($search_val)) {
+            $this->db->group_start();
+            $this->db->like('tbl_account_details.fullname', $search_val);
+            $this->db->or_like('tbl_task.task_name', $search_val);
+            $this->db->or_like('tbl_desktop_time_entries.description', $search_val);
+            $this->db->group_end();
+        }
+
+        $total_filtered = $this->db->count_all_results(null, false);
+
+        $this->db->order_by($order_by, $order_dir);
+        $this->db->limit($length, $start);
+        $data = $this->db->get()->result();
+
+        $total_all = $this->db->count_all('tbl_desktop_time_entries');
+
+        $rows = [];
+        foreach ($data as $row) {
+            $rows[] = [
+                (string)$row->id,
+                htmlspecialchars($row->fullname ?? 'N/A', ENT_QUOTES, 'UTF-8'),
+                htmlspecialchars($row->task_name ?? 'N/A', ENT_QUOTES, 'UTF-8'),
+                $row->started_at,
+                $row->stopped_at ?? 'Running',
+                (int)$row->total_seconds,
+                $row->is_running ? 'Yes' : 'No',
+            ];
+        }
+
+        $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode([
+                'draw' => $draw,
+                'recordsTotal' => $total_all,
+                'recordsFiltered' => $total_filtered,
+                'data' => $rows,
+            ]));
+    }
+
     public function user($user_id = null)
     {
         if (!is_super_admin()) {
