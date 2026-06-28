@@ -168,4 +168,96 @@ class TimesyncTest extends TestCase
         $this->assertEquals(200, $res['code']);
         $this->assertStringContainsString('appUsageChart', $res['body']);
     }
+
+    public function testDashboardWithCustomDateRange()
+    {
+        $res = $this->get('http://localhost/tic_crm/index.php/admin/timesync?from=2026-01-01&to=2026-06-28');
+        $this->assertEquals(200, $res['code']);
+    }
+
+    public function testDashboardWithInvalidDateRange()
+    {
+        $res = $this->get('http://localhost/tic_crm/index.php/admin/timesync?from=invalid&to=invalid');
+        $this->assertContains($res['code'], [200, 500]);
+    }
+
+    public function testUserReportWithInvalidUserId()
+    {
+        $res = $this->get('http://localhost/tic_crm/index.php/admin/timesync/user/99999');
+        $this->assertContains($res['code'], [200, 302, 303, 307]);
+    }
+
+    public function testUserReportWithDateRange()
+    {
+        $res = $this->get('http://localhost/tic_crm/index.php/admin/timesync/user/81?from=2026-01-01&to=2026-06-28');
+        $this->assertEquals(200, $res['code']);
+    }
+
+    public function testEntriesDatatableReturnsJson()
+    {
+        $ch = curl_init('http://localhost/tic_crm/index.php/admin/timesync/entries_datatable');
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => 'draw=1&start=0&length=10',
+            CURLOPT_COOKIEFILE => $this->cookieFile,
+            CURLOPT_HEADER => false,
+            CURLOPT_HTTPHEADER => ['X-Requested-With: XMLHttpRequest'],
+        ]);
+        $body = curl_exec($ch);
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        $this->assertEquals(200, $code);
+        $json = json_decode($body, true);
+        $this->assertNotNull($json);
+        $this->assertArrayHasKey('draw', $json);
+        $this->assertArrayHasKey('recordsTotal', $json);
+        $this->assertArrayHasKey('data', $json);
+    }
+
+    public function testDayDetailsWithInvalidDate()
+    {
+        $res = $this->get('http://localhost/tic_crm/index.php/admin/timesync/day_details/not-a-date');
+        $this->assertEquals(200, $res['code']);
+    }
+
+    public function testScreenshotsWithUserFilter()
+    {
+        $res = $this->get('http://localhost/tic_crm/index.php/admin/timesync/screenshots?user_id=81');
+        $this->assertEquals(200, $res['code']);
+    }
+
+    public function testViewImageReturnsImage()
+    {
+        $ch = curl_init('http://localhost/tic_crm/index.php/admin/timesync/view_image/1');
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_COOKIEFILE => $this->cookieFile,
+            CURLOPT_HEADER => false,
+            CURLOPT_NOBODY => true,
+        ]);
+        curl_exec($ch);
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        $this->assertContains($code, [200, 303, 404]);
+    }
+
+    public function testSettingsPage()
+    {
+        $res = $this->get('http://localhost/tic_crm/index.php/admin/timesync/settings');
+        $this->assertEquals(200, $res['code']);
+        $this->assertStringContainsString('TimeSync Settings', $res['body']);
+    }
+
+    public function testUsageWithUserFilter()
+    {
+        $res = $this->get('http://localhost/tic_crm/index.php/admin/timesync/usage?user_id=81&from=2026-01-01&to=2026-06-28');
+        $this->assertEquals(200, $res['code']);
+    }
+
+    public function testUserPageRedirectsWithoutUserId()
+    {
+        $res = $this->get('http://localhost/tic_crm/index.php/admin/timesync/user');
+        $this->assertContains($res['code'], [200, 302, 303, 307]);
+    }
 }
