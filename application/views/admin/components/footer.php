@@ -58,6 +58,9 @@
     <!-- sparkline CHART-->
     <script src="<?php echo base_url() ?>assets/plugins/sparkline/index.min.js"></script>
 
+    <!-- chart js-->
+    <script src="<?= base_url() ?>assets/plugins/Chart.js/Chart.js"></script>
+
     <script src="<?php echo base_url() ?>assets/plugins/parsleyjs/parsley.min.js"></script>
 
     <!--- bootstrap-select ---->
