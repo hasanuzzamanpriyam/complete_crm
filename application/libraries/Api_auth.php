@@ -109,6 +109,18 @@ class Api_auth
         return [$user_id];
     }
 
+    public function get_user_team_ids($user_id = null)
+    {
+        $user_id = $user_id ?? $this->user->user_id;
+        $teams = $this->ci->db->select('team_id')
+            ->where('user_id', $user_id)
+            ->get('tbl_team_members')
+            ->result();
+        return array_map(function ($t) {
+            return (int)$t->team_id;
+        }, $teams);
+    }
+
     public function is_super_admin()
     {
         if (empty($this->user)) {
