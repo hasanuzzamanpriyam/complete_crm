@@ -8,7 +8,7 @@
                 <div class="row">
                     <div class="col-md-3">
                         <div class="panel panel-info">
-                            <div class="panel-body text-center">
+                            <div class="panel-body text-center" id="today_hours">
                                 <h2><?= $today_hours ?>h</h2>
                                 <p class="text-muted">Today's Hours</p>
                             </div>
@@ -16,7 +16,7 @@
                     </div>
                     <div class="col-md-3">
                         <div class="panel panel-success">
-                            <div class="panel-body text-center">
+                            <div class="panel-body text-center" id="week_hours">
                                 <h2><?= $week_hours ?>h</h2>
                                 <p class="text-muted">This Week</p>
                             </div>
@@ -24,7 +24,7 @@
                     </div>
                     <div class="col-md-3">
                         <div class="panel panel-warning">
-                            <div class="panel-body text-center">
+                            <div class="panel-body text-center" id="month_hours">
                                 <h2><?= $month_hours ?>h</h2>
                                 <p class="text-muted">This Month</p>
                             </div>
@@ -32,7 +32,7 @@
                     </div>
                     <div class="col-md-3">
                         <div class="panel panel-primary">
-                            <div class="panel-body text-center">
+                            <div class="panel-body text-center" id="active_users">
                                 <h2><?= $active_users ?></h2>
                                 <p class="text-muted">Active Users</p>
                             </div>
@@ -99,3 +99,12 @@
         </section>
     </div>
 </div>
+
+<script>
+var TIMESYNC_DATA = {
+    daily_chart_labels: <?= $daily_chart_labels ?? '[]' ?>,
+    daily_chart_values: <?= $daily_chart_values ?? '[]' ?>,
+    user_distribution: <?= $user_distribution ?? '[]' ?>
+};
+var user_grid = <?= json_encode($user_grid ?? []) ?>;
+</script>

@@ -28,32 +28,29 @@ class Timesync extends Admin_Controller
 
         $data['title'] = 'TimeSync Dashboard';
 
-        $today = date('Y-m-d');
-        $week_start = date('Y-m-d', strtotime('monday this week'));
-        $month_start = date('Y-m-01');
+        $from = $this->input->get('from');
+        $to = $this->input->get('to');
+        if (empty($from)) $from = date('Y-m-d', strtotime('-7 days'));
+        if (empty($to)) $to = date('Y-m-d');
 
-        $data['today_hours'] = $this->_total_hours_since($today);
-        $data['week_hours'] = $this->_total_hours_since($week_start);
-        $data['month_hours'] = $this->_total_hours_since($month_start);
+        $data['from'] = $from;
+        $data['to'] = $to;
 
-        $data['active_users'] = $this->db
-            ->select('COUNT(DISTINCT user_id) as count')
-            ->where('started_at >=', $today)
-            ->where('is_running', 1)
-            ->get('tbl_desktop_time_entries')
-            ->row()->count ?? 0;
+        $kpis = $this->_dashboard_kpis($from, $to);
+        foreach ($kpis as $key => $val) {
+            $data[$key] = $val;
+        }
 
-        $data['total_screenshots'] = $this->db->count_all('tbl_screenshots');
-        $data['total_entries'] = $this->db->count_all('tbl_desktop_time_entries');
+        $chart = $this->_daily_hours_chart($from, $to);
+        $data['daily_chart_labels'] = json_encode($chart['labels']);
+        $data['daily_chart_values'] = json_encode($chart['values']);
 
-        $this->db->select('tbl_desktop_time_entries.user_id, tbl_account_details.fullname, SUM(tbl_desktop_time_entries.total_seconds) as total_sec');
-        $this->db->from('tbl_desktop_time_entries');
-        $this->db->join('tbl_account_details', 'tbl_account_details.user_id = tbl_desktop_time_entries.user_id', 'left');
-        $this->db->where('tbl_desktop_time_entries.started_at >=', $today);
-        $this->db->group_by('tbl_desktop_time_entries.user_id');
-        $this->db->order_by('total_sec', 'DESC');
-        $this->db->limit(10);
-        $data['top_users'] = $this->db->get()->result();
+        $dist = $this->_user_distribution($from, $to);
+        $data['user_distribution'] = json_encode($dist);
+        $data['user_distribution_raw'] = $dist;
+
+        $data['user_grid'] = $this->_user_grid($from, $to);
+        $data['top_users'] = $this->_user_distribution($from, $to);
 
         $data['subview'] = $this->load->view('admin/timesync/dashboard', $data, true);
         $this->load->view('admin/_layout_main', $data);
@@ -261,6 +258,99 @@ class Timesync extends Admin_Controller
         header('Content-Length: 68');
         echo base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==');
         exit;
+    }
+
+    private function _dashboard_kpis($start_date, $end_date)
+    {
+        $today = date('Y-m-d');
+        $week_start = date('Y-m-d', strtotime('monday this week'));
+        $month_start = date('Y-m-01');
+
+        return [
+            'today_hours' => $this->_total_hours_since($today),
+            'week_hours' => $this->_total_hours_since($week_start),
+            'month_hours' => $this->_total_hours_since($month_start),
+            'active_users' => (int) $this->db->select('COUNT(DISTINCT user_id) as count')
+                ->where('started_at >=', $today)
+                ->where('is_running', 1)
+                ->get('tbl_desktop_time_entries')
+                ->row()->count ?? 0,
+            'total_entries' => $this->db->count_all('tbl_desktop_time_entries'),
+            'total_screenshots' => $this->db->count_all('tbl_screenshots'),
+            'period_hours' => $this->_total_hours_since($start_date),
+        ];
+    }
+
+    private function _daily_hours_chart($start_date, $end_date)
+    {
+        $result = $this->db
+            ->select('DATE(started_at) as day, COALESCE(SUM(total_seconds), 0) as total_sec')
+            ->where('started_at >=', $start_date . ' 00:00:00')
+            ->where('started_at <=', $end_date . ' 23:59:59')
+            ->group_by('DATE(started_at)')
+            ->order_by('day', 'ASC')
+            ->get('tbl_desktop_time_entries')
+            ->result();
+
+        $labels = [];
+        $values = [];
+        foreach ($result as $row) {
+            $labels[] = $row->day;
+            $values[] = round($row->total_sec / 3600, 1);
+        }
+
+        return ['labels' => $labels, 'values' => $values];
+    }
+
+    private function _user_distribution($start_date, $end_date)
+    {
+        return $this->db
+            ->select('tbl_desktop_time_entries.user_id, tbl_account_details.fullname, COALESCE(SUM(tbl_desktop_time_entries.total_seconds), 0) as total_sec, COUNT(DISTINCT tbl_desktop_time_entries.id) as entry_count')
+            ->from('tbl_desktop_time_entries')
+            ->join('tbl_account_details', 'tbl_account_details.user_id = tbl_desktop_time_entries.user_id', 'left')
+            ->where('tbl_desktop_time_entries.started_at >=', $start_date . ' 00:00:00')
+            ->where('tbl_desktop_time_entries.started_at <=', $end_date . ' 23:59:59')
+            ->group_by('tbl_desktop_time_entries.user_id')
+            ->order_by('total_sec', 'DESC')
+            ->limit(10)
+            ->get()
+            ->result();
+    }
+
+    private function _user_grid($start_date, $end_date)
+    {
+        $users = $this->db
+            ->select('tbl_users.user_id, tbl_account_details.fullname, tbl_account_details.avatar')
+            ->from('tbl_users')
+            ->join('tbl_account_details', 'tbl_account_details.user_id = tbl_users.user_id', 'left')
+            ->where('tbl_users.activated', 1)
+            ->order_by('tbl_account_details.fullname', 'ASC')
+            ->get()
+            ->result();
+
+        foreach ($users as &$u) {
+            $stats = $this->db
+                ->select('COALESCE(SUM(total_seconds), 0) as total_sec, COUNT(DISTINCT id) as entry_count, MAX(started_at) as last_active')
+                ->where('user_id', $u->user_id)
+                ->where('started_at >=', $start_date . ' 00:00:00')
+                ->where('started_at <=', $end_date . ' 23:59:59')
+                ->get('tbl_desktop_time_entries')
+                ->row();
+            $u->total_sec = (int) $stats->total_sec;
+            $u->entry_count = (int) $stats->entry_count;
+            $u->last_active = $stats->last_active;
+            $u->screenshot_count = (int) $this->db
+                ->where('user_id', $u->user_id)
+                ->where('captured_at >=', $start_date . ' 00:00:00')
+                ->where('captured_at <=', $end_date . ' 23:59:59')
+                ->count_all_results('tbl_screenshots');
+        }
+
+        usort($users, function ($a, $b) {
+            return $b->total_sec <=> $a->total_sec;
+        });
+
+        return $users;
     }
 
     public function settings()

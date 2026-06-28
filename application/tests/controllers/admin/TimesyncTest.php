@@ -74,4 +74,18 @@ class TimesyncTest extends TestCase
         $res = $this->get('http://localhost/tic_crm/index.php/admin/timesync');
         $this->assertEquals(200, $res['code']);
     }
+
+    public function testDashboardHasExpectedDataKeys()
+    {
+        $res = $this->get('http://localhost/tic_crm/index.php/admin/timesync');
+        $this->assertEquals(200, $res['code']);
+        $this->assertStringContainsString('today_hours', $res['body']);
+        $this->assertStringContainsString('week_hours', $res['body']);
+        $this->assertStringContainsString('month_hours', $res['body']);
+        $this->assertStringContainsString('active_users', $res['body']);
+        $this->assertStringContainsString('daily_chart_labels', $res['body']);
+        $this->assertStringContainsString('daily_chart_values', $res['body']);
+        $this->assertStringContainsString('user_distribution', $res['body']);
+        $this->assertStringContainsString('user_grid', $res['body']);
+    }
 }

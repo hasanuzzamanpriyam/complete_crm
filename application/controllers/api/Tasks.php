@@ -70,15 +70,52 @@ class Tasks extends MY_Controller
         $total = (int)$this->db->count_all_results();
 
         // Fetch paginated results
-        $this->db->select('tbl_task.*, tbl_project.project_name');
+        $this->db->select("
+            tbl_task.*,
+            tbl_project.project_name,
+            ad_reporter.fullname AS reporter_name,
+            ad_reporter.avatar AS reporter_avatar
+        ");
         $this->db->from('tbl_task');
         $this->db->join('tbl_project', 'tbl_task.project_id = tbl_project.project_id', 'left');
+        $this->db->join('tbl_users u_reporter', 'u_reporter.user_id = tbl_task.created_by', 'left');
+        $this->db->join('tbl_account_details ad_reporter', 'ad_reporter.user_id = u_reporter.user_id', 'left');
         $this->_apply_task_visibility($user_id, $user);
         $this->db->order_by('tbl_task.task_created_date', 'DESC');
         $this->db->limit($limit, $offset);
         $tasks = $this->db->get()->result();
 
-        $result = array_map(function ($t) {
+        // Collect unique assignee user IDs for batch lookup
+        $assigneeIds = [];
+        $assigneePermissions = [];
+        foreach ($tasks as $t) {
+            $firstId = null;
+            if (!empty($t->permission) && $t->permission !== 'all') {
+                $perm = @json_decode($t->permission, true);
+                if (is_array($perm)) {
+                    $keys = array_keys($perm);
+                    if (!empty($keys)) {
+                        $firstId = (int)$keys[0];
+                    }
+                }
+            }
+            $assigneePermissions[$t->task_id] = $firstId;
+            if ($firstId !== null) {
+                $assigneeIds[] = $firstId;
+            }
+        }
+
+        $assigneeMap = [];
+        if (!empty($assigneeIds)) {
+            $assigneeIds = array_unique($assigneeIds);
+            $idList = implode(',', $assigneeIds);
+            $assigneeRows = $this->db->query("SELECT u.user_id, ad.fullname, ad.avatar FROM tbl_users u LEFT JOIN tbl_account_details ad ON ad.user_id = u.user_id WHERE u.user_id IN ($idList)")->result();
+            foreach ($assigneeRows as $row) {
+                $assigneeMap[(int)$row->user_id] = $row;
+            }
+        }
+
+        $result = array_map(function ($t) use ($assigneePermissions, $assigneeMap) {
             $hours = 0;
             if (!empty($t->task_hour)) {
                 $parts = explode(':', $t->task_hour);
@@ -92,6 +129,14 @@ class Tasks extends MY_Controller
                 }
             }
 
+            $assigneeUserId = $assigneePermissions[$t->task_id] ?? null;
+            $assigneeName = '';
+            $assigneeAvatar = '';
+            if ($assigneeUserId !== null && isset($assigneeMap[$assigneeUserId])) {
+                $assigneeName = $assigneeMap[$assigneeUserId]->fullname ?? '';
+                $assigneeAvatar = $assigneeMap[$assigneeUserId]->avatar ?? '';
+            }
+
             return [
                 'id' => (int)$t->task_id,
                 'title' => $t->task_name ?? '',
@@ -99,6 +144,10 @@ class Tasks extends MY_Controller
                 'project_id' => $t->project_id ? (int)$t->project_id : null,
                 'project_name' => $t->project_name ?? '',
                 'assigned_to' => $assigned,
+                'assignee_name' => $assigneeName,
+                'assignee_avatar' => $assigneeAvatar,
+                'reporter_name' => $t->reporter_name ?? '',
+                'reporter_avatar' => $t->reporter_avatar ?? '',
                 'report_to' => $t->report_to ? (int)$t->report_to : null,
                 'priority' => $t->priority ?? 'medium',
                 'status' => $this->_map_status($t->task_status),

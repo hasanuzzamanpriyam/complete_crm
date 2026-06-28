@@ -109,6 +109,7 @@ $route['api/tasks/comments/recent'] = 'api/tasks/recent_comments';
 $route['api/tasks/(:num)/comments'] = 'api/tasks/comments/$1';
 $route['api/projects'] = 'api/projects/index';
 $route['api/users'] = 'api/users/index';
+$route['api/users/promote-to-manager'] = 'api/users/promote_to_manager';
 $route['api/time-entries'] = 'api/time_entries/index';
 $route['api/time-entries/(:num)'] = 'api/time_entries/index/$1';
 $route['api/attendance/check-in'] = 'api/attendance/check_in';
@@ -130,6 +131,8 @@ $route['api/updates/timesync/latest'] = 'api/updates/latest';
 $route['api/updates/timesync/download'] = 'api/updates/download';
 $route['api/updates/publish'] = 'api/updates/publish';
 $route['api/dashboard/live-users'] = 'api/dashboard/live_users';
+$route['api/dashboard/summary'] = 'api/dashboard/summary';
+$route['api/dashboard/detailed-overview'] = 'api/dashboard/detailed_overview';
 
 /*
 ------------------------------------------
