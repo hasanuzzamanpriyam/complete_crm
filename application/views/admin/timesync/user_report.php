@@ -8,13 +8,14 @@
                 <div class="row">
                     <div class="col-md-12">
                         <form method="get" class="form-inline mb-lg">
+                            <input type="hidden" name="tab" value="<?= $active_tab ?>">
                             <div class="form-group">
                                 <label>From: </label>
-                                <input type="date" name="from" class="form-control" value="<?= $this->input->get('from') ?? date('Y-m-01') ?>">
+                                <input type="date" name="from" class="form-control" value="<?= $from ?>">
                             </div>
                             <div class="form-group ml-sm">
                                 <label>To: </label>
-                                <input type="date" name="to" class="form-control" value="<?= $this->input->get('to') ?? date('Y-m-d') ?>">
+                                <input type="date" name="to" class="form-control" value="<?= $to ?>">
                             </div>
                             <button type="submit" class="btn btn-primary ml-sm">Filter</button>
                         </form>
@@ -23,7 +24,7 @@
 
                 <div class="row">
                     <div class="col-md-3">
-                        <div class="panel panel-info">
+                        <div class="panel panel-info" id="stat-total-hours">
                             <div class="panel-body text-center">
                                 <h2><?= round($total_seconds / 3600, 1) ?>h</h2>
                                 <p class="text-muted">Total Hours</p>
@@ -31,62 +32,26 @@
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="panel panel-success">
+                        <div class="panel panel-success" id="stat-entry-count">
                             <div class="panel-body text-center">
-                                <h2><?= count($entries) ?></h2>
+                                <h2><?= $entry_count ?></h2>
                                 <p class="text-muted">Entries</p>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="panel panel-warning">
+                        <div class="panel panel-warning" id="stat-screenshot-count">
                             <div class="panel-body text-center">
-                                <h2><?= count($screenshots) ?></h2>
+                                <h2><?= $screenshot_count ?></h2>
                                 <p class="text-muted">Screenshots</p>
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="row mt-lg">
-                    <div class="col-md-12">
-                        <div class="panel panel-custom">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">Time Entries</h4>
-                            </div>
-                            <div class="panel-body">
-                                <table class="table table-striped DataTables">
-                                    <thead>
-                                        <tr>
-                                            <th>Date</th>
-                                            <th>Type</th>
-                                            <th>Started</th>
-                                            <th>Stopped</th>
-                                            <th>Duration</th>
-                                            <th>Task ID</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php if (!empty($entries)): ?>
-                                            <?php foreach ($entries as $e): ?>
-                                                <tr>
-                                                    <td><?= date('Y-m-d', strtotime($e->started_at)) ?></td>
-                                                    <td><?= htmlspecialchars($e->type) ?></td>
-                                                    <td><?= $e->started_at ? date('H:i:s', strtotime($e->started_at)) : '-' ?></td>
-                                                    <td><?= $e->stopped_at ? date('H:i:s', strtotime($e->stopped_at)) : '-' ?></td>
-                                                    <td><?= gmdate('H:i:s', $e->total_seconds) ?></td>
-                                                    <td>
-                                                        <a href="<?= base_url('admin/tasks/view/' . $e->task_id) ?>">
-                                                            #<?= $e->task_id ?>
-                                                        </a>
-                                                    </td>
-                                                </tr>
-                                            <?php endforeach; ?>
-                                        <?php else: ?>
-                                            <tr><td colspan="6" class="text-center">No entries found</td></tr>
-                                        <?php endif; ?>
-                                    </tbody>
-                                </table>
+                    <div class="col-md-3">
+                        <div class="panel panel-primary" id="stat-day-count">
+                            <div class="panel-body text-center">
+                                <h2><?= $day_count ?></h2>
+                                <p class="text-muted">Active Days</p>
                             </div>
                         </div>
                     </div>
@@ -94,29 +59,26 @@
 
                 <div class="row mt-lg">
                     <div class="col-md-12">
-                        <div class="panel panel-custom">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">Screenshots (<?= count($screenshots) ?>)</h4>
-                            </div>
-                            <div class="panel-body">
-                                <div class="row">
-                                    <?php if (!empty($screenshots)): ?>
-                                        <?php foreach ($screenshots as $s): ?>
-                                            <div class="col-md-3 col-sm-4 col-xs-6 mb-sm">
-                                                <a href="<?= base_url('admin/timesync/view_image/' . $s->id) ?>" target="_blank" rel="noopener">
-                                                    <img src="<?= base_url('admin/timesync/view_image/' . $s->id) ?>" class="img-responsive img-thumbnail" style="height: 150px; object-fit: cover;">
-                                                </a>
-                                                <p class="text-center text-muted small">
-                                                    <?= date('M d, H:i', strtotime($s->captured_at)) ?>
-                                                </p>
-                                            </div>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
-                                        <div class="col-md-12">
-                                            <p class="text-center">No screenshots for this period</p>
-                                        </div>
-                                    <?php endif; ?>
-                                </div>
+                        <ul class="nav nav-tabs" id="userTabs">
+                            <li class="<?= $active_tab === 'entries' ? 'active' : '' ?>">
+                                <a href="<?= base_url('admin/timesync/user/' . $user_id . '?tab=entries&from=' . $from . '&to=' . $to) ?>">Time Entries</a>
+                            </li>
+                            <li class="<?= $active_tab === 'screenshots' ? 'active' : '' ?>">
+                                <a href="<?= base_url('admin/timesync/user/' . $user_id . '?tab=screenshots&from=' . $from . '&to=' . $to) ?>">Screenshots</a>
+                            </li>
+                            <li class="<?= $active_tab === 'apps' ? 'active' : '' ?>">
+                                <a href="<?= base_url('admin/timesync/user/' . $user_id . '?tab=apps&from=' . $from . '&to=' . $to) ?>">App Usage</a>
+                            </li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane active">
+                                <?php if ($active_tab === 'entries'): ?>
+                                    <?php $this->load->view('admin/timesync/user_entries_tab', ['entries' => $entries ?? []]); ?>
+                                <?php elseif ($active_tab === 'screenshots'): ?>
+                                    <?php $this->load->view('admin/timesync/user_screenshots_tab', ['screenshots' => $screenshots ?? []]); ?>
+                                <?php elseif ($active_tab === 'apps'): ?>
+                                    <?php $this->load->view('admin/timesync/user_apps_tab', ['app_usage' => $app_usage ?? []]); ?>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>

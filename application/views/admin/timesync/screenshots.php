@@ -5,6 +5,25 @@
                 <h3 class="panel-title"><?= $title ?? 'Screenshots' ?></h3>
             </header>
             <div class="panel-body">
+                <div class="row mb-lg">
+                    <div class="col-md-3">
+                        <div class="panel panel-info">
+                            <div class="panel-body text-center" id="screenshot_count">
+                                <h2><?= $screenshot_count ?? 0 ?></h2>
+                                <p class="text-muted">Current View</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="panel panel-success">
+                            <div class="panel-body text-center">
+                                <h2><?= $total_screenshots ?? 0 ?></h2>
+                                <p class="text-muted">Total All Time</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <form method="get" class="form-inline mb-lg">
                     <div class="form-group">
                         <label>User: </label>
@@ -16,6 +35,10 @@
                                 </option>
                             <?php endforeach; ?>
                         </select>
+                    </div>
+                    <div class="form-group ml-sm">
+                        <label>Task ID: </label>
+                        <input type="number" name="task_id" class="form-control" value="<?= $this->input->get('task_id') ?>" placeholder="Task #" style="width:100px;">
                     </div>
                     <div class="form-group ml-sm">
                         <label>From: </label>
@@ -34,10 +57,10 @@
                             <div class="col-md-3 col-sm-4 col-xs-6 mb-sm">
                                 <div class="panel panel-default">
                                     <a href="<?= base_url('admin/timesync/view_image/' . $s->id) ?>" target="_blank" rel="noopener">
-                                        <img src="<?= base_url('admin/timesync/view_image/' . $s->id) ?>" class="img-responsive" style="width: 100%; height: 160px; object-fit: cover;">
+                                        <img src="<?= base_url('admin/timesync/view_image/' . $s->id) ?>" class="img-responsive" style="width:100%;height:160px;object-fit:cover;">
                                     </a>
-                                    <div class="panel-body" style="padding: 8px;">
-                                        <p class="small" style="margin: 0;">
+                                    <div class="panel-body" style="padding:8px;">
+                                        <p class="small" style="margin:0;">
                                             <strong><?= htmlspecialchars($s->fullname ?? 'User') ?></strong><br>
                                             <?= date('M d, Y H:i', strtotime($s->captured_at)) ?>
                                         </p>
@@ -49,9 +72,7 @@
                             </div>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <div class="col-md-12">
-                            <p class="text-center">No screenshots found</p>
-                        </div>
+                        <div class="col-md-12"><p class="text-center">No screenshots found</p></div>
                     <?php endif; ?>
                 </div>
             </div>

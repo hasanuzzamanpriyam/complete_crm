@@ -56,6 +56,29 @@ class Timesync extends Admin_Controller
         $this->load->view('admin/_layout_main', $data);
     }
 
+    public function entries()
+    {
+        if (!is_super_admin()) {
+            $can_view = can_action('timesync', 'view');
+            if (!$can_view) {
+                redirect('404');
+            }
+        }
+
+        $data['title'] = 'Time Entries';
+
+        $this->db->select('tbl_desktop_time_entries.*, tbl_account_details.fullname, tbl_task.task_name');
+        $this->db->from('tbl_desktop_time_entries');
+        $this->db->join('tbl_account_details', 'tbl_account_details.user_id = tbl_desktop_time_entries.user_id', 'left');
+        $this->db->join('tbl_task', 'tbl_task.task_id = tbl_desktop_time_entries.task_id', 'left');
+        $this->db->order_by('tbl_desktop_time_entries.started_at', 'DESC');
+        $this->db->limit(100);
+        $data['entries'] = $this->db->get()->result();
+
+        $data['subview'] = $this->load->view('admin/timesync/entries', $data, true);
+        $this->load->view('admin/_layout_main', $data);
+    }
+
     public function calendar()
     {
         if (!is_super_admin()) {
@@ -215,7 +238,7 @@ class Timesync extends Admin_Controller
 
         $data['title'] = 'User Report';
         $data['user'] = $this->db
-            ->select('tbl_users.*, tbl_account_details.fullname')
+            ->select('tbl_users.*, tbl_account_details.fullname, tbl_account_details.avatar')
             ->join('tbl_account_details', 'tbl_account_details.user_id = tbl_users.user_id', 'left')
             ->where('tbl_users.user_id', $user_id)
             ->get('tbl_users')
@@ -230,22 +253,36 @@ class Timesync extends Admin_Controller
         if (empty($from)) $from = date('Y-m-01');
         if (empty($to)) $to = date('Y-m-d');
 
-        $this->db->where('user_id', $user_id);
-        $this->db->where('started_at >=', $from . ' 00:00:00');
-        $this->db->where('started_at <=', $to . ' 23:59:59');
-        $this->db->order_by('started_at', 'DESC');
-        $data['entries'] = $this->db->get('tbl_desktop_time_entries')->result();
+        $data['from'] = $from;
+        $data['to'] = $to;
+        $data['user_id'] = $user_id;
 
-        $data['total_seconds'] = 0;
-        foreach ($data['entries'] as $e) {
-            $data['total_seconds'] += $e->total_seconds;
+        $tab = $this->input->get('tab');
+        $allowed_tabs = ['entries', 'screenshots', 'apps'];
+        if (empty($tab) || !in_array($tab, $allowed_tabs)) {
+            $tab = 'entries';
         }
+        $data['active_tab'] = $tab;
 
-        $this->db->where('user_id', $user_id);
-        $this->db->where('captured_at >=', $from . ' 00:00:00');
-        $this->db->where('captured_at <=', $to . ' 23:59:59');
-        $this->db->order_by('captured_at', 'DESC');
-        $data['screenshots'] = $this->db->get('tbl_screenshots')->result();
+        // Stat cards (computed for all tabs)
+        $stats = $this->_user_stats($user_id, $from, $to);
+        $data['total_seconds'] = $stats['total_seconds'];
+        $data['entry_count'] = $stats['entry_count'];
+        $data['screenshot_count'] = $stats['screenshot_count'];
+        $data['day_count'] = $stats['day_count'];
+
+        // Lazy-load tab data
+        switch ($tab) {
+            case 'entries':
+                $data['entries'] = $this->_user_entries($user_id, $from, $to);
+                break;
+            case 'screenshots':
+                $data['screenshots'] = $this->_user_screenshots($user_id, $from, $to);
+                break;
+            case 'apps':
+                $data['app_usage'] = $this->_user_app_usage($user_id, $from, $to);
+                break;
+        }
 
         $data['subview'] = $this->load->view('admin/timesync/user_report', $data, true);
         $this->load->view('admin/_layout_main', $data);
@@ -280,6 +317,9 @@ class Timesync extends Admin_Controller
         $this->db->order_by('tbl_screenshots.captured_at', 'DESC');
         $this->db->limit(50);
         $data['screenshots'] = $this->db->get()->result();
+
+        $data['screenshot_count'] = count($data['screenshots']);
+        $data['total_screenshots'] = $this->db->count_all('tbl_screenshots');
 
         $data['users'] = $this->db->select('tbl_users.user_id, tbl_account_details.fullname')
             ->join('tbl_account_details', 'tbl_account_details.user_id = tbl_users.user_id', 'left')
@@ -348,6 +388,20 @@ class Timesync extends Admin_Controller
                 'focus_score' => $focus_score,
             ];
         }
+
+        // Top apps for chart
+        $top_apps = $this->db
+            ->select('app_name, SUM(total_seconds) as total_sec')
+            ->where('recorded_at >=', $from)
+            ->where('recorded_at <=', $to)
+            ->group_by('app_name')
+            ->order_by('total_sec', 'DESC')
+            ->limit(10)
+            ->get('tbl_desktop_app_usage')
+            ->result();
+
+        $data['chart_app_labels'] = json_encode(array_map(function($a) { return $a->app_name; }, $top_apps));
+        $data['chart_app_values'] = json_encode(array_map(function($a) { return round($a->total_sec / 3600, 1); }, $top_apps));
 
         $data['users'] = $this->db
             ->select('tbl_users.user_id, tbl_account_details.fullname')
@@ -519,6 +573,68 @@ class Timesync extends Admin_Controller
 
         $data['subview'] = $this->load->view('admin/timesync/settings', $data, true);
         $this->load->view('admin/_layout_main', $data);
+    }
+
+    private function _user_stats($user_id, $from, $to)
+    {
+        $result = $this->db
+            ->select('COALESCE(SUM(total_seconds), 0) as total_sec, COUNT(DISTINCT id) as entries, COUNT(DISTINCT DATE(started_at)) as days')
+            ->where('user_id', $user_id)
+            ->where('started_at >=', $from . ' 00:00:00')
+            ->where('started_at <=', $to . ' 23:59:59')
+            ->get('tbl_desktop_time_entries')
+            ->row();
+
+        $screenshot_count = $this->db
+            ->where('user_id', $user_id)
+            ->where('captured_at >=', $from . ' 00:00:00')
+            ->where('captured_at <=', $to . ' 23:59:59')
+            ->count_all_results('tbl_screenshots');
+
+        return [
+            'total_seconds' => (int)$result->total_sec,
+            'entry_count' => (int)$result->entries,
+            'day_count' => (int)$result->days,
+            'screenshot_count' => $screenshot_count,
+        ];
+    }
+
+    private function _user_entries($user_id, $from, $to)
+    {
+        return $this->db
+            ->select('tbl_desktop_time_entries.*, tbl_task.task_name')
+            ->from('tbl_desktop_time_entries')
+            ->join('tbl_task', 'tbl_task.task_id = tbl_desktop_time_entries.task_id', 'left')
+            ->where('tbl_desktop_time_entries.user_id', $user_id)
+            ->where('tbl_desktop_time_entries.started_at >=', $from . ' 00:00:00')
+            ->where('tbl_desktop_time_entries.started_at <=', $to . ' 23:59:59')
+            ->order_by('tbl_desktop_time_entries.started_at', 'DESC')
+            ->get()
+            ->result();
+    }
+
+    private function _user_screenshots($user_id, $from, $to)
+    {
+        return $this->db
+            ->where('user_id', $user_id)
+            ->where('captured_at >=', $from . ' 00:00:00')
+            ->where('captured_at <=', $to . ' 23:59:59')
+            ->order_by('captured_at', 'DESC')
+            ->get('tbl_screenshots')
+            ->result();
+    }
+
+    private function _user_app_usage($user_id, $from, $to)
+    {
+        return $this->db
+            ->select('app_name, SUM(total_seconds) as total_sec, COUNT(*) as occurrences')
+            ->where('user_id', $user_id)
+            ->where('recorded_at >=', $from)
+            ->where('recorded_at <=', $to)
+            ->group_by('app_name')
+            ->order_by('total_sec', 'DESC')
+            ->get('tbl_desktop_app_usage')
+            ->result();
     }
 
     private function _total_hours_since($since_date)

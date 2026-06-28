@@ -3,6 +3,9 @@
         <section class="panel panel-custom">
             <header class="panel-heading">
                 <h3 class="panel-title"><?= $title ?? 'TimeSync Calendar' ?></h3>
+                <span class="pull-right">
+                    <a href="<?= base_url('admin/timesync/entries') ?>" class="btn btn-sm btn-default">View All Entries</a>
+                </span>
             </header>
             <div class="panel-body">
                 <div class="row">
@@ -50,16 +53,16 @@
                                         <?php if (!$started && $col == $first_day) $started = true; ?>
                                         <td style="height:80px; vertical-align:top;">
                                             <?php if ($started && $day <= $days_in_month): ?>
-                                                <strong><?= $day++ ?></strong>
                                                 <?php
-                                                $date_key = sprintf('%04d-%02d-%02d', $year, $month, $day - 1);
+                                                $date_key = sprintf('%04d-%02d-%02d', $year, $month, $day);
                                                 $day_seconds = $daily_totals[$date_key] ?? 0;
                                                 ?>
-                                                <?php if ($day_seconds > 0): ?>
-                                                    <br><span class="label label-info">
-                                                        <?= round($day_seconds / 3600, 1) ?>h
-                                                    </span>
-                                                <?php endif; ?>
+                                                <a href="<?= base_url('admin/timesync/day_details/' . $date_key) ?>" style="display:block;text-decoration:none;color:inherit;">
+                                                    <strong><?= $day++ ?></strong>
+                                                    <?php if ($day_seconds > 0): ?>
+                                                        <br><span class="label label-info"><?= round($day_seconds / 3600, 1) ?>h</span>
+                                                    <?php endif; ?>
+                                                </a>
                                             <?php endif; ?>
                                         </td>
                                     <?php endfor; ?>
