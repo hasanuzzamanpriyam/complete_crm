@@ -2213,13 +2213,13 @@ abstract class CI_DB_query_builder extends CI_DB_driver
         foreach ($this->qb_from as $table) {
             if (stripos($table, 'tbl_users') !== FALSE) {
                 $has_users_table = TRUE;
-                if (preg_match('/tbl_users\s+(?:AS\s+)?([a-zA-Z0-9_`]+)/i', $table, $matches)) {
+                if (preg_match('/`?tbl_users`?\s+(?:AS\s+)?([a-zA-Z0-9_`]+)/i', $table, $matches)) {
                     $users_alias = trim($matches[1], '`');
                 }
             }
             if (stripos($table, 'tbl_account_details') !== FALSE) {
                 $has_details_table = TRUE;
-                if (preg_match('/tbl_account_details\s+(?:AS\s+)?([a-zA-Z0-9_`]+)/i', $table, $matches)) {
+                if (preg_match('/`?tbl_account_details`?\s+(?:AS\s+)?([a-zA-Z0-9_`]+)/i', $table, $matches)) {
                     $details_alias = trim($matches[1], '`');
                 }
             }
@@ -2230,13 +2230,13 @@ abstract class CI_DB_query_builder extends CI_DB_driver
             foreach ($this->qb_join as $join) {
                 if (stripos($join, 'tbl_users') !== FALSE) {
                     $has_users_table = TRUE;
-                    if (preg_match('/join\s+tbl_users\s+(?:AS\s+)?([a-zA-Z0-9_`]+)/i', $join, $matches)) {
+                    if (preg_match('/join\s+`?tbl_users`?\s+(?:AS\s+)?([a-zA-Z0-9_`]+)\s+ON\b/i', $join, $matches)) {
                         $users_alias = trim($matches[1], '`');
                     }
                 }
                 if (stripos($join, 'tbl_account_details') !== FALSE) {
                     $has_details_table = TRUE;
-                    if (preg_match('/join\s+tbl_account_details\s+(?:AS\s+)?([a-zA-Z0-9_`]+)/i', $join, $matches)) {
+                    if (preg_match('/join\s+`?tbl_account_details`?\s+(?:AS\s+)?([a-zA-Z0-9_`]+)\s+ON\b/i', $join, $matches)) {
                         $details_alias = trim($matches[1], '`');
                     }
                 }

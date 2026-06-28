@@ -53,6 +53,56 @@
                 </div>
                 <?php endif; ?>
 
+                <?php if (!empty($chart_app_labels) && $chart_app_labels !== '[]'): ?>
+                <div class="row mb-lg">
+                    <div class="col-md-12">
+                        <div class="panel panel-custom">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">Top Applications by Total Time</h4>
+                            </div>
+                            <div class="panel-body">
+                                <canvas id="appUsageChart" height="100"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                <script>
+                (function() {
+                    var ctx = document.getElementById('appUsageChart');
+                    if (!ctx) return;
+                    var labels = <?= $chart_app_labels ?? '[]' ?>;
+                    var values = <?= $chart_app_values ?? '[]' ?>;
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Hours',
+                                data: values,
+                                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            indexAxis: 'y',
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                x: { beginAtZero: true, title: { display: true, text: 'Hours' } },
+                                y: { title: { display: true, text: 'Application' } }
+                            },
+                            plugins: {
+                                legend: { display: false }
+                            }
+                        }
+                    });
+                })();
+                </script>
+                <?php endif; ?>
+
                 <div class="row">
                     <div class="col-md-12">
                         <div class="panel panel-custom">
