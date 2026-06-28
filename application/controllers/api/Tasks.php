@@ -50,6 +50,13 @@ class Tasks extends MY_Controller
             }
             $this->db->or_where('tbl_task.permission REGEXP', $this->db->escape($sq), false);
             $this->db->or_where('tbl_task.permission', 'all');
+
+            $team_ids = $this->api_auth->get_user_team_ids();
+            if (!empty($team_ids)) {
+                $team_ids_str = implode(',', $team_ids);
+                $this->db->or_where("tbl_task.team_id IN ($team_ids_str)", null, false);
+            }
+
             $this->db->group_end();
         }
     }
@@ -228,7 +235,18 @@ class Tasks extends MY_Controller
             }
         }
 
+        $team_id = $input['team_id'] ?? null;
+        if ($team_id) {
+            $this->load->model('Team_model');
+            if (!$this->api_auth->is_super_admin() &&
+                !$this->Team_model->is_team_manager($this->api_auth->get_user()->user_id, $team_id)) {
+                $this->_respond(403, false, 'Team manager access required');
+            }
+            $permission = 'all';
+        }
+
         $task_data = [
+            'team_id' => $team_id,
             'task_name' => $input['title'],
             'task_description' => $input['description'] ?? '',
             'project_id' => !empty($input['project_id']) ? (int)$input['project_id'] : null,
@@ -304,6 +322,15 @@ class Tasks extends MY_Controller
         }
         if (array_key_exists('report_to', $input)) {
             $update['report_to'] = !empty($input['report_to']) ? (int)$input['report_to'] : null;
+        }
+
+        if (isset($input['team_id'])) {
+            $this->load->model('Team_model');
+            if (!$this->api_auth->is_super_admin() &&
+                !$this->Team_model->is_team_manager($this->api_auth->get_user()->user_id, $input['team_id'])) {
+                $this->_respond(403, false, 'Team manager access required');
+            }
+            $update['team_id'] = $input['team_id'];
         }
 
         if (!empty($update)) {
