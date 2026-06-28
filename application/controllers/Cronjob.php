@@ -52,6 +52,8 @@ class Cronjob extends MY_Controller
             $this->process_email_queue_cron();
             // check domain and hosting expiry
             $this->check_domain_hosting_expiry();
+            // auto-delete old screenshots per retention policy
+            $this->screenshot_retention_cleanup();
         }
     }
 
@@ -1086,6 +1088,45 @@ class Cronjob extends MY_Controller
         }
         
         log_message('info', 'Domain and Hosting Expiry Check Completed');
+    }
+
+    private function screenshot_retention_cleanup()
+    {
+        $retention_days = (int)config_item('screenshot_retention_days');
+        if ($retention_days <= 0) {
+            return;
+        }
+
+        $cutoff = date('Y-m-d H:i:s', strtotime("-{$retention_days} days"));
+
+        $old_screenshots = $this->db
+            ->select('id, user_id, file_path')
+            ->where('captured_at <', $cutoff)
+            ->get('tbl_screenshots')
+            ->result();
+
+        if (empty($old_screenshots)) {
+            return;
+        }
+
+        $ids = [];
+        $now = date('Y-m-d H:i:s');
+        foreach ($old_screenshots as $s) {
+            $ids[] = (int)$s->id;
+            $full_path = FCPATH . $s->file_path;
+            if (file_exists($full_path)) {
+                @unlink($full_path);
+            }
+            $this->db->insert('tbl_screenshot_deletions', [
+                'screenshot_id' => (int)$s->id,
+                'user_id' => (int)$s->user_id,
+                'deleted_at' => $now,
+            ]);
+        }
+
+        $this->db->where_in('id', $ids)->delete('tbl_screenshots');
+
+        log_message('info', "Screenshot retention: deleted " . count($ids) . " screenshots older than {$retention_days} days");
     }
 
     public function send_offer_email_test($offer_id)

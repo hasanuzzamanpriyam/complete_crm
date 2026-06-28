@@ -306,7 +306,35 @@ class Screenshots extends MY_Controller
         }
 
         $this->db->where('id', $id)->delete('tbl_screenshots');
+
+        $this->db->insert('tbl_screenshot_deletions', [
+            'screenshot_id' => (int)$id,
+            'user_id' => (int)$user->user_id,
+            'deleted_at' => date('Y-m-d H:i:s'),
+        ]);
+
         return $this->_respond(200, true, 'Screenshot deleted');
+    }
+
+    public function deleted_ids()
+    {
+        $this->api_auth->authenticate();
+
+        $since = $this->input->get('since');
+
+        $this->db->select('screenshot_id, deleted_at');
+        $this->db->from('tbl_screenshot_deletions');
+
+        if (!empty($since)) {
+            $this->db->where('deleted_at >', $since);
+        }
+
+        $this->db->order_by('deleted_at', 'ASC');
+        $deletions = $this->db->get()->result();
+
+        return $this->_respond(200, true, 'OK', [
+            'deletions' => $deletions,
+        ]);
     }
 
     private function _respond($status_code, $success, $message, $data = null)

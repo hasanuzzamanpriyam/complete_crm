@@ -113,6 +113,7 @@
                                             <th>Hours</th>
                                             <th>Entries</th>
                                             <th>Screenshots</th>
+                                            <th>Status</th>
                                             <th>Last Active</th>
                                         </tr>
                                     </thead>
@@ -205,3 +206,4 @@
     }
 })();
 </script>
+

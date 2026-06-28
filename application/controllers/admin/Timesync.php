@@ -450,6 +450,77 @@ class Timesync extends Admin_Controller
         exit;
     }
 
+    public function get_screenshot_details($screenshot_id)
+    {
+        if (!is_super_admin()) {
+            $can_view = can_action('timesync', 'view');
+            if (!$can_view) {
+                $this->output->set_status_header(403)->set_output(json_encode(['error' => 'Access denied']));
+                return;
+            }
+        }
+
+        $screenshot = $this->db->where('id', $screenshot_id)->get('tbl_screenshots')->row();
+        if (empty($screenshot)) {
+            $this->output->set_status_header(404)->set_output(json_encode(['error' => 'Screenshot not found']));
+            return;
+        }
+
+        $captured_at = $screenshot->captured_at;
+        $user_id = $screenshot->user_id;
+
+        // Find the time entry session that was active when this screenshot was captured
+        $this->db->where('user_id', $user_id);
+        $this->db->where('started_at <=', $captured_at);
+        $this->db->group_start();
+        $this->db->where('stopped_at IS NULL');
+        $this->db->or_where('stopped_at >=', $captured_at);
+        $this->db->group_end();
+        $this->db->order_by('started_at', 'DESC');
+        $this->db->limit(1);
+        $time_entry = $this->db->get('tbl_desktop_time_entries')->row();
+
+        // Fetch app usage for that session
+        $app_usage = [];
+        if ($time_entry) {
+            $app_usage = $this->db
+                ->select('app_name, window_title, total_seconds')
+                ->where('time_entry_id', $time_entry->id)
+                ->order_by('total_seconds', 'DESC')
+                ->limit(20)
+                ->get('tbl_desktop_app_usage')
+                ->result();
+        }
+
+        // Fallback to daily app usage if no session-linked data
+        if (empty($app_usage)) {
+            $recorded_date = date('Y-m-d', strtotime($captured_at));
+            $app_usage = $this->db
+                ->select('app_name, window_title, total_seconds')
+                ->where('user_id', $user_id)
+                ->where('recorded_at', $recorded_date)
+                ->order_by('total_seconds', 'DESC')
+                ->limit(20)
+                ->get('tbl_desktop_app_usage')
+                ->result();
+        }
+
+        $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode([
+                'success' => true,
+                'data' => [
+                    'id' => (int)$screenshot->id,
+                    'file_url' => base_url('admin/timesync/view_image/' . $screenshot->id),
+                    'captured_at' => $screenshot->captured_at,
+                    'keystroke_count' => (int)$screenshot->keystroke_count,
+                    'mouse_click_count' => (int)$screenshot->mouse_click_count,
+                    'activity_percentage' => (float)$screenshot->activity_percentage,
+                    'app_usage' => $app_usage,
+                ]
+            ]));
+    }
+
     private function _output_transparent_pixel()
     {
         while (ob_get_level() > 0) {
@@ -459,6 +530,15 @@ class Timesync extends Admin_Controller
         header('Content-Length: 68');
         echo base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==');
         exit;
+    }
+
+    private function _save_config($key, $value)
+    {
+        $this->db->where('config_key', $key)->update('tbl_config', ['value' => $value]);
+        $exists = $this->db->where('config_key', $key)->get('tbl_config');
+        if ($exists->num_rows() == 0) {
+            $this->db->insert('tbl_config', ['config_key' => $key, 'value' => $value]);
+        }
     }
 
     private function _dashboard_kpis($start_date, $end_date)
@@ -521,7 +601,7 @@ class Timesync extends Admin_Controller
     private function _user_grid($start_date, $end_date)
     {
         $users = $this->db
-            ->select('tbl_users.user_id, tbl_account_details.fullname, tbl_account_details.avatar')
+            ->select('tbl_users.user_id, tbl_users.last_active_ping, tbl_account_details.fullname, tbl_account_details.avatar')
             ->from('tbl_users')
             ->join('tbl_account_details', 'tbl_account_details.user_id = tbl_users.user_id', 'left')
             ->where('tbl_users.activated', 1)
@@ -564,12 +644,17 @@ class Timesync extends Admin_Controller
 
         if ($this->input->post()) {
             $demo_mode = $this->input->post('demo_mode') == '1' ? '1' : '0';
-            $this->db->where('config_key', 'timesync_demo_mode')->update('tbl_config', ['value' => $demo_mode]);
+            $this->_save_config('timesync_demo_mode', $demo_mode);
+
+            $retention_days = (int)$this->input->post('screenshot_retention_days');
+            $this->_save_config('screenshot_retention_days', (string)$retention_days);
+
             set_message('success', 'Settings updated');
             redirect('admin/timesync/settings');
         }
 
         $data['demo_mode'] = config_item('timesync_demo_mode');
+        $data['screenshot_retention_days'] = config_item('screenshot_retention_days') ?: '90';
 
         $data['subview'] = $this->load->view('admin/timesync/settings', $data, true);
         $this->load->view('admin/_layout_main', $data);
@@ -648,3 +733,4 @@ class Timesync extends Admin_Controller
         return round($seconds / 3600, 1);
     }
 }
+

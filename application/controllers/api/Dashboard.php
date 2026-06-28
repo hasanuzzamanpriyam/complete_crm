@@ -15,7 +15,7 @@ class Dashboard extends MY_Controller
 
         $visible_ids = $this->_resolve_user_ids();
 
-        $this->db->select('u.user_id, u.online_time, a.fullname, a.avatar')
+        $this->db->select('u.user_id, u.online_time, u.last_active_ping, a.fullname, a.avatar')
             ->from('tbl_users u')
             ->join('tbl_account_details a', 'a.user_id = u.user_id', 'left')
             ->where('u.activated', 1)
@@ -72,6 +72,7 @@ class Dashboard extends MY_Controller
                     'avatar' => base_url(!empty($u->avatar) ? $u->avatar : 'assets/img/user/default_avatar.jpg'),
                     'current_task' => $active_map[$uid]['task_title'],
                     'current_window' => $window ? (!empty($window->window_title) ? $window->window_title : $window->app_name) : null,
+                    'is_active_now' => !empty($u->last_active_ping) && strtotime($u->last_active_ping) >= (time() - 120),
                 ];
             } elseif ($online_time_ok) {
                 $idle_count++;
@@ -229,7 +230,7 @@ class Dashboard extends MY_Controller
             }
             $brief_on .= " AND te.type = 'work'";
             $brief_q = $this->db
-                ->select("u.user_id, u.online_time, ad.fullname as name, ad.avatar, COALESCE(SUM(te.total_seconds), 0) as today_seconds")
+                ->select("u.user_id, u.online_time, u.last_active_ping, ad.fullname as name, ad.avatar, COALESCE(SUM(te.total_seconds), 0) as today_seconds")
                 ->from('tbl_users u')
                 ->join('tbl_account_details ad', 'ad.user_id = u.user_id', 'left')
                 ->join('tbl_desktop_time_entries te', $brief_on, 'left')
@@ -283,6 +284,7 @@ class Dashboard extends MY_Controller
                         'avatar' => base_url(!empty($r->avatar) ? $r->avatar : 'assets/img/user/default_avatar.jpg'),
                         'hours_today' => round((float)$r->today_seconds / 3600, 1),
                         'status' => $status,
+                        'is_active_now' => !empty($r->last_active_ping) && strtotime($r->last_active_ping) >= (time() - 120),
                     ];
                 }, $brief_rows),
             ];
@@ -611,3 +613,4 @@ class Dashboard extends MY_Controller
             ->set_output(json_encode($response));
     }
 }
+

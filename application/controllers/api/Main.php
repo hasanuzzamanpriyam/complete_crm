@@ -14,7 +14,7 @@ class Main extends MY_Controller
 
     public function staff_users()
     {
-        $this->db->select('tbl_users.user_id, tbl_users.username, tbl_users.email, tbl_users.role_id, tbl_account_details.fullname, tbl_account_details.employment_id, tbl_account_details.phone, tbl_users.staff_position, tbl_users.facebook_url, tbl_users.instagram_url, tbl_users.x_url, tbl_users.linkedin_url, tbl_designations.designations, tbl_account_details.avatar');
+        $this->db->select('tbl_users.user_id, tbl_users.username, tbl_users.email, tbl_users.role_id, tbl_users.last_active_ping, tbl_account_details.fullname, tbl_account_details.employment_id, tbl_account_details.phone, tbl_users.staff_position, tbl_users.facebook_url, tbl_users.instagram_url, tbl_users.x_url, tbl_users.linkedin_url, tbl_designations.designations, tbl_account_details.avatar');
         $this->db->from('tbl_users');
         $this->db->join('tbl_account_details', 'tbl_users.user_id = tbl_account_details.user_id', 'left');
         $this->db->join('tbl_designations', 'tbl_account_details.designations_id = tbl_designations.designations_id', 'left');
@@ -82,3 +82,4 @@ class Main extends MY_Controller
             ->set_output(json_encode(['jobs' => $jobs]));
     }
 }
+

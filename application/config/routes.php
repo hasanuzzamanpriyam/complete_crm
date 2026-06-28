@@ -149,3 +149,4 @@ $route['api/v1/payments/status/(:any)']     = 'api/payments/status/$1';
 $route['api/v1/payments/gateways']          = 'api/payments/gateways';
 
 $route['cronjob/process_email_queue']       = 'cronjob/process_email_queue_manual';
+$route['api/sync/heartbeat'] = 'api/sync/heartbeat';

@@ -31,6 +31,17 @@
                     </div>
 
                     <div class="form-group">
+                        <label class="col-lg-3 control-label">Screenshot Retention (days)</label>
+                        <div class="col-lg-5">
+                            <input type="number" name="screenshot_retention_days" class="form-control"
+                                   value="<?= $screenshot_retention_days ?>" min="0" max="9999">
+                            <p class="help-block">
+                                Auto-delete screenshots older than this many days. Set to 0 to disable.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <div class="col-lg-offset-3 col-lg-5">
                             <button type="submit" class="btn btn-primary">Save Settings</button>
                         </div>
