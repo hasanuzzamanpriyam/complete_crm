@@ -1916,15 +1916,18 @@ function staffImage($user_id = null)
     $CI->db->bypass_visibility_filters = $original_bypass;
     if (!empty($userInfo) && file_exists(FCPATH . $userInfo->avatar)) {
         return $userInfo->avatar;
-    } else {
-        return 'assets/img/user/default_avatar.jpg';
     }
+    $name = !empty($userInfo->fullname) ? $userInfo->fullname : 'User';
+    return "https://ui-avatars.com/api/?name=" . urlencode($name) . "&background=random";
 }
 
-function get_avatar_url($avatar_path = null)
+function get_avatar_url($avatar_path = null, $fullname = null)
 {
     if (!empty($avatar_path) && file_exists(FCPATH . $avatar_path)) {
         return $avatar_path;
+    }
+    if (!empty($fullname)) {
+        return "https://ui-avatars.com/api/?name=" . urlencode($fullname) . "&background=random";
     }
     return 'assets/img/user/default_avatar.jpg';
 }

@@ -196,7 +196,8 @@ $languages = $this->db->where('active', 1)->order_by('name', 'ASC')->get('tbl_la
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
 
                         <?php
-                        $user_avatar = (!empty($profile_info->avatar) && file_exists(FCPATH . $profile_info->avatar)) ? $profile_info->avatar : 'assets/img/user/default_avatar.jpg';
+                        $avatar_name = !empty($profile_info->fullname) ? $profile_info->fullname : 'Unknown';
+                        $user_avatar = (!empty($profile_info->avatar) && file_exists(FCPATH . $profile_info->avatar)) ? $profile_info->avatar : "https://ui-avatars.com/api/?name=" . urlencode($avatar_name) . "&background=random";
                         ?>
                         <img src="<?= base_url() . $user_avatar ?>" class="img-xs user-image"
                             alt="User Image" />
@@ -206,7 +207,8 @@ $languages = $this->db->where('active', 1)->order_by('name', 'ASC')->get('tbl_la
                         <!-- User image -->
                         <li class="user-header">
                             <?php
-                            $user_avatar = (!empty($profile_info->avatar) && file_exists(FCPATH . $profile_info->avatar)) ? $profile_info->avatar : 'assets/img/user/default_avatar.jpg';
+                            $avatar_name = !empty($profile_info->fullname) ? $profile_info->fullname : 'Unknown';
+                            $user_avatar = (!empty($profile_info->avatar) && file_exists(FCPATH . $profile_info->avatar)) ? $profile_info->avatar : "https://ui-avatars.com/api/?name=" . urlencode($avatar_name) . "&background=random";
                             ?>
                             <img src="<?= base_url() . $user_avatar ?>" class="img-circle" alt="User Image" />
                             <p>

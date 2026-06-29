@@ -1,0 +1,5 @@
+application/logs/
+application/tests/.phpunit.result.cache
+vendor/bin/.phpunit.result.cache
+uploads/screenshots/
+router.php

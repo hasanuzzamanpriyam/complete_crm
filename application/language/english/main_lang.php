@@ -674,6 +674,7 @@ $lang['timesync_reports'] = 'Reports';
 $lang['timesync_screenshots'] = 'Screenshots';
 $lang['timesync_settings'] = 'Settings';
 $lang['timesync_usage_report'] = 'Usage Reports';
+$lang['timesync_teams'] = 'Teams';
 
 // Breadcrumb fallbacks
 $lang['domain'] = 'Domain Management';

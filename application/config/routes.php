@@ -148,5 +148,17 @@ $route['api/v1/payments/callback/(:any)']   = 'api/payments/callback/$1';
 $route['api/v1/payments/status/(:any)']     = 'api/payments/status/$1';
 $route['api/v1/payments/gateways']          = 'api/payments/gateways';
 
+$route['api/teams']                              = 'api/teams/index';
+$route['api/teams/(:num)/messages']              = 'api/teams/messages/$1';
+$route['api/teams/(:num)']                       = 'api/teams/index/$1';
+$route['api/teams/(:num)/members']           = 'api/teams/members/$1';
+$route['api/teams/(:num)/members/(:num)']    = 'api/teams/members/$1/$2';
+$route['api/teams/request_join']             = 'api/teams/request_join';
+$route['api/teams/approve_member']           = 'api/teams/approve_member';
+$route['api/teams/my-requests']              = 'api/teams/my_requests';
+$route['api/teams/my-memberships']           = 'api/teams/my_memberships';
+$route['api/teams/pending-requests/(:num)']  = 'api/teams/pending_requests/$1';
+$route['api/teams/mentions']                 = 'api/teams/mentions';
+
 $route['cronjob/process_email_queue']       = 'cronjob/process_email_queue_manual';
 $route['api/sync/heartbeat'] = 'api/sync/heartbeat';
