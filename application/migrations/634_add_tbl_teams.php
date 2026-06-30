@@ -66,14 +66,18 @@ class Migration_Add_tbl_teams extends CI_Migration {
         $this->db->query('ALTER TABLE tbl_team_members ADD FOREIGN KEY (team_id) REFERENCES tbl_teams(id) ON DELETE CASCADE');
         $this->db->query('ALTER TABLE tbl_team_members ADD FOREIGN KEY (user_id) REFERENCES tbl_users(user_id) ON DELETE CASCADE');
 
-        $this->dbforge->add_column('tbl_task', [
-            'team_id' => [
-                'type' => 'INT',
-                'constraint' => 11,
-                'null' => TRUE,
-                'after' => 'project_id',
-            ],
-        ]);
+        $task_fields = $this->db->field_data('tbl_task');
+        $task_field_names = array_map(function ($f) { return $f->name; }, $task_fields);
+        if (!in_array('team_id', $task_field_names)) {
+            $this->dbforge->add_column('tbl_task', [
+                'team_id' => [
+                    'type' => 'INT',
+                    'constraint' => 11,
+                    'null' => TRUE,
+                    'after' => 'project_id',
+                ],
+            ]);
+        }
     }
 
     public function down()
