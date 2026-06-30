@@ -249,8 +249,29 @@ class Teams extends MY_Controller {
 
     private function _list()
     {
-        $teams = $this->Team_model->get_all_teams();
-        $this->_respond(200, true, 'OK', ['data' => $teams]);
+        $page = max(1, (int) $this->input->get('page') ?: 1);
+        $limit = max(1, min(100, (int) $this->input->get('limit') ?: 20));
+        $offset = ($page - 1) * $limit;
+        $user = $this->api_auth->get_user();
+
+        if ($this->api_auth->is_super_admin()) {
+            $total = $this->Team_model->count_all_teams();
+            $teams = $this->Team_model->get_all_teams($limit, $offset);
+        } else {
+            $total = $this->Team_model->count_teams_for_user($user->user_id);
+            $teams = $this->Team_model->get_teams_for_user($user->user_id, $limit, $offset);
+        }
+
+        $last_page = max(1, (int) ceil($total / $limit));
+
+        $this->_respond(200, true, 'OK', [
+            'data' => $teams,
+            'meta' => [
+                'total' => $total,
+                'page' => $page,
+                'last_page' => $last_page,
+            ],
+        ]);
     }
 
     private function _get($id)
@@ -285,6 +306,17 @@ class Teams extends MY_Controller {
                 return;
             }
 
+            $manager_id = !empty($data['manager_id']) ? (int) $data['manager_id'] : $user->user_id;
+
+            $manager_exists = $this->db
+                ->where('user_id', $manager_id)
+                ->get('tbl_users')
+                ->num_rows();
+            if (!$manager_exists) {
+                $this->_respond(400, false, 'Specified manager_id does not exist');
+                return;
+            }
+
             $insert = [
                 'name' => $data['name'],
                 'description' => $data['description'] ?? '',
@@ -296,10 +328,18 @@ class Teams extends MY_Controller {
             $team_id = $this->db->insert_id();
             $this->db->insert('tbl_team_members', [
                 'team_id' => $team_id,
-                'user_id' => $user->user_id,
+                'user_id' => $manager_id,
                 'is_manager' => 1,
                 'status' => 'approved',
             ]);
+            if ((int) $manager_id !== (int) $user->user_id) {
+                $this->db->insert('tbl_team_members', [
+                    'team_id' => $team_id,
+                    'user_id' => $user->user_id,
+                    'is_manager' => 0,
+                    'status' => 'approved',
+                ]);
+            }
             $this->db->trans_complete();
 
             if ($this->db->trans_status() === false) {

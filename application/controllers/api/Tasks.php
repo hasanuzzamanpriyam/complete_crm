@@ -36,7 +36,7 @@ class Tasks extends MY_Controller
         }
     }
 
-    private function _apply_task_visibility($user_id, $user)
+    private function _apply_task_visibility($user_id, $user, $team_ids = [])
     {
         $this->db->where('tbl_task.task_status !=', 'cancelled');
 
@@ -51,7 +51,6 @@ class Tasks extends MY_Controller
             $this->db->or_where('tbl_task.permission REGEXP', $this->db->escape($sq), false);
             $this->db->or_where('tbl_task.permission', 'all');
 
-            $team_ids = $this->api_auth->get_user_team_ids();
             if (!empty($team_ids)) {
                 $team_ids_str = implode(',', $team_ids);
                 $this->db->or_where("tbl_task.team_id IN ($team_ids_str)", null, false);
@@ -70,10 +69,13 @@ class Tasks extends MY_Controller
         $limit = max(1, min(100, (int)($this->input->get('limit') ?: 20)));
         $offset = ($page - 1) * $limit;
 
+        // Pre-fetch team IDs so get_user_team_ids() does not reset the query builder mid-build
+        $team_ids = $this->api_auth->get_user_team_ids();
+
         // Count total matching rows
         $this->db->from('tbl_task');
         $this->db->join('tbl_project', 'tbl_task.project_id = tbl_project.project_id', 'left');
-        $this->_apply_task_visibility($user_id, $user);
+        $this->_apply_task_visibility($user_id, $user, $team_ids);
         $total = (int)$this->db->count_all_results();
 
         // Fetch paginated results
@@ -87,7 +89,7 @@ class Tasks extends MY_Controller
         $this->db->join('tbl_project', 'tbl_task.project_id = tbl_project.project_id', 'left');
         $this->db->join('tbl_users u_reporter', 'u_reporter.user_id = tbl_task.created_by', 'left');
         $this->db->join('tbl_account_details ad_reporter', 'ad_reporter.user_id = u_reporter.user_id', 'left');
-        $this->_apply_task_visibility($user_id, $user);
+        $this->_apply_task_visibility($user_id, $user, $team_ids);
         $this->db->order_by('tbl_task.task_created_date', 'DESC');
         $this->db->limit($limit, $offset);
         $tasks = $this->db->get()->result();

@@ -9,15 +9,30 @@ class Team_model extends CI_Model {
         $this->load->database();
     }
 
-    public function get_teams_for_user($user_id)
+    public function count_all_teams()
     {
-        return $this->db->select('t.*')
+        return (int) $this->db->count_all('tbl_teams');
+    }
+
+    public function count_teams_for_user($user_id)
+    {
+        return (int) $this->db
+            ->where('user_id', $user_id)
+            ->where('status', 'approved')
+            ->count_all_results('tbl_team_members');
+    }
+
+    public function get_teams_for_user($user_id, $limit = null, $offset = null)
+    {
+        $this->db->select('t.*')
             ->from('tbl_teams t')
             ->join('tbl_team_members tm', 'tm.team_id = t.id')
             ->where('tm.user_id', $user_id)
-            ->where('tm.status', 'approved')
-            ->get()
-            ->result();
+            ->where('tm.status', 'approved');
+        if ($limit !== null) {
+            $this->db->limit($limit, $offset);
+        }
+        return $this->db->order_by('t.name', 'ASC')->get()->result();
     }
 
     public function get_all_teams($limit = null, $offset = null)
