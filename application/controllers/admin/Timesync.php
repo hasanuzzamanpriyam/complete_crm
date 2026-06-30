@@ -271,13 +271,42 @@ class Timesync extends Admin_Controller
         $data['screenshot_count'] = $stats['screenshot_count'];
         $data['day_count'] = $stats['day_count'];
 
+        // Daily hours trend chart
+        $daily = $this->_user_daily_hours($user_id, $from, $to);
+        $data['chart_user_hours_labels'] = json_encode($daily['labels']);
+        $data['chart_user_hours_values'] = json_encode($daily['values']);
+
         // Lazy-load tab data
+        $entry_page = max(1, (int)$this->input->get('entry_page'));
+        $screenshot_page = max(1, (int)$this->input->get('ss_page'));
         switch ($tab) {
             case 'entries':
-                $data['entries'] = $this->_user_entries($user_id, $from, $to);
+                $total_entries = $this->db
+                    ->where('user_id', $user_id)
+                    ->where('started_at >=', $from . ' 00:00:00')
+                    ->where('started_at <=', $to . ' 23:59:59')
+                    ->count_all_results('tbl_desktop_time_entries');
+                $entry_per_page = 25;
+                $entry_total_pages = max(1, ceil($total_entries / $entry_per_page));
+                $entry_page = min($entry_page, $entry_total_pages);
+                $entry_offset = ($entry_page - 1) * $entry_per_page;
+                $data['entries'] = $this->_user_entries($user_id, $from, $to, $entry_per_page, $entry_offset);
+                $data['entry_page'] = $entry_page;
+                $data['entry_total_pages'] = $entry_total_pages;
                 break;
             case 'screenshots':
-                $data['screenshots'] = $this->_user_screenshots($user_id, $from, $to);
+                $total_ss = $this->db
+                    ->where('user_id', $user_id)
+                    ->where('captured_at >=', $from . ' 00:00:00')
+                    ->where('captured_at <=', $to . ' 23:59:59')
+                    ->count_all_results('tbl_screenshots');
+                $ss_per_page = 24;
+                $ss_total_pages = max(1, ceil($total_ss / $ss_per_page));
+                $screenshot_page = min($screenshot_page, $ss_total_pages);
+                $ss_offset = ($screenshot_page - 1) * $ss_per_page;
+                $data['screenshots'] = $this->_user_screenshots($user_id, $from, $to, $ss_per_page, $ss_offset);
+                $data['ss_page'] = $screenshot_page;
+                $data['ss_total_pages'] = $ss_total_pages;
                 break;
             case 'apps':
                 $data['app_usage'] = $this->_user_app_usage($user_id, $from, $to);
@@ -304,22 +333,62 @@ class Timesync extends Admin_Controller
         $from = $this->input->get('from');
         $to = $this->input->get('to');
 
+        $page = max(1, (int)$this->input->get('page'));
+        $per_page = 24;
+        $offset = ($page - 1) * $per_page;
+
+        // Count total matching
+        $this->db->from('tbl_screenshots');
+        if (!empty($user_id)) $this->db->where('user_id', (int)$user_id);
+        if (!empty($task_id)) $this->db->where('task_id', (int)$task_id);
+        if (!empty($from)) $this->db->where('captured_at >=', $from);
+        if (!empty($to)) $this->db->where('captured_at <=', $to . ' 23:59:59');
+        $total = $this->db->count_all_results();
+
+        $total_pages = max(1, ceil($total / $per_page));
+        $page = min($page, $total_pages);
+        $offset = ($page - 1) * $per_page;
+
+        // Fetch page
         $this->db->select('tbl_screenshots.*, tbl_account_details.fullname, tbl_task.task_name');
         $this->db->from('tbl_screenshots');
         $this->db->join('tbl_account_details', 'tbl_account_details.user_id = tbl_screenshots.user_id', 'left');
         $this->db->join('tbl_task', 'tbl_task.task_id = tbl_screenshots.task_id', 'left');
-
         if (!empty($user_id)) $this->db->where('tbl_screenshots.user_id', (int)$user_id);
         if (!empty($task_id)) $this->db->where('tbl_screenshots.task_id', (int)$task_id);
         if (!empty($from)) $this->db->where('tbl_screenshots.captured_at >=', $from);
         if (!empty($to)) $this->db->where('tbl_screenshots.captured_at <=', $to . ' 23:59:59');
-
         $this->db->order_by('tbl_screenshots.captured_at', 'DESC');
-        $this->db->limit(50);
+        $this->db->limit($per_page, $offset);
         $data['screenshots'] = $this->db->get()->result();
 
         $data['screenshot_count'] = count($data['screenshots']);
         $data['total_screenshots'] = $this->db->count_all('tbl_screenshots');
+        $data['page'] = $page;
+        $data['total_pages'] = $total_pages;
+        $data['per_page'] = $per_page;
+
+        // Activity trend: screenshots per day for last 14 days
+        $trend = $this->db
+            ->select('DATE(captured_at) as day, COUNT(*) as cnt')
+            ->where('captured_at >=', date('Y-m-d', strtotime('-13 days')) . ' 00:00:00')
+            ->group_by('DATE(captured_at)')
+            ->order_by('day', 'ASC')
+            ->get('tbl_screenshots')
+            ->result();
+        $trend_labels = [];
+        $trend_values = [];
+        for ($d = 13; $d >= 0; $d--) {
+            $day = date('Y-m-d', strtotime("-$d days"));
+            $trend_labels[] = $day;
+            $found = 0;
+            foreach ($trend as $t) {
+                if ($t->day === $day) { $found = (int)$t->cnt; break; }
+            }
+            $trend_values[] = $found;
+        }
+        $data['chart_trend_labels'] = json_encode($trend_labels);
+        $data['chart_trend_values'] = json_encode($trend_values);
 
         $data['users'] = $this->db->select('tbl_users.user_id, tbl_account_details.fullname')
             ->join('tbl_account_details', 'tbl_account_details.user_id = tbl_users.user_id', 'left')
@@ -348,48 +417,69 @@ class Timesync extends Admin_Controller
         if (empty($from)) $from = date('Y-m-01');
         if (empty($to)) $to = date('Y-m-d');
 
-        $this->db->select('a.*, u.username, ad.fullname');
-        $this->db->from('tbl_desktop_app_usage a');
-        $this->db->join('tbl_users u', 'u.user_id = a.user_id', 'left');
-        $this->db->join('tbl_account_details ad', 'ad.user_id = a.user_id', 'left');
+        // Distinct active users in period
+        $this->db->reset_query();
+        $data['usage_user_count'] = (int)$this->db
+            ->select('COUNT(DISTINCT(user_id)) as cnt')
+            ->where('recorded_at >=', $from)
+            ->where('recorded_at <=', $to)
+            ->get('tbl_desktop_app_usage')
+            ->row()->cnt;
 
-        if (!empty($user_id)) $this->db->where('a.user_id', (int)$user_id);
-        $this->db->where('a.recorded_at >=', $from);
-        $this->db->where('a.recorded_at <=', $to);
-        $this->db->order_by('a.recorded_at', 'DESC');
-        $this->db->order_by('a.total_seconds', 'DESC');
-        $data['records'] = $this->db->get()->result();
+        // Total seconds in period
+        $this->db->reset_query();
+        $data['usage_total_seconds'] = (int)$this->db
+            ->select('COALESCE(SUM(total_seconds), 0) as total')
+            ->where('recorded_at >=', $from)
+            ->where('recorded_at <=', $to)
+            ->get('tbl_desktop_app_usage')
+            ->row()->total;
 
-        // Compute per-user totals and focus scores
-        $user_totals = [];
-        $user_apps = [];
-        foreach ($data['records'] as $r) {
-            $uid = $r->user_id;
-            if (!isset($user_totals[$uid])) {
-                $user_totals[$uid] = 0;
-                $user_apps[$uid] = [];
-            }
-            $user_totals[$uid] += $r->total_seconds;
-            if (!isset($user_apps[$uid][$r->app_name])) {
-                $user_apps[$uid][$r->app_name] = 0;
-            }
-            $user_apps[$uid][$r->app_name] += $r->total_seconds;
+        // Per-user totals and focus scores
+        $this->db->reset_query();
+        $user_totals_raw = $this->db
+            ->select('user_id, SUM(total_seconds) as total_sec')
+            ->where('recorded_at >=', $from)
+            ->where('recorded_at <=', $to)
+            ->group_by('user_id')
+            ->get('tbl_desktop_app_usage')
+            ->result();
+
+        $user_scores = [];
+        foreach ($user_totals_raw as $ut) {
+            $uid = (int)$ut->user_id;
+            $total = (int)$ut->total_sec;
+            $this->db->reset_query();
+            $top_app = $this->db
+                ->select('SUM(total_seconds) as sec')
+                ->where('user_id', $uid)
+                ->where('recorded_at >=', $from)
+                ->where('recorded_at <=', $to)
+                ->group_by('app_name')
+                ->order_by('sec', 'DESC')
+                ->limit(1)
+                ->get('tbl_desktop_app_usage')
+                ->row();
+            $top_sec = (int)($top_app->sec ?? 0);
+            $focus_score = $total > 0 ? round(($top_sec / $total) * 100) : 0;
+            $user_scores[$uid] = ['total_seconds' => $total, 'focus_score' => $focus_score];
         }
+        $data['user_scores'] = $user_scores;
 
-        $data['user_scores'] = [];
-        foreach ($user_totals as $uid => $total) {
-            $top_app_seconds = 0;
-            if (!empty($user_apps[$uid])) {
-                $top_app_seconds = max($user_apps[$uid]);
-            }
-            $focus_score = $total > 0 ? round(($top_app_seconds / $total) * 100) : 0;
-            $data['user_scores'][$uid] = [
-                'total_seconds' => $total,
-                'focus_score' => $focus_score,
-            ];
+        // Focus distribution for chart
+        $buckets = [0, 0, 0, 0];
+        foreach ($user_scores as $s) {
+            $f = $s['focus_score'];
+            if ($f < 25) $buckets[0]++;
+            elseif ($f < 50) $buckets[1]++;
+            elseif ($f < 75) $buckets[2]++;
+            else $buckets[3]++;
         }
+        $data['chart_focus_labels'] = json_encode(['0-24%', '25-49%', '50-74%', '75-100%']);
+        $data['chart_focus_values'] = json_encode($buckets);
 
         // Top apps for chart
+        $this->db->reset_query();
         $top_apps = $this->db
             ->select('app_name, SUM(total_seconds) as total_sec')
             ->where('recorded_at >=', $from)
@@ -403,6 +493,7 @@ class Timesync extends Admin_Controller
         $data['chart_app_labels'] = json_encode(array_map(function($a) { return $a->app_name; }, $top_apps));
         $data['chart_app_values'] = json_encode(array_map(function($a) { return round($a->total_sec / 3600, 1); }, $top_apps));
 
+        $this->db->reset_query();
         $data['users'] = $this->db
             ->select('tbl_users.user_id, tbl_account_details.fullname')
             ->join('tbl_account_details', 'tbl_account_details.user_id = tbl_users.user_id', 'left')
@@ -414,6 +505,85 @@ class Timesync extends Admin_Controller
 
         $data['subview'] = $this->load->view('admin/timesync/usage_report', $data, true);
         $this->load->view('admin/_layout_main', $data);
+    }
+
+    public function usage_datatable()
+    {
+        if (!$this->input->is_ajax_request()) {
+            show_404();
+        }
+
+        if (!is_super_admin()) {
+            $can_view = can_action('timesync', 'view');
+            if (!$can_view) {
+                redirect('404');
+            }
+        }
+
+        $draw = (int)$this->input->post('draw');
+        $start = (int)$this->input->post('start');
+        $length = (int)$this->input->post('length');
+        if ($length <= 0) $length = 25;
+
+        $user_id = $this->input->get('user_id');
+        $from = $this->input->get('from');
+        $to = $this->input->get('to');
+        if (empty($from)) $from = date('Y-m-01');
+        if (empty($to)) $to = date('Y-m-d');
+
+        $columns = ['a.recorded_at', 'ad.fullname', 'a.app_name', 'a.window_title', 'a.total_seconds'];
+        $order_col = (int)$this->input->post('order[0][column]');
+        $order_dir = $this->input->post('order[0][dir]') === 'asc' ? 'ASC' : 'DESC';
+        $order_by = $columns[$order_col] ?? 'a.recorded_at';
+
+        $search_val = $this->input->post('search[value]');
+
+        $this->db->reset_query();
+        $this->db->select('a.*, u.username, ad.fullname');
+        $this->db->from('tbl_desktop_app_usage a');
+        $this->db->join('tbl_users u', 'u.user_id = a.user_id', 'left');
+        $this->db->join('tbl_account_details ad', 'ad.user_id = a.user_id', 'left');
+
+        if (!empty($user_id)) $this->db->where('a.user_id', (int)$user_id);
+        $this->db->where('a.recorded_at >=', $from);
+        $this->db->where('a.recorded_at <=', $to);
+
+        if (!empty($search_val)) {
+            $this->db->group_start();
+            $this->db->like('ad.fullname', $search_val);
+            $this->db->or_like('a.app_name', $search_val);
+            $this->db->or_like('a.window_title', $search_val);
+            $this->db->group_end();
+        }
+
+        $total_filtered = $this->db->count_all_results(null, false);
+
+        $this->db->order_by($order_by, $order_dir);
+        $this->db->limit($length, $start);
+        $data = $this->db->get()->result();
+
+        $this->db->reset_query();
+        $total_all = $this->db->count_all('tbl_desktop_app_usage');
+
+        $rows = [];
+        foreach ($data as $row) {
+            $rows[] = [
+                htmlspecialchars($row->recorded_at, ENT_QUOTES, 'UTF-8'),
+                htmlspecialchars($row->fullname ?? $row->username ?? 'User #' . $row->user_id, ENT_QUOTES, 'UTF-8'),
+                htmlspecialchars($row->app_name, ENT_QUOTES, 'UTF-8'),
+                htmlspecialchars(mb_substr($row->window_title ?? '—', 0, 60), ENT_QUOTES, 'UTF-8'),
+                gmdate('H:i:s', (int)$row->total_seconds),
+            ];
+        }
+
+        $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode([
+                'draw' => $draw,
+                'recordsTotal' => $total_all,
+                'recordsFiltered' => $total_filtered,
+                'data' => $rows,
+            ]));
     }
 
     public function view_image($id)
@@ -684,29 +854,55 @@ class Timesync extends Admin_Controller
         ];
     }
 
-    private function _user_entries($user_id, $from, $to)
+    private function _user_daily_hours($user_id, $from, $to)
     {
-        return $this->db
-            ->select('tbl_desktop_time_entries.*, tbl_task.task_name')
-            ->from('tbl_desktop_time_entries')
-            ->join('tbl_task', 'tbl_task.task_id = tbl_desktop_time_entries.task_id', 'left')
-            ->where('tbl_desktop_time_entries.user_id', $user_id)
-            ->where('tbl_desktop_time_entries.started_at >=', $from . ' 00:00:00')
-            ->where('tbl_desktop_time_entries.started_at <=', $to . ' 23:59:59')
-            ->order_by('tbl_desktop_time_entries.started_at', 'DESC')
-            ->get()
+        $result = $this->db
+            ->select('DATE(started_at) as day, COALESCE(SUM(total_seconds), 0) as total_sec')
+            ->where('user_id', $user_id)
+            ->where('started_at >=', $from . ' 00:00:00')
+            ->where('started_at <=', $to . ' 23:59:59')
+            ->group_by('DATE(started_at)')
+            ->order_by('day', 'ASC')
+            ->get('tbl_desktop_time_entries')
             ->result();
+        $labels = [];
+        $values = [];
+        $data_map = [];
+        foreach ($result as $r) {
+            $data_map[$r->day] = round($r->total_sec / 3600, 1);
+        }
+        $d = new DateTime($from);
+        $end = new DateTime($to);
+        while ($d <= $end) {
+            $day = $d->format('Y-m-d');
+            $labels[] = $day;
+            $values[] = $data_map[$day] ?? 0;
+            $d->modify('+1 day');
+        }
+        return ['labels' => $labels, 'values' => $values];
     }
 
-    private function _user_screenshots($user_id, $from, $to)
+    private function _user_entries($user_id, $from, $to, $limit = null, $offset = null)
     {
-        return $this->db
-            ->where('user_id', $user_id)
-            ->where('captured_at >=', $from . ' 00:00:00')
-            ->where('captured_at <=', $to . ' 23:59:59')
-            ->order_by('captured_at', 'DESC')
-            ->get('tbl_screenshots')
-            ->result();
+        $this->db->select('tbl_desktop_time_entries.*, tbl_task.task_name');
+        $this->db->from('tbl_desktop_time_entries');
+        $this->db->join('tbl_task', 'tbl_task.task_id = tbl_desktop_time_entries.task_id', 'left');
+        $this->db->where('tbl_desktop_time_entries.user_id', $user_id);
+        $this->db->where('tbl_desktop_time_entries.started_at >=', $from . ' 00:00:00');
+        $this->db->where('tbl_desktop_time_entries.started_at <=', $to . ' 23:59:59');
+        $this->db->order_by('tbl_desktop_time_entries.started_at', 'DESC');
+        if ($limit !== null) $this->db->limit($limit, $offset);
+        return $this->db->get()->result();
+    }
+
+    private function _user_screenshots($user_id, $from, $to, $limit = null, $offset = null)
+    {
+        $this->db->where('user_id', $user_id);
+        $this->db->where('captured_at >=', $from . ' 00:00:00');
+        $this->db->where('captured_at <=', $to . ' 23:59:59');
+        $this->db->order_by('captured_at', 'DESC');
+        if ($limit !== null) $this->db->limit($limit, $offset);
+        return $this->db->get('tbl_screenshots')->result();
     }
 
     private function _user_app_usage($user_id, $from, $to)

@@ -20,9 +20,12 @@ class Team_model extends CI_Model {
             ->result();
     }
 
-    public function get_all_teams()
+    public function get_all_teams($limit = null, $offset = null)
     {
-        return $this->db->get('tbl_teams')->result();
+        if ($limit !== null) {
+            $this->db->limit($limit, $offset);
+        }
+        return $this->db->order_by('name', 'ASC')->get('tbl_teams')->result();
     }
 
     public function get_team($team_id)

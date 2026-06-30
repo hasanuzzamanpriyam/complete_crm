@@ -146,9 +146,8 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-(function() {
+$(function() {
     var labels = <?= $daily_chart_labels ?? '[]' ?>;
     var values = <?= $daily_chart_values ?? '[]' ?>;
     var dist = <?= $user_distribution ?? '[]' ?>;

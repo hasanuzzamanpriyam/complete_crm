@@ -17,7 +17,16 @@ class Timesync_Teams extends Admin_Controller
     {
         $data['title'] = 'TimeSync Teams';
 
-        $teams = $this->Team_model->get_all_teams();
+        // Pagination
+        $page = max(1, (int)$this->input->get('page'));
+        $per_page = 20;
+        $offset = ($page - 1) * $per_page;
+        $total_teams = $this->db->count_all('tbl_teams');
+        $total_pages = max(1, ceil($total_teams / $per_page));
+        $page = min($page, $total_pages);
+        $offset = ($page - 1) * $per_page;
+
+        $teams = $this->Team_model->get_all_teams($per_page, $offset);
 
         $team_members = [];
         foreach ($teams as $team) {
@@ -41,9 +50,40 @@ class Timesync_Teams extends Admin_Controller
             ->get()
             ->result();
 
+        // Chart data: top 10 teams by member count
+        $team_sizes = $this->db
+            ->select('t.name, COUNT(tm.id) as member_count')
+            ->from('tbl_teams t')
+            ->join('tbl_team_members tm', 'tm.team_id = t.id')
+            ->group_by('t.id')
+            ->order_by('member_count', 'DESC')
+            ->limit(10)
+            ->get()
+            ->result();
+        $data['chart_team_labels'] = json_encode(array_map(function($r) { return $r->name; }, $team_sizes));
+        $data['chart_team_values'] = json_encode(array_map(function($r) { return (int)$r->member_count; }, $team_sizes));
+
+        // Status breakdown across all teams
+        $status_counts = $this->db
+            ->select('status, COUNT(*) as cnt')
+            ->from('tbl_team_members')
+            ->group_by('status')
+            ->get()
+            ->result();
+        $data['chart_status_labels'] = json_encode(array_map(function($r) { return $r->status; }, $status_counts));
+        $data['chart_status_values'] = json_encode(array_map(function($r) { return (int)$r->cnt; }, $status_counts));
+
+        // Global counts for stat cards
+        $data['total_teams_all'] = $this->db->reset_query()->count_all('tbl_teams');
+        $data['total_members_all'] = $this->db->reset_query()->count_all('tbl_team_members');
+        $data['pending_count_all'] = $this->db->reset_query()->where('status', 'pending')->count_all_results('tbl_team_members');
+
         $data['teams'] = $teams;
         $data['team_members'] = $team_members;
         $data['all_users'] = $all_users;
+        $data['page'] = $page;
+        $data['total_pages'] = $total_pages;
+        $data['per_page'] = $per_page;
 
         $data['subview'] = $this->load->view('admin/timesync/teams', $data, true);
         $this->load->view('admin/_layout_main', $data);

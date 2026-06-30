@@ -160,6 +160,7 @@ class Tasks extends MY_Controller
                 'status' => $this->_map_status($t->task_status),
                 'estimated_minutes' => $hours,
                 'progress' => (int)($t->task_progress ?? 0),
+                'due_date' => $t->due_date ?? null,
                 'erp_id' => (int)$t->task_id,
                 'created_by' => (int)$t->created_by,
                 'created_at' => $t->task_created_date ?? date('Y-m-d H:i:s'),
@@ -196,6 +197,7 @@ class Tasks extends MY_Controller
             'status' => $this->_map_status($task->task_status),
             'priority' => $task->priority ?? 'medium',
             'progress' => (int)($task->task_progress ?? 0),
+            'due_date' => $task->due_date ?? null,
         ]]);
     }
 
@@ -253,7 +255,7 @@ class Tasks extends MY_Controller
             'task_status' => $this->_reverse_map_status($input['status'] ?? 'pending'),
             'task_hour' => $hours_minutes,
             'task_start_date' => date('Y-m-d'),
-            'due_date' => null,
+            'due_date' => !empty($input['due_date']) ? date('Y-m-d', strtotime($input['due_date'])) : date('Y-m-d'),
             'created_by' => $user->user_id,
             'permission' => $permission,
             'report_to' => !empty($input['report_to']) ? (int)$input['report_to'] : null,
@@ -261,10 +263,6 @@ class Tasks extends MY_Controller
             'priority' => $input['priority'] ?? 'medium',
             'task_progress' => !empty($input['task_progress']) ? (int)$input['task_progress'] : (!empty($input['progress']) ? (int)$input['progress'] : 0),
         ];
-
-        if (!empty($input['due_date'])) {
-            $task_data['due_date'] = date('Y-m-d', strtotime($input['due_date']));
-        }
 
         $this->db->insert('tbl_task', $task_data);
         $task_id = $this->db->insert_id();
@@ -324,6 +322,20 @@ class Tasks extends MY_Controller
             $update['report_to'] = !empty($input['report_to']) ? (int)$input['report_to'] : null;
         }
 
+        if (isset($input['due_date'])) {
+            $update['due_date'] = !empty($input['due_date']) ? date('Y-m-d', strtotime($input['due_date'])) : date('Y-m-d');
+        }
+
+        // Auto-set progress when status changes
+        if (isset($input['status'])) {
+            $newStatus = $this->_reverse_map_status($input['status']);
+            if ($newStatus === 'completed') {
+                $update['task_progress'] = 100;
+            } elseif ($newStatus === 'in_progress' && isset($task->task_status) && $task->task_status === 'completed') {
+                $update['task_progress'] = 50;
+            }
+        }
+
         if (isset($input['team_id'])) {
             $this->load->model('Team_model');
             if (!$this->api_auth->is_super_admin() &&
@@ -334,7 +346,10 @@ class Tasks extends MY_Controller
         }
 
         if (!empty($update)) {
-            $this->db->where('task_id', $id)->update('tbl_task', $update);
+            if (!$this->db->where('task_id', $id)->update('tbl_task', $update)) {
+                $error = $this->db->error();
+                return $this->_respond(500, false, 'Database error: ' . $error['message']);
+            }
         }
 
         return $this->_respond(200, true, 'Task updated');
