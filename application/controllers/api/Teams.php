@@ -389,9 +389,9 @@ class Teams extends MY_Controller {
 
     private function _members($team_id)
     {
-        if (!$this->Team_model->is_team_manager($this->api_auth->get_user()->user_id, $team_id)
+        if (!$this->Team_model->is_team_member($this->api_auth->get_user()->user_id, $team_id)
             && !$this->api_auth->is_super_admin()) {
-            $this->_respond(403, false, 'Team manager access required');
+            $this->_respond(403, false, 'Team member access required');
         }
 
         $members = $this->Team_model->get_team_members_with_users($team_id);
