@@ -88,7 +88,7 @@
             <?php foreach ($screenshots as $s): ?>
               <div class="screenshot-card">
                 <a href="<?= base_url('admin/timesync/view_image/' . $s->id) ?>" target="_blank" rel="noopener">
-                  <img src="<?= base_url('admin/timesync/view_image/' . $s->id) ?>" loading="lazy">
+                  <img data-ss-id="<?= $s->id ?>" class="ss-thumb" loading="lazy">
                 </a>
                 <div class="card-footer">
                   <strong><?= htmlspecialchars($s->fullname ?? 'User') ?></strong>
@@ -176,6 +176,26 @@ $(document).ready(function () {
             y: { beginAtZero: true, display: false }
           },
           elements: { point: { radius: 0 } }
+        }
+      });
+    }
+  });
+});
+
+// Batch load screenshot thumbnails
+$(document).ready(function () {
+  var ids = [];
+  $('.ss-thumb').each(function () {
+    var id = $(this).data('ss-id');
+    if (id) ids.push(id);
+  });
+  if (ids.length === 0) return;
+  $.get('<?= base_url("admin/timesync/batch_thumbnails") ?>', { ids: ids.join(',') }, function (resp) {
+    if (resp.success && resp.data) {
+      $('.ss-thumb').each(function () {
+        var id = $(this).data('ss-id');
+        if (resp.data[id]) {
+          $(this).attr('src', resp.data[id]);
         }
       });
     }

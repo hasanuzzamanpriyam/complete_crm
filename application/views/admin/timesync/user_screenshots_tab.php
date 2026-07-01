@@ -23,7 +23,7 @@
         <?php foreach ($screenshots as $s): ?>
           <div class="ss-card">
             <a href="javascript:void(0)" class="screenshot-thumbnail" data-id="<?= $s->id ?>">
-              <img src="<?= base_url('admin/timesync/view_image/' . $s->id) ?>" loading="lazy">
+              <img data-ss-id="<?= $s->id ?>" class="ss-thumb" loading="lazy">
             </a>
             <div class="ss-label"><?= date('M d, H:i', strtotime($s->captured_at)) ?></div>
           </div>
@@ -177,6 +177,26 @@ $(document).ready(function () {
         $('#screenshotAppUsageContainer').html('<p class="text-danger text-center">Failed to load screenshot details.</p>');
       }
     });
+  });
+});
+
+// Batch load screenshot thumbnails
+$(document).ready(function () {
+  var ids = [];
+  $('.ss-thumb').each(function () {
+    var id = $(this).data('ss-id');
+    if (id) ids.push(id);
+  });
+  if (ids.length === 0) return;
+  $.get('<?= base_url("admin/timesync/batch_thumbnails") ?>', { ids: ids.join(',') }, function (resp) {
+    if (resp.success && resp.data) {
+      $('.ss-thumb').each(function () {
+        var id = $(this).data('ss-id');
+        if (resp.data[id]) {
+          $(this).attr('src', resp.data[id]);
+        }
+      });
+    }
   });
 });
 </script>

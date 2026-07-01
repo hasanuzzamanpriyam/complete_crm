@@ -295,11 +295,7 @@ class Timesync extends Admin_Controller
                 $data['entry_total_pages'] = $entry_total_pages;
                 break;
             case 'screenshots':
-                $total_ss = $this->db
-                    ->where('user_id', $user_id)
-                    ->where('captured_at >=', $from . ' 00:00:00')
-                    ->where('captured_at <=', $to . ' 23:59:59')
-                    ->count_all_results('tbl_screenshots');
+                $total_ss = $stats['screenshot_count'];
                 $ss_per_page = 24;
                 $ss_total_pages = max(1, ceil($total_ss / $ss_per_page));
                 $screenshot_page = min($screenshot_page, $ss_total_pages);
@@ -595,12 +591,14 @@ class Timesync extends Admin_Controller
         $screenshot = $this->db->where('id', $id)->get('tbl_screenshots')->row();
         if (empty($screenshot)) {
             $this->_output_transparent_pixel();
+            return;
         }
 
         $file_path = FCPATH . $screenshot->file_path;
         if (!file_exists($file_path)) {
             log_message('error', 'Screenshot file missing: ' . $file_path . ' (DB id: ' . $id . ')');
             $this->_output_transparent_pixel();
+            return;
         }
 
         $ext = strtolower(pathinfo($file_path, PATHINFO_EXTENSION));
@@ -927,6 +925,38 @@ class Timesync extends Admin_Controller
             ->row();
         $seconds = (int)$result->total;
         return round($seconds / 3600, 1);
+    }
+
+    public function batch_thumbnails()
+    {
+        $ids = $this->input->get('ids');
+        if (empty($ids)) {
+            $this->output->set_status_header(400)->set_content_type('application/json')->set_output(json_encode(['success' => false, 'message' => 'ids parameter required']));
+            return;
+        }
+
+        $id_array = array_map('intval', explode(',', $ids));
+        $id_array = array_unique(array_filter($id_array, fn($v) => $v > 0));
+        if (empty($id_array)) {
+            $this->output->set_status_header(400)->set_content_type('application/json')->set_output(json_encode(['success' => false, 'message' => 'No valid IDs']));
+            return;
+        }
+
+        $placeholders = implode(',', array_fill(0, count($id_array), '?'));
+        $screenshots = $this->db->query("SELECT id, file_path FROM tbl_screenshots WHERE id IN ($placeholders)", $id_array)->result();
+
+        $result = [];
+        foreach ($screenshots as $s) {
+            $file_path = FCPATH . $s->file_path;
+            if (file_exists($file_path)) {
+                $ext = strtolower(pathinfo($file_path, PATHINFO_EXTENSION));
+                $mime = $ext === 'png' ? 'image/png' : ($ext === 'jpg' || $ext === 'jpeg' ? 'image/jpeg' : 'image/webp');
+                $data = base64_encode(file_get_contents($file_path));
+                $result[$s->id] = 'data:' . $mime . ';base64,' . $data;
+            }
+        }
+
+        $this->output->set_content_type('application/json')->set_output(json_encode(['success' => true, 'data' => $result]));
     }
 }
 

@@ -129,7 +129,7 @@ class Team_model extends CI_Model {
 
     public function get_messages($team_id, $since = null)
     {
-        $this->db->select('tm.*, u.username, u.full_name')
+        $this->db->select('tm.*, u.username')
             ->from('tbl_team_messages tm')
             ->join('tbl_users u', 'u.user_id = tm.user_id')
             ->where('tm.team_id', $team_id)

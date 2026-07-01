@@ -530,7 +530,7 @@ class Teams extends MY_Controller {
                 }
             }
 
-            $created = $this->db->select('tm.*, u.username, u.full_name')
+            $created = $this->db->select('tm.*, u.username')
                 ->from('tbl_team_messages tm')
                 ->join('tbl_users u', 'u.user_id = tm.user_id')
                 ->where('tm.id', $msg_id)
