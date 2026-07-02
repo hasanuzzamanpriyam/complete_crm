@@ -4,7 +4,7 @@
 <div class="panel panel-custom">
     <header class="panel-heading ">
         <div class="panel-title">
-            <strong>Letter Templates</strong>
+            <strong>Letter Variables</strong>
         </div>
     </header>
 
@@ -12,12 +12,9 @@
         <div class="row">
             <div class="col-sm-12">
                 <div class="btn-group pull-right m-b-15">
-                    <a href="<?= base_url('admin/letter/create') ?>"
+                    <a href="<?= base_url('admin/letter/edit_variable') ?>"
                        class="btn btn-success" data-toggle="modal" data-target="#myModal">
-                        <i class="fa fa-plus"></i> Add Template
-                    </a>
-                    <a href="<?= base_url('admin/letter/variables') ?>" class="btn btn-info">
-                        <i class="fa fa-list"></i> Manage Variables
+                        <i class="fa fa-plus"></i> Add Variable
                     </a>
                 </div>
             </div>
@@ -27,14 +24,17 @@
             <table class="table table-striped DataTables" id="DataTables" cellspacing="0" width="100%">
                 <thead>
                 <tr>
-                    <th>Title</th>
+                    <th>Variable</th>
+                    <th>Label</th>
+                    <th>Type</th>
+                    <th>Category</th>
                     <th class="col-options no-sort">Action</th>
                 </tr>
                 </thead>
                 <tbody>
                 <script type="text/javascript">
                     $(document).ready(function () {
-                        list = base_url + "admin/letter/templateList";
+                        list = base_url + "admin/letter/variable_list";
                     });
                 </script>
                 </tbody>

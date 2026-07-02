@@ -42,31 +42,22 @@
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <strong>Available Variables</strong>
+                        <div class="pull-right">
+                            <a href="<?= base_url('admin/letter/variables') ?>" class="btn btn-xs btn-info" style="color:#fff;">
+                                <i class="fa fa-cog"></i> Manage
+                            </a>
+                        </div>
                     </div>
                     <div class="panel-body">
                         <p class="text-muted">Click a variable to insert it into the editor at cursor position:</p>
                         <div class="variables-list">
-                            <?php
-                            $variables = array(
-                                '##CURRENT_DATE##',
-                                '##CURRENT_YEAR##',
-                                '##EMPLOYEE_NAME##',
-                                '##EMPLOYEE_ID##',
-                                '##COMPANY_NAME##',
-                                '##COMPANY_ADDRESS##',
-                                '##COMPANY_PHONE##',
-                                '##COMPANY_EMAIL##',
-                                '##CLIENT_NAME##',
-                                '##CLIENT_ADDRESS##',
-                                '##PROJECT_NAME##',
-                                '##PROJECT_ID##',
-                                '##TASK_NAME##',
-                                '##TASK_ID##',
-                            );
-                            foreach ($variables as $var) {
-                                echo '<a href="#" class="insert-variable label label-primary" style="display:inline-block;margin:3px;cursor:pointer;">' . $var . '</a> ';
-                            }
-                            ?>
+                            <?php if (!empty($variables)): ?>
+                                <?php foreach ($variables as $var): ?>
+                                    <a href="#" class="insert-variable label label-<?= $var->type === 'user' ? 'info' : 'primary' ?>" style="display:inline-block;margin:3px;cursor:pointer;" title="<?= htmlspecialchars($var->label) ?>">##<?= htmlspecialchars(strtoupper($var->name)) ?>##</a>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <p class="text-muted">No variables defined.</p>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>

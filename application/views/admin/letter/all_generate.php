@@ -16,6 +16,9 @@
                        class="btn btn-success">
                         <i class="fa fa-plus"></i> Add New
                     </a>
+                    <a href="<?= base_url('admin/letter/variables') ?>" class="btn btn-info">
+                        <i class="fa fa-list"></i> Manage Variables
+                    </a>
                 </div>
             </div>
         </div>

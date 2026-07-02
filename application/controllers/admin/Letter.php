@@ -113,6 +113,7 @@ class Letter extends Admin_Controller
 
         $data['template_id'] = $id;
         $data['active'] = 2;
+        $data['variables'] = $this->letter_model->get_all_variables();
 
         if ($this->input->is_ajax_request()) {
             $this->load->view('admin/letter/create_template', $data);
@@ -287,6 +288,7 @@ class Letter extends Admin_Controller
 
         $data['title'] = 'Generate Letter';
         $data['active'] = 2;
+        $data['all_variables'] = $this->letter_model->get_all_variables();
 
         $template_where = array();
         if (empty($is_super_admin)) {
@@ -296,7 +298,7 @@ class Letter extends Admin_Controller
         $this->letter_model->_primary_key = 'id';
         $data['templates'] = $this->letter_model->get_by($template_where);
 
-    $employee_where = array('tbl_users.role_id' => 3, 'tbl_users.activated' => 1);
+        $employee_where = array('tbl_users.role_id' => 3, 'tbl_users.activated' => 1);
         $this->db->select('tbl_users.user_id, tbl_account_details.fullname');
         $this->db->join('tbl_account_details', 'tbl_users.user_id = tbl_account_details.user_id', 'left');
         $data['employees'] = $this->db->where($employee_where)->get('tbl_users')->result();
@@ -353,32 +355,48 @@ class Letter extends Admin_Controller
         }
 
         $employee_id = $this->input->post('employee_id');
-        if (empty($employee_id)) {
-            $this->output->set_content_type('application/json')
-                         ->set_output(json_encode(array('status' => 'error', 'message' => 'No employee ID')));
-            return;
-        }
+        $custom_values = $this->input->post('custom_values') ? json_decode($this->input->post('custom_values'), true) : [];
 
-        $details = $this->letter_model->get_employee_details($employee_id);
-        if (empty($details)) {
-            $this->output->set_content_type('application/json')
-                         ->set_output(json_encode(array('status' => 'error', 'message' => 'Employee not found')));
-            return;
-        }
+        $variables_map = [];
 
-        $designation = '';
-        $department = '';
-        if (!empty($details->designations_id)) {
-            $desig = $this->db->where('designations_id', $details->designations_id)->get('tbl_designations')->row();
-            if ($desig) {
-                $designation = $desig->designations;
-                $dept = $this->db->where('departments_id', $desig->departments_id)->get('tbl_departments')->row();
-                if ($dept) {
-                    $department = $dept->deptname;
+        // Resolve general variables
+        $variables_map['##CURRENT_DATE##'] = date('Y-m-d');
+        $variables_map['##CURRENT_YEAR##'] = date('Y');
+
+        // Resolve employee variables
+        if (!empty($employee_id)) {
+            $details = $this->letter_model->get_employee_details($employee_id);
+            $employee_name = $details ? ($details->fullname ?: '') : '';
+            if ($details) {
+                $designation = '';
+                $department = '';
+                if (!empty($details->designations_id)) {
+                    $desig = $this->db->where('designations_id', $details->designations_id)->get('tbl_designations')->row();
+                    if ($desig) {
+                        $designation = $desig->designations;
+                        $dept = $this->db->where('departments_id', $desig->departments_id)->get('tbl_departments')->row();
+                        if ($dept) {
+                            $department = $dept->deptname;
+                        }
+                    }
                 }
+                $variables_map['##EMPLOYEE_NAME##']    = $details->fullname ?: '';
+                $variables_map['##EMPLOYEE_ID##']      = $details->employment_id ?: '';
+                $variables_map['##EMPLOYEE_ADDRESS##'] = $details->present_address ?: '';
+                $variables_map['##EMPLOYEE_PHONE##']   = $details->phone ?: '';
+                $variables_map['##JOINING_DATE##']     = $details->joining_date ?: '';
+                $variables_map['##DATE_OF_BIRTH##']    = $details->date_of_birth ?: '';
+                $variables_map['##FATHER_NAME##']      = $details->father_name ?: '';
+                $variables_map['##MOTHER_NAME##']      = $details->mother_name ?: '';
+                $variables_map['##GENDER##']           = $details->gender ?: '';
+                $variables_map['##DESIGNATION##']      = $designation;
+                $variables_map['##DEPARTMENT##']       = $department;
             }
+        } else {
+            $employee_name = '';
         }
 
+        // Resolve company variables
         $company_name = config_item('company_name');
         if (empty($company_name)) {
             $company = $this->db->where('config_key', 'company_name')->get('tbl_config')->row();
@@ -399,38 +417,27 @@ class Letter extends Admin_Controller
             $em = $this->db->where('config_key', 'company_email')->get('tbl_config')->row();
             $company_email = $em ? $em->value : '';
         }
+        $variables_map['##COMPANY_NAME##']    = $company_name;
+        $variables_map['##COMPANY_ADDRESS##'] = $company_address;
+        $variables_map['##COMPANY_PHONE##']   = $company_phone;
+        $variables_map['##COMPANY_EMAIL##']   = $company_email;
 
-        $variables = array(
-            '##CURRENT_DATE##'     => date('Y-m-d'),
-            '##CURRENT_YEAR##'     => date('Y'),
-            '##EMPLOYEE_NAME##'    => $details->fullname ?: '',
-            '##EMPLOYEE_ID##'      => $details->employment_id ?: '',
-            '##EMPLOYEE_ADDRESS##' => $details->present_address ?: '',
-            '##EMPLOYEE_PHONE##'   => $details->phone ?: '',
-            '##JOINING_DATE##'     => $details->joining_date ?: '',
-            '##DATE_OF_BIRTH##'    => $details->date_of_birth ?: '',
-            '##FATHER_NAME##'      => $details->father_name ?: '',
-            '##MOTHER_NAME##'      => $details->mother_name ?: '',
-            '##GENDER##'           => $details->gender ?: '',
-            '##DESIGNATION##'      => $designation,
-            '##DEPARTMENT##'       => $department,
-            '##COMPANY_NAME##'     => $company_name,
-            '##COMPANY_ADDRESS##'  => $company_address,
-            '##COMPANY_PHONE##'    => $company_phone,
-            '##COMPANY_EMAIL##'    => $company_email,
-            '##CLIENT_NAME##'      => '',
-            '##CLIENT_ADDRESS##'   => '',
-            '##PROJECT_NAME##'     => '',
-            '##PROJECT_ID##'       => '',
-            '##TASK_NAME##'        => '',
-            '##TASK_ID##'          => '',
-        );
+        // Resolve user-created variables from DB + custom values override
+        $all_db_vars = $this->letter_model->get_all_variables();
+        foreach ($all_db_vars as $var) {
+            $key = '##' . strtoupper($var->name) . '##';
+            if (!isset($variables_map[$key])) {
+                // Use custom value if provided, otherwise default_value
+                $val = isset($custom_values[$var->name]) ? $custom_values[$var->name] : $var->default_value;
+                $variables_map[$key] = $val ?: '';
+            }
+        }
 
         $this->output->set_content_type('application/json')
                      ->set_output(json_encode(array(
                          'status' => 'success',
-                         'employee_name' => $details->fullname ?: '',
-                         'variables' => $variables
+                         'employee_name' => $employee_name,
+                         'variables' => $variables_map
                      )));
     }
 
@@ -567,6 +574,152 @@ class Letter extends Admin_Controller
             $this->output->set_output(json_encode(array('status' => 'success', 'message' => 'Letter deleted successfully')));
         } else {
             $this->output->set_output(json_encode(array('status' => 'error', 'message' => 'Letter not found or access denied')));
+        }
+    }
+
+    /*** VARIABLE METHODS ***/
+
+    public function variables()
+    {
+        $data['title'] = 'Letter Variables';
+        $data['active'] = 3;
+        $data['subview'] = $this->load->view('admin/letter/all_variables', $data, true);
+        $this->load->view('admin/_layout_main', $data);
+    }
+
+    public function variable_list()
+    {
+        if (!$this->input->is_ajax_request()) {
+            redirect('admin/dashboard');
+        }
+
+        $this->load->model('datatables');
+        $this->datatables->table = 'tbl_letter_variables';
+        $this->datatables->select = 'tbl_letter_variables.*';
+        $main_column = array('tbl_letter_variables.name', 'tbl_letter_variables.label', 'tbl_letter_variables.type', 'tbl_letter_variables.category');
+        $action_array = array('tbl_letter_variables.id', 'tbl_letter_variables.type');
+        $result = array_merge($main_column, $action_array);
+        $this->datatables->column_order = $result;
+        $this->datatables->column_search = $result;
+        $this->datatables->order = array('tbl_letter_variables.id' => 'desc');
+
+        $fetch_data = make_datatables();
+        $data = array();
+
+        if (!empty($fetch_data)) {
+            foreach ($fetch_data as $key => $v_item) {
+                $sub_array = array();
+                $sub_array[] = '##' . $v_item->name . '##';
+                $sub_array[] = $v_item->label;
+                $sub_array[] = ucfirst($v_item->type);
+                $sub_array[] = ucfirst($v_item->category);
+
+                $action = '';
+                if ($v_item->type === 'user') {
+                    $action .= '<a href="' . base_url('admin/letter/edit_variable/' . $v_item->id) . '" class="btn btn-xs btn-primary" data-toggle="modal" data-target="#myModal" title="Edit"><i class="fa fa-pencil-square-o"></i></a> ';
+                    $action .= ajax_anchor(
+                        base_url('admin/letter/delete_variable/' . $v_item->id),
+                        "<i class='btn btn-xs btn-danger fa fa-trash-o'></i>",
+                        array(
+                            'class' => '',
+                            'title' => 'Delete',
+                            'data-fade-out-on-success' => '#table_' . $key
+                        )
+                    );
+                } else {
+                    $action .= '<span class="label label-default">System</span>';
+                }
+
+                $sub_array[] = $action;
+                $data[] = $sub_array;
+            }
+        }
+
+        render_table($data);
+    }
+
+    public function edit_variable($id = null)
+    {
+        $data['title'] = !empty($id) ? 'Edit Variable' : 'Add Variable';
+
+        if (!empty($id)) {
+            $data['variable_info'] = $this->letter_model->check_by(array('id' => $id), 'tbl_letter_variables');
+            if (empty($data['variable_info']) || $data['variable_info']->type === 'system') {
+                set_message('error', 'Variable not found');
+                redirect('admin/letter/variables');
+            }
+        }
+
+        if ($this->input->is_ajax_request()) {
+            $this->load->view('admin/letter/variable_form', $data);
+            return;
+        }
+
+        $data['subview'] = $this->load->view('admin/letter/variable_form', $data, true);
+        $this->load->view('admin/_layout_main', $data);
+    }
+
+    public function save_variable($id = null)
+    {
+        if (!$this->input->is_ajax_request()) {
+            redirect('admin/dashboard');
+        }
+
+        $this->form_validation->set_rules('name', 'Variable Name', 'required|trim|alpha_numeric');
+        $this->form_validation->set_rules('label', 'Label', 'required|trim');
+
+        if ($this->form_validation->run() == false) {
+            $this->output->set_content_type('application/json')
+                         ->set_output(json_encode(array('status' => 'error', 'message' => validation_errors())));
+            return;
+        }
+
+        $name = strtoupper($this->input->post('name', true));
+        $data = array(
+            'name'          => $name,
+            'label'         => $this->input->post('label', true),
+            'type'          => 'user',
+            'category'      => $this->input->post('category', true) ?: 'general',
+            'default_value' => $this->input->post('default_value', true) ?: '',
+        );
+
+        if (!empty($id)) {
+            $existing = $this->letter_model->check_by(array('id' => $id), 'tbl_letter_variables');
+            if (empty($existing) || $existing->type === 'system') {
+                $this->output->set_content_type('application/json')
+                             ->set_output(json_encode(array('status' => 'error', 'message' => 'Variable not found or is system protected')));
+                return;
+            }
+            $this->letter_model->save_variable($data, $id);
+            $message = 'Variable updated successfully';
+        } else {
+            // Check for duplicate name
+            $dup = $this->letter_model->check_by(array('name' => $name), 'tbl_letter_variables');
+            if (!empty($dup)) {
+                $this->output->set_content_type('application/json')
+                             ->set_output(json_encode(array('status' => 'error', 'message' => 'A variable with this name already exists')));
+                return;
+            }
+            $new_id = $this->letter_model->save_variable($data);
+            $message = 'Variable saved successfully';
+        }
+
+        $this->output->set_content_type('application/json')
+                     ->set_output(json_encode(array('status' => 'success', 'message' => $message)));
+    }
+
+    public function delete_variable($id)
+    {
+        if (!$this->input->is_ajax_request()) {
+            redirect('admin/dashboard');
+        }
+
+        $existing = $this->letter_model->check_by(array('id' => $id), 'tbl_letter_variables');
+        if (!empty($existing) && $existing->type === 'user') {
+            $this->letter_model->delete_variable($id);
+            $this->output->set_output(json_encode(array('status' => 'success', 'message' => 'Variable deleted successfully')));
+        } else {
+            $this->output->set_output(json_encode(array('status' => 'error', 'message' => 'Variable not found or is system protected')));
         }
     }
 

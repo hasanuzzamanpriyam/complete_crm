@@ -112,28 +112,49 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="col-lg-3 control-label">Available Variables</label>
+                    <label class="col-lg-3 control-label">
+                        Available Variables
+                        <a href="<?= base_url('admin/letter/variables') ?>" class="btn btn-xs btn-info" style="color:#fff;margin-left:6px;vertical-align:middle;">
+                            <i class="fa fa-cog"></i> Manage
+                        </a>
+                    </label>
                     <div class="col-lg-8">
                         <div class="variables-list">
-                            <?php
-                            $variables = array(
-                                '##CURRENT_DATE##', '##CURRENT_YEAR##',
-                                '##EMPLOYEE_NAME##', '##EMPLOYEE_ID##', '##EMPLOYEE_ADDRESS##',
-                                '##EMPLOYEE_PHONE##', '##JOINING_DATE##', '##DATE_OF_BIRTH##',
-                                '##FATHER_NAME##', '##MOTHER_NAME##', '##GENDER##',
-                                '##DESIGNATION##', '##DEPARTMENT##',
-                                '##COMPANY_NAME##', '##COMPANY_ADDRESS##', '##COMPANY_PHONE##', '##COMPANY_EMAIL##',
-                                '##CLIENT_NAME##', '##CLIENT_ADDRESS##',
-                                '##PROJECT_NAME##', '##PROJECT_ID##',
-                                '##TASK_NAME##', '##TASK_ID##',
-                            );
-                            foreach ($variables as $var) {
-                                echo '<a href="#" class="insert-variable label label-primary" style="display:inline-block;margin:2px;cursor:pointer;font-size:11px;">' . $var . '</a> ';
-                            }
-                            ?>
+                            <?php if (!empty($all_variables)): ?>
+                                <?php foreach ($all_variables as $var): ?>
+                                    <a href="#" class="insert-variable label label-<?= $var->type === 'user' ? 'info' : 'primary' ?>" style="display:inline-block;margin:2px;cursor:pointer;font-size:11px;" title="<?= htmlspecialchars($var->label) ?>">##<?= htmlspecialchars(strtoupper($var->name)) ?>##</a>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <p class="text-muted">No variables defined.</p>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
+
+                <?php
+                $user_vars = array();
+                if (!empty($all_variables)) {
+                    foreach ($all_variables as $var) {
+                        if ($var->type === 'user') {
+                            $user_vars[] = $var;
+                        }
+                    }
+                }
+                ?>
+                <?php if (!empty($user_vars)): ?>
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">Custom Values</label>
+                    <div class="col-lg-8">
+                        <p class="text-muted" style="font-size:11px;margin-bottom:8px;">Enter values for custom variables:</p>
+                        <?php foreach ($user_vars as $var): ?>
+                            <div class="form-group" style="margin-bottom:6px;">
+                                <label style="font-size:11px;font-weight:600;display:block;">##<?= htmlspecialchars(strtoupper($var->name)) ?>## — <?= htmlspecialchars($var->label) ?></label>
+                                <input type="text" class="form-control custom-var-input" data-var-name="<?= htmlspecialchars(strtoupper($var->name)) ?>" value="<?= htmlspecialchars($var->default_value) ?>" placeholder="Enter value for <?= htmlspecialchars($var->label) ?>">
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
 
                 <div class="form-group">
                     <div class="col-lg-offset-3 col-lg-8">
@@ -258,10 +279,17 @@
                 return;
             }
 
+            // Collect custom variable values
+            var customValues = {};
+            $('.custom-var-input').each(function () {
+                var name = $(this).data('var-name');
+                if (name) customValues[name] = $(this).val();
+            });
+
             $.ajax({
                 type: 'POST',
                 url: base_url + 'admin/letter/get_employee_data',
-                data: { employee_id: employeeId },
+                data: { employee_id: employeeId, custom_values: JSON.stringify(customValues) },
                 dataType: 'json',
                 success: function (response) {
                     if (response.status === 'success') {
@@ -276,6 +304,17 @@
                     toastr.error('Failed to load employee data.');
                 }
             });
+        });
+
+        // ---- EVENT 2b: Custom variable input change ----
+        $(document).on('input', '.custom-var-input', function () {
+            if (!employeeData || !employeeData.variables) return;
+            var name = $(this).data('var-name');
+            if (name) {
+                var key = '##' + name + '##';
+                employeeData.variables[key] = $(this).val() || '';
+                mergeAndPreview();
+            }
         });
 
         // ---- EVENT 3: Insert variable into summernote ----
@@ -373,10 +412,15 @@
             rawTemplate = $('#letter_content').val();
             var employeeId = $('#employee_id').val();
             if (employeeId) {
+                var customValues = {};
+                $('.custom-var-input').each(function () {
+                    var name = $(this).data('var-name');
+                    if (name) customValues[name] = $(this).val();
+                });
                 $.ajax({
                     type: 'POST',
                     url: base_url + 'admin/letter/get_employee_data',
-                    data: { employee_id: employeeId },
+                    data: { employee_id: employeeId, custom_values: JSON.stringify(customValues) },
                     dataType: 'json',
                     success: function (response) {
                         if (response.status === 'success') {
