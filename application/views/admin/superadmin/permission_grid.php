@@ -51,6 +51,7 @@
 
             <div class="form-group">
                 <button type="submit" class="btn btn-primary"><?= lang('save') ?></button>
+                <a href="<?= base_url('admin/superadmin/reset_permissions/' . $selected_user->user_id) ?>" class="btn btn-danger" onclick="return confirm('Are you sure you want to reset this user\'s permissions to Department Defaults? This will delete all user-specific overrides.');">Reset to Department Defaults</a>
                 <a href="<?= base_url('admin/superadmin/users') ?>" class="btn btn-default"><?= lang('cancel') ?></a>
             </div>
             <?= form_close() ?>

@@ -10,7 +10,7 @@ class Timesync extends Admin_Controller
         $this->load->model('user_model');
 
         if (!is_super_admin()) {
-            $can_view = can_action('timesync', 'view');
+            $can_view = can_action_by_label('timesync', 'view');
             if (!$can_view) {
                 redirect('404');
             }
@@ -20,7 +20,7 @@ class Timesync extends Admin_Controller
     public function index()
     {
         if (!is_super_admin()) {
-            $can_view = can_action('timesync', 'view');
+            $can_view = can_action_by_label('timesync', 'view');
             if (!$can_view) {
                 redirect('404');
             }
@@ -59,7 +59,7 @@ class Timesync extends Admin_Controller
     public function entries()
     {
         if (!is_super_admin()) {
-            $can_view = can_action('timesync', 'view');
+            $can_view = can_action_by_label('timesync', 'view');
             if (!$can_view) {
                 redirect('404');
             }
@@ -82,7 +82,7 @@ class Timesync extends Admin_Controller
     public function calendar()
     {
         if (!is_super_admin()) {
-            $can_view = can_action('timesync', 'view');
+            $can_view = can_action_by_label('timesync', 'view');
             if (!$can_view) {
                 redirect('404');
             }
@@ -124,7 +124,7 @@ class Timesync extends Admin_Controller
     public function day_details($date = null)
     {
         if (!is_super_admin()) {
-            $can_view = can_action('timesync', 'view');
+            $can_view = can_action_by_label('timesync', 'view');
             if (!$can_view) {
                 redirect('404');
             }
@@ -164,7 +164,7 @@ class Timesync extends Admin_Controller
         }
 
         if (!is_super_admin()) {
-            $can_view = can_action('timesync', 'view');
+            $can_view = can_action_by_label('timesync', 'view');
             if (!$can_view) {
                 redirect('404');
             }
@@ -228,7 +228,7 @@ class Timesync extends Admin_Controller
 
     public function user($user_id = null)
     {
-        if (!is_super_admin()) {
+        if (!is_super_admin() && !can_action_by_label('timesync', 'view')) {
             redirect('404');
         }
 
@@ -316,7 +316,7 @@ class Timesync extends Admin_Controller
     public function screenshots()
     {
         if (!is_super_admin()) {
-            $can_view = can_action('timesync', 'view');
+            $can_view = can_action_by_label('timesync', 'view');
             if (!$can_view) {
                 redirect('404');
             }
@@ -399,7 +399,7 @@ class Timesync extends Admin_Controller
     public function usage()
     {
         if (!is_super_admin()) {
-            $can_view = can_action('timesync', 'view');
+            $can_view = can_action_by_label('timesync', 'view');
             if (!$can_view) {
                 redirect('404');
             }
@@ -510,7 +510,7 @@ class Timesync extends Admin_Controller
         }
 
         if (!is_super_admin()) {
-            $can_view = can_action('timesync', 'view');
+            $can_view = can_action_by_label('timesync', 'view');
             if (!$can_view) {
                 redirect('404');
             }
@@ -621,7 +621,7 @@ class Timesync extends Admin_Controller
     public function get_screenshot_details($screenshot_id)
     {
         if (!is_super_admin()) {
-            $can_view = can_action('timesync', 'view');
+            $can_view = can_action_by_label('timesync', 'view');
             if (!$can_view) {
                 $this->output->set_status_header(403)->set_output(json_encode(['error' => 'Access denied']));
                 return;
@@ -804,7 +804,7 @@ class Timesync extends Admin_Controller
 
     public function settings()
     {
-        if (!is_super_admin()) {
+        if (!is_super_admin() && !can_action_by_label('timesync', 'edited')) {
             redirect('404');
         }
 

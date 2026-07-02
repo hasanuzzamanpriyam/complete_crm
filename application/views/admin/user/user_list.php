@@ -8,7 +8,7 @@ $deleted = can_action('24', 'deleted');
 if (!empty($created) || !empty($edited)) {
 ?>
     <?php $is_department_head = is_department_head();
-    if ($this->session->userdata('user_type') == 1 || !empty($is_department_head)) { ?>
+    if (is_super_admin() || $this->session->userdata('user_type') == 1 || !empty($is_department_head) || can_action('24', 'view')) { ?>
         <div class="btn-group pull-right btn-with-tooltip-group _filter_data filtered" data-toggle="tooltip" data-title="<?php echo lang('filter_by'); ?>">
             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <i class="fa fa-filter" aria-hidden="true"></i>

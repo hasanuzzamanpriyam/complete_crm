@@ -63,14 +63,39 @@ class Admin_Controller extends MY_Controller
         $user_type = $this->session->userdata('user_type');
         if ($user_type != 1) {
             $restricted_link = array();
-            foreach ($all_menu as $data1) {
-                $duplicate = false;
+
+            // Load user-specific overrides if the table exists
+            $user_id = $this->session->userdata('user_id');
+            $user_overrides = array();
+            if ($this->db->table_exists('tbl_user_permissions') && !empty($user_id)) {
+                $overrides = $this->db->where('user_id', $user_id)->get('tbl_user_permissions')->result();
+                foreach ($overrides as $o) {
+                    $user_overrides[$o->menu_id] = $o;
+                }
+            }
+
+            $designation_menu_ids = array();
+            if (!empty($user_menu)) {
                 foreach ($user_menu as $data2) {
-                    if ($data1->menu_id === $data2->menu_id) {
-                        $duplicate = true;
+                    $designation_menu_ids[] = $data2->menu_id;
+                }
+            }
+
+            foreach ($all_menu as $data1) {
+                $is_allowed = false;
+                if (isset($user_overrides[$data1->menu_id])) {
+                    // If override exists, check if view permission is enabled
+                    if ($user_overrides[$data1->menu_id]->view == 1) {
+                        $is_allowed = true;
+                    }
+                } else {
+                    // Fallback to designation menu role
+                    if (in_array($data1->menu_id, $designation_menu_ids)) {
+                        $is_allowed = true;
                     }
                 }
-                if ($duplicate === false) {
+
+                if ($is_allowed === false) {
                     $restricted_link[] = $data1->link;
                 }
             }
@@ -90,14 +115,46 @@ class Admin_Controller extends MY_Controller
         }
     
         // url segment
-        $uri = null;
         $a = $this->uri->segment(1) . '/' . $this->uri->segment(2);
         if ($a != 'admin/settings') {
+            // Build all prefixes of the requested URI
+            $segments = array();
+            $temp_uri = '';
             for ($i = 1; $i <= $this->uri->total_segments(); $i++) {
-                $uri .= $this->uri->segment($i) . '/';
-                $result = rtrim($uri, '/');
-                if (in_array($result, $exception_uris) == true) {
-                    redirect('404');
+                $temp_uri .= $this->uri->segment($i) . '/';
+                $segments[] = rtrim($temp_uri, '/');
+            }
+
+            // Get all defined menu links in the database to match prefixes
+            $all_menu_links = array();
+            foreach ($all_menu as $m) {
+                if (!empty($m->link)) {
+                    $all_menu_links[] = rtrim($m->link, '/');
+                }
+            }
+
+            $checked = false;
+            // Check from longest to shortest prefix to find the closest parent menu
+            for ($i = count($segments) - 1; $i >= 0; $i--) {
+                $current_prefix = $segments[$i];
+                if (in_array($current_prefix, $all_menu_links)) {
+                    // Closest defined parent menu found!
+                    if (in_array($current_prefix, $exception_uris)) {
+                        redirect('404');
+                    } else {
+                        // Parent menu is allowed, so deep links are automatically allowed
+                        $checked = true;
+                        break;
+                    }
+                }
+            }
+
+            // Fallback: If no defined menu matches any prefix, check if any prefix is explicitly restricted
+            if (!$checked) {
+                foreach ($segments as $seg) {
+                    if (in_array($seg, $exception_uris)) {
+                        redirect('404');
+                    }
                 }
             }
         }

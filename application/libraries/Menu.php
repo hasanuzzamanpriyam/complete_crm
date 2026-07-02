@@ -10,15 +10,13 @@ class Menu
         $designations_id = $CI->session->userdata('designations_id');
         $user_type = $CI->session->userdata('user_type');
         if ($user_type != 1 && !is_super_admin()) { // query for employee user role
-            $CI->db->select('tbl_user_role.*', FALSE);
-            $CI->db->select('tbl_menu.*', FALSE);
-            $CI->db->from('tbl_user_role');
-            $CI->db->join('tbl_menu', 'tbl_user_role.menu_id = tbl_menu.menu_id', 'left');
-            $CI->db->where('tbl_user_role.designations_id', $designations_id);
-            $CI->db->where('tbl_menu.status', 1);
-            $CI->db->order_by('sort');
-            $query_result = $CI->db->get();
-            $user_menu = $query_result->result();
+            $all_active_menus = $CI->db->where('status', 1)->order_by('sort', 'time')->get('tbl_menu')->result();
+            $user_menu = array();
+            foreach ($all_active_menus as $menu_item) {
+                if (can_do($menu_item->menu_id)) {
+                    $user_menu[] = $menu_item;
+                }
+            }
         } else { // get all menu for admin
             $user_menu = $CI->db->where('status', 1)->order_by('sort', 'time')->get('tbl_menu')->result();
         }

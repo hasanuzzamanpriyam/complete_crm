@@ -1542,10 +1542,11 @@ function can_action($menu_id, $action)
     $user_type = $CI->session->userdata('user_type');
 
     // Check per-user override first
-    if ($CI->db->table_exists('tbl_user_permissions')) {
-        $override = $CI->db->where(array('user_id' => $user_id, 'menu_id' => $menu_id, $action => 1))->get('tbl_user_permissions')->row();
+    if ($CI->db->table_exists('tbl_user_permissions') && !empty($user_id)) {
+        $override = $CI->db->where(array('user_id' => $user_id, 'menu_id' => $menu_id))->get('tbl_user_permissions')->row();
         if (!empty($override)) {
-            return true;
+            // Override exists: return its specific action value
+            return !empty($override->$action) && $override->$action == 1;
         }
     }
 
@@ -1626,10 +1627,11 @@ function can_do($menu_id)
     $user_type = $CI->session->userdata('user_type');
 
     // Check per-user override
-    if ($CI->db->table_exists('tbl_user_permissions')) {
-        $override = $CI->db->where(array('user_id' => $user_id, 'menu_id' => $menu_id, 'view' => 1))->get('tbl_user_permissions')->row();
+    if ($CI->db->table_exists('tbl_user_permissions') && !empty($user_id)) {
+        $override = $CI->db->where(array('user_id' => $user_id, 'menu_id' => $menu_id))->get('tbl_user_permissions')->row();
         if (!empty($override)) {
-            return true;
+            // Override exists: return its view value
+            return !empty($override->view) && $override->view == 1;
         }
     }
 

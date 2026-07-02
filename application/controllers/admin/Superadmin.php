@@ -345,6 +345,29 @@ class Superadmin extends Admin_Controller
         $this->load->view('admin/_layout_main', $data);
     }
 
+    public function reset_permissions($user_id)
+    {
+        // Only super admin can access this method
+        if (!is_super_admin()) {
+            redirect('404');
+        }
+
+        if (empty($user_id)) {
+            redirect('admin/superadmin/users');
+        }
+
+        // Delete existing overrides for this user
+        $this->db->where('user_id', $user_id)->delete('tbl_user_permissions');
+
+        $user = $this->db->where('user_id', $user_id)->get('tbl_users')->row();
+        $username = !empty($user) ? $user->username : '';
+
+        audit_log('user_permissions_reset', 'user', $user_id, array('username' => $username));
+
+        set_message('success', 'User permissions reset to Department defaults.');
+        redirect('admin/superadmin/permissions/' . $user_id);
+    }
+
     public function clear_cache()
     {
         $cache_path = APPPATH . 'cache/';
