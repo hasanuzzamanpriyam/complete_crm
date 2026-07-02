@@ -308,6 +308,9 @@ $inactive_all = ($stats['inactive_providers'] ?? 0);
                                     ?>
                                     <span class="badge <?= $badge_class ?>"><?= $item['days_left'] ?> days left</span><br>
                                     <a href="<?= base_url($item['link']) ?>" class="text-primary" style="font-size: 11px;"><i class="fa fa-pencil"></i> edit</a>
+                                    <?php if ($item['type'] !== 'billing'): ?>
+                                        | <a href="javascript:void(0);" class="text-success renew-btn" data-id="<?= $item['id'] ?>" data-type="<?= $item['type'] ?>" style="font-size: 11px; font-weight: bold;"><i class="fa fa-refresh"></i> renew</a>
+                                    <?php endif; ?>
                                 </div>
                             </li>
                         <?php endforeach; ?>
@@ -537,3 +540,43 @@ $inactive_all = ($stats['inactive_providers'] ?? 0);
         </div>
     </div>
 </div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    $('.renew-btn').on('click', function(e) {
+        e.preventDefault();
+        var btn = $(this);
+        var id = btn.data('id');
+        var type = btn.data('type');
+        
+        if (confirm('Are you sure you want to renew this ' + type + '?')) {
+            var originalHtml = btn.html();
+            btn.html('<i class="fa fa-spinner fa-spin"></i> renewing...');
+            
+            $.ajax({
+                url: '<?= base_url("admin/server_management/process_renewal") ?>',
+                type: 'POST',
+                data: {
+                    id: id,
+                    type: type,
+                    status: 'Completed'
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status === 'success') {
+                        alert(response.message);
+                        location.reload();
+                    } else {
+                        alert(response.message);
+                        btn.html(originalHtml);
+                    }
+                },
+                error: function() {
+                    alert('An error occurred while processing renewal.');
+                    btn.html(originalHtml);
+                }
+            });
+        }
+    });
+});
+</script>

@@ -531,6 +531,12 @@
             $this->db->select($select, FALSE);
         }
         $this->db->from($table);
+        if ($table === 'tbl_task') {
+            $this->db->group_start();
+            $this->db->where('tbl_task.module IS NULL', null, false);
+            $this->db->or_where_not_in('tbl_task.module', array('domain', 'server_hosting', 'billing', 'server_management_master'));
+            $this->db->group_end();
+        }
         if (!empty($where)) {
             $this->db->where($where);
         }

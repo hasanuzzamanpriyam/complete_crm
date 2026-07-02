@@ -279,6 +279,8 @@ class Tasks_Model extends MY_Model
                 $start_date = date('Y-m-d');
                 $due_date = date('Y-m-d', strtotime($future_exp_date));
 
+                // Decoupled: We no longer insert renewal tasks into tbl_task
+                /*
                 $master_id = $this->get_or_create_master_task('domain', $domain->permission ?? 'all');
                 $category_id = $this->get_or_create_server_category();
 
@@ -295,6 +297,7 @@ class Tasks_Model extends MY_Model
                     'category_id' => $category_id
                 );
                 $this->db->insert('tbl_task', $task_data);
+                */
             }
         } elseif ($module === 'server_hosting') {
             $this->load->model('hosting_model');
@@ -317,6 +320,8 @@ class Tasks_Model extends MY_Model
                 $start_date = date('Y-m-d');
                 $due_date = date('Y-m-d', strtotime($future_exp_date));
                 
+                // Decoupled: We no longer insert renewal tasks into tbl_task
+                /*
                 $master_id = $this->get_or_create_master_task('server_hosting', $hosting->permission);
                 $category_id = $this->get_or_create_server_category();
 
@@ -333,6 +338,7 @@ class Tasks_Model extends MY_Model
                     'category_id' => $category_id
                 );
                 $this->db->insert('tbl_task', $task_data);
+                */
             }
         }
 
@@ -391,81 +397,7 @@ class Tasks_Model extends MY_Model
 
     public function get_or_create_renewal_task($module, $module_field_id)
     {
-        $task = $this->db->select('task_id')
-            ->where('module', $module)
-            ->where('module_field_id', $module_field_id)
-            ->where('task_status !=', 'completed')
-            ->order_by('task_id', 'DESC')
-            ->get('tbl_task')
-            ->row();
-
-        if ($task) {
-            return $task->task_id;
-        }
-
-        $master_id = $this->get_or_create_master_task($module);
-        $category_id = $this->get_or_create_server_category();
-
-        // If no pending task exists, create one!
-        if ($module === 'domain') {
-            $this->load->model('domain_model');
-            $domain = $this->domain_model->get_domain_by_id($module_field_id);
-            if ($domain) {
-                $task_data = array(
-                    'task_name' => 'Renew Domain: ' . $domain->domain_name,
-                    'task_start_date' => date('Y-m-d'),
-                    'due_date' => $domain->purchase_date,
-                    'task_status' => 'not_started',
-                    'task_progress' => 0,
-                    'module' => 'domain',
-                    'module_field_id' => $module_field_id,
-                    'permission' => $domain->permission,
-                    'sub_task_id' => $master_id,
-                    'category_id' => $category_id
-                );
-                $this->db->insert('tbl_task', $task_data);
-                return $this->db->insert_id();
-            }
-        } elseif ($module === 'server_hosting') {
-            $this->load->model('hosting_model');
-            $hosting = $this->hosting_model->get_hosting_by_id($module_field_id);
-            if ($hosting) {
-                $task_data = array(
-                    'task_name' => 'Renew Hosting: ' . $hosting->title,
-                    'task_start_date' => date('Y-m-d'),
-                    'due_date' => $hosting->purchase_date,
-                    'task_status' => 'not_started',
-                    'task_progress' => 0,
-                    'module' => 'server_hosting',
-                    'module_field_id' => $module_field_id,
-                    'permission' => $hosting->permission,
-                    'sub_task_id' => $master_id,
-                    'category_id' => $category_id
-                );
-                $this->db->insert('tbl_task', $task_data);
-                return $this->db->insert_id();
-            }
-        } elseif ($module === 'billing') {
-            $this->load->model('billing_model');
-            $billing = $this->billing_model->get($module_field_id, TRUE);
-            if ($billing) {
-                $task_data = array(
-                    'task_name' => 'Renew Billing: ' . $billing->label,
-                    'task_start_date' => date('Y-m-d'),
-                    'due_date' => $billing->expiry_date,
-                    'task_status' => 'not_started',
-                    'task_progress' => 0,
-                    'module' => 'billing',
-                    'module_field_id' => $module_field_id,
-                    'permission' => $billing->permission,
-                    'sub_task_id' => $master_id,
-                    'category_id' => $category_id
-                );
-                $this->db->insert('tbl_task', $task_data);
-                return $this->db->insert_id();
-            }
-        }
-
+        // Decoupled: We no longer create renewal tasks in the main tasks module.
         return null;
     }
 

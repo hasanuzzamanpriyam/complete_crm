@@ -405,12 +405,9 @@ class Domain_model extends MY_Model
         $expiring = $this->get_expiring_domains($upcoming_days);
         $expired = $this->get_expired_domains();
 
-        $this->load->model('tasks_model');
-
         foreach ($expiring as $domain) {
             $renew_type = ($domain['auto_renewal'] == 1) ? ' (Auto)' : ' (Manual)';
-            $task_id = $this->tasks_model->get_or_create_renewal_task('domain', $domain['id']);
-            $url = $task_id ? 'admin/tasks/details/' . $task_id : $domain['link'];
+            $url = $domain['link'];
 
             $events[] = array(
                 'title' => '[DOM] ' . $domain['name'] . $renew_type,
@@ -426,8 +423,7 @@ class Domain_model extends MY_Model
 
         foreach ($expired as $domain) {
             $renew_type = ($domain['auto_renewal'] == 1) ? ' (Auto)' : ' (Manual)';
-            $task_id = $this->tasks_model->get_or_create_renewal_task('domain', $domain['id']);
-            $url = $task_id ? 'admin/tasks/details/' . $task_id : $domain['link'];
+            $url = $domain['link'];
 
             $events[] = array(
                 'title' => '[DOM] ' . $domain['name'] . $renew_type,

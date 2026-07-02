@@ -27,6 +27,12 @@ class Datatables extends MY_Model
             $this->db->select('tbl_transactions.name as title,tbl_transactions.*');
             $this->db->select('tbl_accounts.account_name', false);
         }
+        if ($this->table == 'tbl_task') {
+            $this->db->group_start();
+            $this->db->where('tbl_task.module IS NULL', null, false);
+            $this->db->or_where_not_in('tbl_task.module', array('domain', 'server_hosting', 'billing', 'server_management_master'));
+            $this->db->group_end();
+        }
         if (!empty($this->select)) {
             if (is_array($this->select)) {
                 foreach ($this->select as $select) {

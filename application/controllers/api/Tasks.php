@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
 class Tasks extends MY_Controller
@@ -39,6 +39,11 @@ class Tasks extends MY_Controller
     private function _apply_task_visibility($user_id, $user, $team_ids = [])
     {
         $this->db->where('tbl_task.task_status !=', 'cancelled');
+
+        $this->db->group_start();
+        $this->db->where('tbl_task.module IS NULL', null, false);
+        $this->db->or_where_not_in('tbl_task.module', array('domain', 'server_hosting', 'billing', 'server_management_master'));
+        $this->db->group_end();
 
         if (!$this->api_auth->is_super_admin() && $user->role_id != 1) {
             $this->db->group_start();

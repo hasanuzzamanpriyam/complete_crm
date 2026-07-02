@@ -378,12 +378,9 @@ class Hosting_model extends MY_Model
         $expiring = $this->get_expiring_hostings($upcoming_days);
         $expired = $this->get_expired_hostings();
 
-        $this->load->model('tasks_model');
-
         foreach ($expiring as $hosting) {
             $renew_type = (isset($hosting['renew']) && $hosting['renew'] == 'automatic') ? ' (Auto)' : ' (Manual)';
-            $task_id = $this->tasks_model->get_or_create_renewal_task('server_hosting', $hosting['id']);
-            $url = $task_id ? 'admin/tasks/details/' . $task_id : $hosting['link'];
+            $url = $hosting['link'];
 
             $events[] = array(
                 'title' => '[HST] ' . $hosting['name'] . $renew_type,
@@ -399,8 +396,7 @@ class Hosting_model extends MY_Model
 
         foreach ($expired as $hosting) {
             $renew_type = (isset($hosting['renew']) && $hosting['renew'] == 'automatic') ? ' (Auto)' : ' (Manual)';
-            $task_id = $this->tasks_model->get_or_create_renewal_task('server_hosting', $hosting['id']);
-            $url = $task_id ? 'admin/tasks/details/' . $task_id : $hosting['link'];
+            $url = $hosting['link'];
 
             $events[] = array(
                 'title' => '[HST] ' . $hosting['name'] . $renew_type,

@@ -1851,40 +1851,8 @@ class Server_management extends Admin_Controller
 
     private function create_renewal_task($module, $module_id, $module_name, $exp_date, $future_exp_date, $permission = 'all')
     {
-        $master_id = $this->get_or_create_master_task($module, $permission);
-        $category_id = $this->get_or_create_server_category();
-
-        // Task 1: Recent Expiration (Exp Date)
-        $task_data1 = array(
-            'task_name' => 'Recent Expiration: ' . $module_name,
-            'task_description' => 'Automatic task for ' . $module . ' recent expiration. Date: ' . $exp_date,
-            'task_start_date' => date('Y-m-d'),
-            'due_date' => $exp_date,
-            'task_status' => 'not_started',
-            'created_by' => $this->session->userdata('user_id'),
-            'permission' => $permission,
-            'module' => $module,
-            'module_field_id' => $module_id,
-            'sub_task_id' => $master_id,
-            'category_id' => $category_id
-        );
-        $this->db->insert('tbl_task', $task_data1);
-
-        // Task 2: Future Expiration (Future Exp Date)
-        $task_data2 = array(
-            'task_name' => 'Future Expiration: ' . $module_name,
-            'task_description' => 'Automatic task for ' . $module . ' future expiration. Date: ' . $future_exp_date,
-            'task_start_date' => date('Y-m-d'),
-            'due_date' => $future_exp_date,
-            'task_status' => 'not_started',
-            'created_by' => $this->session->userdata('user_id'),
-            'permission' => $permission,
-            'module' => $module,
-            'module_field_id' => $module_id,
-            'sub_task_id' => $master_id,
-            'category_id' => $category_id
-        );
-        $this->db->insert('tbl_task', $task_data2);
+        // Decoupled: We no longer create renewal tasks in the main tasks module.
+        return;
     }
 
     /**
