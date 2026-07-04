@@ -34,44 +34,13 @@ class Screenshots extends MY_Controller
         }
     }
 
-    private function _get_managed_user_ids()
-    {
-        $user = $this->api_auth->get_user();
-        if ($this->api_auth->is_super_admin()) return null;
-
-        $departments = $this->db
-            ->where('department_head_id', $user->user_id)
-            ->get('tbl_departments')
-            ->result();
-
-        if (empty($departments)) return [];
-
-        $dept_ids = array_map(function ($d) { return $d->departments_id; }, $departments);
-
-        $designations = $this->db
-            ->where_in('departments_id', $dept_ids)
-            ->get('tbl_designations')
-            ->result();
-
-        if (empty($designations)) return [];
-
-        $desig_ids = array_map(function ($d) { return $d->designations_id; }, $designations);
-
-        $accounts = $this->db
-            ->select('user_id')
-            ->where_in('designations_id', $desig_ids)
-            ->get('tbl_account_details')
-            ->result();
-
-        return array_map(function ($a) { return (int)$a->user_id; }, $accounts);
-    }
-
     private function _list()
     {
         $user = $this->api_auth->authenticate();
-        $managed_ids = $this->_get_managed_user_ids();
+        $allowed_ids = $this->api_auth->get_authorized_user_ids(
+            $this->input->get('user_id')
+        );
 
-        $user_id = $this->input->get('user_id');
         $task_id = $this->input->get('task_id');
         $from = $this->input->get('from');
         $to = $this->input->get('to');
@@ -81,13 +50,8 @@ class Screenshots extends MY_Controller
         $this->db->from('tbl_screenshots');
         $this->db->join('tbl_account_details', 'tbl_account_details.user_id = tbl_screenshots.user_id', 'left');
 
-        if ($managed_ids === null) {
-            if (!empty($user_id)) $this->db->where('tbl_screenshots.user_id', (int)$user_id);
-        } elseif (empty($managed_ids)) {
-            $this->db->where('tbl_screenshots.user_id', $user->user_id);
-        } else {
-            $this->db->where_in('tbl_screenshots.user_id', $managed_ids);
-            if (!empty($user_id)) $this->db->where('tbl_screenshots.user_id', (int)$user_id);
+        if ($allowed_ids !== null) {
+            $this->db->where_in('tbl_screenshots.user_id', $allowed_ids);
         }
 
         if (!empty($task_id)) $this->db->where('tbl_screenshots.task_id', (int)$task_id);
@@ -127,15 +91,10 @@ class Screenshots extends MY_Controller
     private function _get($id)
     {
         $user = $this->api_auth->authenticate();
-        $managed_ids = $this->_get_managed_user_ids();
-
+        $allowed_ids = $this->api_auth->get_authorized_user_ids();
         $this->db->where('id', $id);
-        if ($managed_ids !== null) {
-            if (empty($managed_ids)) {
-                $this->db->where('user_id', $user->user_id);
-            } else {
-                $this->db->where_in('user_id', $managed_ids);
-            }
+        if ($allowed_ids !== null) {
+            $this->db->where_in('user_id', $allowed_ids);
         }
         $screenshot = $this->db->get('tbl_screenshots')->row();
 
@@ -158,15 +117,10 @@ class Screenshots extends MY_Controller
     public function context($id)
     {
         $user = $this->api_auth->authenticate();
-        $managed_ids = $this->_get_managed_user_ids();
-
+        $allowed_ids = $this->api_auth->get_authorized_user_ids();
         $this->db->where('id', $id);
-        if ($managed_ids !== null) {
-            if (empty($managed_ids)) {
-                $this->db->where('user_id', $user->user_id);
-            } else {
-                $this->db->where_in('user_id', $managed_ids);
-            }
+        if ($allowed_ids !== null) {
+            $this->db->where_in('user_id', $allowed_ids);
         }
         $screenshot = $this->db->get('tbl_screenshots')->row();
 
@@ -284,15 +238,10 @@ class Screenshots extends MY_Controller
     public function delete($id)
     {
         $user = $this->api_auth->authenticate();
-        $managed_ids = $this->_get_managed_user_ids();
-
+        $allowed_ids = $this->api_auth->get_authorized_user_ids();
         $this->db->where('id', $id);
-        if ($managed_ids !== null) {
-            if (empty($managed_ids)) {
-                $this->db->where('user_id', $user->user_id);
-            } else {
-                $this->db->where_in('user_id', $managed_ids);
-            }
+        if ($allowed_ids !== null) {
+            $this->db->where_in('user_id', $allowed_ids);
         }
         $screenshot = $this->db->get('tbl_screenshots')->row();
 

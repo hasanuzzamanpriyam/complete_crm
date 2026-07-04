@@ -122,6 +122,7 @@ $route['api/attendance'] = 'api/attendance/index';
 $route['api/screenshots'] = 'api/screenshots/index';
 $route['api/screenshots/(:num)'] = 'api/screenshots/index/$1';
 $route['api/screenshots/(:num)/image'] = 'api/screenshots/index/$1';
+$route['api/screenshots/deleted_ids'] = 'api/screenshots/deleted_ids';
 $route['api/app-usage'] = 'api/app_usage/index';
 $route['api/app-usage/(:num)'] = 'api/app_usage/index/$1';
 $route['api/tracker/config'] = 'api/tracker/config';
@@ -158,7 +159,8 @@ $route['api/teams/approve_member']           = 'api/teams/approve_member';
 $route['api/teams/my-requests']              = 'api/teams/my_requests';
 $route['api/teams/my-memberships']           = 'api/teams/my_memberships';
 $route['api/teams/pending-requests/(:num)']  = 'api/teams/pending_requests/$1';
-$route['api/teams/mentions']                 = 'api/teams/mentions';
+$route['api/teams/mentions'] = 'api/teams/mentions';
+$route['api/teams/managed'] = 'api/teams/managed';
 
 $route['cronjob/process_email_queue']       = 'cronjob/process_email_queue_manual';
 $route['api/sync/heartbeat'] = 'api/sync/heartbeat';

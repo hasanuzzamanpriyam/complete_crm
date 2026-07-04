@@ -31,9 +31,12 @@ class Time_entries extends MY_Controller
     private function _list()
     {
         $user = $this->api_auth->authenticate();
-        $user_id = $user->user_id;
+        $requested_user_id = $this->input->get('user_id');
 
-        $this->db->where('user_id', $user_id);
+        $allowed_ids = $this->api_auth->get_authorized_user_ids($requested_user_id);
+        if ($allowed_ids !== null) {
+            $this->db->where_in('user_id', $allowed_ids);
+        }
         $entries = $this->db->order_by('started_at', 'DESC')->get('tbl_desktop_time_entries')->result();
 
         $result = array_map(function ($e) {

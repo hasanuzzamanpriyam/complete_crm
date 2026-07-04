@@ -39,8 +39,9 @@ class Teams extends MY_Controller {
                 break;
             case 'DELETE':
                 if ($id) {
-                    if (!$this->api_auth->is_super_admin()) {
-                        $this->_respond(403, false, 'Admin access required');
+                    if (!$this->api_auth->is_super_admin() && !$this->Team_model->is_team_manager($this->api_auth->get_user()->user_id, $id)) {
+                        $this->_respond(403, false, 'Team manager access required');
+                        return;
                     }
                     $this->_delete($id);
                 } else {
@@ -87,6 +88,41 @@ class Teams extends MY_Controller {
             $this->_send_message($team_id);
         } else {
             $this->_respond(405, false, 'Method not allowed');
+        }
+    }
+
+    public function managed()
+    {
+        try {
+            $this->api_auth->authenticate();
+            $user_id = (int)$this->api_auth->get_user()->user_id;
+
+            $teams = $this->db->select('t.*')
+                ->from('tbl_teams t')
+                ->join('tbl_team_members tm', 'tm.team_id = t.id')
+                ->where('tm.user_id', $user_id)
+                ->where('tm.is_manager', 1)
+                ->where('tm.status', 'approved')
+                ->get()
+                ->result();
+
+            $result = array_map(function ($t) {
+                return [
+                    'id' => (int)$t->id,
+                    'name' => $t->name,
+                    'description' => $t->description,
+                    'created_by' => (int)$t->created_by,
+                    'member_count' => (int)$this->db
+                        ->where('team_id', $t->id)
+                        ->where('status', 'approved')
+                        ->count_all_results('tbl_team_members'),
+                ];
+            }, $teams);
+
+            return $this->_respond(200, true, 'OK', ['teams' => $result]);
+        } catch (Exception $e) {
+            log_message('error', 'Managed teams fetch failed: ' . $e->getMessage());
+            $this->_respond(500, false, 'Server error');
         }
     }
 
@@ -244,6 +280,11 @@ class Teams extends MY_Controller {
             ->get()
             ->result();
 
+        $memberships = array_map(function ($m) {
+            $m->is_manager = (int)$m->is_manager;
+            return $m;
+        }, $memberships);
+
         $this->_respond(200, true, 'OK', ['data' => $memberships]);
     }
 
@@ -262,10 +303,38 @@ class Teams extends MY_Controller {
             $teams = $this->Team_model->get_teams_for_user($user->user_id, $limit, $offset);
         }
 
+        // Embed members with is_manager per team
+        $result = array_map(function ($t) {
+            $members = $this->db->select('tm.user_id, tm.is_manager, tm.status, u.username, u.email')
+                ->from('tbl_team_members tm')
+                ->join('tbl_users u', 'u.user_id = tm.user_id')
+                ->where('tm.team_id', (int)$t->id)
+                ->where('tm.status', 'approved')
+                ->get()
+                ->result();
+            return [
+                'id' => (int)$t->id,
+                'name' => $t->name,
+                'description' => $t->description ?? '',
+                'created_by' => (int)$t->created_by,
+                'created_at' => $t->created_at ?? null,
+                'members' => array_map(function ($m) {
+                    return [
+                        'user_id' => (int)$m->user_id,
+                        'is_manager' => (int)$m->is_manager === 1,
+                        'status' => $m->status,
+                        'username' => $m->username,
+                        'email' => $m->email,
+                    ];
+                }, $members),
+                'member_count' => count($members),
+            ];
+        }, $teams);
+
         $last_page = max(1, (int) ceil($total / $limit));
 
         $this->_respond(200, true, 'OK', [
-            'data' => $teams,
+            'data' => $result,
             'meta' => [
                 'total' => $total,
                 'page' => $page,
@@ -395,6 +464,10 @@ class Teams extends MY_Controller {
         }
 
         $members = $this->Team_model->get_team_members_with_users($team_id);
+        $members = array_map(function ($m) {
+            $m->is_manager = (int)$m->is_manager;
+            return $m;
+        }, $members);
         $this->_respond(200, true, 'OK', ['data' => $members]);
     }
 
@@ -453,8 +526,10 @@ class Teams extends MY_Controller {
 
     private function _set_manager($team_id, $user_id)
     {
-        if (!$this->api_auth->is_super_admin()) {
-            $this->_respond(403, false, 'Admin access required');
+        if (!$this->Team_model->is_team_manager($this->api_auth->get_user()->user_id, $team_id)
+            && !$this->api_auth->is_super_admin()) {
+            $this->_respond(403, false, 'Team manager access required');
+            return;
         }
 
         $data = json_decode($this->input->raw_input_stream, true);

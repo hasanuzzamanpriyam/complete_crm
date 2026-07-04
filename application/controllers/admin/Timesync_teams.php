@@ -9,7 +9,11 @@ class Timesync_Teams extends Admin_Controller
         $this->load->model('Team_model');
 
         if (!is_super_admin()) {
-            redirect('404');
+            $user_id = (int)$this->session->userdata('user_id');
+            $managed_ids = $this->Team_model->get_managed_team_ids($user_id);
+            if (empty($managed_ids)) {
+                redirect('404');
+            }
         }
     }
 
@@ -21,12 +25,31 @@ class Timesync_Teams extends Admin_Controller
         $page = max(1, (int)$this->input->get('page'));
         $per_page = 20;
         $offset = ($page - 1) * $per_page;
-        $total_teams = $this->db->count_all('tbl_teams');
+
+        $user_id = (int)$this->session->userdata('user_id');
+        $is_super = is_super_admin();
+
+        if ($is_super) {
+            $total_teams = $this->db->count_all('tbl_teams');
+            $teams = $this->Team_model->get_all_teams($per_page, $offset);
+        } else {
+            $managed_ids = $this->Team_model->get_managed_team_ids($user_id);
+            $this->db->where_in('id', $managed_ids);
+            $total_teams = $this->db->count_all_results('tbl_teams');
+            $total_pages = max(1, ceil($total_teams / $per_page));
+            $page = min($page, $total_pages);
+            $offset = ($page - 1) * $per_page;
+            $teams = $this->db->select('*')->from('tbl_teams')
+                ->where_in('id', $managed_ids)
+                ->order_by('name', 'ASC')
+                ->limit($per_page, $offset)
+                ->get()
+                ->result();
+        }
+
         $total_pages = max(1, ceil($total_teams / $per_page));
         $page = min($page, $total_pages);
         $offset = ($page - 1) * $per_page;
-
-        $teams = $this->Team_model->get_all_teams($per_page, $offset);
 
         $team_members = [];
         foreach ($teams as $team) {
@@ -121,6 +144,10 @@ class Timesync_Teams extends Admin_Controller
     {
         $user_id = (int)$this->input->post('user_id');
         $team_ids = $this->input->post('team_ids') ?: [];
+        $is_manager = (int)$this->input->post('is_manager');
+
+        $current_user_id = (int)$this->session->userdata('user_id');
+        $is_super = is_super_admin();
 
         $current = $this->db
             ->select('team_id, is_manager')
@@ -140,16 +167,42 @@ class Timesync_Teams extends Admin_Controller
             }
         }
 
+        // Non-super-admins can only modify teams they manage
+        $managed_ids = $is_super ? null : $this->Team_model->get_managed_team_ids($current_user_id);
+
+        $to_keep = array_intersect($team_ids, $current_ids);
         $to_add = array_diff($team_ids, $current_ids);
         $to_remove = array_diff($current_ids, $team_ids);
 
+        // Update is_manager for existing memberships
+        foreach ($to_keep as $tid) {
+            if (!$is_super && !in_array((int)$tid, $managed_ids)) {
+                continue;
+            }
+            $this->db->where('team_id', (int)$tid)
+                ->where('user_id', $user_id)
+                ->update('tbl_team_members', ['is_manager' => $is_manager]);
+        }
+
+        // Add new memberships (UPSERT — handles re-adding 'left' members)
         foreach ($to_add as $tid) {
-            $this->db->insert('tbl_team_members', [
-                'team_id' => (int)$tid,
-                'user_id' => $user_id,
-                'is_manager' => 0,
-                'status' => 'approved',
-            ]);
+            if (!$is_super && !in_array((int)$tid, $managed_ids)) {
+                continue;
+            }
+            $this->db->where('team_id', (int)$tid)
+                ->where('user_id', $user_id)
+                ->update('tbl_team_members', [
+                    'is_manager' => $is_manager,
+                    'status' => 'approved',
+                ]);
+            if ($this->db->affected_rows() == 0) {
+                $this->db->insert('tbl_team_members', [
+                    'team_id' => (int)$tid,
+                    'user_id' => $user_id,
+                    'is_manager' => $is_manager,
+                    'status' => 'approved',
+                ]);
+            }
         }
 
         $skipped = [];
@@ -176,6 +229,75 @@ class Timesync_Teams extends Admin_Controller
         }
 
         set_message('success', $msg);
+        redirect('admin/timesync_teams');
+    }
+
+    public function delete($id)
+    {
+        $team = $this->db->where('id', $id)->get('tbl_teams')->row();
+        if (!$team) {
+            set_message('error', 'Team not found.');
+            redirect('admin/timesync_teams');
+        }
+
+        if (!is_super_admin()) {
+            $user_id = (int)$this->session->userdata('user_id');
+            $managed_ids = $this->Team_model->get_managed_team_ids($user_id);
+            if (!in_array((int)$id, $managed_ids)) {
+                set_message('error', 'You do not have permission to delete this team.');
+                redirect('admin/timesync_teams');
+            }
+        }
+
+        $this->db->where('team_id', $id)->delete('tbl_team_members');
+        $this->db->where('team_id', $id)->delete('tbl_team_messages');
+        $this->db->where('id', $id)->delete('tbl_teams');
+
+        set_message('success', 'Team "' . htmlspecialchars($team->name) . '" deleted successfully.');
+        redirect('admin/timesync_teams');
+    }
+
+    public function create()
+    {
+        $name = trim($this->input->post('name'));
+        $description = trim($this->input->post('description') ?? '');
+
+        if (empty($name)) {
+            set_message('error', 'Team name is required.');
+            redirect('admin/timesync_teams');
+        }
+
+        $user_id = (int)$this->session->userdata('user_id');
+
+        $this->db->insert('tbl_teams', [
+            'name' => $name,
+            'description' => $description,
+            'created_by' => $user_id,
+        ]);
+        $team_id = $this->db->insert_id();
+
+        $this->db->insert('tbl_team_members', [
+            'team_id' => $team_id,
+            'user_id' => $user_id,
+            'is_manager' => 1,
+            'status' => 'approved',
+        ]);
+
+        set_message('success', 'Team "' . htmlspecialchars($name) . '" created successfully.');
+        redirect('admin/timesync_teams');
+    }
+
+    public function readd_member($team_id, $user_id)
+    {
+        $this->db->where('team_id', (int)$team_id)
+            ->where('user_id', (int)$user_id)
+            ->update('tbl_team_members', ['status' => 'approved', 'is_manager' => 0]);
+
+        if ($this->db->affected_rows() > 0) {
+            set_message('success', 'Member re-added to the team.');
+        } else {
+            set_message('error', 'Member not found or already active.');
+        }
         redirect('admin/timesync_teams');
     }
 }

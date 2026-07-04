@@ -28,7 +28,6 @@ class App_usage extends MY_Controller
     private function _list()
     {
         $user = $this->api_auth->authenticate();
-        $is_admin = $this->api_auth->is_super_admin();
 
         $user_id = $this->input->get('user_id');
         $time_entry_id = $this->input->get('time_entry_id');
@@ -41,10 +40,9 @@ class App_usage extends MY_Controller
         $this->db->join('tbl_users u', 'u.user_id = a.user_id', 'left');
         $this->db->join('tbl_account_details ad', 'ad.user_id = a.user_id', 'left');
 
-        if (!$is_admin) {
-            $this->db->where('a.user_id', $user->user_id);
-        } elseif (!empty($user_id)) {
-            $this->db->where('a.user_id', (int)$user_id);
+        $allowed_ids = $this->api_auth->get_authorized_user_ids($user_id);
+        if ($allowed_ids !== null) {
+            $this->db->where_in('a.user_id', $allowed_ids);
         }
 
         if (!empty($time_entry_id)) $this->db->where('a.time_entry_id', (int)$time_entry_id);

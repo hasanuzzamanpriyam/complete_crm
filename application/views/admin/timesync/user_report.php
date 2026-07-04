@@ -3,6 +3,14 @@
     <section class="panel panel-custom">
       <header class="panel-heading">
         <h3 class="panel-title"><?= $title ?> - <?= htmlspecialchars($user->fullname ?? $user->username) ?></h3>
+        <?php if (!empty($user_teams)): ?>
+          <div class="mt-sm" style="margin-top:8px;">
+            <strong>Teams:</strong>
+            <?php foreach ($user_teams as $ut): ?>
+              <span class="badge bg-primary" style="margin-left:4px; background:#23b7e5;"><?= htmlspecialchars($ut->name) ?></span>
+            <?php endforeach; ?>
+          </div>
+        <?php endif; ?>
       </header>
       <div class="panel-body">
         <div class="row">

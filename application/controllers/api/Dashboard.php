@@ -13,7 +13,7 @@ class Dashboard extends MY_Controller
     {
         $user = $this->api_auth->authenticate();
 
-        $visible_ids = $this->_resolve_user_ids();
+        $visible_ids = $this->api_auth->get_authorized_user_ids();
 
         $this->db->select('u.user_id, u.online_time, u.last_active_ping, a.fullname, a.avatar')
             ->from('tbl_users u')
@@ -207,7 +207,7 @@ class Dashboard extends MY_Controller
 
         // Team section — admin/manager only
         if ($is_admin || $is_manager) {
-            $company_ids = $this->_resolve_user_ids(null);
+            $company_ids = $this->api_auth->get_authorized_user_ids(null);
 
             $team_trend_q = $this->db
                 ->select("DATE(started_at) as date, SUM(total_seconds) as total_seconds")
@@ -345,13 +345,13 @@ class Dashboard extends MY_Controller
             if (!$is_admin && !$is_manager) {
                 return $this->_respond(403, false, 'Access denied');
             }
-            $company_ids = $this->_resolve_user_ids(null);
+            $company_ids = $this->api_auth->get_authorized_user_ids(null);
             $effective_user_id = null;
         } else {
             if (!$is_admin && !$is_manager && (int)$auth_user->user_id !== $target_user_id) {
                 return $this->_respond(403, false, 'Access denied');
             }
-            $resolved = $this->_resolve_user_ids($target_user_id);
+            $resolved = $this->api_auth->get_authorized_user_ids($target_user_id);
             $effective_user_id = $resolved ? $resolved[0] : null;
             if ($effective_user_id === null) {
                 return $this->_respond(404, false, 'User not found');
@@ -546,57 +546,7 @@ class Dashboard extends MY_Controller
         ]);
     }
 
-    private function _resolve_user_ids($requested_user_id = null)
-    {
-        $user = $this->api_auth->get_user();
-        if ($this->api_auth->is_super_admin()) {
-            if ($requested_user_id) return [(int)$requested_user_id];
-            return null;
-        }
 
-        $managed_ids = $this->_get_managed_user_ids();
-        if ($managed_ids === null) return null;
-        if (empty($managed_ids)) return [$user->user_id];
-
-        if ($requested_user_id) {
-            return in_array((int)$requested_user_id, $managed_ids)
-                ? [(int)$requested_user_id]
-                : [$user->user_id];
-        }
-        return $managed_ids;
-    }
-
-    private function _get_managed_user_ids()
-    {
-        $user = $this->api_auth->get_user();
-        if ($this->api_auth->is_super_admin()) return null;
-
-        $departments = $this->db
-            ->where('department_head_id', $user->user_id)
-            ->get('tbl_departments')
-            ->result();
-
-        if (empty($departments)) return [];
-
-        $dept_ids = array_map(function ($d) { return $d->departments_id; }, $departments);
-
-        $designations = $this->db
-            ->where_in('departments_id', $dept_ids)
-            ->get('tbl_designations')
-            ->result();
-
-        if (empty($designations)) return [];
-
-        $desig_ids = array_map(function ($d) { return $d->designations_id; }, $designations);
-
-        $accounts = $this->db
-            ->select('user_id')
-            ->where_in('designations_id', $desig_ids)
-            ->get('tbl_account_details')
-            ->result();
-
-        return array_map(function ($a) { return (int)$a->user_id; }, $accounts);
-    }
 
     private function _respond($status_code, $success, $message, $data = null)
     {

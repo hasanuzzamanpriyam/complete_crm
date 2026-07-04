@@ -20,6 +20,87 @@ if (!function_exists('apply_user_scope')) {
     }
 }
 
+if (!function_exists('get_authorized_user_ids_web')) {
+    function get_authorized_user_ids_web($requested_user_id = null)
+    {
+        $CI =& get_instance();
+
+        // Super admin sees ALL
+        if (is_super_admin()) {
+            if ($requested_user_id) return [(int)$requested_user_id];
+            return null;
+        }
+
+        $user_id = (int)$CI->session->userdata('user_id');
+        $authorized = [$user_id];
+
+        // Team manager -- approved members of teams they manage
+        $team_result = $CI->db->select('tm2.user_id')
+            ->from('tbl_team_members tm1')
+            ->join('tbl_team_members tm2',
+                'tm2.team_id = tm1.team_id AND tm2.status = \'approved\'')
+            ->where('tm1.user_id', $user_id)
+            ->where('tm1.is_manager', 1)
+            ->where('tm1.status', 'approved')
+            ->get()
+            ->result();
+        if (!empty($team_result)) {
+            $team_ids = array_map(function ($r) { return (int)$r->user_id; }, $team_result);
+            $authorized = array_merge($authorized, $team_ids);
+        }
+
+        // Department head scoping (via session-based query)
+        $departments = $CI->db
+            ->where('department_head_id', $user_id)
+            ->get('tbl_departments')
+            ->result();
+        if (!empty($departments)) {
+            $dept_ids = array_map(function ($d) { return $d->departments_id; }, $departments);
+            $designations = $CI->db
+                ->where_in('departments_id', $dept_ids)
+                ->get('tbl_designations')
+                ->result();
+            if (!empty($designations)) {
+                $desig_ids = array_map(function ($d) { return $d->designations_id; }, $designations);
+                $accounts = $CI->db
+                    ->select('user_id')
+                    ->where_in('designations_id', $desig_ids)
+                    ->get('tbl_account_details')
+                    ->result();
+                $dept_user_ids = array_map(function ($a) { return (int)$a->user_id; }, $accounts);
+                $authorized = array_merge($authorized, $dept_user_ids);
+            }
+        }
+
+        $authorized = array_unique(array_map('intval', $authorized));
+
+        if ($requested_user_id) {
+            $requested = (int)$requested_user_id;
+            return in_array($requested, $authorized)
+                ? [$requested]
+                : [$user_id];
+        }
+
+        return array_values($authorized);
+    }
+}
+
+if (!function_exists('get_manageable_teams')) {
+    function get_manageable_teams($user_id = null)
+    {
+        $CI =& get_instance();
+        if (is_super_admin()) {
+            $teams = $CI->Team_model->get_all_teams();
+            return array_map(function ($t) { return (int)$t->id; }, $teams);
+        }
+        if ($user_id === null) {
+            $user_id = (int)$CI->session->userdata('user_id');
+        }
+        $CI->load->model('Team_model');
+        return $CI->Team_model->get_managed_team_ids($user_id);
+    }
+}
+
 define('UPDATE_URL', 'https://update.uniquecoder.com/');
 define('TEMP_FOLDER', FCPATH . 'uploads/temp' . '/');
 define('PurchaseitemID', '16292398');

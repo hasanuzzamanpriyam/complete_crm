@@ -134,15 +134,7 @@ class Reports extends MY_Controller
 
     private function _resolve_allowed_user_ids($requested_user_id = null)
     {
-        $allowed = $this->api_auth->get_allowed_user_ids();
-        if ($allowed === null) {
-            return $requested_user_id ? [(int)$requested_user_id] : null;
-        }
-        if (!$requested_user_id) {
-            return $allowed;
-        }
-        $target = (int)$requested_user_id;
-        return in_array($target, $allowed) ? [$target] : $allowed;
+        return $this->api_auth->get_authorized_user_ids($requested_user_id);
     }
 
     public function app_usage()

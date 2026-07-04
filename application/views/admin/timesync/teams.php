@@ -72,7 +72,10 @@
             <i class="fa fa-search"></i>
             <input type="text" id="teamSearch" class="teams-search" placeholder="Search teams...">
           </div>
-          <button class="btn btn-primary btn-sm ml-sm" onclick="openAssignModal()" style="margin-left:10px;">
+          <button class="btn btn-success btn-sm ml-sm" onclick="openCreateModal()" style="margin-left:5px;">
+            <i class="fa fa-plus"></i> New Team
+          </button>
+          <button class="btn btn-primary btn-sm ml-sm" onclick="openAssignModal()" style="margin-left:5px;">
             <i class="fa fa-user-plus"></i> Assign Member
           </button>
         </span>
@@ -149,6 +152,10 @@
                   </div>
                   <div style="display:flex;align-items:center;gap:12px;">
                     <span class="badge-count"><?= count($members) ?> member<?= count($members) !== 1 ? 's' : '' ?></span>
+                    <button type="button" class="btn btn-danger btn-xs" title="Delete team"
+                      onclick="event.stopPropagation(); if(confirm('Delete this team and all its members?')){ window.location.href='<?= base_url('admin/timesync_teams/delete/' . $team->id) ?>'; }">
+                      <i class="fa fa-trash"></i>
+                    </button>
                     <i class="fa fa-chevron-right toggle-arrow"></i>
                   </div>
                 </div>
@@ -181,6 +188,11 @@
                             <span class="status-badge status-pending">Pending</span>
                           <?php elseif ($m->status === 'left'): ?>
                             <span class="status-badge status-left">Left</span>
+                            <a href="<?= base_url('admin/timesync_teams/readd_member/' . $team->id . '/' . $m->user_id) ?>"
+                               class="btn btn-success btn-xs" title="Re-add to team"
+                               onclick="event.stopPropagation();">
+                              <i class="fa fa-undo"></i>
+                            </a>
                           <?php else: ?>
                             <span class="status-badge" style="background:#e9ecef;color:#6c757d;"><?= htmlspecialchars($m->status) ?></span>
                           <?php endif; ?>
@@ -258,6 +270,17 @@
               </div>
             </div>
           </div>
+          <div class="form-group">
+            <label class="col-lg-3 control-label"></label>
+            <div class="col-lg-8">
+              <div class="checkbox">
+                <label>
+                  <input type="checkbox" name="is_manager" value="1">
+                  Assign as Team Manager
+                </label>
+              </div>
+            </div>
+          </div>
           <div id="manager-warning" class="alert alert-warning hide" style="margin:0 15px 15px;">
             <i class="fa fa-exclamation-triangle"></i>
             Members marked as <strong>Manager</strong> cannot be removed here. Demote them first via the desktop app or API.
@@ -266,6 +289,38 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
           <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Save</button>
+        </div>
+      <?php echo form_close(); ?>
+    </div>
+  </div>
+</div>
+
+<!-- Create Team Modal -->
+<div class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <?php echo form_open('admin/timesync_teams/create', ['class' => 'form-horizontal']); ?>
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title"><i class="fa fa-plus"></i> Create Team</h4>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="col-lg-3 control-label">Team Name <span class="required">*</span></label>
+            <div class="col-lg-8">
+              <input type="text" name="name" class="form-control" required placeholder="Enter team name">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-lg-3 control-label">Description</label>
+            <div class="col-lg-8">
+              <textarea name="description" class="form-control" rows="3" placeholder="Optional description"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success"><i class="fa fa-plus"></i> Create Team</button>
         </div>
       <?php echo form_close(); ?>
     </div>
@@ -287,6 +342,10 @@
 
   function openAssignModal() {
     $('#assignModal').modal('show');
+  }
+
+  function openCreateModal() {
+    $('#createModal').modal('show');
   }
 
   $(document).ready(function () {

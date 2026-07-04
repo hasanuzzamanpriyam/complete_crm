@@ -67,10 +67,14 @@ class Timesync extends Admin_Controller
 
         $data['title'] = 'Time Entries';
 
+        $allowed_ids = get_authorized_user_ids_web();
         $this->db->select('tbl_desktop_time_entries.*, tbl_account_details.fullname, tbl_task.task_name');
         $this->db->from('tbl_desktop_time_entries');
         $this->db->join('tbl_account_details', 'tbl_account_details.user_id = tbl_desktop_time_entries.user_id', 'left');
         $this->db->join('tbl_task', 'tbl_task.task_id = tbl_desktop_time_entries.task_id', 'left');
+        if ($allowed_ids !== null) {
+            $this->db->where_in('tbl_desktop_time_entries.user_id', $allowed_ids);
+        }
         $this->db->order_by('tbl_desktop_time_entries.started_at', 'DESC');
         $this->db->limit(100);
         $data['entries'] = $this->db->get()->result();
@@ -98,13 +102,17 @@ class Timesync extends Admin_Controller
         $start = sprintf('%04d-%02d-01', $year, $month);
         $end = date('Y-m-t', strtotime($start));
 
+        $allowed_ids = get_authorized_user_ids_web();
         $data['entries'] = $this->db
             ->select('tbl_desktop_time_entries.*, tbl_account_details.fullname')
             ->from('tbl_desktop_time_entries')
             ->join('tbl_account_details', 'tbl_account_details.user_id = tbl_desktop_time_entries.user_id', 'left')
             ->where('tbl_desktop_time_entries.started_at >=', $start . ' 00:00:00')
-            ->where('tbl_desktop_time_entries.started_at <=', $end . ' 23:59:59')
-            ->order_by('tbl_desktop_time_entries.started_at', 'DESC')
+            ->where('tbl_desktop_time_entries.started_at <=', $end . ' 23:59:59');
+        if ($allowed_ids !== null) {
+            $this->db->where_in('tbl_desktop_time_entries.user_id', $allowed_ids);
+        }
+        $this->db->order_by('tbl_desktop_time_entries.started_at', 'DESC')
             ->get()
             ->result();
 
@@ -137,14 +145,18 @@ class Timesync extends Admin_Controller
         $data['title'] = 'Details for ' . $date;
         $data['selected_date'] = $date;
 
+        $allowed_ids = get_authorized_user_ids_web();
         $data['entries'] = $this->db
             ->select('tbl_desktop_time_entries.*, tbl_account_details.fullname, tbl_task.task_name')
             ->from('tbl_desktop_time_entries')
             ->join('tbl_account_details', 'tbl_account_details.user_id = tbl_desktop_time_entries.user_id', 'left')
             ->join('tbl_task', 'tbl_task.task_id = tbl_desktop_time_entries.task_id', 'left')
             ->where('tbl_desktop_time_entries.started_at >=', $date . ' 00:00:00')
-            ->where('tbl_desktop_time_entries.started_at <=', $date . ' 23:59:59')
-            ->order_by('tbl_desktop_time_entries.started_at', 'ASC')
+            ->where('tbl_desktop_time_entries.started_at <=', $date . ' 23:59:59');
+        if ($allowed_ids !== null) {
+            $this->db->where_in('tbl_desktop_time_entries.user_id', $allowed_ids);
+        }
+        $this->db->order_by('tbl_desktop_time_entries.started_at', 'ASC')
             ->get()
             ->result();
 
@@ -182,10 +194,16 @@ class Timesync extends Admin_Controller
 
         $search_val = $this->input->post('search[value]');
 
+        $allowed_ids = get_authorized_user_ids_web();
+
         $this->db->select('tbl_desktop_time_entries.*, tbl_account_details.fullname, tbl_task.task_name');
         $this->db->from('tbl_desktop_time_entries');
         $this->db->join('tbl_account_details', 'tbl_account_details.user_id = tbl_desktop_time_entries.user_id', 'left');
         $this->db->join('tbl_task', 'tbl_task.task_id = tbl_desktop_time_entries.task_id', 'left');
+
+        if ($allowed_ids !== null) {
+            $this->db->where_in('tbl_desktop_time_entries.user_id', $allowed_ids);
+        }
 
         if (!empty($search_val)) {
             $this->db->group_start();
@@ -201,7 +219,12 @@ class Timesync extends Admin_Controller
         $this->db->limit($length, $start);
         $data = $this->db->get()->result();
 
-        $total_all = $this->db->count_all('tbl_desktop_time_entries');
+        $this->db->reset_query();
+        $total_all = $this->db->from('tbl_desktop_time_entries');
+        if ($allowed_ids !== null) {
+            $this->db->where_in('user_id', $allowed_ids);
+        }
+        $total_all = $this->db->count_all_results();
 
         $rows = [];
         foreach ($data as $row) {
@@ -243,6 +266,17 @@ class Timesync extends Admin_Controller
             ->where('tbl_users.user_id', $user_id)
             ->get('tbl_users')
             ->row();
+
+        // Fetch teams this user belongs to for badge display
+        $data['user_teams'] = $this->db
+            ->select('t.name')
+            ->from('tbl_teams t')
+            ->join('tbl_team_members tm', 'tm.team_id = t.id')
+            ->where('tm.user_id', $user_id)
+            ->where('tm.status', 'approved')
+            ->order_by('t.name', 'ASC')
+            ->get()
+            ->result();
 
         if (empty($data['user'])) {
             redirect('admin/timesync');
@@ -329,12 +363,17 @@ class Timesync extends Admin_Controller
         $from = $this->input->get('from');
         $to = $this->input->get('to');
 
+        $allowed_ids = get_authorized_user_ids_web();
+
         $page = max(1, (int)$this->input->get('page'));
         $per_page = 24;
         $offset = ($page - 1) * $per_page;
 
         // Count total matching
         $this->db->from('tbl_screenshots');
+        if ($allowed_ids !== null) {
+            $this->db->where_in('user_id', $allowed_ids);
+        }
         if (!empty($user_id)) $this->db->where('user_id', (int)$user_id);
         if (!empty($task_id)) $this->db->where('task_id', (int)$task_id);
         if (!empty($from)) $this->db->where('captured_at >=', $from);
@@ -350,6 +389,9 @@ class Timesync extends Admin_Controller
         $this->db->from('tbl_screenshots');
         $this->db->join('tbl_account_details', 'tbl_account_details.user_id = tbl_screenshots.user_id', 'left');
         $this->db->join('tbl_task', 'tbl_task.task_id = tbl_screenshots.task_id', 'left');
+        if ($allowed_ids !== null) {
+            $this->db->where_in('tbl_screenshots.user_id', $allowed_ids);
+        }
         if (!empty($user_id)) $this->db->where('tbl_screenshots.user_id', (int)$user_id);
         if (!empty($task_id)) $this->db->where('tbl_screenshots.task_id', (int)$task_id);
         if (!empty($from)) $this->db->where('tbl_screenshots.captured_at >=', $from);
@@ -359,7 +401,12 @@ class Timesync extends Admin_Controller
         $data['screenshots'] = $this->db->get()->result();
 
         $data['screenshot_count'] = count($data['screenshots']);
-        $data['total_screenshots'] = $this->db->count_all('tbl_screenshots');
+        $this->db->reset_query();
+        $data['total_screenshots'] = $this->db->from('tbl_screenshots');
+        if ($allowed_ids !== null) {
+            $this->db->where_in('user_id', $allowed_ids);
+        }
+        $data['total_screenshots'] = $this->db->count_all_results();
         $data['page'] = $page;
         $data['total_pages'] = $total_pages;
         $data['per_page'] = $per_page;
@@ -367,8 +414,11 @@ class Timesync extends Admin_Controller
         // Activity trend: screenshots per day for last 14 days
         $trend = $this->db
             ->select('DATE(captured_at) as day, COUNT(*) as cnt')
-            ->where('captured_at >=', date('Y-m-d', strtotime('-13 days')) . ' 00:00:00')
-            ->group_by('DATE(captured_at)')
+            ->where('captured_at >=', date('Y-m-d', strtotime('-13 days')) . ' 00:00:00');
+        if ($allowed_ids !== null) {
+            $this->db->where_in('user_id', $allowed_ids);
+        }
+        $trend = $this->db->group_by('DATE(captured_at)')
             ->order_by('day', 'ASC')
             ->get('tbl_screenshots')
             ->result();
@@ -388,8 +438,11 @@ class Timesync extends Admin_Controller
 
         $data['users'] = $this->db->select('tbl_users.user_id, tbl_account_details.fullname')
             ->join('tbl_account_details', 'tbl_account_details.user_id = tbl_users.user_id', 'left')
-            ->where('tbl_users.activated', 1)
-            ->get('tbl_users')
+            ->where('tbl_users.activated', 1);
+        if ($allowed_ids !== null) {
+            $this->db->where_in('tbl_users.user_id', $allowed_ids);
+        }
+        $data['users'] = $this->db->get('tbl_users')
             ->result();
 
         $data['subview'] = $this->load->view('admin/timesync/screenshots', $data, true);
@@ -414,7 +467,12 @@ class Timesync extends Admin_Controller
         if (empty($to)) $to = date('Y-m-d');
 
         // Distinct active users in period
+        $allowed_ids = get_authorized_user_ids_web();
+
         $this->db->reset_query();
+        if ($allowed_ids !== null) {
+            $this->db->where_in('user_id', $allowed_ids);
+        }
         $data['usage_user_count'] = (int)$this->db
             ->select('COUNT(DISTINCT(user_id)) as cnt')
             ->where('recorded_at >=', $from)
@@ -424,6 +482,9 @@ class Timesync extends Admin_Controller
 
         // Total seconds in period
         $this->db->reset_query();
+        if ($allowed_ids !== null) {
+            $this->db->where_in('user_id', $allowed_ids);
+        }
         $data['usage_total_seconds'] = (int)$this->db
             ->select('COALESCE(SUM(total_seconds), 0) as total')
             ->where('recorded_at >=', $from)
@@ -436,8 +497,11 @@ class Timesync extends Admin_Controller
         $user_totals_raw = $this->db
             ->select('user_id, SUM(total_seconds) as total_sec')
             ->where('recorded_at >=', $from)
-            ->where('recorded_at <=', $to)
-            ->group_by('user_id')
+            ->where('recorded_at <=', $to);
+        if ($allowed_ids !== null) {
+            $this->db->where_in('user_id', $allowed_ids);
+        }
+        $user_totals_raw = $this->db->group_by('user_id')
             ->get('tbl_desktop_app_usage')
             ->result();
 
@@ -450,8 +514,11 @@ class Timesync extends Admin_Controller
                 ->select('SUM(total_seconds) as sec')
                 ->where('user_id', $uid)
                 ->where('recorded_at >=', $from)
-                ->where('recorded_at <=', $to)
-                ->group_by('app_name')
+                ->where('recorded_at <=', $to);
+            if ($allowed_ids !== null) {
+                $this->db->where_in('user_id', $allowed_ids);
+            }
+            $top_app = $this->db->group_by('app_name')
                 ->order_by('sec', 'DESC')
                 ->limit(1)
                 ->get('tbl_desktop_app_usage')
@@ -479,8 +546,11 @@ class Timesync extends Admin_Controller
         $top_apps = $this->db
             ->select('app_name, SUM(total_seconds) as total_sec')
             ->where('recorded_at >=', $from)
-            ->where('recorded_at <=', $to)
-            ->group_by('app_name')
+            ->where('recorded_at <=', $to);
+        if ($allowed_ids !== null) {
+            $this->db->where_in('user_id', $allowed_ids);
+        }
+        $top_apps = $this->db->group_by('app_name')
             ->order_by('total_sec', 'DESC')
             ->limit(10)
             ->get('tbl_desktop_app_usage')
@@ -493,8 +563,11 @@ class Timesync extends Admin_Controller
         $data['users'] = $this->db
             ->select('tbl_users.user_id, tbl_account_details.fullname')
             ->join('tbl_account_details', 'tbl_account_details.user_id = tbl_users.user_id', 'left')
-            ->where('tbl_users.activated', 1)
-            ->get('tbl_users')
+            ->where('tbl_users.activated', 1);
+        if ($allowed_ids !== null) {
+            $this->db->where_in('tbl_users.user_id', $allowed_ids);
+        }
+        $data['users'] = $this->db->get('tbl_users')
             ->result();
 
         $data['selected_user_id'] = $user_id;
@@ -534,12 +607,17 @@ class Timesync extends Admin_Controller
 
         $search_val = $this->input->post('search[value]');
 
+        $allowed_ids = get_authorized_user_ids_web();
+
         $this->db->reset_query();
         $this->db->select('a.*, u.username, ad.fullname');
         $this->db->from('tbl_desktop_app_usage a');
         $this->db->join('tbl_users u', 'u.user_id = a.user_id', 'left');
         $this->db->join('tbl_account_details ad', 'ad.user_id = a.user_id', 'left');
 
+        if ($allowed_ids !== null) {
+            $this->db->where_in('a.user_id', $allowed_ids);
+        }
         if (!empty($user_id)) $this->db->where('a.user_id', (int)$user_id);
         $this->db->where('a.recorded_at >=', $from);
         $this->db->where('a.recorded_at <=', $to);
@@ -715,28 +793,52 @@ class Timesync extends Admin_Controller
         $week_start = date('Y-m-d', strtotime('monday this week'));
         $month_start = date('Y-m-01');
 
+        $allowed_ids = get_authorized_user_ids_web();
+
+        $active_users = $this->db->select('COUNT(DISTINCT user_id) as count')
+            ->where('started_at >=', $today)
+            ->where('is_running', 1);
+        if ($allowed_ids !== null) {
+            $this->db->where_in('user_id', $allowed_ids);
+        }
+        $active_users = (int) $active_users->get('tbl_desktop_time_entries')->row()->count ?? 0;
+
+        $this->db->reset_query();
+        $total_entries = $this->db->from('tbl_desktop_time_entries');
+        if ($allowed_ids !== null) {
+            $this->db->where_in('user_id', $allowed_ids);
+        }
+        $total_entries = $this->db->count_all_results();
+
+        $this->db->reset_query();
+        $total_screenshots = $this->db->from('tbl_screenshots');
+        if ($allowed_ids !== null) {
+            $this->db->where_in('user_id', $allowed_ids);
+        }
+        $total_screenshots = $this->db->count_all_results();
+
         return [
-            'today_hours' => $this->_total_hours_since($today),
-            'week_hours' => $this->_total_hours_since($week_start),
-            'month_hours' => $this->_total_hours_since($month_start),
-            'active_users' => (int) $this->db->select('COUNT(DISTINCT user_id) as count')
-                ->where('started_at >=', $today)
-                ->where('is_running', 1)
-                ->get('tbl_desktop_time_entries')
-                ->row()->count ?? 0,
-            'total_entries' => $this->db->count_all('tbl_desktop_time_entries'),
-            'total_screenshots' => $this->db->count_all('tbl_screenshots'),
-            'period_hours' => $this->_total_hours_since($start_date),
+            'today_hours' => $this->_total_hours_since($today, $allowed_ids),
+            'week_hours' => $this->_total_hours_since($week_start, $allowed_ids),
+            'month_hours' => $this->_total_hours_since($month_start, $allowed_ids),
+            'active_users' => $active_users,
+            'total_entries' => $total_entries,
+            'total_screenshots' => $total_screenshots,
+            'period_hours' => $this->_total_hours_since($start_date, $allowed_ids),
         ];
     }
 
     private function _daily_hours_chart($start_date, $end_date)
     {
+        $allowed_ids = get_authorized_user_ids_web();
         $result = $this->db
             ->select('DATE(started_at) as day, COALESCE(SUM(total_seconds), 0) as total_sec')
             ->where('started_at >=', $start_date . ' 00:00:00')
-            ->where('started_at <=', $end_date . ' 23:59:59')
-            ->group_by('DATE(started_at)')
+            ->where('started_at <=', $end_date . ' 23:59:59');
+        if ($allowed_ids !== null) {
+            $this->db->where_in('user_id', $allowed_ids);
+        }
+        $result = $this->db->group_by('DATE(started_at)')
             ->order_by('day', 'ASC')
             ->get('tbl_desktop_time_entries')
             ->result();
@@ -753,13 +855,16 @@ class Timesync extends Admin_Controller
 
     private function _user_distribution($start_date, $end_date)
     {
-        return $this->db
-            ->select('tbl_desktop_time_entries.user_id, tbl_account_details.fullname, COALESCE(SUM(tbl_desktop_time_entries.total_seconds), 0) as total_sec, COUNT(DISTINCT tbl_desktop_time_entries.id) as entry_count')
+        $allowed_ids = get_authorized_user_ids_web();
+        $this->db->select('tbl_desktop_time_entries.user_id, tbl_account_details.fullname, COALESCE(SUM(tbl_desktop_time_entries.total_seconds), 0) as total_sec, COUNT(DISTINCT tbl_desktop_time_entries.id) as entry_count')
             ->from('tbl_desktop_time_entries')
             ->join('tbl_account_details', 'tbl_account_details.user_id = tbl_desktop_time_entries.user_id', 'left')
             ->where('tbl_desktop_time_entries.started_at >=', $start_date . ' 00:00:00')
-            ->where('tbl_desktop_time_entries.started_at <=', $end_date . ' 23:59:59')
-            ->group_by('tbl_desktop_time_entries.user_id')
+            ->where('tbl_desktop_time_entries.started_at <=', $end_date . ' 23:59:59');
+        if ($allowed_ids !== null) {
+            $this->db->where_in('tbl_desktop_time_entries.user_id', $allowed_ids);
+        }
+        return $this->db->group_by('tbl_desktop_time_entries.user_id')
             ->order_by('total_sec', 'DESC')
             ->limit(10)
             ->get()
@@ -768,12 +873,16 @@ class Timesync extends Admin_Controller
 
     private function _user_grid($start_date, $end_date)
     {
+        $allowed_ids = get_authorized_user_ids_web();
         $users = $this->db
             ->select('tbl_users.user_id, tbl_users.last_active_ping, tbl_account_details.fullname, tbl_account_details.avatar')
             ->from('tbl_users')
             ->join('tbl_account_details', 'tbl_account_details.user_id = tbl_users.user_id', 'left')
-            ->where('tbl_users.activated', 1)
-            ->order_by('tbl_account_details.fullname', 'ASC')
+            ->where('tbl_users.activated', 1);
+        if ($allowed_ids !== null) {
+            $this->db->where_in('tbl_users.user_id', $allowed_ids);
+        }
+        $users = $this->db->order_by('tbl_account_details.fullname', 'ASC')
             ->get()
             ->result();
 
@@ -916,13 +1025,14 @@ class Timesync extends Admin_Controller
             ->result();
     }
 
-    private function _total_hours_since($since_date)
+    private function _total_hours_since($since_date, $allowed_ids = null)
     {
-        $result = $this->db
-            ->select('COALESCE(SUM(total_seconds), 0) as total')
-            ->where('started_at >=', $since_date . ' 00:00:00')
-            ->get('tbl_desktop_time_entries')
-            ->row();
+        $this->db->select('COALESCE(SUM(total_seconds), 0) as total')
+            ->where('started_at >=', $since_date . ' 00:00:00');
+        if ($allowed_ids !== null) {
+            $this->db->where_in('user_id', $allowed_ids);
+        }
+        $result = $this->db->get('tbl_desktop_time_entries')->row();
         $seconds = (int)$result->total;
         return round($seconds / 3600, 1);
     }
