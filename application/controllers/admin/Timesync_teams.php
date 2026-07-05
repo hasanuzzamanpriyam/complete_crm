@@ -300,4 +300,57 @@ class Timesync_Teams extends Admin_Controller
         }
         redirect('admin/timesync_teams');
     }
+
+    public function toggle_manager()
+    {
+        if (!$this->input->is_ajax_request()) {
+            redirect('admin/timesync_teams');
+        }
+
+        $team_id = (int)$this->input->post('team_id');
+        $user_id = (int)$this->input->post('user_id');
+        $current_user_id = (int)$this->session->userdata('user_id');
+        $is_super = is_super_admin();
+
+        if (!$team_id || !$user_id) {
+            return $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode(['success' => false, 'message' => 'Invalid request.']));
+        }
+
+        if (!$is_super) {
+            $managed_ids = $this->Team_model->get_managed_team_ids($current_user_id);
+            if (!in_array($team_id, $managed_ids)) {
+                return $this->output
+                    ->set_content_type('application/json')
+                    ->set_output(json_encode(['success' => false, 'message' => 'Permission denied.']));
+            }
+        }
+
+        $member = $this->db
+            ->where('team_id', $team_id)
+            ->where('user_id', $user_id)
+            ->where('status', 'approved')
+            ->get('tbl_team_members')
+            ->row();
+
+        if (!$member) {
+            return $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode(['success' => false, 'message' => 'Member not found.']));
+        }
+
+        $new_val = (int)$member->is_manager ? 0 : 1;
+        $this->db->where('team_id', $team_id)
+            ->where('user_id', $user_id)
+            ->update('tbl_team_members', ['is_manager' => $new_val]);
+
+        return $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode([
+                'success' => true,
+                'is_manager' => $new_val,
+                'message' => $new_val ? 'Member promoted to manager.' : 'Member demoted from manager.',
+            ]));
+    }
 }

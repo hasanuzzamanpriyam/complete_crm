@@ -178,9 +178,15 @@
                         </div>
                         <div class="member-badges">
                           <?php if ($m->is_manager): ?>
-                            <span class="role-badge role-manager">Manager</span>
+                            <span class="role-badge role-manager" style="cursor:pointer;"
+                                  data-team-id="<?= (int)$team->id ?>" data-user-id="<?= (int)$m->user_id ?>"
+                                  onclick="event.stopPropagation(); toggleManager(this, <?= (int)$team->id ?>, <?= (int)$m->user_id ?>);"
+                                  title="Click to demote from manager">Manager</span>
                           <?php else: ?>
-                            <span class="role-badge role-member">Member</span>
+                            <span class="role-badge role-member" style="cursor:pointer;"
+                                  data-team-id="<?= (int)$team->id ?>" data-user-id="<?= (int)$m->user_id ?>"
+                                  onclick="event.stopPropagation(); toggleManager(this, <?= (int)$team->id ?>, <?= (int)$m->user_id ?>);"
+                                  title="Click to promote to manager">Member</span>
                           <?php endif; ?>
                           <?php if ($m->status === 'approved'): ?>
                             <span class="status-badge status-approved">Approved</span>
@@ -439,6 +445,37 @@
       }
     });
   });
+
+  var csrfName = '<?= $this->security->get_csrf_token_name() ?>';
+  var csrfHash = '<?= $this->security->get_csrf_hash() ?>';
+
+  function toggleManager(el, teamId, userId) {
+    var confirmMsg = el.classList.contains('role-manager')
+      ? 'Remove manager role from this member?'
+      : 'Make this member a manager?';
+    if (!confirm(confirmMsg)) return;
+
+    var data = { team_id: teamId, user_id: userId };
+    data[csrfName] = csrfHash;
+
+    $.post('<?= base_url('admin/timesync_teams/toggle_manager') ?>', data, function (res) {
+      if (res.success) {
+        if (res.is_manager) {
+          el.className = 'role-badge role-manager';
+          el.textContent = 'Manager';
+          el.title = 'Click to demote from manager';
+        } else {
+          el.className = 'role-badge role-member';
+          el.textContent = 'Member';
+          el.title = 'Click to promote to manager';
+        }
+      } else {
+        alert(res.message || 'Failed to toggle manager role.');
+      }
+    }, 'json').fail(function () {
+      alert('Request failed. Check your connection and try again.');
+    });
+  }
 
   function escHtml(str) {
     if (!str) return '';
