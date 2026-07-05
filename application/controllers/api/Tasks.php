@@ -230,16 +230,6 @@ class Tasks extends MY_Controller
                 foreach ($input['assigned_to'] as $uid) {
                     $perm_map[(int)$uid] = ['view', 'edit', 'delete'];
                 }
-                $admins = $this->db->select('user_id')
-                    ->group_start()
-                    ->where('role_id', 1)
-                    ->or_where('is_super_admin', 1)
-                    ->group_end()
-                    ->get('tbl_users')
-                    ->result();
-                foreach ($admins as $a) {
-                    $perm_map[(int)$a->user_id] = ['view', 'edit', 'delete'];
-                }
                 $permission = json_encode($perm_map);
             }
         }
@@ -309,16 +299,6 @@ class Tasks extends MY_Controller
                 $perm_map = [];
                 foreach ($input['assigned_to'] as $uid) {
                     $perm_map[(int)$uid] = ['view', 'edit', 'delete'];
-                }
-                $admins = $this->db->select('user_id')
-                    ->group_start()
-                    ->where('role_id', 1)
-                    ->or_where('is_super_admin', 1)
-                    ->group_end()
-                    ->get('tbl_users')
-                    ->result();
-                foreach ($admins as $a) {
-                    $perm_map[(int)$a->user_id] = ['view', 'edit', 'delete'];
                 }
                 $update['permission'] = json_encode($perm_map);
             } else {
