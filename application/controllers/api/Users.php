@@ -39,7 +39,7 @@ class Users extends MY_Controller
     public function index()
     {
         $auth_user = $this->api_auth->authenticate();
-        $allowed_ids = $this->api_auth->get_allowed_user_ids();
+        $allowed_ids = null;
 
         $this->db->select('tbl_users.user_id, tbl_users.username, tbl_users.email, tbl_users.role_id, tbl_account_details.fullname');
         $this->db->from('tbl_users');
