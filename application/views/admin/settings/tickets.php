@@ -51,6 +51,7 @@
                         <div class="col-lg-5">
                             <?php
                             $all_priority = $this->db->get('tbl_priority')->result();
+                            $options = array();
                             foreach ($all_priority as $priority) {
                                 $options[$priority->priority] = $priority->priority;
                             }

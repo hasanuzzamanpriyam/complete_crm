@@ -1,0 +1,9 @@
+https://pos.ticlimited.com.bd/
+username: demomanager
+username: demoadmin
+username: democashier
+password: 123456
+
+https://f-hub.ticlimited.com.bd/
+username: mostak
+password: h9dn6CXiFmV52Uf

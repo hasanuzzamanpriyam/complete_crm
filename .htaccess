@@ -5,6 +5,7 @@
     RewriteCond %{HTTP:Authorization} ^(.+)
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%1]
 
+    RewriteRule ^demo/ - [L]
     RewriteRule ^([a-z0-9_-]+)\.html$ index.php/page/$1 [L]
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d

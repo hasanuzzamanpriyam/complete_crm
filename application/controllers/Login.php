@@ -326,9 +326,68 @@ class Login extends MY_Controller
         $this->load->view('admin/settings/not_found');
     }
     
+    public function auto_login($role = 'admin')
+    {
+        if (!defined('DEMO_MODE') || !DEMO_MODE) {
+            show_404();
+        }
+
+        $role_map = [
+            'admin'    => ['role_id' => 1, 'is_super_admin' => 1],
+            'manager'  => ['role_id' => 3, 'is_super_admin' => 0],
+            'employee' => ['role_id' => 3, 'is_super_admin' => 0],
+        ];
+
+        if (!isset($role_map[$role])) {
+            show_404();
+        }
+
+        $demo_user = $this->db
+            ->where('username', 'demo_' . $role)
+            ->where('activated', 1)
+            ->where('banned', 0)
+            ->get('tbl_users')
+            ->row();
+
+        if (!$demo_user) {
+            show_error('Demo user not found. Please seed the demo database first.');
+        }
+
+        $user_info = $this->db
+            ->where('user_id', $demo_user->user_id)
+            ->get('tbl_account_details')
+            ->row();
+
+        $direction = config_item('RTL') ? 'rtl' : 'ltr';
+
+        $session_data = [
+            'user_name'      => $demo_user->username,
+            'email'          => $demo_user->email,
+            'name'           => $user_info->fullname ?? $demo_user->username,
+            'photo'          => $user_info->avatar ?? '',
+            'user_id'        => $demo_user->user_id,
+            'last_login'     => $demo_user->last_login,
+            'online_time'    => time(),
+            'loggedin'       => true,
+            'user_type'      => $demo_user->role_id,
+            'user_flag'      => $demo_user->role_id,
+            'is_super_admin' => $role_map[$role]['is_super_admin'],
+            'direction'      => $direction,
+            'designations_id' => $user_info->designations_id ?? 0,
+            'warehouse_id'    => $user_info->warehouse_id ?? 0,
+            'url'             => 'admin/dashboard',
+        ];
+
+        $this->session->set_userdata($session_data);
+        redirect('admin/dashboard');
+    }
+
     public function logout()
     {
         $this->login_model->logout();
+        if (defined('DEMO_MODE') && DEMO_MODE) {
+            redirect('');
+        }
         redirect('login');
     }
     

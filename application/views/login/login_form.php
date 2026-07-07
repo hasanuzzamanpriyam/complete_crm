@@ -44,10 +44,27 @@
             <i class="fa fa-clock-o"></i> <?= lang('mark_attendance') ?> </button>
     <?php } ?>
 </form>
+<div class="demo-section" style="margin-top:20px;padding-top:20px;border-top:1px solid #eee;">
+    <p class="text-muted" style="text-align:center;margin-bottom:12px;">
+        <i class="fa fa-flask"></i> Try the Demo
+    </p>
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+        <?php $demo_prefix = defined('DEMO_MODE') && DEMO_MODE ? '' : 'demo/'; ?>
+        <a href="<?= base_url() . $demo_prefix ?>login/auto_login/admin" class="btn btn-info btn-sm">
+            <i class="fa fa-shield"></i> View as Admin
+        </a>
+        <a href="<?= base_url() . $demo_prefix ?>login/auto_login/manager" class="btn btn-warning btn-sm">
+            <i class="fa fa-users"></i> View as Manager
+        </a>
+        <a href="<?= base_url() . $demo_prefix ?>login/auto_login/employee" class="btn btn-default btn-sm">
+            <i class="fa fa-user"></i> View as Employee
+        </a>
+    </div>
+</div>
 <?php if (config_item('allow_client_registration') == 'TRUE') { ?>
     <p class="pt-lg text-center"><?= lang('do_not_have_an_account') ?></p><a href="<?= base_url() ?>login/register"
-                                                                             class="btn btn-block btn-default"><i
-                class="fa fa-sign-in"></i> <?= lang('get_your_account') ?></a>
+                                                                              class="btn btn-block btn-default"><i
+                 class="fa fa-sign-in"></i> <?= lang('get_your_account') ?></a>
 <?php }
 do_action('login_form_oauth'); ?>
 

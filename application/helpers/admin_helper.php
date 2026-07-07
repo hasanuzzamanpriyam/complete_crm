@@ -736,6 +736,9 @@ function custom_form_Fields($id, $edit_id = null, $col_sm = null)
     $CI = &get_instance();
     $all_field = $CI->db->where(array('form_id' => $id, 'status' => 'active'))->get('tbl_custom_field')->result();
     $form = $CI->db->where('form_id', $id)->get('tbl_form')->row();
+    if (!$form) {
+        return '';
+    }
     $table = $form->tbl_name;
     $filed_id = $form->table_id;
     $html = null;
@@ -1319,6 +1322,9 @@ function save_custom_field($id, $edit_id = null)
 
     $all_field = $CI->db->where(array('form_id' => $id, 'status' => 'active'))->get('tbl_custom_field')->result();
     $form = $CI->db->where('form_id', $id)->get('tbl_form')->row();
+    if (!$form) {
+        return array();
+    }
     $table = $form->tbl_name;
     $table_id = $form->table_id;
     $custom = array();
@@ -1355,6 +1361,9 @@ function custom_form_label($id, $show_id)
     $CI->load->model('admin_model');
     $all_field = $CI->db->where(array('form_id' => $id, 'status' => 'active'))->get('tbl_custom_field')->result();
     $form = $CI->db->where('form_id', $id)->get('tbl_form')->row();
+    if (!$form) {
+        return array();
+    }
     $table = $form->tbl_name;
     $table_id = $form->table_id;
 
@@ -1386,6 +1395,9 @@ function custom_form_table($id, $show_id)
     $CI->load->model('admin_model');
     $all_field = $CI->db->where(array('form_id' => $id, 'status' => 'active'))->get('tbl_custom_field')->result();
     $form = $CI->db->where('form_id', $id)->get('tbl_form')->row();
+    if (!$form) {
+        return array();
+    }
     $table = $form->tbl_name;
     $table_id = $form->table_id;
 
@@ -1423,6 +1435,9 @@ function custom_form_cron($id, $show_id)
     $CI->load->model('admin_model');
     $all_field = $CI->db->where(array('form_id' => $id, 'status' => 'active'))->get('tbl_custom_field')->result();
     $form = $CI->db->where('form_id', $id)->get('tbl_form')->row();
+    if (!$form) {
+        return array();
+    }
     $table = $form->tbl_name;
     $table_id = $form->table_id;
 
@@ -1457,6 +1472,9 @@ function form_custom_fields($id)
     $all_field = $CI->db->where(array('form_id' => $id, 'status' => 'active'))->get('tbl_custom_field')->result();
 
     $form = $CI->db->where('form_id', $id)->get('tbl_form')->row();
+    if (!$form) {
+        return array();
+    }
     $table = $form->tbl_name;
     $table_id = $form->table_id;
 
@@ -3252,8 +3270,12 @@ function custom_form_table_search($id)
 
     $all_field = $CI->db->where(array('form_id' => $id, 'status' => 'active', 'show_on_table' => 'on'))->get('tbl_custom_field')->result();
     $form = $CI->db->where('form_id', $id)->get('tbl_form')->row();
+    if (!$form) {
+        return array();
+    }
     $table = $form->tbl_name;
-    $filed_id = $form->table_id;
+    $table_id = $form->table_id;
+
     $showValue = array();
     if (!empty($all_field)) {
         foreach ($all_field as $v_fileds) {

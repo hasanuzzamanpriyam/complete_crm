@@ -46,10 +46,12 @@ class Settings_Model extends MY_Model
     function available_translations()
     {
         $result = $this->db->get('tbl_languages')->result();
+        $existing = array();
         foreach ($result as $v_result) {
             $existing[] = $v_result->name;
         }
         $availabe_language = $this->db->group_by('language')->get('tbl_locales')->result();
+        $available = array();
         foreach ($availabe_language as $v_language) {
             if (!in_array(slug_it($v_language->name), $existing)) {
                 $available[] = $v_language;
@@ -88,7 +90,7 @@ class Settings_Model extends MY_Model
                 $en = $this->lang->load($shortfile, 'english', TRUE, TRUE, $altpath);
 
                 if ($lang != 'english') {
-                    $tr = $this->lang->load($shortfile, $lang, TRUE, TRUE, './application/');
+                    $tr = $this->lang->load($shortfile, $lang, TRUE, TRUE, APPPATH);
                     foreach ($en as $key => $value) {
                         $translation = isset($tr[$key]) ? $tr[$key] : $value;
                         if (!empty($translation) && $translation != $value) {
