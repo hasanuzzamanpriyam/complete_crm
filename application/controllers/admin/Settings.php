@@ -3864,7 +3864,7 @@ class Settings extends Admin_Controller
         $this->load->view('admin/_layout_main', $data); //page load
     }
 
-    public function award_rule_settingh()
+    public function award_rule_settings()
     {
 
         $data['page'] = lang('settings');
@@ -3880,6 +3880,11 @@ class Settings extends Admin_Controller
             $data['subview'] = $this->load->view('admin/settings/not_found', $data, TRUE);
         }
         $this->load->view('admin/_layout_main', $data); //page load
+    }
+
+    public function award_rule_settingh()
+    {
+        redirect('admin/settings/award_rule_settings');
     }
 
     public function award_program_settings()
@@ -3983,7 +3988,7 @@ class Settings extends Admin_Controller
             $message = lang('update_msg', lang('award_program') . ' ' . lang('settings'));
             set_message($type, $message);
         }
-        redirect('admin/settings/award_rule_settingh');
+        redirect('admin/settings/award_rule_settings');
     }
 
     public function awardprogramlist()
@@ -4172,7 +4177,7 @@ class Settings extends Admin_Controller
             $message = lang('update_msg', lang('purchase') . ' ' . lang('settings'));
             set_message($type, $message);
         }
-        redirect('admin/settings/award_rule_settingh');
+        redirect('admin/settings/award_rule_settings');
     }
 
     public function card_config()

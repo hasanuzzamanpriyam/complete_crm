@@ -125,7 +125,7 @@ class Migration_Version_409 extends CI_Migration
         (187, 'transferItem', 'admin/items/transferItem', 'fa fa-circle-o', 150, 4, '2021-10-13 14:56:08', 1),
         (188, 'transfer_settings', 'admin/settings/transfer', 'fa-fw icon-handbag', 25, 13, '2021-10-20 13:32:34', 2),
         (203, 'award_setting', 'admin/settings/award', 'fa fa-star', 25, 30, '2022-01-18 08:51:40', 2),
-        (204, 'award_rule_setting', 'admin/settings/award_rule_settingh', 'fa fa-star', 25, 31, '2022-01-18 12:53:50', 2),
+        (204, 'award_rule_setting', 'admin/settings/award_rule_settings', 'fa fa-star', 25, 31, '2022-01-18 12:53:50', 2),
         (205, 'award_program_settings', 'admin/settings/award_program_settings', 'fa fa-cog', 25, 32, '2022-01-19 12:17:30', 2),
         (206, 'client_award_points', 'admin/invoice/client_awards', 'fa fa-circle-o', 12, 10, '2022-01-20 04:39:41', 1),
         (207, 'best_selling_product', 'admin/best_selling', 'fa fa-circle-o', 12, 11, '2022-01-20 09:43:52', 1);");
