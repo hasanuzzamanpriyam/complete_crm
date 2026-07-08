@@ -415,7 +415,7 @@ $time_where = $has_date_range
             }
             $this->db->where('au.recorded_at >=', $since);
             $this->db->where('au.recorded_at <=', $until);
-            $this->db->order_by('au.recorded_at', 'ASC');
+            $this->db->order_by('au.recorded_at', 'DESC');
             if ($limit) $this->db->limit($limit);
             return $this->db;
         };
@@ -524,7 +524,7 @@ $time_where = $has_date_range
             ->where('au.recorded_at >=', $since)
             ->where('au.recorded_at <=', $until)
             ->group_by('au.app_name, au.window_title, au.url')
-            ->order_by('total_seconds', 'DESC')
+            ->order_by('MAX(au.recorded_at)', 'DESC')
             ->limit(20)
             ->get()->result();
         $recent_windows = array_map(function ($w) {

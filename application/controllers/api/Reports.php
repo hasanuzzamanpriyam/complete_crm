@@ -195,7 +195,7 @@ class Reports extends MY_Controller
         $this->db->where('DATE(te.started_at) <=', $end_date);
         $this->db->where('te.type', 'work');
         $this->db->group_by('DATE(te.started_at), te.user_id');
-        $this->db->order_by('date', 'ASC');
+        $this->db->order_by('date', 'DESC');
         $data = $this->db->get()->result();
 
         $result = array_map(function ($r) {
