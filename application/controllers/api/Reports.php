@@ -149,14 +149,14 @@ class Reports extends MY_Controller
         }
 
         $user_ids = $this->_resolve_allowed_user_ids($user_id ? (int)$user_id : null);
-        $this->db->select('app_name, window_title, SUM(total_seconds) as total_seconds');
+        $this->db->select('app_name, window_title, url, SUM(total_seconds) as total_seconds');
         $this->db->from('tbl_desktop_app_usage');
         if (is_array($user_ids)) {
             $this->db->where_in('user_id', $user_ids);
         }
         $this->db->where('recorded_at >=', $start_date);
         $this->db->where('recorded_at <=', $end_date);
-        $this->db->group_by('app_name, window_title');
+        $this->db->group_by('app_name, window_title, url');
         $this->db->order_by('total_seconds', 'DESC');
         $this->db->limit(100);
         $data = $this->db->get()->result();
@@ -165,6 +165,7 @@ class Reports extends MY_Controller
             return [
                 'app_name' => $r->app_name,
                 'window_title' => $r->window_title ?? '',
+                'url' => $r->url ?? null,
                 'total_seconds' => (int)$r->total_seconds,
             ];
         }, $data);

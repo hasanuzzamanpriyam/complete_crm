@@ -61,7 +61,6 @@ class Dashboard extends MY_Controller
                     ->select('app_name, window_title')
                     ->from('tbl_desktop_app_usage')
                     ->where('user_id', $uid)
-                    ->where('time_entry_id IN (SELECT id FROM tbl_desktop_time_entries WHERE user_id = ' . (int)$uid . ' AND is_running = 1 AND stopped_at IS NULL)', null, false)
                     ->order_by('created_at', 'DESC')
                     ->limit(1)
                     ->get()->row();
@@ -108,6 +107,13 @@ class Dashboard extends MY_Controller
             $since = $period === 'monthly' ? date('Y-m-d', strtotime('-30 days')) : date('Y-m-d', strtotime('-7 days'));
             $until = null;
         }
+        $until_dt = $until ? $until . ' 23:59:59' : null;
+
+        // Chart trend data always spans 7 days ending on $until, regardless of period.
+        // KPIs and other summaries continue to use the original $since range.
+        $chart_since = $has_date_range
+            ? date('Y-m-d', strtotime($until . ' -6 days'))
+            : $since;
 
         $is_admin = $this->api_auth->is_super_admin();
         $is_manager = (int)$user->role_id === 3;
@@ -121,8 +127,8 @@ class Dashboard extends MY_Controller
                 ->select("COALESCE(SUM(total_seconds), 0) as total")
                 ->from('tbl_desktop_time_entries')
                 ->where('user_id', $current_user_id)
-                ->where('DATE(started_at) >=', $since)
-                ->where('DATE(started_at) <=', $until)
+                ->where('started_at >=', $since)
+                ->where('started_at <=', $until_dt)
                 ->where('type', 'work')
                 ->get()->row();
         } else {
@@ -139,10 +145,10 @@ class Dashboard extends MY_Controller
             ->select("COALESCE(SUM(total_seconds), 0) as total")
             ->from('tbl_desktop_time_entries')
             ->where('user_id', $current_user_id)
-            ->where('DATE(started_at) >=', $since)
+            ->where('started_at >=', $since)
             ->where('type', 'work');
         if ($has_date_range) {
-            $weekly_q->where('DATE(started_at) <=', $until);
+            $weekly_q->where('started_at <=', $until_dt);
         }
         $weekly_row = $weekly_q->get()->row();
 
@@ -152,8 +158,8 @@ class Dashboard extends MY_Controller
             ->where('task_status', 'in_progress')
             ->where('created_by', $current_user_id);
         if ($has_date_range) {
-            $in_progress_q->where('DATE(task_created_date) >=', $since)
-                ->where('DATE(task_created_date) <=', $until);
+            $in_progress_q->where('task_created_date >=', $since)
+                ->where('task_created_date <=', $until);
         }
         $in_progress_row = $in_progress_q->get()->row();
 
@@ -161,12 +167,12 @@ class Dashboard extends MY_Controller
             ->select("DATE(started_at) as date, SUM(total_seconds) as total_seconds")
             ->from('tbl_desktop_time_entries')
             ->where('user_id', $current_user_id)
-            ->where('DATE(started_at) >=', $since)
+            ->where('started_at >=', $chart_since)
             ->where('type', 'work')
             ->group_by('DATE(started_at)')
             ->order_by('DATE(started_at)', 'ASC');
         if ($has_date_range) {
-            $personal_trend_q->where('DATE(started_at) <=', $until);
+            $personal_trend_q->where('started_at <=', $until_dt);
         }
         $personal_trend = $personal_trend_q->get()->result();
 
@@ -176,12 +182,12 @@ class Dashboard extends MY_Controller
             ->join('tbl_task t', 't.task_id = te.task_id')
             ->join('tbl_project p', 'p.project_id = t.project_id')
             ->where('te.user_id', $current_user_id)
-            ->where('DATE(te.started_at) >=', $since)
+            ->where('te.started_at >=', $since)
             ->where('te.type', 'work')
             ->group_by('p.project_id, p.project_name')
             ->order_by('total_seconds', 'DESC');
         if ($has_date_range) {
-            $project_q->where('DATE(te.started_at) <=', $until);
+            $project_q->where('te.started_at <=', $until_dt);
         }
         $project_rows = $project_q->get()->result();
 
@@ -212,10 +218,10 @@ class Dashboard extends MY_Controller
             $team_trend_q = $this->db
                 ->select("DATE(started_at) as date, SUM(total_seconds) as total_seconds")
                 ->from('tbl_desktop_time_entries')
-                ->where('DATE(started_at) >=', $since)
+                ->where('started_at >=', $chart_since)
                 ->where('type', 'work');
             if ($has_date_range) {
-                $team_trend_q->where('DATE(started_at) <=', $until);
+                $team_trend_q->where('started_at <=', $until_dt);
             }
             if ($company_ids !== null) {
                 $team_trend_q->where_in('user_id', $company_ids);
@@ -224,7 +230,7 @@ class Dashboard extends MY_Controller
 
             $brief_on = "te.user_id = u.user_id";
             if ($has_date_range) {
-                $brief_on .= " AND DATE(te.started_at) >= " . $this->db->escape($since) . " AND DATE(te.started_at) <= " . $this->db->escape($until);
+                $brief_on .= " AND te.started_at >= " . $this->db->escape($since) . " AND te.started_at <= " . $this->db->escape($until_dt);
             } else {
                 $brief_on .= " AND DATE(te.started_at) = CURDATE()";
             }
@@ -251,11 +257,11 @@ class Dashboard extends MY_Controller
 
             $now_ts = time();
 
-            $time_where = $has_date_range
-                ? "DATE(started_at) >= " . $this->db->escape($since) . " AND DATE(started_at) <= " . $this->db->escape($until)
+$time_where = $has_date_range
+                ? "started_at >= " . $this->db->escape($since) . " AND started_at <= " . $this->db->escape($until_dt)
                 : "DATE(started_at) = CURDATE()";
             $completed_where = $has_date_range
-                ? "DATE(task_created_date) >= " . $this->db->escape($since) . " AND DATE(task_created_date) <= " . $this->db->escape($until)
+                ? "task_created_date >= " . $this->db->escape($since) . " AND task_created_date <= " . $this->db->escape($until)
                 : "DATE(task_created_date) = CURDATE()";
 
             $global = $this->db
@@ -336,9 +342,14 @@ class Dashboard extends MY_Controller
         $period_days = (strtotime($end_date_input) - strtotime($start_date)) / 86400 + 1;
         $prev_end = date('Y-m-d', strtotime($start_date . ' -1 day'));
         $prev_since = date('Y-m-d', strtotime($prev_end . ' -' . ($period_days - 1) . ' days'));
+        // Chart daily_logged always spans 7 days ending on end_date, regardless of period.
+        // KPIs and other summaries continue to use the original $since range.
+        $chart_since = date('Y-m-d', strtotime($end_date_input . ' -6 days'));
 
         $is_admin = $this->api_auth->is_super_admin();
         $is_manager = (int)$auth_user->role_id === 3;
+
+        $company_ids = null;
 
         // Resolve target
         if ($target_user_id === null) {
@@ -377,7 +388,7 @@ class Dashboard extends MY_Controller
         }
 
         // ---- Helper scoping closures ----
-        $time_q = function ($sel, $since_date, $join_billable = false) use ($effective_user_id, $company_ids, $end_date_input) {
+        $time_q = function ($sel, $since_date, $join_billable = false) use ($effective_user_id, $company_ids, $until) {
             $this->db->select($sel)->from('tbl_desktop_time_entries te');
             if ($join_billable) {
                 $this->db->join('tbl_task t', 't.task_id = te.task_id', 'left');
@@ -389,13 +400,13 @@ class Dashboard extends MY_Controller
                 $this->db->where_in('te.user_id', $company_ids);
             }
             $this->db->where('te.type', 'work');
-            $this->db->where('DATE(te.started_at) >=', $since_date);
-            $this->db->where('DATE(te.started_at) <=', $end_date_input);
+            $this->db->where('te.started_at >=', $since_date);
+            $this->db->where('te.started_at <=', $until);
             return $this->db;
         };
 
         $app_q = function ($limit = null) use ($effective_user_id, $since, $company_ids, $until) {
-            $this->db->select('au.app_name, au.window_title, au.total_seconds, au.recorded_at')
+            $this->db->select('au.app_name, au.window_title, au.url, au.total_seconds, au.recorded_at')
                 ->from('tbl_desktop_app_usage au');
             if ($effective_user_id !== null) {
                 $this->db->where('au.user_id', $effective_user_id);
@@ -413,11 +424,11 @@ class Dashboard extends MY_Controller
         $current_total = (int)$time_q("COALESCE(SUM(te.total_seconds), 0) as val", $since)->get()->row()->val;
         $billable_total = (int)$time_q("COALESCE(SUM(te.total_seconds), 0) as val", $since, true)->get()->row()->val;
         $prev_total = (int)$time_q("COALESCE(SUM(te.total_seconds), 0) as val", $prev_since)
-            ->where('DATE(te.started_at) <=', $prev_end)->get()->row()->val;
+            ->where('te.started_at <=', $prev_end . ' 23:59:59')->get()->row()->val;
         $trend = $prev_total > 0 ? round((($current_total - $prev_total) / $prev_total) * 100, 2) : 0;
 
-        // ---- Daily logged ----
-        $daily_rows = $time_q("DATE(te.started_at) as date, SUM(te.total_seconds) as secs", $since)
+        // ---- Daily logged (always 7-day chart span) ----
+        $daily_rows = $time_q("DATE(te.started_at) as date, SUM(te.total_seconds) as secs", $chart_since)
             ->group_by('DATE(te.started_at)')->order_by('DATE(te.started_at)', 'ASC')->get()->result();
         $daily_logged = array_map(function ($r) {
             return ['date' => $r->date, 'hours' => round((int)$r->secs / 3600, 1)];
@@ -481,8 +492,8 @@ class Dashboard extends MY_Controller
         $screenshot_q = $this->db
             ->select('id, file_path, captured_at, keystroke_count, mouse_click_count, activity_percentage')
             ->from('tbl_screenshots')
-            ->where('DATE(captured_at) >=', $since)
-            ->where('DATE(captured_at) <=', $end_date_input);
+            ->where('captured_at >=', $since)
+            ->where('captured_at <=', $until);
         if ($effective_user_id !== null) {
             $screenshot_q->where('user_id', $effective_user_id);
         } elseif ($company_ids !== null) {
@@ -502,7 +513,7 @@ class Dashboard extends MY_Controller
 
         // ---- Recent windows ----
         $window_q = $this->db
-            ->select('au.app_name, au.window_title, SUM(au.total_seconds) as total_seconds, MAX(au.recorded_at) as recorded_at')
+            ->select('au.app_name, au.window_title, au.url, SUM(au.total_seconds) as total_seconds, MAX(au.recorded_at) as recorded_at')
             ->from('tbl_desktop_app_usage au');
         if ($effective_user_id !== null) {
             $window_q->where('au.user_id', $effective_user_id);
@@ -512,7 +523,7 @@ class Dashboard extends MY_Controller
         $window_rows = $window_q
             ->where('au.recorded_at >=', $since)
             ->where('au.recorded_at <=', $until)
-            ->group_by('au.app_name, au.window_title')
+            ->group_by('au.app_name, au.window_title, au.url')
             ->order_by('total_seconds', 'DESC')
             ->limit(20)
             ->get()->result();
@@ -520,6 +531,7 @@ class Dashboard extends MY_Controller
             return [
                 'app_name' => $w->app_name,
                 'window_title' => $w->window_title,
+                'url' => $w->url ?? null,
                 'total_seconds' => (int)$w->total_seconds,
                 'recorded_at' => $w->recorded_at,
             ];

@@ -665,7 +665,8 @@ class Letter extends Admin_Controller
             redirect('admin/dashboard');
         }
 
-        $this->form_validation->set_rules('name', 'Variable Name', 'required|trim|alpha_numeric');
+        $this->form_validation->set_message('regex_match', 'The {field} field may only contain alpha-numeric characters and underscores.');
+        $this->form_validation->set_rules('name', 'Variable Name', 'required|trim|regex_match[/^[a-zA-Z0-9_]+$/]');
         $this->form_validation->set_rules('label', 'Label', 'required|trim');
 
         if ($this->form_validation->run() == false) {

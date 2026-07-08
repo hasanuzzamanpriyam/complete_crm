@@ -62,6 +62,7 @@ class App_usage extends MY_Controller
                 'time_entry_id' => $r->time_entry_id ? (int)$r->time_entry_id : null,
                 'app_name' => $r->app_name,
                 'window_title' => $r->window_title,
+                'url' => $r->url ?? null,
                 'total_seconds' => (int)$r->total_seconds,
                 'recorded_at' => $r->recorded_at,
             ];
@@ -75,6 +76,10 @@ class App_usage extends MY_Controller
         $user = $this->api_auth->authenticate();
         $input = json_decode(file_get_contents('php://input'), true);
 
+        // Debug: log incoming payload
+        $log_line = date('Y-m-d H:i:s') . ' ' . json_encode($input) . PHP_EOL;
+        @file_put_contents(APPPATH . 'logs/sync_debug.log', $log_line, FILE_APPEND);
+
         if (empty($input['app_usage']) || !is_array($input['app_usage'])) {
             return $this->_respond(400, false, 'app_usage array is required');
         }
@@ -85,12 +90,16 @@ class App_usage extends MY_Controller
 
         foreach ($input['app_usage'] as $item) {
             if (empty($item['app_name'])) continue;
+            if (empty($item['time_entry_id'])) {
+                error_log('SYNC WARNING: time_entry_id is empty/missing for app=' . $item['app_name']);
+            }
 
             $data = [
                 'user_id' => $user->user_id,
                 'time_entry_id' => !empty($item['time_entry_id']) ? (int)$item['time_entry_id'] : null,
                 'app_name' => $item['app_name'],
                 'window_title' => $item['window_title'] ?? null,
+                'url' => isset($item['url']) ? $item['url'] : null,
                 'total_seconds' => (int)($item['total_seconds'] ?? 0),
                 'recorded_at' => $item['recorded_at'] ?? $recorded_date,
                 'created_at' => date('Y-m-d H:i:s'),
