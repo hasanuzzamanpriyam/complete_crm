@@ -4,10 +4,24 @@
     <meta charset="utf-8">
     <style>
         @page {
-            margin-top: <?= (int)$margin_top ?>px;
-            margin-bottom: <?= (int)$margin_bottom ?>px;
-            margin-left: <?= (int)$margin_left ?>px;
-            margin-right: <?= (int)$margin_right ?>px;
+            size: A4;
+            margin: 0;
+        }
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .letter-content {
+                width: 210mm;
+                min-height: 297mm;
+                padding: <?= (int)$margin_top ?>px <?= (int)$margin_right ?>px <?= (int)$margin_bottom ?>px <?= (int)$margin_left ?>px;
+                margin: 0 auto;
+                box-sizing: border-box;
+            }
+            .no-print { display: none !important; }
         }
         body {
             font-family: 'DejaVu Sans', sans-serif;

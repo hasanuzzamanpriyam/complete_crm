@@ -25,7 +25,7 @@
                 <div class="panel panel-default">
                     <div class="panel-body" style="padding: <?= (int)$letter->margin_top ?>px <?= (int)$letter->margin_right ?>px <?= (int)$letter->margin_bottom ?>px <?= (int)$letter->margin_left ?>px; background: #fff; min-height: 400px;">
                         <?php if (!empty(config_item('company_logo'))): ?>
-                            <div style="text-align:center;margin-bottom:20px;">
+                            <div style="text-align:center;margin-bottom:20px;" class="no-print">
                                 <img src="<?= base_url() . config_item('company_logo') ?>" style="max-height:80px;width:auto;">
                             </div>
                         <?php endif; ?>
