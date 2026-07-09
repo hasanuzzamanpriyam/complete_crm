@@ -97,6 +97,7 @@
                       <th>User</th>
                       <th>Application</th>
                       <th>Window Title</th>
+                      <th>URL</th>
                       <th>Duration</th>
                     </tr>
                   </thead>
@@ -195,7 +196,8 @@ $(document).ready(function () {
         { 'data': 1 },
         { 'data': 2 },
         { 'data': 3 },
-        { 'data': 4, 'className': 'text-right' }
+        { 'data': 4 },
+        { 'data': 5, 'className': 'text-right' }
       ],
       'order': [[0, 'desc']],
       'dom': '<"row"<"col-xs-6"l><"col-xs-6"f>>r>t<"row"<"col-xs-6"i><"col-xs-6"p>>',

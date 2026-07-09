@@ -211,6 +211,9 @@ class Screenshots extends MY_Controller
             'file_size' => $file_size,
             'captured_at' => $captured_at,
         ];
+        if (isset($input['time_entry_id'])) {
+            $insert_data['time_entry_id'] = (int)$input['time_entry_id'];
+        }
         if (isset($input['keystroke_count'])) {
             $insert_data['keystroke_count'] = (int)$input['keystroke_count'];
         }

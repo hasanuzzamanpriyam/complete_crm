@@ -499,7 +499,7 @@ $time_where = $has_date_range
         } elseif ($company_ids !== null) {
             $screenshot_q->where_in('user_id', $company_ids);
         }
-        $screenshot_rows = $screenshot_q->order_by('captured_at', 'DESC')->limit(12)->get()->result();
+        $screenshot_rows = $screenshot_q->order_by('captured_at', 'DESC')->limit(200)->get()->result();
         $recent_screenshots = array_map(function ($s) {
             return [
                 'id' => (int)$s->id,
@@ -525,7 +525,7 @@ $time_where = $has_date_range
             ->where('au.recorded_at <=', $until)
             ->group_by('au.app_name, au.window_title, au.url')
             ->order_by('MAX(au.recorded_at)', 'DESC')
-            ->limit(20)
+            ->limit(200)
             ->get()->result();
         $recent_windows = array_map(function ($w) {
             return [

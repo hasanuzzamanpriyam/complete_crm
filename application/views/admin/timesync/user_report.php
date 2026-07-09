@@ -112,7 +112,14 @@
                     'to' => $to,
                   ]); ?>
                 <?php elseif ($active_tab === 'apps'): ?>
-                  <?php $this->load->view('admin/timesync/user_apps_tab', ['app_usage' => $app_usage ?? []]); ?>
+                  <?php $this->load->view('admin/timesync/user_apps_tab', [
+                    'app_usage' => $app_usage ?? [],
+                    'app_page' => $app_page ?? 1,
+                    'app_total_pages' => $app_total_pages ?? 1,
+                    'user_id' => $user_id,
+                    'from' => $from,
+                    'to' => $to,
+                  ]); ?>
                 <?php endif; ?>
               </div>
             </div>

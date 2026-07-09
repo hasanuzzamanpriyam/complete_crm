@@ -339,7 +339,19 @@ class Timesync extends Admin_Controller
                 $data['ss_total_pages'] = $ss_total_pages;
                 break;
             case 'apps':
-                $data['app_usage'] = $this->_user_app_usage($user_id, $from, $to);
+                $total_apps = $this->db
+                    ->where('user_id', $user_id)
+                    ->where('recorded_at >=', $from)
+                    ->where('recorded_at <=', $to)
+                    ->count_all_results('tbl_desktop_app_usage');
+                $app_per_page = 25;
+                $app_page = max(1, (int)$this->input->get('app_page'));
+                $app_total_pages = max(1, ceil($total_apps / $app_per_page));
+                $app_page = min($app_page, $app_total_pages);
+                $app_offset = ($app_page - 1) * $app_per_page;
+                $data['app_usage'] = $this->_user_app_usage($user_id, $from, $to, $app_per_page, $app_offset);
+                $data['app_page'] = $app_page;
+                $data['app_total_pages'] = $app_total_pages;
                 break;
         }
 
@@ -600,7 +612,7 @@ class Timesync extends Admin_Controller
         if (empty($from)) $from = date('Y-m-01');
         if (empty($to)) $to = date('Y-m-d');
 
-        $columns = ['a.recorded_at', 'ad.fullname', 'a.app_name', 'a.window_title', 'a.total_seconds'];
+        $columns = ['a.recorded_at', 'ad.fullname', 'a.app_name', 'a.window_title', 'a.url', 'a.total_seconds'];
         $order_col = (int)$this->input->post('order[0][column]');
         $order_dir = $this->input->post('order[0][dir]') === 'asc' ? 'ASC' : 'DESC';
         $order_by = $columns[$order_col] ?? 'a.recorded_at';
@@ -609,8 +621,7 @@ class Timesync extends Admin_Controller
 
         $allowed_ids = get_authorized_user_ids_web();
 
-        $this->db->reset_query();
-        $this->db->select('a.*, u.username, ad.fullname');
+        $this->db->select('a.*, u.username, ad.fullname, a.url');
         $this->db->from('tbl_desktop_app_usage a');
         $this->db->join('tbl_users u', 'u.user_id = a.user_id', 'left');
         $this->db->join('tbl_account_details ad', 'ad.user_id = a.user_id', 'left');
@@ -636,8 +647,19 @@ class Timesync extends Admin_Controller
         $this->db->limit($length, $start);
         $data = $this->db->get()->result();
 
+        // Count total matching filters (without search)
         $this->db->reset_query();
-        $total_all = $this->db->count_all('tbl_desktop_app_usage');
+        $this->db->select('a.id');
+        $this->db->from('tbl_desktop_app_usage a');
+        $this->db->join('tbl_users u', 'u.user_id = a.user_id', 'left');
+        $this->db->join('tbl_account_details ad', 'ad.user_id = a.user_id', 'left');
+        if ($allowed_ids !== null) {
+            $this->db->where_in('a.user_id', $allowed_ids);
+        }
+        if (!empty($user_id)) $this->db->where('a.user_id', (int)$user_id);
+        $this->db->where('a.recorded_at >=', $from);
+        $this->db->where('a.recorded_at <=', $to);
+        $total_all = (int)$this->db->count_all_results();
 
         $rows = [];
         foreach ($data as $row) {
@@ -646,6 +668,7 @@ class Timesync extends Admin_Controller
                 htmlspecialchars($row->fullname ?? $row->username ?? 'User #' . $row->user_id, ENT_QUOTES, 'UTF-8'),
                 htmlspecialchars($row->app_name, ENT_QUOTES, 'UTF-8'),
                 htmlspecialchars(mb_substr($row->window_title ?? '—', 0, 60), ENT_QUOTES, 'UTF-8'),
+                !empty($row->url) ? htmlspecialchars(mb_substr($row->url, 0, 80), ENT_QUOTES, 'UTF-8') : '—',
                 gmdate('H:i:s', (int)$row->total_seconds),
             ];
         }
@@ -1012,17 +1035,17 @@ class Timesync extends Admin_Controller
         return $this->db->get('tbl_screenshots')->result();
     }
 
-    private function _user_app_usage($user_id, $from, $to)
+    private function _user_app_usage($user_id, $from, $to, $limit = null, $offset = null)
     {
-        return $this->db
-            ->select('app_name, SUM(total_seconds) as total_sec, COUNT(*) as occurrences')
+        $this->db
+            ->select('app_name, window_title, url, total_seconds, recorded_at')
             ->where('user_id', $user_id)
             ->where('recorded_at >=', $from)
             ->where('recorded_at <=', $to)
-            ->group_by('app_name')
-            ->order_by('total_sec', 'DESC')
-            ->get('tbl_desktop_app_usage')
-            ->result();
+            ->order_by('recorded_at', 'DESC')
+            ->order_by('total_seconds', 'DESC');
+        if ($limit !== null) $this->db->limit($limit, $offset);
+        return $this->db->get('tbl_desktop_app_usage')->result();
     }
 
     private function _total_hours_since($since_date, $allowed_ids = null)
