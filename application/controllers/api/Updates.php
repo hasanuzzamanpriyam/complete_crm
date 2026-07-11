@@ -26,7 +26,7 @@ class Updates extends MY_Controller
         $files = [
             'windows'        => "TimeSync_{$v}_x64-setup.exe",
             'windows-msi'    => "TimeSync_{$v}_x64_en-US.msi",
-            'windows-update' => "TimeSync_{$v}_x64_en-US.msi.zip",
+            'windows-update' => "TimeSync_{$v}_x64-setup.zip",
             'macos'          => "TimeSync_{$v}_x64.dmg",
             'macos-update'   => "TimeSync_{$v}_x64.tar.gz",
             'linux'          => "TimeSync_{$v}_amd64.AppImage",
@@ -94,8 +94,8 @@ class Updates extends MY_Controller
         $v = ltrim($version, 'v');
 
         $mappings = [
-            'windows_sig'    => "TimeSync_{$v}_x64_en-US.msi.zip.sig",
-            'windows_update' => "TimeSync_{$v}_x64_en-US.msi.zip",
+            'windows_sig'    => "TimeSync_{$v}_x64-setup.zip.sig",
+            'windows_update' => "TimeSync_{$v}_x64-setup.zip",
             'macos_sig'      => "TimeSync_{$v}_x64.tar.gz.sig",
             'macos_update'   => "TimeSync_{$v}_x64.tar.gz",
             'linux_sig'      => "TimeSync_{$v}_amd64.AppImage.tar.gz.sig",

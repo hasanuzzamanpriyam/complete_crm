@@ -1,23 +1,23 @@
 {
-  "version": "v0.1.1",
+  "version": "0.1.2",
   "notes": "Initial release with time tracking, screenshots, activity monitoring, and reporting.",
-  "pub_date": "2026-06-24T23:00:00+06:00",
+  "pub_date": "2026-07-11T14:30:00+06:00",
   "platforms": {
     "windows-x86_64": {
-      "signature": "",
-      "url": "https://crm.bizcrm247.com/api/updates/timesync/download?platform=windows-msi"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUSWRFam1rSThuaWUyS1cvYmlrOUxzcEVvSmMxZ1hmMitTaDhWRjdyeER6a3BkMHdzbXAwRUZuUGJzSU9MYXMzSm5TVFhMckhDaHBQbG1oM0Rla2xuSFRWeU1CZlFUWlFVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzgzNzU1ODM1CWZpbGU6VGltZVN5bmNfMC4xLjFfeDY0LXNldHVwLnppcApGSzJ2aUpkalkvV1M5QkRXS1MrK0VCUlFVVGs3cnJFdCswaUs2UnJwSmptMCttWVRWK2E5eEtwbkFvcnlHckZtbGx2NEV6ODkwVHQxL3lyVUFBQmhCUT09Cg==",
+      "url": "http://localhost/tic_crm/downloads/TimeSync_0.1.2_x64-setup.zip"
     },
     "darwin-x86_64": {
       "signature": "",
-      "url": "https://crm.bizcrm247.com/api/updates/timesync/download?platform=macos"
+      "url": "http://localhost/tic_crm/downloads/TimeSync_0.1.1_x64.tar.gz"
     },
     "darwin-aarch64": {
       "signature": "",
-      "url": "https://crm.bizcrm247.com/api/updates/timesync/download?platform=macos"
+      "url": "http://localhost/tic_crm/downloads/TimeSync_0.1.1_aarch64.tar.gz"
     },
     "linux-x86_64": {
       "signature": "",
-      "url": "https://crm.bizcrm247.com/api/updates/timesync/download?platform=linux"
+      "url": "http://localhost/tic_crm/downloads/TimeSync_0.1.1_amd64.AppImage.tar.gz"
     }
   }
 }
