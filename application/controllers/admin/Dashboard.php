@@ -924,6 +924,31 @@ class Dashboard extends Admin_Controller
         }
     }
 
+    public function all_todo($filter_by = null)
+    {
+        $data['title'] = lang('to_do') . ' ' . lang('list');
+
+        if (!empty($filter_by)) {
+            if ($filter_by == 'kanban') {
+                $this->session->set_userdata('todo_kanban', 'kanban');
+            } else {
+                $this->session->unset_userdata('todo_kanban');
+            }
+            redirect('admin/dashboard/all_todo');
+        }
+
+        if ($this->input->post('flag') == 1) {
+            $data['user_id'] = $this->input->post('user_id');
+        } else {
+            $user_id = $this->session->userdata('user_id');
+            $data['user_id'] = $user_id;
+            $data['where'] = array('user_id' => $user_id);
+        }
+
+        $data['subview'] = $this->load->view('admin/settings/all_todo', $data, TRUE);
+        $this->load->view('admin/_layout_main', $data);
+    }
+
     public function new_todo($id = null)
     {
         $data['title'] = lang('new') . ' ' . lang('to_do');
