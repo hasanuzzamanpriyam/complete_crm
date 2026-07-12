@@ -21,8 +21,8 @@
             <tr>
               <td><?= date('Y-m-d', strtotime($e->started_at)) ?></td>
               <td><?= htmlspecialchars($e->type) ?></td>
-              <td><?= $e->started_at ? date('H:i:s', strtotime($e->started_at)) : '-' ?></td>
-              <td><?= $e->stopped_at ? date('H:i:s', strtotime($e->stopped_at)) : '-' ?></td>
+              <td><?= $e->started_at ? date('h:i:s A', strtotime($e->started_at)) : '-' ?></td>
+              <td><?= $e->stopped_at ? date('h:i:s A', strtotime($e->stopped_at)) : '-' ?></td>
               <td><?= gmdate('H:i:s', $e->total_seconds) ?></td>
               <td><a href="<?= base_url('admin/tasks/view/' . $e->task_id) ?>"><?= htmlspecialchars($e->task_name ?? '#' . $e->task_id) ?></a></td>
             </tr>

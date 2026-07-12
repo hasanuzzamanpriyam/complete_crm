@@ -333,6 +333,7 @@
   </div>
 </div>
 
+<script src="<?= base_url() ?>assets/plugins/Chart.js/Chart.js"></script>
 <script>
   function toggleTeam(el) {
     var body = el.nextElementSibling;

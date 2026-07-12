@@ -146,6 +146,7 @@
     </div>
 </div>
 
+<script src="<?= base_url() ?>assets/plugins/Chart.js/Chart.js"></script>
 <script>
 $(function() {
     var labels = <?= $daily_chart_labels ?? '[]' ?>;
@@ -204,6 +205,6 @@ $(function() {
             }
         });
     }
-})();
+});
 </script>
 

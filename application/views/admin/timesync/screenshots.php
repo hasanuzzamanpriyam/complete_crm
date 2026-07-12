@@ -145,6 +145,7 @@
   </div>
 </div>
 
+<script src="<?= base_url() ?>assets/plugins/Chart.js/Chart.js"></script>
 <script>
 $(document).ready(function () {
   requestAnimationFrame(function () {
