@@ -1,59 +1,54 @@
+<?php $this->load->view('admin/timesync/_date_navigation'); ?>
 <div class="row">
     <div class="col-lg-12">
         <section class="panel panel-custom">
             <header class="panel-heading">
                 <h3 class="panel-title"><?= $title ?? 'TimeSync Dashboard' ?></h3>
-                <span class="pull-right">
-                    <form method="get" class="form-inline" style="display:inline-block;">
-                        <div class="form-group" style="margin:0 5px;">
-                            <input type="date" name="from" class="form-control input-sm" value="<?= $from ?>" style="height:28px;font-size:12px;">
-                        </div>
-                        <div class="form-group" style="margin:0 5px;">
-                            <input type="date" name="to" class="form-control input-sm" value="<?= $to ?>" style="height:28px;font-size:12px;">
-                        </div>
-                        <button type="submit" class="btn btn-sm btn-primary">Filter</button>
-                    </form>
-                </span>
             </header>
             <div class="panel-body">
                 <div class="row">
                     <div class="col-md-15 col-sm-3 col-xs-6">
-                        <div class="panel panel-info">
-                            <div class="panel-body text-center" id="today_hours">
-                                <h2><?= $today_hours ?>h</h2>
-                                <p class="text-muted">Today</p>
+                        <div class="panel" style="border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.06);border:0;">
+                            <div class="panel-body text-center" id="today_hours" style="background:linear-gradient(135deg,#5bc0de,#46b8da);color:#fff;padding:18px 8px;">
+                                <i class="fa fa-clock-o" style="font-size:22px;opacity:.8;display:block;margin-bottom:4px;"></i>
+                                <h2 style="margin:2px 0;font-weight:700;font-size:26px;"><?= $today_hours ?>h</h2>
+                                <p style="margin:0;opacity:.85;font-size:12px;">Today</p>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-15 col-sm-3 col-xs-6">
-                        <div class="panel panel-success">
-                            <div class="panel-body text-center" id="week_hours">
-                                <h2><?= $week_hours ?>h</h2>
-                                <p class="text-muted">This Week</p>
+                        <div class="panel" style="border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.06);border:0;">
+                            <div class="panel-body text-center" id="week_hours" style="background:linear-gradient(135deg,#5cb85c,#4cae4c);color:#fff;padding:18px 8px;">
+                                <i class="fa fa-calendar" style="font-size:22px;opacity:.8;display:block;margin-bottom:4px;"></i>
+                                <h2 style="margin:2px 0;font-weight:700;font-size:26px;"><?= $week_hours ?>h</h2>
+                                <p style="margin:0;opacity:.85;font-size:12px;">This Week</p>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-15 col-sm-3 col-xs-6">
-                        <div class="panel panel-warning">
-                            <div class="panel-body text-center" id="month_hours">
-                                <h2><?= $month_hours ?>h</h2>
-                                <p class="text-muted">This Month</p>
+                        <div class="panel" style="border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.06);border:0;">
+                            <div class="panel-body text-center" id="month_hours" style="background:linear-gradient(135deg,#f0ad4e,#eea236);color:#fff;padding:18px 8px;">
+                                <i class="fa fa-calendar-check-o" style="font-size:22px;opacity:.8;display:block;margin-bottom:4px;"></i>
+                                <h2 style="margin:2px 0;font-weight:700;font-size:26px;"><?= $month_hours ?>h</h2>
+                                <p style="margin:0;opacity:.85;font-size:12px;">This Month</p>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-15 col-sm-3 col-xs-6">
-                        <div class="panel panel-primary">
-                            <div class="panel-body text-center" id="active_users">
-                                <h2><?= $active_users ?></h2>
-                                <p class="text-muted">Active Now</p>
+                        <div class="panel" style="border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.06);border:0;">
+                            <div class="panel-body text-center" id="active_users" style="background:linear-gradient(135deg,#428bca,#3071a9);color:#fff;padding:18px 8px;">
+                                <i class="fa fa-users" style="font-size:22px;opacity:.8;display:block;margin-bottom:4px;"></i>
+                                <h2 style="margin:2px 0;font-weight:700;font-size:26px;"><?= $active_users ?></h2>
+                                <p style="margin:0;opacity:.85;font-size:12px;">Active Now</p>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-15 col-sm-3 col-xs-6">
-                        <div class="panel panel-danger">
-                            <div class="panel-body text-center" id="period_hours">
-                                <h2><?= $period_hours ?>h</h2>
-                                <p class="text-muted">Period</p>
+                        <div class="panel" style="border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.06);border:0;">
+                            <div class="panel-body text-center" id="period_hours" style="background:linear-gradient(135deg,#d9534f,#c9302c);color:#fff;padding:18px 8px;">
+                                <i class="fa fa-hourglass-half" style="font-size:22px;opacity:.8;display:block;margin-bottom:4px;"></i>
+                                <h2 style="margin:2px 0;font-weight:700;font-size:26px;"><?= $period_hours ?>h</h2>
+                                <p style="margin:0;opacity:.85;font-size:12px;">Period</p>
                             </div>
                         </div>
                     </div>

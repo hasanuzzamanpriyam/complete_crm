@@ -1,3 +1,18 @@
+<div style="display:flex;align-items:center;flex-wrap:wrap;gap:12px;padding:8px 0;">
+  <?php $this->load->view('admin/timesync/_date_navigation'); ?>
+  <form method="get" style="margin-left:auto;" onsubmit="var f=this;['from','to','interval'].forEach(function(n){var h=document.createElement('input');h.type='hidden';h.name=n;h.value=document.getElementById('dn-'+n+'-hidden').value;f.appendChild(h);})">
+    <div class="form-group" style="margin-bottom:0;">
+      <select name="user_id" class="form-control" onchange="this.form.submit()">
+        <option value="">All Users</option>
+        <?php foreach ($users as $u): ?>
+          <option value="<?= $u->user_id ?>" <?= $this->input->get('user_id') == $u->user_id ? 'selected' : '' ?>>
+            <?= htmlspecialchars($u->fullname ?? $u->user_id) ?>
+          </option>
+        <?php endforeach; ?>
+      </select>
+    </div>
+  </form>
+</div>
 <style>
   .activity-chart-wrap canvas { max-height: 160px; }
   .page-nav { text-align: center; margin-top: 20px; }
@@ -55,32 +70,16 @@
           </div>
         </div>
 
-        <form method="get" class="form-inline mb-lg">
+        <form method="get" class="form-inline mb-sm" style="margin-bottom:12px;">
           <div class="form-group">
-            <label>User: </label>
-            <select name="user_id" class="form-control">
-              <option value="">All Users</option>
-              <?php foreach ($users as $u): ?>
-                <option value="<?= $u->user_id ?>" <?= $this->input->get('user_id') == $u->user_id ? 'selected' : '' ?>>
-                  <?= htmlspecialchars($u->fullname ?? $u->user_id) ?>
-                </option>
-              <?php endforeach; ?>
-            </select>
-          </div>
-          <div class="form-group ml-sm">
             <label>Task ID: </label>
-            <input type="number" name="task_id" class="form-control" value="<?= $this->input->get('task_id') ?>" placeholder="Task #" style="width:100px;">
+            <input type="number" name="task_id" class="form-control" value="<?= $this->input->get('task_id') ?>" placeholder="Task #" style="width:100px;" onchange="this.form.submit()">
           </div>
-          <div class="form-group ml-sm">
-            <label>From: </label>
-            <input type="date" name="from" class="form-control" value="<?= $this->input->get('from') ?>">
-          </div>
-          <div class="form-group ml-sm">
-            <label>To: </label>
-            <input type="date" name="to" class="form-control" value="<?= $this->input->get('to') ?>">
-          </div>
+          <input type="hidden" name="user_id" value="<?= htmlspecialchars($this->input->get('user_id')) ?>">
+          <input type="hidden" name="from" value="<?= htmlspecialchars($this->input->get('from')) ?>">
+          <input type="hidden" name="to" value="<?= htmlspecialchars($this->input->get('to')) ?>">
+          <input type="hidden" name="interval" value="<?= htmlspecialchars($this->input->get('interval')) ?>">
           <input type="hidden" name="page" value="1">
-          <button type="submit" class="btn btn-primary ml-sm">Filter</button>
         </form>
 
         <?php if (!empty($screenshots)): ?>

@@ -1,3 +1,20 @@
+<div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:8px 0;">
+  <?php $this->load->view('admin/timesync/_date_navigation'); ?>
+  <form method="get" style="margin-left:auto;" onsubmit="var f=this;['from','to','interval'].forEach(function(n){var h=document.createElement('input');h.type='hidden';h.name=n;h.value=document.getElementById('dn-'+n+'-hidden').value;f.appendChild(h);})">
+    <div class="form-group" style="margin-bottom:0;">
+      <select name="user_id" class="form-control" onchange="this.form.submit()">
+        <option value="">All Users</option>
+        <?php if (!empty($users)): ?>
+          <?php foreach ($users as $u): ?>
+            <option value="<?= $u->user_id ?>" <?= $selected_user_id == $u->user_id ? 'selected' : '' ?>>
+              <?= htmlspecialchars($u->fullname ?? 'User #' . $u->user_id) ?>
+            </option>
+          <?php endforeach; ?>
+        <?php endif; ?>
+      </select>
+    </div>
+  </form>
+</div>
 <div class="row">
   <div class="col-lg-12">
     <section class="panel panel-custom">
@@ -5,34 +22,6 @@
         <h3 class="panel-title"><?= $title ?? 'App Usage Reports' ?></h3>
       </header>
       <div class="panel-body">
-        <div class="row">
-          <div class="col-md-12">
-            <form method="get" class="form-inline mb-lg">
-              <div class="form-group">
-                <label>User: </label>
-                <select name="user_id" class="form-control">
-                  <option value="">All Users</option>
-                  <?php if (!empty($users)): ?>
-                    <?php foreach ($users as $u): ?>
-                      <option value="<?= $u->user_id ?>" <?= $selected_user_id == $u->user_id ? 'selected' : '' ?>>
-                        <?= htmlspecialchars($u->fullname ?? 'User #' . $u->user_id) ?>
-                      </option>
-                    <?php endforeach; ?>
-                  <?php endif; ?>
-                </select>
-              </div>
-              <div class="form-group ml-sm">
-                <label>From: </label>
-                <input type="date" name="from" class="form-control" value="<?= $this->input->get('from') ?? date('Y-m-01') ?>">
-              </div>
-              <div class="form-group ml-sm">
-                <label>To: </label>
-                <input type="date" name="to" class="form-control" value="<?= $this->input->get('to') ?? date('Y-m-d') ?>">
-              </div>
-              <button type="submit" class="btn btn-primary ml-sm">Filter</button>
-            </form>
-          </div>
-        </div>
 
         <!-- Stats Row -->
         <div class="row mb-lg" style="margin-bottom:24px;">
@@ -63,20 +52,24 @@
         </div>
 
         <!-- Charts Row -->
-        <div class="row mb-lg" style="margin-bottom:24px;">
-          <div class="col-md-6">
-            <div class="panel panel-custom">
+        <div class="row mb-lg" style="display:flex;flex-wrap:wrap;margin-bottom:24px;">
+          <div class="col-md-6" style="display:flex;">
+            <div class="panel panel-custom" style="display:flex;flex-direction:column;width:100%;">
               <div class="panel-heading"><h4 class="panel-title"><i class="fa fa-bar-chart"></i> Top 10 Applications</h4></div>
-              <div class="panel-body">
-                <canvas id="appUsageChart" height="150"></canvas>
+              <div class="panel-body" style="flex:1;position:relative;min-height:350px;">
+                <div style="position:relative;height:100%;width:100%;">
+                  <canvas id="appUsageChart"></canvas>
+                </div>
               </div>
             </div>
           </div>
-          <div class="col-md-6">
-            <div class="panel panel-custom">
+          <div class="col-md-6" style="display:flex;">
+            <div class="panel panel-custom" style="display:flex;flex-direction:column;width:100%;">
               <div class="panel-heading"><h4 class="panel-title"><i class="fa fa-pie-chart"></i> Focus Score Distribution</h4></div>
-              <div class="panel-body">
-                <canvas id="focusDistChart" height="150"></canvas>
+              <div class="panel-body" style="flex:1;position:relative;min-height:350px;">
+                <div style="position:relative;height:100%;width:100%;">
+                  <canvas id="focusDistChart"></canvas>
+                </div>
               </div>
             </div>
           </div>
@@ -136,7 +129,7 @@ $(document).ready(function () {
         options: {
           indexAxis: 'y',
           responsive: true,
-          maintainAspectRatio: true,
+          maintainAspectRatio: false,
           plugins: { legend: { display: false } },
           scales: {
             x: { beginAtZero: true, title: { display: true, text: 'Hours' } },
@@ -170,7 +163,8 @@ $(document).ready(function () {
         },
         options: {
           responsive: true,
-          maintainAspectRatio: true,
+          maintainAspectRatio: false,
+          cutout: '60%',
           plugins: {
             legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
           }

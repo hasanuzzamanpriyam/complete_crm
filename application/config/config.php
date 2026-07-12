@@ -357,8 +357,8 @@ $config['encryption_key'] = 'I6PnEPbQNLslYMj7ChKxDJ2yenuHLkXn';
 */
 //$config['sess_driver'] = 'database';
 $config['sess_cookie_name'] = 'uniquecoder';
-$config['sess_expiration'] = 7200;
-$config['sess_expire_on_close'] = TRUE;
+$config['sess_expiration'] = 604800;
+$config['sess_expire_on_close'] = FALSE;
 $config['sess_encrypt_cookie'] = FALSE;
 $config['sess_use_database'] = TRUE;
 $config['sess_table_name'] = 'tbl_sessions';
