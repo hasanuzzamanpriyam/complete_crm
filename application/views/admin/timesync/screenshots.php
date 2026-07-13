@@ -1,3 +1,11 @@
+<?php
+function dhaka_time($ts, $fmt = 'M d, Y h:i A') {
+    if (!$ts) return '—';
+    $dt = new DateTime($ts, new DateTimeZone('UTC'));
+    $dt->setTimezone(new DateTimeZone('Asia/Dhaka'));
+    return $dt->format($fmt);
+}
+?>
 <div style="display:flex;align-items:center;flex-wrap:wrap;gap:12px;padding:8px 0;">
   <?php $this->load->view('admin/timesync/_date_navigation'); ?>
   <form method="get" style="margin-left:auto;" onsubmit="var f=this;['from','to','interval'].forEach(function(n){var h=document.createElement('input');h.type='hidden';h.name=n;h.value=document.getElementById('dn-'+n+'-hidden').value;f.appendChild(h);})">
@@ -19,7 +27,7 @@
   .page-nav .pagination { margin: 0; }
   .screenshot-grid { display: flex; flex-wrap: wrap; gap: 16px; }
   .screenshot-card {
-    width: calc(25% - 12px); border: 1px solid #e9ecef; border-radius: 8px; overflow: hidden;
+    width: calc(25% - 12px); border: 1px solid #192632ff; border-radius: 8px; overflow: hidden;
     background: #fff; transition: box-shadow .2s;
   }
   .screenshot-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,.1); }
@@ -91,7 +99,7 @@
                 </a>
                 <div class="card-footer">
                   <strong><?= htmlspecialchars($s->fullname ?? 'User') ?></strong>
-                  <?= date('M d, Y H:i', strtotime($s->captured_at)) ?>
+                  <?= dhaka_time($s->captured_at) ?>
                   <?php if (!empty($s->task_id)): ?>
                     <br><a href="<?= base_url('admin/tasks/view/' . $s->task_id) ?>"><?= htmlspecialchars($s->task_name ?? 'Task #' . $s->task_id) ?></a>
                   <?php endif; ?>

@@ -1,3 +1,11 @@
+<?php
+function dhaka_time($ts, $fmt = 'M d, h:i:s A') {
+    if (!$ts) return '—';
+    $dt = new DateTime($ts, new DateTimeZone('UTC'));
+    $dt->setTimezone(new DateTimeZone('Asia/Dhaka'));
+    return $dt->format($fmt);
+}
+?>
 <div class="row">
     <div class="col-lg-12">
         <section class="panel panel-custom">
@@ -33,8 +41,8 @@
                                             —
                                         <?php endif; ?>
                                     </td>
-                                    <td><?= $e->started_at ?></td>
-                                    <td><?= $e->stopped_at ?? '—' ?></td>
+                                    <td><?= dhaka_time($e->started_at) ?></td>
+                                    <td><?= dhaka_time($e->stopped_at) ?></td>
                                     <td><?= gmdate('H:i:s', $e->total_seconds) ?></td>
                                     <td><?= htmlspecialchars($e->type ?? '—') ?></td>
                                     <td><?= $e->is_running ? '<span class="label label-success">Yes</span>' : 'No' ?></td>

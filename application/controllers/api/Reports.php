@@ -14,7 +14,9 @@ class Reports extends MY_Controller
         $user = $this->api_auth->authenticate();
 
         $user_id = $this->input->get('user_id');
-        $period = $this->input->get('period') ?? 'weekly';
+        $period = $this->input->get('period');
+        $start_date = $this->input->get('start_date');
+        $end_date = $this->input->get('end_date');
 
         if (empty($user_id)) {
             return $this->_respond(400, false, 'user_id is required');
@@ -27,29 +29,59 @@ class Reports extends MY_Controller
             return $this->_respond(403, false, 'You do not have permission to view this users analytics');
         }
 
-        switch ($period) {
-            case 'daily':
-                $since = date('Y-m-d', strtotime('-1 day'));
-                $target_hours = 8;
-                break;
-            case 'weekly':
-                $since = date('Y-m-d', strtotime('-7 days'));
-                $target_hours = 56;
-                break;
-            case 'monthly':
-                $since = date('Y-m-d', strtotime('-30 days'));
-                $target_hours = 240;
-                break;
-            default:
-                return $this->_respond(400, false, 'Invalid period. Use daily, weekly, or monthly');
+        if ($start_date && $end_date) {
+            $since = $start_date;
+            $until = $end_date;
+
+            $working_days = $this->_count_working_days($since, $until);
+            $leave_days = $this->_count_user_leave_days($requested_user, $since, $until);
+            $adjusted_wd = max(0, $working_days - $leave_days);
+
+            $as_of = $until . ' 23:59:59';
+            $setting = $this->db
+                ->query("SELECT required_daily_hours FROM tbl_timesync_user_settings_log
+                    WHERE user_id = ? AND changed_at <= ?
+                    ORDER BY changed_at DESC LIMIT 1", [$requested_user, $as_of])
+                ->row();
+            if ($setting) {
+                $daily_hours = (float)$setting->required_daily_hours;
+            } else {
+                $config = $this->db
+                    ->query("SELECT value FROM tbl_timesync_config_log
+                        WHERE config_key = 'timesync_default_daily_hours' AND changed_at <= ?
+                        ORDER BY changed_at DESC LIMIT 1", [$as_of])
+                    ->row();
+                $daily_hours = (float)($config->value ?? config_item('timesync_default_daily_hours') ?: 8.0);
+            }
+
+            $target_sec = $daily_hours * $adjusted_wd * 3600;
+        } else {
+            $period = $period ?? 'weekly';
+            switch ($period) {
+                case 'daily':
+                    $since = date('Y-m-d', strtotime('-1 day'));
+                    $target_sec = 8 * 3600;
+                    break;
+                case 'weekly':
+                    $since = date('Y-m-d', strtotime('-7 days'));
+                    $target_sec = 56 * 3600;
+                    break;
+                case 'monthly':
+                    $since = date('Y-m-d', strtotime('-30 days'));
+                    $target_sec = 240 * 3600;
+                    break;
+                default:
+                    return $this->_respond(400, false, 'Invalid period. Use daily, weekly, or monthly');
+            }
+            $until = null;
         }
 
-        $daily_hours = $this->_get_daily_hours($requested_user, $since);
+        $daily_hours = $this->_get_daily_hours($requested_user, $since, $until);
         $total_seconds = array_sum(array_column($daily_hours, 'total_seconds'));
         $total_hours = round($total_seconds / 3600, 2);
-        $task_completion_count = $this->_get_task_completion_count($requested_user, $since);
-        $productivity_score = $target_hours > 0 ? min(100, round(($total_seconds / ($target_hours * 3600)) * 100)) : 0;
-        $top_apps = $this->_get_top_apps($requested_user, $since);
+        $task_completion_count = $this->_get_task_completion_count($requested_user, $since, $until);
+        $productivity_score = $target_sec > 0 ? min(100, round(($total_seconds / $target_sec) * 100)) : 0;
+        $top_apps = $this->_get_top_apps($requested_user, $since, $until);
 
         return $this->_respond(200, true, 'OK', [
             'analytics' => [
@@ -62,13 +94,18 @@ class Reports extends MY_Controller
         ]);
     }
 
-    private function _get_daily_hours($user_id, $since)
+    private function _get_daily_hours($user_id, $since, $until = null)
     {
-        $rows = $this->db
+        $this->db
             ->select("DATE(started_at) as date, SUM(total_seconds) as total")
             ->from('tbl_desktop_time_entries')
             ->where('user_id', $user_id)
             ->where('started_at >=', $since)
+            ->where('type', 'work');
+        if ($until) {
+            $this->db->where('started_at <=', $until . ' 23:59:59');
+        }
+        $rows = $this->db
             ->group_by('DATE(started_at)')
             ->order_by('DATE(started_at)', 'ASC')
             ->get()
@@ -82,28 +119,34 @@ class Reports extends MY_Controller
         }, $rows);
     }
 
-    private function _get_task_completion_count($user_id, $since)
+    private function _get_task_completion_count($user_id, $since, $until = null)
     {
-        $row = $this->db
+        $this->db
             ->select("COUNT(DISTINCT te.task_id) as cnt")
             ->from('tbl_desktop_time_entries te')
             ->join('tbl_task t', 't.task_id = te.task_id', 'left')
             ->where('te.user_id', $user_id)
             ->where('te.started_at >=', $since)
-            ->where('t.task_status', 'completed')
-            ->get()
-            ->row();
+            ->where('te.type', 'work')
+            ->where('t.task_status', 'completed');
+        if ($until) {
+            $this->db->where('te.started_at <=', $until . ' 23:59:59');
+        }
+        $row = $this->db->get()->row();
 
         $completed = $row ? (int)$row->cnt : 0;
 
         if ($completed === 0) {
-            $fallback = $this->db
+            $this->db
                 ->select("COUNT(DISTINCT task_id) as cnt")
                 ->from('tbl_desktop_time_entries')
                 ->where('user_id', $user_id)
-                ->where('started_at >=', $since)
-                ->get()
-                ->row();
+                ->where('type', 'work')
+                ->where('started_at >=', $since);
+            if ($until) {
+                $this->db->where('started_at <=', $until . ' 23:59:59');
+            }
+            $fallback = $this->db->get()->row();
 
             return $fallback ? (int)$fallback->cnt : 0;
         }
@@ -111,13 +154,74 @@ class Reports extends MY_Controller
         return $completed;
     }
 
-    private function _get_top_apps($user_id, $since)
+    private function _count_working_days($from, $to)
     {
-        $rows = $this->db
+        $holidays = $this->db
+            ->where('start_date <=', $to)
+            ->where('end_date >=', $from)
+            ->get('tbl_holiday')
+            ->result();
+        $holiday_map = [];
+        foreach ($holidays as $h) {
+            $d = new DateTime(max($h->start_date, $from));
+            $end_d = new DateTime(min($h->end_date, $to));
+            while ($d <= $end_d) {
+                $holiday_map[$d->format('Y-m-d')] = true;
+                $d->modify('+1 day');
+            }
+        }
+        $start = new DateTime($from);
+        $end = new DateTime($to);
+        $count = 0;
+        while ($start <= $end) {
+            $dow = (int)$start->format('N');
+            $date_str = $start->format('Y-m-d');
+            if ($dow !== 5 && !isset($holiday_map[$date_str])) {
+                $count++;
+            }
+            $start->modify('+1 day');
+        }
+        return $count;
+    }
+
+    private function _count_user_leave_days($user_id, $from, $to)
+    {
+        $leaves = $this->db
+            ->where('user_id', $user_id)
+            ->where('application_status', 2)
+            ->where('leave_start_date <=', $to)
+            ->group_start()
+            ->where('leave_end_date >=', $from)
+            ->or_where('leave_end_date IS NULL')
+            ->group_end()
+            ->get('tbl_leave_application')
+            ->result();
+        $leave_map = [];
+        foreach ($leaves as $lv) {
+            $d = new DateTime(max($lv->leave_start_date, $from));
+            $end_date = $lv->leave_end_date ?? $lv->leave_start_date;
+            $end_d = new DateTime(min($end_date, $to));
+            while ($d <= $end_d) {
+                if ((int)$d->format('N') !== 5) {
+                    $leave_map[$d->format('Y-m-d')] = true;
+                }
+                $d->modify('+1 day');
+            }
+        }
+        return count($leave_map);
+    }
+
+    private function _get_top_apps($user_id, $since, $until = null)
+    {
+        $this->db
             ->select('app_name, SUM(total_seconds) as total')
             ->from('tbl_desktop_app_usage')
             ->where('user_id', $user_id)
-            ->where('recorded_at >=', $since)
+            ->where('recorded_at >=', $since);
+        if ($until) {
+            $this->db->where('recorded_at <=', $until . ' 23:59:59');
+        }
+        $rows = $this->db
             ->group_by('app_name')
             ->order_by('total', 'DESC')
             ->limit(5)

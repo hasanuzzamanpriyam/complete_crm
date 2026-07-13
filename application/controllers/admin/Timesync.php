@@ -32,25 +32,79 @@ class Timesync extends Admin_Controller
         $to = $this->input->get('to');
         if (empty($from)) $from = date('Y-m-d', strtotime('-7 days'));
         if (empty($to)) $to = date('Y-m-d');
-
         $data['from'] = $from;
         $data['to'] = $to;
 
-        $kpis = $this->_dashboard_kpis($from, $to);
-        foreach ($kpis as $key => $val) {
-            $data[$key] = $val;
+        $selected_user_id = $this->input->get('user_id');
+        $data['selected_user_id'] = $selected_user_id;
+
+        $allowed_ids = get_authorized_user_ids_web();
+
+        $data['users'] = $this->_get_user_list_with_stats($from, $to, $allowed_ids);
+
+        $working_days = $this->_count_working_days($from, $to);
+        $data['working_days'] = $working_days;
+
+        $data['holidays'] = $this->db
+            ->where('start_date <=', $to)
+            ->where('end_date >=', $from)
+            ->order_by('start_date', 'ASC')
+            ->get('tbl_holiday')
+            ->result();
+
+        if (!empty($selected_user_id)) {
+            $data['user_leaves'] = $this->db
+                ->where('user_id', $selected_user_id)
+                ->where('application_status', 2)
+                ->where('leave_start_date <=', $to)
+                ->where('leave_end_date >=', $from)
+                ->order_by('leave_start_date', 'ASC')
+                ->get('tbl_leave_application')
+                ->result();
+        } else {
+            $data['user_leaves'] = [];
         }
 
-        $chart = $this->_daily_hours_chart($from, $to);
-        $data['daily_chart_labels'] = json_encode($chart['labels']);
-        $data['daily_chart_values'] = json_encode($chart['values']);
+        if (!empty($selected_user_id)) {
+            $found_user = null;
+            foreach ($data['users'] as $u) {
+                if ((int)$u->user_id === (int)$selected_user_id) {
+                    $found_user = $u;
+                    break;
+                }
+            }
+            if ($found_user) {
+                $data['total_logged_seconds'] = $found_user->total_sec;
+                $data['total_activity_seconds'] = $found_user->activity_sec;
+                $data['productive_ratio'] = $found_user->productive_pct;
+                $leave_days = $this->_count_user_leave_days($found_user->user_id, $from, $to);
+                $adjusted_wd = max(0, $working_days - $leave_days);
+                $user_req_sec = $found_user->required_daily * $adjusted_wd * 3600;
+                $data['required_seconds'] = $user_req_sec;
+                $data['required_daily_avg'] = $found_user->required_daily;
+                $data['discrepancy_seconds'] = $found_user->total_sec - $user_req_sec;
+                $data['selected_user'] = $found_user;
+                $data['adjusted_working_days'] = $adjusted_wd;
+            } else {
+                $data['total_logged_seconds'] = 0;
+                $data['total_activity_seconds'] = 0;
+                $data['productive_ratio'] = 0;
+                $data['required_seconds'] = 0;
+                $data['required_daily_avg'] = 8;
+                $data['discrepancy_seconds'] = 0;
+            }
+        } else {
+            $metrics = $this->_aggregate_metrics($from, $to, $allowed_ids);
+            $data['total_logged_seconds'] = $metrics['logged_sec'];
+            $data['total_activity_seconds'] = $metrics['activity_sec'];
+            $data['productive_ratio'] = $metrics['productive_pct'];
 
-        $dist = $this->_user_distribution($from, $to);
-        $data['user_distribution'] = json_encode($dist);
-        $data['user_distribution_raw'] = $dist;
+            $required = $this->_get_aggregated_required_hours($from, $to, $allowed_ids);
+            $data['required_seconds'] = $required['required_sec'];
+            $data['required_daily_avg'] = $required['daily_avg'];
 
-        $data['user_grid'] = $this->_user_grid($from, $to);
-        $data['top_users'] = $this->_user_distribution($from, $to);
+            $data['discrepancy_seconds'] = $metrics['logged_sec'] - $required['required_sec'];
+        }
 
         $data['subview'] = $this->load->view('admin/timesync/dashboard', $data, true);
         $this->load->view('admin/_layout_main', $data);
@@ -949,12 +1003,86 @@ class Timesync extends Admin_Controller
             $retention_days = (int)$this->input->post('screenshot_retention_days');
             $this->_save_config('screenshot_retention_days', (string)$retention_days);
 
+            $default_daily = $this->input->post('default_daily_hours');
+            if ($default_daily !== null) {
+                $this->_save_config('timesync_default_daily_hours', (string)max(0, (float)$default_daily));
+                $this->db->insert('tbl_timesync_config_log', [
+                    'config_key' => 'timesync_default_daily_hours',
+                    'value' => (string)max(0, (float)$default_daily),
+                    'changed_by' => $this->session->userdata('user_id'),
+                ]);
+            }
+
+            $default_monthly = $this->input->post('default_monthly_hours');
+            if ($default_monthly !== null) {
+                $this->_save_config('timesync_default_monthly_hours', (string)max(0, (float)$default_monthly));
+                $this->db->insert('tbl_timesync_config_log', [
+                    'config_key' => 'timesync_default_monthly_hours',
+                    'value' => (string)max(0, (float)$default_monthly),
+                    'changed_by' => $this->session->userdata('user_id'),
+                ]);
+            }
+
+            $daily_reqs = $this->input->post('required_daily');
+            $monthly_reqs = $this->input->post('required_monthly');
+            if (!empty($daily_reqs) && is_array($daily_reqs)) {
+                foreach ($daily_reqs as $uid => $daily) {
+                    $daily_val = max(0, (float)$daily);
+                    $monthly_val = isset($monthly_reqs[$uid]) ? max(0, (float)$monthly_reqs[$uid]) : 204;
+                    $this->_upsert_user_setting((int)$uid, $daily_val, $monthly_val);
+                }
+            }
+
             set_message('success', 'Settings updated');
             redirect('admin/timesync/settings');
         }
 
         $data['demo_mode'] = config_item('timesync_demo_mode');
         $data['screenshot_retention_days'] = config_item('screenshot_retention_days') ?: '90';
+
+        $config_log = $this->db
+            ->query("SELECT l1.* FROM tbl_timesync_config_log l1
+                INNER JOIN (
+                    SELECT config_key, MAX(changed_at) as max_changed
+                    FROM tbl_timesync_config_log
+                    GROUP BY config_key
+                ) l2 ON l1.config_key = l2.config_key AND l1.changed_at = l2.max_changed")
+            ->result();
+        $config_map = [];
+        foreach ($config_log as $c) {
+            $config_map[$c->config_key] = $c->value;
+        }
+
+        $default_daily = $config_map['timesync_default_daily_hours'] ?? config_item('timesync_default_daily_hours') ?: '8.00';
+        $default_monthly = $config_map['timesync_default_monthly_hours'] ?? config_item('timesync_default_monthly_hours') ?: '204.00';
+        $data['default_daily_hours'] = $default_daily;
+        $data['default_monthly_hours'] = $default_monthly;
+
+        $data['all_users'] = $this->db
+            ->select('tbl_users.user_id, tbl_account_details.fullname')
+            ->join('tbl_account_details', 'tbl_account_details.user_id = tbl_users.user_id', 'left')
+            ->where('tbl_users.activated', 1)
+            ->order_by('tbl_account_details.fullname', 'ASC')
+            ->get('tbl_users')
+            ->result();
+
+        $settings_log = $this->db
+            ->query("SELECT l1.* FROM tbl_timesync_user_settings_log l1
+                INNER JOIN (
+                    SELECT user_id, MAX(changed_at) as max_changed
+                    FROM tbl_timesync_user_settings_log
+                    GROUP BY user_id
+                ) l2 ON l1.user_id = l2.user_id AND l1.changed_at = l2.max_changed")
+            ->result();
+        $settings_map = [];
+        foreach ($settings_log as $s) {
+            $settings_map[(int)$s->user_id] = $s;
+        }
+
+        foreach ($data['all_users'] as $u) {
+            $u->required_daily_hours = isset($settings_map[(int)$u->user_id]) ? $settings_map[(int)$u->user_id]->required_daily_hours : null;
+            $u->required_monthly_hours = isset($settings_map[(int)$u->user_id]) ? $settings_map[(int)$u->user_id]->required_monthly_hours : null;
+        }
 
         $data['subview'] = $this->load->view('admin/timesync/settings', $data, true);
         $this->load->view('admin/_layout_main', $data);
@@ -1046,6 +1174,317 @@ class Timesync extends Admin_Controller
             ->order_by('total_seconds', 'DESC');
         if ($limit !== null) $this->db->limit($limit, $offset);
         return $this->db->get('tbl_desktop_app_usage')->result();
+    }
+
+    private function _categorize_app($name)
+    {
+        $productive = ['vscode', 'code', 'visual studio', 'cursor', 'windsurf',
+            'terminal', 'cmd', 'powershell', 'windows terminal', 'git bash',
+            'phpstorm', 'webstorm', 'intellij', 'pycharm', 'goland', 'rubymine',
+            'sublime text', 'atom', 'notepad++', 'vim', 'neovim', 'nano',
+            'excel', 'word', 'outlook', 'powerpoint', 'onenote',
+            'chrome', 'firefox', 'edge', 'brave', 'opera', 'arc',
+            'slack', 'teams', 'discord', 'zoom', 'meet', 'webex',
+            'postman', 'tableplus', 'heidisql', 'dbeaver', 'datagrip',
+            'git', 'github desktop', 'sourcetree', 'fork',
+            'figma', 'sketch', 'adobe xd', 'photoshop', 'illustrator',
+            'docker', 'k9s', 'lens', 'kubectl',
+            'wsl', 'ubuntu', 'debian'];
+        $neutral = ['file explorer', 'explorer', 'finder', 'settings',
+            'system settings', 'calculator', 'calendar', 'clock',
+            'notes', 'reminders', 'spotlight', 'search'];
+        $lower = strtolower(trim($name));
+        foreach ($productive as $p) { if (strpos($lower, $p) !== false) return 'productive'; }
+        foreach ($neutral as $n) { if (strpos($lower, $n) !== false) return 'neutral'; }
+        return 'distracting';
+    }
+
+    private function _count_working_days($from, $to)
+    {
+        $holidays = $this->db
+            ->where('start_date <=', $to)
+            ->where('end_date >=', $from)
+            ->get('tbl_holiday')
+            ->result();
+        $holiday_map = [];
+        foreach ($holidays as $h) {
+            $d = new DateTime(max($h->start_date, $from));
+            $end_d = new DateTime(min($h->end_date, $to));
+            while ($d <= $end_d) {
+                $holiday_map[$d->format('Y-m-d')] = true;
+                $d->modify('+1 day');
+            }
+        }
+
+        $start = new DateTime($from);
+        $end = new DateTime($to);
+        $count = 0;
+        while ($start <= $end) {
+            $dow = (int)$start->format('N');
+            $date_str = $start->format('Y-m-d');
+            if ($dow !== 5 && !isset($holiday_map[$date_str])) {
+                $count++;
+            }
+            $start->modify('+1 day');
+        }
+        return $count;
+    }
+
+    private function _count_user_leave_days($user_id, $from, $to)
+    {
+        $leaves = $this->db
+            ->where('user_id', $user_id)
+            ->where('application_status', 2)
+            ->where('leave_start_date <=', $to)
+            ->group_start()
+            ->where('leave_end_date >=', $from)
+            ->or_where('leave_end_date IS NULL')
+            ->group_end()
+            ->get('tbl_leave_application')
+            ->result();
+        $leave_map = [];
+        foreach ($leaves as $lv) {
+            $d = new DateTime(max($lv->leave_start_date, $from));
+            $end_date = $lv->leave_end_date ?? $lv->leave_start_date;
+            $end_d = new DateTime(min($end_date, $to));
+            while ($d <= $end_d) {
+                if ((int)$d->format('N') !== 5) {
+                    $leave_map[$d->format('Y-m-d')] = true;
+                }
+                $d->modify('+1 day');
+            }
+        }
+        return count($leave_map);
+    }
+
+    private function _get_user_list_with_stats($from, $to, $allowed_ids = null)
+    {
+        $users = $this->db
+            ->select('tbl_users.user_id, tbl_account_details.fullname, tbl_account_details.avatar')
+            ->from('tbl_users')
+            ->join('tbl_account_details', 'tbl_account_details.user_id = tbl_users.user_id', 'left')
+            ->where('tbl_users.activated', 1);
+        if ($allowed_ids !== null) {
+            $this->db->where_in('tbl_users.user_id', $allowed_ids);
+        }
+        $users = $this->db->order_by('tbl_account_details.fullname', 'ASC')
+            ->get()
+            ->result();
+
+        $entry_totals = $this->db
+            ->select('user_id, COALESCE(SUM(total_seconds), 0) as total_sec')
+            ->where('started_at >=', $from . ' 00:00:00')
+            ->where('started_at <=', $to . ' 23:59:59');
+        if ($allowed_ids !== null) {
+            $this->db->where_in('user_id', $allowed_ids);
+        }
+        $entry_totals = $this->db->group_by('user_id')
+            ->get('tbl_desktop_time_entries')
+            ->result();
+        $entry_map = [];
+        foreach ($entry_totals as $et) {
+            $entry_map[(int)$et->user_id] = (int)$et->total_sec;
+        }
+
+        $app_totals = $this->db
+            ->select('user_id, app_name, COALESCE(SUM(total_seconds), 0) as total_sec')
+            ->where('recorded_at >=', $from)
+            ->where('recorded_at <=', $to);
+        if ($allowed_ids !== null) {
+            $this->db->where_in('user_id', $allowed_ids);
+        }
+        $app_totals = $this->db->group_by(['user_id', 'app_name'])
+            ->get('tbl_desktop_app_usage')
+            ->result();
+
+        $app_map = [];
+        $prod_map = [];
+        foreach ($app_totals as $at) {
+            $uid = (int)$at->user_id;
+            $sec = (int)$at->total_sec;
+            if (!isset($app_map[$uid])) $app_map[$uid] = 0;
+            $app_map[$uid] += $sec;
+            $cat = $this->_categorize_app($at->app_name);
+            if ($cat === 'productive') {
+                if (!isset($prod_map[$uid])) $prod_map[$uid] = 0;
+                $prod_map[$uid] += $sec;
+            } elseif ($cat === 'neutral') {
+                if (!isset($prod_map[$uid])) $prod_map[$uid] = 0;
+                $prod_map[$uid] += $sec * 0.5;
+            }
+        }
+
+        $as_of = $to . ' 23:59:59';
+        $settings_log = $this->db
+            ->query("SELECT l1.* FROM tbl_timesync_user_settings_log l1
+                INNER JOIN (
+                    SELECT user_id, MAX(changed_at) as max_changed
+                    FROM tbl_timesync_user_settings_log
+                    WHERE changed_at <= ?
+                    GROUP BY user_id
+                ) l2 ON l1.user_id = l2.user_id AND l1.changed_at = l2.max_changed", [$as_of])
+            ->result();
+        $settings_map = [];
+        foreach ($settings_log as $s) {
+            $settings_map[(int)$s->user_id] = $s;
+        }
+
+        $config_log = $this->db
+            ->query("SELECT l1.* FROM tbl_timesync_config_log l1
+                INNER JOIN (
+                    SELECT config_key, MAX(changed_at) as max_changed
+                    FROM tbl_timesync_config_log
+                    WHERE changed_at <= ?
+                    GROUP BY config_key
+                ) l2 ON l1.config_key = l2.config_key AND l1.changed_at = l2.max_changed", [$as_of])
+            ->result();
+        $config_map = [];
+        foreach ($config_log as $c) {
+            $config_map[$c->config_key] = $c->value;
+        }
+
+        $default_daily = (float)(isset($config_map['timesync_default_daily_hours']) ? $config_map['timesync_default_daily_hours'] : (config_item('timesync_default_daily_hours') ?: 8.0));
+        $default_monthly = (float)(isset($config_map['timesync_default_monthly_hours']) ? $config_map['timesync_default_monthly_hours'] : (config_item('timesync_default_monthly_hours') ?: 204.0));
+
+        $working_days = $this->_count_working_days($from, $to);
+
+        foreach ($users as &$u) {
+            $uid = (int)$u->user_id;
+            $u->total_sec = $entry_map[$uid] ?? 0;
+            $u->activity_sec = $app_map[$uid] ?? 0;
+            $prod_sec = $prod_map[$uid] ?? 0;
+            $act = $u->activity_sec;
+            $u->productive_pct = $act > 0 ? round(($prod_sec / $act) * 100, 1) : 0;
+            $req = $settings_map[$uid] ?? null;
+            $u->required_daily = $req ? (float)$req->required_daily_hours : $default_daily;
+            $u->required_monthly = $req ? (float)$req->required_monthly_hours : $default_monthly;
+            $leave_days = $this->_count_user_leave_days($uid, $from, $to);
+            $u->leave_days = $leave_days;
+            $adjusted_wd = max(0, $working_days - $leave_days);
+            $required_in_range = $u->required_daily * $adjusted_wd;
+            $logged_hours = $u->total_sec / 3600;
+            $u->has_shortage = $logged_hours < $required_in_range;
+            $u->shortage_hours = max(0, $required_in_range - $logged_hours);
+        }
+
+        return $users;
+    }
+
+    private function _aggregate_metrics($from, $to, $allowed_ids = null)
+    {
+        $logged = $this->db
+            ->select('COALESCE(SUM(total_seconds), 0) as total')
+            ->where('started_at >=', $from . ' 00:00:00')
+            ->where('started_at <=', $to . ' 23:59:59');
+        if ($allowed_ids !== null) {
+            $this->db->where_in('user_id', $allowed_ids);
+        }
+        $logged = (int)$logged->get('tbl_desktop_time_entries')->row()->total;
+
+        $app_usage = $this->db
+            ->select('app_name, COALESCE(SUM(total_seconds), 0) as total_sec')
+            ->where('recorded_at >=', $from)
+            ->where('recorded_at <=', $to);
+        if ($allowed_ids !== null) {
+            $this->db->where_in('user_id', $allowed_ids);
+        }
+        $app_usage = $this->db->group_by('app_name')
+            ->get('tbl_desktop_app_usage')->result();
+
+        $activity_sec = 0;
+        $productive_sec = 0;
+        foreach ($app_usage as $au) {
+            $sec = (int)$au->total_sec;
+            $activity_sec += $sec;
+            $cat = $this->_categorize_app($au->app_name);
+            if ($cat === 'productive') {
+                $productive_sec += $sec;
+            } elseif ($cat === 'neutral') {
+                $productive_sec += $sec * 0.5;
+            }
+        }
+
+        $productive_pct = $activity_sec > 0 ? round(($productive_sec / $activity_sec) * 100, 1) : 0;
+
+        return [
+            'logged_sec' => $logged,
+            'activity_sec' => $activity_sec,
+            'productive_pct' => $productive_pct,
+        ];
+    }
+
+    private function _get_aggregated_required_hours($from, $to, $allowed_ids = null)
+    {
+        $users = $this->db
+            ->select('tbl_users.user_id')
+            ->from('tbl_users')
+            ->where('tbl_users.activated', 1);
+        if ($allowed_ids !== null) {
+            $this->db->where_in('tbl_users.user_id', $allowed_ids);
+        }
+        $users = $this->db->get()->result();
+
+        $as_of = $to . ' 23:59:59';
+        $settings_log = $this->db
+            ->query("SELECT l1.* FROM tbl_timesync_user_settings_log l1
+                INNER JOIN (
+                    SELECT user_id, MAX(changed_at) as max_changed
+                    FROM tbl_timesync_user_settings_log
+                    WHERE changed_at <= ?
+                    GROUP BY user_id
+                ) l2 ON l1.user_id = l2.user_id AND l1.changed_at = l2.max_changed", [$as_of])
+            ->result();
+        $settings_map = [];
+        foreach ($settings_log as $s) {
+            $settings_map[(int)$s->user_id] = $s;
+        }
+
+        $config_log = $this->db
+            ->query("SELECT l1.* FROM tbl_timesync_config_log l1
+                INNER JOIN (
+                    SELECT config_key, MAX(changed_at) as max_changed
+                    FROM tbl_timesync_config_log
+                    WHERE changed_at <= ?
+                    GROUP BY config_key
+                ) l2 ON l1.config_key = l2.config_key AND l1.changed_at = l2.max_changed", [$as_of])
+            ->result();
+        $config_map = [];
+        foreach ($config_log as $c) {
+            $config_map[$c->config_key] = $c->value;
+        }
+        $default_daily = (float)(isset($config_map['timesync_default_daily_hours']) ? $config_map['timesync_default_daily_hours'] : (config_item('timesync_default_daily_hours') ?: 8.0));
+
+        $working_days = $this->_count_working_days($from, $to);
+        $total_required_sec = 0;
+        $total_daily_sum = 0;
+        $user_count = count($users);
+
+        foreach ($users as $u) {
+            $uid = (int)$u->user_id;
+            $req = $settings_map[$uid] ?? null;
+            $daily = $req ? (float)$req->required_daily_hours : $default_daily;
+            $leave_days = $this->_count_user_leave_days($uid, $from, $to);
+            $adjusted_wd = max(0, $working_days - $leave_days);
+            $total_required_sec += $daily * $adjusted_wd * 3600;
+            $total_daily_sum += $daily;
+        }
+
+        $daily_avg = $user_count > 0 ? round($total_daily_sum / $user_count, 2) : 8.0;
+
+        return [
+            'required_sec' => $total_required_sec,
+            'daily_avg' => $daily_avg,
+        ];
+    }
+
+    private function _upsert_user_setting($user_id, $daily, $monthly)
+    {
+        $this->db->insert('tbl_timesync_user_settings_log', [
+            'user_id' => $user_id,
+            'required_daily_hours' => $daily,
+            'required_monthly_hours' => $monthly,
+            'changed_by' => $this->session->userdata('user_id'),
+        ]);
     }
 
     private function _total_hours_since($since_date, $allowed_ids = null)

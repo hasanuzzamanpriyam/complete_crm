@@ -1,3 +1,11 @@
+<?php
+function dhaka_time($ts, $fmt = 'M d, h:i A') {
+    if (!$ts) return '—';
+    $dt = new DateTime($ts, new DateTimeZone('UTC'));
+    $dt->setTimezone(new DateTimeZone('Asia/Dhaka'));
+    return $dt->format($fmt);
+}
+?>
 <style>
   .ss-grid { display: flex; flex-wrap: wrap; gap: 12px; }
   .ss-card {
@@ -25,7 +33,7 @@
             <a href="javascript:void(0)" class="screenshot-thumbnail" data-id="<?= $s->id ?>">
               <img data-ss-id="<?= $s->id ?>" class="ss-thumb" loading="lazy">
             </a>
-            <div class="ss-label"><?= date('M d, H:i', strtotime($s->captured_at)) ?></div>
+            <div class="ss-label"><?= dhaka_time($s->captured_at) ?></div>
           </div>
         <?php endforeach; ?>
       </div>
@@ -128,6 +136,18 @@
 </div>
 
 <script>
+function fmtDuration(sec) {
+  sec = parseInt(sec) || 0;
+  var h = Math.floor(sec / 3600);
+  var m = Math.floor((sec % 3600) / 60);
+  var s = sec % 60;
+  var parts = [];
+  if (h > 0) parts.push(h + 'h');
+  if (m > 0) parts.push(m + 'm');
+  parts.push(s + 's');
+  return parts.join(' ');
+}
+
 $(document).ready(function () {
   $('.screenshot-thumbnail').on('click', function () {
     var screenshotId = $(this).data('id');
@@ -155,17 +175,19 @@ $(document).ready(function () {
         $('#screenshotActivityPct').text(d.activity_percentage + '%');
         $('#screenshotKeystrokes').text(d.keystroke_count);
         $('#screenshotMouseClicks').text(d.mouse_click_count);
-        $('#screenshotTimestamp').text('Captured: ' + d.captured_at);
+        var capDate = new Date(d.captured_at.replace(' ', 'T') + 'Z');
+        var capStr = capDate.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'Asia/Dhaka' });
+        $('#screenshotTimestamp').text('Captured: ' + capStr);
         var appHtml = '';
         if (d.app_usage && d.app_usage.length > 0) {
           appHtml += '<div style="max-height:300px;overflow-y:auto;"><table class="table table-striped table-condensed" style="margin:0;">';
-          appHtml += '<thead><tr><th>#</th><th>Application</th><th>Window Title</th><th class="text-right">Time (s)</th></tr></thead><tbody>';
+          appHtml += '<thead><tr><th>#</th><th>Application</th><th>Window Title</th><th class="text-right">Duration</th></tr></thead><tbody>';
           $.each(d.app_usage, function (i, app) {
             var title = app.window_title ? app.window_title.replace(/</g, '&lt;') : '-';
             var name = app.app_name ? app.app_name.replace(/</g, '&lt;') : '-';
             appHtml += '<tr><td>' + (i + 1) + '</td><td>' + name + '</td>';
             appHtml += '<td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + title + '">' + title + '</td>';
-            appHtml += '<td class="text-right">' + parseInt(app.total_seconds) + '</td></tr>';
+            appHtml += '<td class="text-right">' + fmtDuration(app.total_seconds) + '</td></tr>';
           });
           appHtml += '</tbody></table></div>';
         } else {

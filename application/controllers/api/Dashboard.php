@@ -193,10 +193,31 @@ class Dashboard extends MY_Controller
 
         $grand_total = array_sum(array_map(function ($r) { return (int)$r->total_seconds; }, $project_rows));
 
+        $app_usage_rows = $this->db
+            ->select('app_name, SUM(total_seconds) as total_sec')
+            ->from('tbl_desktop_app_usage')
+            ->where('user_id', $current_user_id)
+            ->where('recorded_at >=', $since);
+        if ($has_date_range) {
+            $app_usage_rows->where('recorded_at <=', $until_dt);
+        }
+        $app_usage_rows = $app_usage_rows->group_by('app_name')->get()->result();
+        $total_app_sec = 0;
+        $effective_prod_sec = 0;
+        foreach ($app_usage_rows as $au) {
+            $sec = (int)$au->total_sec;
+            $total_app_sec += $sec;
+            $cat = $this->_categorize_app($au->app_name);
+            if ($cat === 'productive') $effective_prod_sec += $sec;
+            elseif ($cat === 'neutral') $effective_prod_sec += $sec * 0.5;
+        }
+        $productive_ratio = $total_app_sec > 0 ? round(($effective_prod_sec / $total_app_sec) * 100, 1) : 0;
+
         $response['personal'] = [
             'hours_today' => round((float)$today_row->total / 3600, 1),
             'weekly_total_seconds' => (int)$weekly_row->total,
             'tasks_in_progress_count' => (int)$in_progress_row->cnt,
+            'productive_ratio' => $productive_ratio,
             'weekly_trend' => array_map(function ($r) {
                 return ['date' => $r->date, 'total_seconds' => (int)$r->total_seconds];
             }, $personal_trend),
@@ -325,6 +346,88 @@ $time_where = $has_date_range
         $colors = ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6',
                    '#ec4899','#06b6d4','#84cc16','#f97316','#6366f1'];
         return $colors[abs(crc32($name)) % count($colors)];
+    }
+
+    public function discrepancy()
+    {
+        $user = $this->api_auth->authenticate();
+        $target_user_id = $this->input->get('user_id') ? (int)$this->input->get('user_id') : (int)$user->user_id;
+        $start_date = $this->input->get('start_date') ?? date('Y-m-d', strtotime('-7 days'));
+        $end_date = $this->input->get('end_date') ?? date('Y-m-d');
+
+        $eff = $this->api_auth->get_authorized_user_ids($target_user_id);
+        if ($eff === null || !in_array($target_user_id, $eff)) {
+            return $this->_respond(403, false, 'Access denied');
+        }
+
+        $working_days = $this->_count_working_days($start_date, $end_date);
+        $leave_days = $this->_count_user_leave_days($target_user_id, $start_date, $end_date);
+        $adjusted_wd = max(0, $working_days - $leave_days);
+
+        $as_of = $end_date . ' 23:59:59';
+        $setting = $this->db
+            ->query("SELECT required_daily_hours FROM tbl_timesync_user_settings_log
+                WHERE user_id = ? AND changed_at <= ?
+                ORDER BY changed_at DESC LIMIT 1", [$target_user_id, $as_of])
+            ->row();
+        if ($setting) {
+            $daily_hours = (float)$setting->required_daily_hours;
+        } else {
+            $config = $this->db
+                ->query("SELECT value FROM tbl_timesync_config_log
+                    WHERE config_key = 'timesync_default_daily_hours' AND changed_at <= ?
+                    ORDER BY changed_at DESC LIMIT 1", [$as_of])
+                ->row();
+            $daily_hours = (float)($config->value ?? config_item('timesync_default_daily_hours') ?: 8.0);
+        }
+
+        $required_sec = $daily_hours * $adjusted_wd * 3600;
+
+        $logged_row = $this->db
+            ->select('COALESCE(SUM(total_seconds), 0) as total')
+            ->from('tbl_desktop_time_entries')
+            ->where('user_id', $target_user_id)
+            ->where('started_at >=', $start_date)
+            ->where('started_at <=', $end_date . ' 23:59:59')
+            ->get()->row();
+        $logged_sec = (int)$logged_row->total;
+        $logged_hours = round($logged_sec / 3600, 2);
+
+        $required_hours = round($required_sec / 3600, 2);
+        $diff = round($logged_hours - $required_hours, 2);
+
+        $daily_rows = $this->db
+            ->select("DATE(started_at) as date, SUM(total_seconds) as sec")
+            ->from('tbl_desktop_time_entries')
+            ->where('user_id', $target_user_id)
+            ->where('started_at >=', $start_date)
+            ->where('started_at <=', $end_date . ' 23:59:59')
+            ->group_by('DATE(started_at)')
+            ->order_by('DATE(started_at)', 'ASC')
+            ->get()->result();
+        $daily_breakdown = array_map(function ($r) use ($daily_hours) {
+            $logged = round((int)$r->sec / 3600, 2);
+            return [
+                'date' => $r->date,
+                'logged_hours' => $logged,
+                'required_hours' => $daily_hours,
+                'diff' => round($logged - $daily_hours, 2),
+            ];
+        }, $daily_rows);
+
+        return $this->_respond(200, true, 'OK', [
+            'user_id' => $target_user_id,
+            'from' => $start_date,
+            'to' => $end_date,
+            'working_days' => $working_days,
+            'leave_days' => $leave_days,
+            'adjusted_working_days' => $adjusted_wd,
+            'required_hours' => $required_hours,
+            'logged_hours' => $logged_hours,
+            'shortage_hours' => $diff < 0 ? abs($diff) : 0,
+            'surplus_hours' => $diff > 0 ? $diff : 0,
+            'daily_breakdown' => $daily_breakdown,
+        ]);
     }
 
     public function detailed_overview()
@@ -559,6 +662,64 @@ $time_where = $has_date_range
     }
 
 
+
+    private function _count_working_days($from, $to)
+    {
+        $holidays = $this->db
+            ->where('start_date <=', $to)
+            ->where('end_date >=', $from)
+            ->get('tbl_holiday')
+            ->result();
+        $holiday_map = [];
+        foreach ($holidays as $h) {
+            $d = new DateTime(max($h->start_date, $from));
+            $end_d = new DateTime(min($h->end_date, $to));
+            while ($d <= $end_d) {
+                $holiday_map[$d->format('Y-m-d')] = true;
+                $d->modify('+1 day');
+            }
+        }
+
+        $start = new DateTime($from);
+        $end = new DateTime($to);
+        $count = 0;
+        while ($start <= $end) {
+            $dow = (int)$start->format('N');
+            $date_str = $start->format('Y-m-d');
+            if ($dow !== 5 && !isset($holiday_map[$date_str])) {
+                $count++;
+            }
+            $start->modify('+1 day');
+        }
+        return $count;
+    }
+
+    private function _count_user_leave_days($user_id, $from, $to)
+    {
+        $leaves = $this->db
+            ->where('user_id', $user_id)
+            ->where('application_status', 2)
+            ->where('leave_start_date <=', $to)
+            ->group_start()
+            ->where('leave_end_date >=', $from)
+            ->or_where('leave_end_date IS NULL')
+            ->group_end()
+            ->get('tbl_leave_application')
+            ->result();
+        $leave_map = [];
+        foreach ($leaves as $lv) {
+            $d = new DateTime(max($lv->leave_start_date, $from));
+            $end_date = $lv->leave_end_date ?? $lv->leave_start_date;
+            $end_d = new DateTime(min($end_date, $to));
+            while ($d <= $end_d) {
+                if ((int)$d->format('N') !== 5) {
+                    $leave_map[$d->format('Y-m-d')] = true;
+                }
+                $d->modify('+1 day');
+            }
+        }
+        return count($leave_map);
+    }
 
     private function _respond($status_code, $success, $message, $data = null)
     {

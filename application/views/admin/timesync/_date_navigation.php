@@ -37,7 +37,7 @@
   var params = new URLSearchParams(window.location.search);
   var fromStr = params.get('from') || '';
   var toStr = params.get('to') || '';
-  var interval = params.get('interval') || 'weekly';
+  var interval = params.get('interval') || 'daily';
 
   function parseYmd(str) {
     if (!str) return null;

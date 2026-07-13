@@ -58,6 +58,22 @@ class Time_entries extends MY_Controller
         return $this->_respond(200, true, 'OK', ['time_entries' => $result]);
     }
 
+    private function _validate_timestamp($str)
+    {
+        if (empty($str)) return null;
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}/', $str)) {
+            return 'Invalid format, expected YYYY-MM-DD HH:MM:SS or ISO 8601';
+        }
+        $ts = strtotime($str);
+        if ($ts === false) {
+            return 'Invalid format, expected YYYY-MM-DD HH:MM:SS or ISO 8601';
+        }
+        if ($ts > time() + 60) {
+            return 'Timestamp cannot be in the future';
+        }
+        return null;
+    }
+
     private function _create()
     {
         $user = $this->api_auth->authenticate();
@@ -67,15 +83,49 @@ class Time_entries extends MY_Controller
             return $this->_respond(400, false, 'Task ID is required');
         }
 
+        $started_at = $input['started_at'] ?? null;
+        $stopped_at = $input['stopped_at'] ?? null;
+        $paused_at = $input['paused_at'] ?? null;
+        $resumed_at = $input['resumed_at'] ?? null;
+
+        if ($started_at !== null) {
+            $err = $this->_validate_timestamp($started_at);
+            if ($err) return $this->_respond(400, false, "started_at: $err");
+        }
+        if ($stopped_at !== null) {
+            $err = $this->_validate_timestamp($stopped_at);
+            if ($err) return $this->_respond(400, false, "stopped_at: $err");
+            $start_ts = $started_at ? strtotime($started_at) : null;
+            if ($start_ts && strtotime($stopped_at) <= $start_ts) {
+                return $this->_respond(400, false, 'stopped_at must be after started_at');
+            }
+        }
+        if ($paused_at !== null) {
+            $err = $this->_validate_timestamp($paused_at);
+            if ($err) return $this->_respond(400, false, "paused_at: $err");
+        }
+        if ($resumed_at !== null) {
+            $err = $this->_validate_timestamp($resumed_at);
+            if ($err) return $this->_respond(400, false, "resumed_at: $err");
+        }
+
+        $total_seconds = (int)($input['total_seconds'] ?? 0);
+        if ($stopped_at && $started_at && $total_seconds > 0) {
+            $expected = strtotime($stopped_at) - strtotime($started_at);
+            if ($expected > 0 && abs($total_seconds - $expected) / $expected > 0.05) {
+                return $this->_respond(400, false, 'total_seconds does not match started_at/stopped_at range');
+            }
+        }
+
         $data = [
             'task_id' => !empty($input['task_id']) ? (int)$input['task_id'] : null,
             'user_id' => $user->user_id,
             'type' => $input['type'] ?? 'work',
-            'started_at' => $input['started_at'] ?? date('Y-m-d H:i:s'),
-            'paused_at' => $input['paused_at'] ?? null,
-            'resumed_at' => $input['resumed_at'] ?? null,
-            'stopped_at' => $input['stopped_at'] ?? null,
-            'total_seconds' => (int)($input['total_seconds'] ?? 0),
+            'started_at' => $started_at ?? date('Y-m-d H:i:s'),
+            'paused_at' => $paused_at,
+            'resumed_at' => $resumed_at,
+            'stopped_at' => $stopped_at,
+            'total_seconds' => $total_seconds,
             'is_running' => !empty($input['is_running']) ? 1 : 0,
         ];
 
@@ -99,11 +149,26 @@ class Time_entries extends MY_Controller
             return $this->_respond(404, false, 'Time entry not found');
         }
 
+        if (!empty($entry->stopped_at)) {
+            return $this->_respond(400, false, 'Cannot modify a completed time entry. Create a new one via POST.');
+        }
+
         $update = [];
-        if (isset($input['stopped_at'])) $update['stopped_at'] = $input['stopped_at'];
+        if (isset($input['stopped_at'])) {
+            $err = $this->_validate_timestamp($input['stopped_at']);
+            if ($err) return $this->_respond(400, false, "stopped_at: $err");
+            if (!empty($entry->started_at) && strtotime($input['stopped_at']) <= strtotime($entry->started_at)) {
+                return $this->_respond(400, false, 'stopped_at must be after started_at');
+            }
+            $update['stopped_at'] = $input['stopped_at'];
+        }
+        if (isset($input['paused_at'])) {
+            $err = $this->_validate_timestamp($input['paused_at']);
+            if ($err) return $this->_respond(400, false, "paused_at: $err");
+            $update['paused_at'] = $input['paused_at'];
+        }
         if (isset($input['total_seconds'])) $update['total_seconds'] = (int)$input['total_seconds'];
         if (isset($input['is_running'])) $update['is_running'] = $input['is_running'] ? 1 : 0;
-        if (isset($input['paused_at'])) $update['paused_at'] = $input['paused_at'];
 
         if (!empty($update)) {
             $this->db->where('id', $id)->update('tbl_desktop_time_entries', $update);
