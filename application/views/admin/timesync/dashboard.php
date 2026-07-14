@@ -73,7 +73,7 @@ $base_url = base_url();
             <div class="ts-metric-card" style="display:flex;flex-direction:column;justify-content:center;">
                 <div class="ts-metric-label">Required Hours</div>
                 <div class="ts-metric-value"><?= $req_h ?>h</div>
-                                <div style="font-size:12px;color:#6c757d;"><?php if (!empty($selected_user_id)): ?>@ <?= number_format($required_daily_avg, 1) ?>h/day &mdash; <?= $adjusted_working_days ?? $working_days ?> working days<?php else: ?>Across <?= count($users) ?> users &times; <?= $working_days ?> days<?php endif; ?></div>
+                                <div style="font-size:12px;color:#6c757d;"><?php if (!empty($selected_user_id)): ?>@ <?= number_format($required_daily_avg, 1) ?>h/day &mdash; <?= $adjusted_working_days ?? $working_days ?> working days<?php else: ?>Across <?= count($users) ?> users &times; <?= $working_days ?> working days<?php endif; ?></div>
             </div>
         </div>
 

@@ -141,7 +141,12 @@
     q.set('from', fmtYmd(newFrom));
     q.set('to', fmtYmd(newTo));
     q.set('interval', newInterval || interval);
-    window.location.href = window.location.pathname + '?' + q.toString();
+    var url = window.location.pathname + '?' + q.toString();
+    if (window.__spaNavigate) {
+      __spaNavigate(url);
+    } else {
+      window.location.href = url;
+    }
   }
 
   document.getElementById('dn-btn-prev').addEventListener('click', function() {

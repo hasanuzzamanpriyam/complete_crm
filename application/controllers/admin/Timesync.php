@@ -107,7 +107,7 @@ class Timesync extends Admin_Controller
         }
 
         $data['subview'] = $this->load->view('admin/timesync/dashboard', $data, true);
-        $this->load->view('admin/_layout_main', $data);
+        $this->_render_or_ajax($data);
     }
 
     public function entries()
@@ -134,7 +134,7 @@ class Timesync extends Admin_Controller
         $data['entries'] = $this->db->get()->result();
 
         $data['subview'] = $this->load->view('admin/timesync/entries', $data, true);
-        $this->load->view('admin/_layout_main', $data);
+        $this->_render_or_ajax($data);
     }
 
     public function calendar()
@@ -180,7 +180,7 @@ class Timesync extends Admin_Controller
         }
 
         $data['subview'] = $this->load->view('admin/timesync/calendar', $data, true);
-        $this->load->view('admin/_layout_main', $data);
+        $this->_render_or_ajax($data);
     }
 
     public function day_details($date = null)
@@ -220,7 +220,7 @@ class Timesync extends Admin_Controller
         }
 
         $data['subview'] = $this->load->view('admin/timesync/day_details', $data, true);
-        $this->load->view('admin/_layout_main', $data);
+        $this->_render_or_ajax($data);
     }
 
     public function entries_datatable()
@@ -410,7 +410,7 @@ class Timesync extends Admin_Controller
         }
 
         $data['subview'] = $this->load->view('admin/timesync/user_report', $data, true);
-        $this->load->view('admin/_layout_main', $data);
+        $this->_render_or_ajax($data);
     }
 
     public function screenshots()
@@ -512,7 +512,7 @@ class Timesync extends Admin_Controller
             ->result();
 
         $data['subview'] = $this->load->view('admin/timesync/screenshots', $data, true);
-        $this->load->view('admin/_layout_main', $data);
+        $this->_render_or_ajax($data);
     }
 
     public function usage()
@@ -639,7 +639,7 @@ class Timesync extends Admin_Controller
         $data['selected_user_id'] = $user_id;
 
         $data['subview'] = $this->load->view('admin/timesync/usage_report', $data, true);
-        $this->load->view('admin/_layout_main', $data);
+        $this->_render_or_ajax($data);
     }
 
     public function usage_datatable()
@@ -1085,6 +1085,20 @@ class Timesync extends Admin_Controller
         }
 
         $data['subview'] = $this->load->view('admin/timesync/settings', $data, true);
+        $this->_render_or_ajax($data);
+    }
+
+    private function _render_or_ajax($data)
+    {
+        if ($this->input->get('ajax')) {
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode([
+                    'html'  => $data['subview'],
+                    'title' => $data['title'] ?? '',
+                ]));
+            return;
+        }
         $this->load->view('admin/_layout_main', $data);
     }
 

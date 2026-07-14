@@ -29,6 +29,17 @@ $(function() {
     $('.filter-custom-to').val(to);
   }
 
+  function filterNavigate() {
+    var from = $('#filter-from').val();
+    var to = $('#filter-to').val();
+    var url = window.location.pathname + '?from=' + encodeURIComponent(from) + '&to=' + encodeURIComponent(to);
+    if (window.__spaNavigate) {
+      __spaNavigate(url);
+    } else {
+      window.location.href = url;
+    }
+  }
+
   $('.filter-preset').on('click', function() {
     var days = parseInt($(this).data('days'), 10);
     var to = new Date();
@@ -41,7 +52,7 @@ $(function() {
       return y + '-' + m + '-' + day;
     };
     setFilterDates(fmt(from), fmt(to));
-    $(this).closest('form').submit();
+    filterNavigate();
   });
 
   $('.filter-custom-from, .filter-custom-to').on('change', function() {
@@ -49,6 +60,11 @@ $(function() {
     var to = $('.filter-custom-to').val();
     $('#filter-from').val(from);
     $('#filter-to').val(to);
+  });
+
+  $('.timesync-filter-bar .btn-primary').on('click', function(e) {
+    e.preventDefault();
+    filterNavigate();
   });
 });
 </script>

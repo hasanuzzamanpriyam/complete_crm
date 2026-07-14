@@ -349,3 +349,4 @@ if (!empty($direction) && $direction == 'rtl') {
 
     }
 </script>
+<script src="<?= base_url() ?>assets/js/timesync-spa.js"></script>

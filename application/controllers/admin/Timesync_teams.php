@@ -109,7 +109,7 @@ class Timesync_Teams extends Admin_Controller
         $data['per_page'] = $per_page;
 
         $data['subview'] = $this->load->view('admin/timesync/teams', $data, true);
-        $this->load->view('admin/_layout_main', $data);
+        $this->_render_or_ajax($data);
     }
 
     public function edit_member($user_id)
@@ -352,5 +352,19 @@ class Timesync_Teams extends Admin_Controller
                 'is_manager' => $new_val,
                 'message' => $new_val ? 'Member promoted to manager.' : 'Member demoted from manager.',
             ]));
+    }
+
+    private function _render_or_ajax($data)
+    {
+        if ($this->input->get('ajax')) {
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode([
+                    'html'  => $data['subview'],
+                    'title' => $data['title'] ?? '',
+                ]));
+            return;
+        }
+        $this->load->view('admin/_layout_main', $data);
     }
 }
