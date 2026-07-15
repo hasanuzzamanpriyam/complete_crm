@@ -192,7 +192,7 @@ class Dashboard extends MY_Controller
         $time_sub .= " GROUP BY p2.project_id) sub";
 
         $project_q = $this->db
-            ->select("p.project_id, p.project_name, COALESCE(sub.total_seconds, 0) as total_seconds")
+            ->select("p.project_id, p.project_name, p.progress, COALESCE(sub.total_seconds, 0) as total_seconds")
             ->from('tbl_project p')
             ->join($time_sub, 'sub.project_id = p.project_id', 'left');
         if ($visible_project_ids !== null) {
@@ -239,6 +239,7 @@ class Dashboard extends MY_Controller
                     'project_name' => $r->project_name ?? 'No Project',
                     'total_seconds' => $secs,
                     'percentage' => $grand_total > 0 ? round(($secs / $grand_total) * 100, 1) : 0,
+                    'progress' => (int)($r->progress ?? 0),
                 ];
             }, $project_rows),
         ];
