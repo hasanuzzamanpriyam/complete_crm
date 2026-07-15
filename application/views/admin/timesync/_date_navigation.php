@@ -38,6 +38,20 @@
   var fromStr = params.get('from') || '';
   var toStr = params.get('to') || '';
   var interval = params.get('interval') || 'daily';
+  
+  // Strictly track if an interval parameter is explicitly present in the URL
+  var activeHighlightInterval = params.get('interval') || null;
+
+  // Bulletproof SPA protection: Check if a dynamic navigation just took place
+  if (window.__spaCurrentFilterState) {
+    if (window.__spaCurrentFilterState.interval) {
+      interval = window.__spaCurrentFilterState.interval;
+      activeHighlightInterval = window.__spaCurrentFilterState.interval;
+    }
+    if (window.__spaCurrentFilterState.from) fromStr = window.__spaCurrentFilterState.from;
+    if (window.__spaCurrentFilterState.to) toStr = window.__spaCurrentFilterState.to;
+    window.__spaCurrentFilterState = null; // Reset to avoid stale data contamination
+  }
 
   function parseYmd(str) {
     if (!str) return null;
@@ -123,8 +137,9 @@
     var showCurrent = td < fn || td > tn;
     document.getElementById('dn-btn-current').style.display = showCurrent ? '' : 'none';
 
+    // Highlight filter buttons ONLY if explicitly activated/tapped
     document.querySelectorAll('.dn-interval-tab').forEach(function(btn) {
-      if (btn.dataset.interval === interval) {
+      if (activeHighlightInterval && btn.dataset.interval === activeHighlightInterval) {
         btn.style.background = '#337ab7';
         btn.style.color = '#fff';
         btn.style.borderColor = '#337ab7';
@@ -138,12 +153,23 @@
 
   function navigate(newFrom, newTo, newInterval) {
     var q = new URLSearchParams(window.location.search);
-    q.set('from', fmtYmd(newFrom));
-    q.set('to', fmtYmd(newTo));
-    q.set('interval', newInterval || interval);
+    var targetFrom = fmtYmd(newFrom);
+    var targetTo = fmtYmd(newTo);
+    var targetInterval = newInterval || interval;
+
+    q.set('from', targetFrom);
+    q.set('to', targetTo);
+    q.set('interval', targetInterval);
+
+    window.__spaCurrentFilterState = {
+      from: targetFrom,
+      to: targetTo,
+      interval: targetInterval
+    };
+
     var url = window.location.pathname + '?' + q.toString();
     if (window.__spaNavigate) {
-      __spaNavigate(url);
+      window.__spaNavigate(url);
     } else {
       window.location.href = url;
     }
@@ -179,6 +205,21 @@
   document.querySelectorAll('.dn-interval-tab').forEach(function(btn) {
     btn.addEventListener('click', function() {
       var ni = this.dataset.interval;
+      activeHighlightInterval = ni; // Capture dynamic target immediately upon user tap
+      
+      // Instant clear & active switch response
+      document.querySelectorAll('.dn-interval-tab').forEach(function(b) {
+        if (b.dataset.interval === ni) {
+          b.style.background = '#337ab7';
+          b.style.color = '#fff';
+          b.style.borderColor = '#337ab7';
+        } else {
+          b.style.background = '';
+          b.style.color = '';
+          b.style.borderColor = '';
+        }
+      });
+
       var r = getIntervalRange(ni, today());
       navigate(r.from, r.to, ni);
     });
@@ -192,6 +233,7 @@
     }).on('changeDate', function(e) {
       var picked = e.date;
       if (!picked) return;
+      
       var r = getIntervalRange(interval, picked);
       navigate(r.from, r.to, interval);
     });
