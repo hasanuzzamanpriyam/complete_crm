@@ -176,19 +176,30 @@ class Dashboard extends MY_Controller
         }
         $personal_trend = $personal_trend_q->get()->result();
 
-        $project_q = $this->db
-            ->select("p.project_id, p.project_name, SUM(te.total_seconds) as total_seconds")
-            ->from('tbl_desktop_time_entries te')
-            ->join('tbl_task t', 't.task_id = te.task_id')
-            ->join('tbl_project p', 'p.project_id = t.project_id')
-            ->where('te.user_id', $current_user_id)
-            ->where('te.started_at >=', $since)
-            ->where('te.type', 'work')
-            ->group_by('p.project_id, p.project_name')
-            ->order_by('total_seconds', 'DESC');
+        $visible_project_ids = $this->api_auth->get_visible_project_ids([$current_user_id]);
+
+        $time_sub = "(";
+        $time_sub .= "SELECT p2.project_id, SUM(te.total_seconds) as total_seconds";
+        $time_sub .= " FROM tbl_project p2";
+        $time_sub .= " JOIN tbl_task t ON t.project_id = p2.project_id";
+        $time_sub .= " JOIN tbl_desktop_time_entries te ON te.task_id = t.task_id";
+        $time_sub .= " WHERE te.user_id = $current_user_id";
+        $time_sub .= " AND te.type = 'work'";
+        $time_sub .= " AND te.started_at >= " . $this->db->escape($since);
         if ($has_date_range) {
-            $project_q->where('te.started_at <=', $until_dt);
+            $time_sub .= " AND te.started_at <= " . $this->db->escape($until_dt);
         }
+        $time_sub .= " GROUP BY p2.project_id) sub";
+
+        $project_q = $this->db
+            ->select("p.project_id, p.project_name, COALESCE(sub.total_seconds, 0) as total_seconds")
+            ->from('tbl_project p')
+            ->join($time_sub, 'sub.project_id = p.project_id', 'left');
+        if ($visible_project_ids !== null) {
+            $project_q->where_in('p.project_id', $visible_project_ids);
+        }
+        $project_q->group_by('p.project_id, p.project_name')
+            ->order_by('total_seconds', 'DESC');
         $project_rows = $project_q->get()->result();
 
         $grand_total = array_sum(array_map(function ($r) { return (int)$r->total_seconds; }, $project_rows));

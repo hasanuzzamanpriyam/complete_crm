@@ -160,6 +160,40 @@ class Api_auth
         return array_values($authorized);
     }
 
+    public function get_visible_project_ids($user_ids = null)
+    {
+        $user = $this->get_user();
+        if (!$user) return [];
+
+        if ($user_ids === null) {
+            $user_ids = [(int)$user->user_id];
+        }
+        $user_ids = array_map('intval', (array)$user_ids);
+
+        if ($this->is_super_admin()) {
+            return null;
+        }
+
+        $patterns = [];
+        foreach ($user_ids as $uid) {
+            $patterns[] = '"' . $uid . '"';
+        }
+        $regex = '(' . implode('|', $patterns) . ')';
+
+        $this->ci->db->select('project_id');
+        $this->ci->db->from('tbl_project');
+        $this->ci->db->group_start();
+        $this->ci->db->where('permission', 'all');
+        $this->ci->db->or_where_in('created_by', $user_ids);
+        $this->ci->db->or_where("permission REGEXP '$regex'", null, false);
+        $this->ci->db->group_end();
+
+        $result = $this->ci->db->get()->result();
+        $ids = array_map(function ($r) { return (int)$r->project_id; }, $result);
+
+        return array_values(array_unique($ids));
+    }
+
     public function is_super_admin()
     {
         if (empty($this->user)) {

@@ -327,17 +327,30 @@ class Reports extends MY_Controller
         }
 
         $user_ids = $this->_resolve_allowed_user_ids($user_id ? (int)$user_id : null);
-        $this->db->select('p.project_id, p.project_name, SUM(te.total_seconds) as total_seconds');
-        $this->db->from('tbl_desktop_time_entries te');
-        $this->db->join('tbl_task t', 't.task_id = te.task_id');
-        $this->db->join('tbl_project p', 'p.project_id = t.project_id');
+
+        $visible_project_ids = $this->api_auth->get_visible_project_ids(
+            is_array($user_ids) ? $user_ids : null
+        );
+
+        $time_sub = "(";
+        $time_sub .= "SELECT p2.project_id, SUM(te.total_seconds) as total_seconds";
+        $time_sub .= " FROM tbl_project p2";
+        $time_sub .= " JOIN tbl_task t ON t.project_id = p2.project_id";
+        $time_sub .= " JOIN tbl_desktop_time_entries te ON te.task_id = t.task_id";
+        $time_sub .= " WHERE te.type = 'work'";
+        $time_sub .= " AND DATE(te.started_at) >= " . $this->db->escape($start_date);
+        $time_sub .= " AND DATE(te.started_at) <= " . $this->db->escape($end_date);
         if (is_array($user_ids)) {
-            $this->db->where_in('te.user_id', $user_ids);
+            $time_sub .= " AND te.user_id IN (" . implode(',', $user_ids) . ")";
         }
-        $this->db->where('DATE(te.started_at) >=', $start_date);
-        $this->db->where('DATE(te.started_at) <=', $end_date);
-        $this->db->where('te.type', 'work');
-        $this->db->where('te.task_id IS NOT NULL');
+        $time_sub .= " GROUP BY p2.project_id) sub";
+
+        $this->db->select("p.project_id, p.project_name, p.progress, COALESCE(sub.total_seconds, 0) as total_seconds");
+        $this->db->from('tbl_project p');
+        $this->db->join($time_sub, 'sub.project_id = p.project_id', 'left');
+        if ($visible_project_ids !== null) {
+            $this->db->where_in('p.project_id', $visible_project_ids);
+        }
         $this->db->group_by('p.project_id, p.project_name');
         $this->db->order_by('total_seconds', 'DESC');
         $data = $this->db->get()->result();
@@ -347,6 +360,7 @@ class Reports extends MY_Controller
                 'project_id' => (int)$r->project_id,
                 'project_name' => $r->project_name,
                 'total_seconds' => (int)$r->total_seconds,
+                'progress' => (int)($r->progress ?? 0),
             ];
         }, $data);
 

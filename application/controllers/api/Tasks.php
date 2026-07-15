@@ -264,6 +264,10 @@ class Tasks extends MY_Controller
         $this->db->insert('tbl_task', $task_data);
         $task_id = $this->db->insert_id();
 
+        if (!empty($input['project_id'])) {
+            $this->tasks_model->set_progress((int)$input['project_id']);
+        }
+
         return $this->_respond(201, true, 'Task created', [
             'id' => (int)$task_id,
             'title' => $input['title'],
@@ -339,6 +343,10 @@ class Tasks extends MY_Controller
             }
         }
 
+        if ($task->project_id) {
+            $this->tasks_model->set_progress($task->project_id);
+        }
+
         return $this->_respond(200, true, 'Task updated');
     }
 
@@ -363,6 +371,10 @@ class Tasks extends MY_Controller
         }
         $this->db->where('task_id', $id)->delete('tbl_screenshots');
         $this->db->where('task_id', $id)->delete('tbl_task');
+
+        if ($task->project_id) {
+            $this->tasks_model->set_progress($task->project_id);
+        }
 
         return $this->_respond(200, true, 'Task deleted');
     }

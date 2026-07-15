@@ -16,8 +16,6 @@ class Projects extends MY_Controller
 
         $projects = $this->db
             ->select('project_id, project_name, description, progress, created_by, permission')
-            ->where('project_status', 'in_progress')
-            ->or_where('project_status', 'completed')
             ->get('tbl_project')
             ->result();
 

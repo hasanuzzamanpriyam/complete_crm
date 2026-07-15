@@ -14,17 +14,9 @@ class Tasks_Model extends MY_Model
             if ($project_info->calculate_progress == 'through_tasks') {
                 $done_task = $this->db->where(array('project_id' => $id, 'task_status' => 'completed'))->get('tbl_task')->result();
                 $total_tasks = $this->db->where(array('project_id' => $id))->get('tbl_task')->result();
-                if (count(array($done_task)) > 0) {
-                    $done_task = count(array($done_task));
-                } else {
-                    $done_task = 0;
-                }
-                if (count(array($total_tasks)) > 0) {
-                    $total_tasks = count(array($total_tasks));
-                } else {
-                    $total_tasks = 0;
-                }
-                $progress = round(($done_task / $total_tasks) * 100);
+                $done_task = count($done_task);
+                $total_tasks = count($total_tasks);
+                $progress = $total_tasks > 0 ? round(($done_task / $total_tasks) * 100) : 0;
                 if ($progress > 100) {
                     $progress = 100;
                 }
@@ -34,9 +26,12 @@ class Tasks_Model extends MY_Model
         }
         if (empty($progress)) {
             $progress = 0;
-        } else if ($progress >= 100) {
+        }
+        if ($progress >= 100) {
             $progress = 100;
             $p_data['project_status'] = 'completed';
+        } elseif ($progress < 100 && isset($project_info->project_status) && $project_info->project_status === 'completed') {
+            $p_data['project_status'] = 'in_progress';
         }
         $p_data['progress'] = $progress;
 
