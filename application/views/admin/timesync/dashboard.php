@@ -87,6 +87,19 @@ $base_url = base_url();
         </div>
         <?php endif; ?>
 
+        <div class="ts-panel ts-live-panel">
+            <div class="ts-panel-heading">
+                <i class="fa fa-bolt"></i> Live Users
+                <span class="ts-live-dot" title="Auto-refreshing"></span>
+                <span class="pull-right ts-live-summary" id="tsLiveSummary"></span>
+            </div>
+            <div class="ts-panel-body">
+                <div class="ts-live-grid" id="tsLiveGrid">
+                    <div class="ts-placeholder">Loading live status&hellip;</div>
+                </div>
+            </div>
+        </div>
+
         <?php if ($is_shortage): ?>
         <div class="ts-alert ts-alert-danger">
             <div class="ts-alert-icon"><i class="fa fa-exclamation-triangle"></i></div>
@@ -163,6 +176,71 @@ $(function() {
             $(this).toggle(name.indexOf(q) !== -1);
         });
     });
+
+    // Realtime live-users panel (active / paused / idle / offline)
+    var STATUS_LABEL = { active: 'Active', paused: 'Paused', idle: 'Idle', offline: 'Offline' };
+    var STATUS_CLASS = { active: 'active', paused: 'paused', idle: 'idle', offline: 'offline' };
+
+    function esc(s) {
+        return $('<div>').text(s == null ? '' : s).html();
+    }
+
+    function renderLive(data) {
+        var s = data.summary || {};
+        var summary = 'Total ' + (s.total || 0) +
+            ' &middot; <span class="ls-active">' + (s.active || 0) + ' active</span>' +
+            ' &middot; <span class="ls-paused">' + (s.paused || 0) + ' paused</span>' +
+            ' &middot; <span class="ls-idle">' + (s.idle || 0) + ' idle</span>' +
+            ' &middot; <span class="ls-offline">' + (s.offline || 0) + ' offline</span>';
+        $('#tsLiveSummary').html(summary);
+
+        var users = data.users || [];
+        if (!users.length) {
+            $('#tsLiveGrid').html('<div class="ts-placeholder">No users to display.</div>');
+            return;
+        }
+        var order = { active: 0, paused: 1, idle: 2, offline: 3 };
+        users.sort(function(a, b) {
+            return (order[a.status] ?? 9) - (order[b.status] ?? 9) || (a.name || '').localeCompare(b.name || '');
+        });
+        var html = '';
+        $.each(users, function(_, u) {
+            var cls = STATUS_CLASS[u.status] || 'offline';
+            var meta = '';
+            if (u.status === 'active') {
+                meta = (u.current_task ? esc(u.current_task) : 'Tracking time')
+                    + (u.current_window ? ' &mdash; ' + esc(u.current_window) : '');
+            } else if (u.status === 'paused') {
+                meta = 'Timer paused' + (u.current_task ? ' &middot; ' + esc(u.current_task) : '');
+            } else if (u.status === 'idle') {
+                meta = 'Online, no activity';
+            } else {
+                meta = 'Not tracking';
+            }
+            html += '<div class="ts-live-row">' +
+                '<span class="ts-live-status ' + cls + '"></span>' +
+                '<img src="' + esc(u.avatar) + '" alt="" class="ts-live-avatar">' +
+                '<div class="ts-live-info">' +
+                    '<div class="ts-live-name">' + esc(u.name) +
+                        ' <span class="ts-live-badge ' + cls + '">' + (STATUS_LABEL[u.status] || u.status) + '</span>' +
+                    '</div>' +
+                    '<div class="ts-live-meta">' + meta + '</div>' +
+                '</div>' +
+            '</div>';
+        });
+        $('#tsLiveGrid').html(html);
+    }
+
+    function fetchLive() {
+        $.getJSON('<?= $base_url ?>admin/timesync/live_users', function(data) {
+            if (data && data.success) renderLive(data);
+        }).fail(function() {
+            $('#tsLiveGrid').html('<div class="ts-placeholder">Live status unavailable.</div>');
+        });
+    }
+
+    fetchLive();
+    setInterval(fetchLive, 5000);
 });
 </script>
 

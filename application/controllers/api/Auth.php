@@ -91,6 +91,8 @@ class Auth extends MY_Controller
 
     public function register()
     {
+        $this->api_auth->authenticate();
+
         $input = json_decode(file_get_contents('php://input'), true);
         if (empty($input['username']) || empty($input['email']) || empty($input['password'])) {
             return $this->_respond(400, false, 'Username, email, and password required');

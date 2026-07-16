@@ -110,6 +110,121 @@ class Timesync extends Admin_Controller
         $this->_render_or_ajax($data);
     }
 
+    public function live_users()
+    {
+        if (!is_super_admin()) {
+            $can_view = can_action_by_label('timesync', 'view');
+            if (!$can_view) {
+                $this->output
+                    ->set_status_header(403)
+                    ->set_content_type('application/json')
+                    ->set_output(json_encode(['success' => false, 'message' => 'Access denied']));
+                return;
+            }
+        }
+
+        $allowed_ids = get_authorized_user_ids_web();
+
+        $this->db->select('u.user_id, u.online_time, u.last_active_ping, a.fullname, a.avatar')
+            ->from('tbl_users u')
+            ->join('tbl_account_details a', 'a.user_id = u.user_id', 'left')
+            ->where('u.activated', 1)
+            ->where('u.banned', 0);
+        if ($allowed_ids !== null) {
+            $this->db->where_in('u.user_id', $allowed_ids);
+        }
+        $all_users = $this->db->get()->result();
+
+        $running_rows = $this->db
+            ->select('tde.user_id, tde.paused_at, t.task_name as task_title')
+            ->from('tbl_desktop_time_entries tde')
+            ->join('tbl_task t', 't.task_id = tde.task_id', 'left')
+            ->where('tde.is_running', 1)
+            ->where('tde.stopped_at IS NULL', null, false);
+        if ($allowed_ids !== null) {
+            $this->db->where_in('tde.user_id', $allowed_ids);
+        }
+        $running_rows = $running_rows->get()->result();
+
+        $active_map = [];
+        $paused_ids = [];
+        $running_ids = [];
+        foreach ($running_rows as $e) {
+            $uid = (int)$e->user_id;
+            $active_map[$uid] = ['task_title' => $e->task_title];
+            $running_ids[] = $uid;
+            if (!empty($e->paused_at)) {
+                $paused_ids[] = $uid;
+            }
+        }
+
+        $now_ts = time();
+        $active_count = 0;
+        $paused_count = 0;
+        $idle_count = 0;
+        $offline_count = 0;
+        $list = [];
+
+        foreach ($all_users as $u) {
+            $uid = (int)$u->user_id;
+            $is_running = in_array($uid, $running_ids);
+            $is_paused = in_array($uid, $paused_ids);
+            $online_ok = !empty($u->online_time) && (int)$u->online_time > ($now_ts - 300);
+
+            if ($is_running) {
+                $status = $is_paused ? 'paused' : 'active';
+                if ($is_paused) $paused_count++;
+                else $active_count++;
+            } elseif ($online_ok) {
+                $status = 'idle';
+                $idle_count++;
+            } else {
+                $status = 'offline';
+                $offline_count++;
+            }
+
+            $window = null;
+            if ($status === 'active') {
+                $w = $this->db
+                    ->select('app_name, window_title')
+                    ->from('tbl_desktop_app_usage')
+                    ->where('user_id', $uid)
+                    ->order_by('created_at', 'DESC')
+                    ->limit(1)
+                    ->get()->row();
+                if ($w) {
+                    $window = !empty($w->window_title) ? $w->window_title : $w->app_name;
+                }
+            }
+
+            $list[] = [
+                'user_id' => $uid,
+                'name' => $u->fullname ?? ('User #' . $uid),
+                'avatar' => get_avatar_url($u->avatar, $u->fullname),
+                'status' => $status,
+                'current_task' => $is_running ? ($active_map[$uid]['task_title'] ?? null) : null,
+                'current_window' => $window,
+                'is_active_now' => !empty($u->last_active_ping) && strtotime($u->last_active_ping) >= ($now_ts - 120),
+                'last_active_ping' => $u->last_active_ping,
+            ];
+        }
+
+        $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode([
+                'success' => true,
+                'summary' => [
+                    'total' => count($all_users),
+                    'active' => $active_count,
+                    'paused' => $paused_count,
+                    'idle' => $idle_count,
+                    'offline' => $offline_count,
+                ],
+                'users' => $list,
+                'server_time' => date('Y-m-d H:i:s'),
+            ]));
+    }
+
     public function entries()
     {
         if (!is_super_admin()) {

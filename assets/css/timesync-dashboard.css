@@ -220,3 +220,69 @@
     .ts-metric-row { flex-wrap: wrap; }
     .ts-metric-card { min-width: 200px; }
 }
+
+/* Live Users realtime panel */
+.ts-live-panel { margin-bottom: 16px; }
+.ts-live-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #10b981; display: inline-block; margin-left: 6px;
+    box-shadow: 0 0 0 0 rgba(16,185,129,.6);
+    animation: ts-live-pulse 1.8s infinite;
+}
+@keyframes ts-live-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(16,185,129,.5); }
+    70% { box-shadow: 0 0 0 6px rgba(16,185,129,0); }
+    100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+}
+.ts-live-summary { font-size: 11px; font-weight: 600; color: #6c757d; }
+.ts-live-summary .ls-active { color: #10b981; }
+.ts-live-summary .ls-paused { color: #f59e0b; }
+.ts-live-summary .ls-idle { color: #f97316; }
+.ts-live-summary .ls-offline { color: #9ca3af; }
+.ts-live-grid {
+    max-height: 320px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.ts-live-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: #f8fafc;
+    border: 1px solid #f0f2f5;
+}
+.ts-live-status {
+    width: 9px; height: 9px; border-radius: 50%;
+    flex-shrink: 0;
+    background: #9ca3af;
+}
+.ts-live-status.active { background: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,.15); }
+.ts-live-status.paused { background: #f59e0b; }
+.ts-live-status.idle { background: #f97316; }
+.ts-live-status.offline { background: #cbd5e1; }
+.ts-live-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    object-fit: cover; flex-shrink: 0; background: #e9ecef;
+}
+.ts-live-info { flex: 1; min-width: 0; }
+.ts-live-name {
+    font-size: 13px; font-weight: 600;
+    display: flex; align-items: center; gap: 6px;
+}
+.ts-live-badge {
+    font-size: 9px; font-weight: 700; text-transform: uppercase;
+    padding: 1px 7px; border-radius: 10px; letter-spacing: .3px;
+}
+.ts-live-badge.active { background: #d1fae5; color: #065f46; }
+.ts-live-badge.paused { background: #fef3c7; color: #92400e; }
+.ts-live-badge.idle { background: #ffedd5; color: #9a3412; }
+.ts-live-badge.offline { background: #f1f5f9; color: #64748b; }
+.ts-live-meta {
+    font-size: 11px; color: #6c757d;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    margin-top: 1px;
+}

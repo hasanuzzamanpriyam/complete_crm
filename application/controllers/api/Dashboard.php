@@ -25,8 +25,8 @@ class Dashboard extends MY_Controller
         }
         $all_users = $this->db->get()->result();
 
-        $active_entries = $this->db
-            ->select('tde.user_id, t.task_name as task_title')
+        $running_entries = $this->db
+            ->select('tde.user_id, tde.paused_at, t.task_name as task_title')
             ->from('tbl_desktop_time_entries tde')
             ->join('tbl_task t', 't.task_id = tde.task_id', 'left')
             ->where('tde.is_running', 1)
@@ -34,16 +34,22 @@ class Dashboard extends MY_Controller
         if ($visible_ids !== null) {
             $this->db->where_in('tde.user_id', $visible_ids);
         }
-        $active_rows = $active_entries->get()->result();
+        $running_rows = $running_entries->get()->result();
 
         $active_map = [];
+        $paused_user_ids = [];
         $active_user_ids = [];
-        foreach ($active_rows as $e) {
-            $active_map[$e->user_id] = ['task_title' => $e->task_title];
-            $active_user_ids[] = $e->user_id;
+        foreach ($running_rows as $e) {
+            $uid = (int)$e->user_id;
+            $active_map[$uid] = ['task_title' => $e->task_title];
+            $active_user_ids[] = $uid;
+            if (!empty($e->paused_at)) {
+                $paused_user_ids[] = $uid;
+            }
         }
 
         $active_count = 0;
+        $paused_count = 0;
         $idle_count = 0;
         $offline_count = 0;
         $active_users_list = [];
@@ -51,12 +57,11 @@ class Dashboard extends MY_Controller
 
         foreach ($all_users as $u) {
             $uid = (int)$u->user_id;
-            $is_active = isset($active_map[$uid]);
+            $is_running = in_array($uid, $active_user_ids);
+            $is_paused = in_array($uid, $paused_user_ids);
             $online_time_ok = !empty($u->online_time) && (int)$u->online_time > ($now_ts - 300);
 
-            if ($is_active) {
-                $active_count++;
-
+            if ($is_running) {
                 $window = $this->db
                     ->select('app_name, window_title')
                     ->from('tbl_desktop_app_usage')
@@ -65,10 +70,18 @@ class Dashboard extends MY_Controller
                     ->limit(1)
                     ->get()->row();
 
+                $status = $is_paused ? 'paused' : 'active';
+                if ($is_paused) {
+                    $paused_count++;
+                } else {
+                    $active_count++;
+                }
+
                 $active_users_list[] = [
                     'user_id' => $uid,
                     'name' => !empty($u->fullname) ? $u->fullname : $u->username,
                     'avatar' => base_url(!empty($u->avatar) ? $u->avatar : 'assets/img/user/default_avatar.jpg'),
+                    'status' => $status,
                     'current_task' => $active_map[$uid]['task_title'],
                     'current_window' => $window ? (!empty($window->window_title) ? $window->window_title : $window->app_name) : null,
                     'is_active_now' => !empty($u->last_active_ping) && strtotime($u->last_active_ping) >= (time() - 120),
@@ -84,6 +97,7 @@ class Dashboard extends MY_Controller
             'summary' => [
                 'total' => count($all_users),
                 'active' => $active_count,
+                'paused' => $paused_count,
                 'idle' => $idle_count,
                 'offline' => $offline_count,
             ],
@@ -192,7 +206,7 @@ class Dashboard extends MY_Controller
         $time_sub .= " GROUP BY p2.project_id) sub";
 
         $project_q = $this->db
-            ->select("p.project_id, p.project_name, p.progress, COALESCE(sub.total_seconds, 0) as total_seconds")
+            ->select("p.project_id, p.project_name, p.progress, p.project_status, COALESCE(sub.total_seconds, 0) as total_seconds")
             ->from('tbl_project p')
             ->join($time_sub, 'sub.project_id = p.project_id', 'left');
         if ($visible_project_ids !== null) {
@@ -240,6 +254,7 @@ class Dashboard extends MY_Controller
                     'total_seconds' => $secs,
                     'percentage' => $grand_total > 0 ? round(($secs / $grand_total) * 100, 1) : 0,
                     'progress' => (int)($r->progress ?? 0),
+                    'project_status' => $r->project_status ?? '',
                 ];
             }, $project_rows),
         ];
@@ -280,13 +295,21 @@ class Dashboard extends MY_Controller
             }
             $brief_rows = $brief_q->group_by('u.user_id')->get()->result();
 
-            $active_entries = $this->db
-                ->select('user_id')
+            $running_entries = $this->db
+                ->select('user_id, paused_at')
                 ->from('tbl_desktop_time_entries')
                 ->where('is_running', 1)
                 ->where('stopped_at IS NULL', null, false)
                 ->get()->result();
-            $active_user_ids = array_map(function ($e) { return (int)$e->user_id; }, $active_entries);
+            $active_user_ids = [];
+            $paused_user_ids = [];
+            foreach ($running_entries as $e) {
+                $uid = (int)$e->user_id;
+                $active_user_ids[] = $uid;
+                if (!empty($e->paused_at)) {
+                    $paused_user_ids[] = $uid;
+                }
+            }
 
             $now_ts = time();
 
@@ -312,11 +335,12 @@ $time_where = $has_date_range
                 'weekly_trend' => array_map(function ($r) {
                     return ['date' => $r->date, 'total_seconds' => (int)$r->total_seconds];
                 }, $team_trend_rows),
-                'team_list' => array_map(function ($r) use ($active_user_ids, $now_ts) {
+                'team_list' => array_map(function ($r) use ($active_user_ids, $paused_user_ids, $now_ts) {
                     $uid = (int)$r->user_id;
-                    $is_active = in_array($uid, $active_user_ids);
+                    $is_running = in_array($uid, $active_user_ids);
+                    $is_paused = in_array($uid, $paused_user_ids);
                     $online = !empty($r->online_time) && (int)$r->online_time > ($now_ts - 300);
-                    $status = $is_active ? 'active' : ($online ? 'idle' : 'offline');
+                    $status = $is_running ? ($is_paused ? 'paused' : 'active') : ($online ? 'idle' : 'offline');
                     return [
                         'user_id' => $uid,
                         'name' => $r->name ?? 'Unknown',

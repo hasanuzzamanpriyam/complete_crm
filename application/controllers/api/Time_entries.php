@@ -110,12 +110,10 @@ class Time_entries extends MY_Controller
         }
 
         $total_seconds = (int)($input['total_seconds'] ?? 0);
-        if ($stopped_at && $started_at && $total_seconds > 0) {
-            $expected = strtotime($stopped_at) - strtotime($started_at);
-            if ($expected > 0 && abs($total_seconds - $expected) / $expected > 0.05) {
-                return $this->_respond(400, false, 'total_seconds does not match started_at/stopped_at range');
-            }
-        }
+        // NOTE: do NOT hard-reject when total_seconds is outside the started/stopped
+        // wall-clock span. Paused/idle time is excluded from total_seconds on the
+        // desktop, so for sessions with pauses the two legitimately differ. We keep
+        // the computed value as-is and let the client's total_seconds stand.
 
         $data = [
             'task_id' => !empty($input['task_id']) ? (int)$input['task_id'] : null,
