@@ -129,10 +129,8 @@ class Screenshots extends MY_Controller
         }
 
         $usage = $this->db
-            ->where('user_id', $screenshot->user_id)
-            ->where('recorded_at', date('Y-m-d', strtotime($screenshot->captured_at)))
+            ->where('screenshot_id', $id)
             ->order_by('total_seconds', 'DESC')
-            ->limit(50)
             ->get('tbl_desktop_app_usage')
             ->result();
 
@@ -231,6 +229,23 @@ class Screenshots extends MY_Controller
         }
         $this->db->insert('tbl_screenshots', $insert_data);
         $screenshot_id = $this->db->insert_id();
+
+        if (!empty($input['active_windows']) && is_array($input['active_windows'])) {
+            foreach ($input['active_windows'] as $win) {
+                if (empty($win['app_name'])) continue;
+                $usage_data = [
+                    'user_id' => $user_id,
+                    'screenshot_id' => $screenshot_id,
+                    'app_name' => $win['app_name'],
+                    'window_title' => $win['window_title'] ?? null,
+                    'url' => $win['url'] ?? null,
+                    'total_seconds' => (int)($win['active_seconds'] ?? 0),
+                    'recorded_at' => $captured_at,
+                    'created_at' => date('Y-m-d H:i:s'),
+                ];
+                $this->db->insert('tbl_desktop_app_usage', $usage_data);
+            }
+        }
 
         return $this->_respond(201, true, 'Screenshot uploaded', [
             'id' => (int)$screenshot_id,

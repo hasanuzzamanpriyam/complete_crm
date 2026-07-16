@@ -904,44 +904,12 @@ class Timesync extends Admin_Controller
             return;
         }
 
-        $captured_at = $screenshot->captured_at;
-        $user_id = $screenshot->user_id;
-
-        // Find the time entry session that was active when this screenshot was captured
-        $this->db->where('user_id', $user_id);
-        $this->db->where('started_at <=', $captured_at);
-        $this->db->group_start();
-        $this->db->where('stopped_at IS NULL');
-        $this->db->or_where('stopped_at >=', $captured_at);
-        $this->db->group_end();
-        $this->db->order_by('started_at', 'DESC');
-        $this->db->limit(1);
-        $time_entry = $this->db->get('tbl_desktop_time_entries')->row();
-
-        // Fetch app usage for that session
-        $app_usage = [];
-        if ($time_entry) {
-            $app_usage = $this->db
-                ->select('app_name, window_title, total_seconds')
-                ->where('time_entry_id', $time_entry->id)
-                ->order_by('total_seconds', 'DESC')
-                ->limit(20)
-                ->get('tbl_desktop_app_usage')
-                ->result();
-        }
-
-        // Fallback to daily app usage if no session-linked data
-        if (empty($app_usage)) {
-            $recorded_date = date('Y-m-d', strtotime($captured_at));
-            $app_usage = $this->db
-                ->select('app_name, window_title, total_seconds')
-                ->where('user_id', $user_id)
-                ->where('recorded_at', $recorded_date)
-                ->order_by('total_seconds', 'DESC')
-                ->limit(20)
-                ->get('tbl_desktop_app_usage')
-                ->result();
-        }
+        $app_usage = $this->db
+            ->select('app_name, window_title, total_seconds')
+            ->where('screenshot_id', $screenshot_id)
+            ->order_by('total_seconds', 'DESC')
+            ->get('tbl_desktop_app_usage')
+            ->result();
 
         $this->output
             ->set_content_type('application/json')
