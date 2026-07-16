@@ -343,6 +343,21 @@ class Tasks extends MY_Controller
             }
         }
 
+        // Safety net: if the task was just completed, stop any timer that is
+        // still running for it so it can never get stuck (is_running=1 with no
+        // stopped_at). The desktop normally stops it; this covers the case
+        // where the stop sync is missed.
+        if (isset($input['status']) && $newStatus === 'completed') {
+            $this->db
+                ->where('task_id', $id)
+                ->where('is_running', 1)
+                ->where('stopped_at IS NULL', null, false)
+                ->update('tbl_desktop_time_entries', [
+                    'stopped_at' => date('Y-m-d H:i:s'),
+                    'is_running' => 0,
+                ]);
+        }
+
         if ($task->project_id) {
             $this->tasks_model->set_progress($task->project_id);
         }
