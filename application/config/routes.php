@@ -96,6 +96,8 @@ $route['admin/timesync/entries'] = 'admin/timesync/entries';
 $route['admin/timesync/calendar'] = 'admin/timesync/calendar';
 $route['admin/timesync/day_details/(:any)'] = 'admin/timesync/day_details/$1';
 
+$route['admin/tasks/view/(:num)'] = 'admin/tasks/details/$1';
+
 /*
 ------------------------------------------
 TimeSync API routes
