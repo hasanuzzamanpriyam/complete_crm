@@ -34,7 +34,9 @@ $base_url = base_url();
                 ?>
                     <a href="<?= $base_url ?>admin/timesync?from=<?= urlencode($from) ?>&to=<?= urlencode($to) ?>&user_id=<?= $u->user_id ?>"
                        class="ts-user-item<?= $is_active ? ' active' : '' ?>"
+                       data-user-id="<?= (int)$u->user_id ?>"
                        data-name="<?= htmlspecialchars(strtolower($u->fullname ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                        <span class="ts-user-indicator"></span>
                         <img src="<?= $avatar_url ?>" alt="" class="avatar" loading="lazy">
                         <div class="ts-user-info">
                             <div class="ts-user-name">
@@ -229,6 +231,15 @@ $(function() {
             '</div>';
         });
         $('#tsLiveGrid').html(html);
+
+        // Update sidebar user indicators — only show for active
+        $.each(users, function(_, u) {
+            var $item = $('.ts-user-item[data-user-id="' + u.user_id + '"]');
+            if ($item.length) {
+                var cls = u.status === 'active' ? 'active' : '';
+                $item.find('.ts-user-indicator').attr('class', 'ts-user-indicator' + (cls ? ' ' + cls : ''));
+            }
+        });
     }
 
     function fetchLive() {
