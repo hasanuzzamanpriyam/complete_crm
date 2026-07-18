@@ -3,18 +3,18 @@ function fmt_hms($sec) {
     $sec = max(0, (int)$sec);
     $h = floor($sec / 3600);
     $m = floor(($sec % 3600) / 60);
-    if ($h > 0) return $h . 'h ' . $m . 'm';
-    return $m . 'm';
+    $s = $sec % 60;
+    return $h . 'h ' . $m . 'm ' . $s . 's';
 }
 function fmt_h($sec) {
     return round(max(0, (int)$sec) / 3600, 1);
 }
-$logged_h = fmt_h($total_logged_seconds);
-$activity_h = fmt_h($total_activity_seconds);
-$req_h = fmt_h($required_seconds);
+$logged_hms = fmt_hms($total_logged_seconds);
+$activity_hms = fmt_hms($total_activity_seconds);
+$req_hms = fmt_hms($required_seconds);
 $disc_sec = $discrepancy_seconds;
 $is_shortage = $disc_sec < 0;
-$disc_h = fmt_h(abs($disc_sec));
+$disc_hms = fmt_hms(abs($disc_sec));
 $base_url = base_url();
 ?>
 <link rel="stylesheet" href="<?= $base_url ?>assets/css/timesync-dashboard.css">
@@ -29,8 +29,8 @@ $base_url = base_url();
                 <?php foreach ($users as $u):
                     $is_active = !empty($selected_user_id) && (int)$selected_user_id === (int)$u->user_id;
                     $avatar_url = get_avatar_url($u->avatar, $u->fullname);
-                    $logged = fmt_h($u->total_sec);
-                    $activity = fmt_h($u->activity_sec);
+                    $logged = fmt_hms($u->total_sec);
+                    $activity = fmt_hms($u->activity_sec);
                 ?>
                     <a href="<?= $base_url ?>admin/timesync?from=<?= urlencode($from) ?>&to=<?= urlencode($to) ?>&user_id=<?= $u->user_id ?>"
                        class="ts-user-item<?= $is_active ? ' active' : '' ?>"
@@ -42,12 +42,12 @@ $base_url = base_url();
                             <div class="ts-user-name">
                                 <?= htmlspecialchars($u->fullname ?? 'User #' . $u->user_id) ?>
                                 <?php if ($u->has_shortage): ?>
-                                    <span class="badge-shortage">-<?= fmt_h($u->shortage_hours * 3600) ?>h</span>
+                                    <span class="badge-shortage">-<?= fmt_hms($u->shortage_hours * 3600) ?></span>
                                 <?php endif; ?>
                             </div>
                             <div class="ts-user-meta">
-                                <span class="logged-val"><?= $logged ?>h</span>
-                                <span class="activity-val"><?= $activity ?>h</span>
+                                <span class="logged-val"><?= $logged ?></span>
+                                <span class="activity-val"><?= $activity ?></span>
                             </div>
                         </div>
                     </a>
@@ -61,12 +61,12 @@ $base_url = base_url();
         <div class="ts-metric-row">
             <div class="ts-metric-card">
                 <div class="ts-metric-label">Time Logged</div>
-                <div class="ts-metric-value"><?= $logged_h ?>h</div>
+                <div class="ts-metric-value"><?= $logged_hms ?></div>
                 <div style="font-size:12px;color:#6c757d;">In selected period</div>
             </div>
             <div class="ts-metric-card">
                 <div class="ts-metric-label">Activity Time</div>
-                <div class="ts-metric-value"><?= $activity_h ?>h</div>
+                <div class="ts-metric-value"><?= $activity_hms ?></div>
                 <div class="ts-progress-track">
                     <div class="ts-progress-fill <?= $productive_ratio >= 70 ? 'good' : ($productive_ratio >= 40 ? 'warn' : 'bad') ?>" style="width:<?= min(100, $productive_ratio) ?>%;"></div>
                 </div>
@@ -74,7 +74,7 @@ $base_url = base_url();
             </div>
             <div class="ts-metric-card" style="display:flex;flex-direction:column;justify-content:center;">
                 <div class="ts-metric-label">Required Hours</div>
-                <div class="ts-metric-value"><?= $req_h ?>h</div>
+                <div class="ts-metric-value"><?= $req_hms ?></div>
                                 <div style="font-size:12px;color:#6c757d;"><?php if (!empty($selected_user_id)): ?>@ <?= number_format($required_daily_avg, 1) ?>h/day &mdash; <?= $adjusted_working_days ?? $working_days ?> working days<?php else: ?>Across <?= count($users) ?> users &times; <?= $working_days ?> working days<?php endif; ?></div>
             </div>
         </div>
@@ -106,16 +106,16 @@ $base_url = base_url();
         <div class="ts-alert ts-alert-danger">
             <div class="ts-alert-icon"><i class="fa fa-exclamation-triangle"></i></div>
             <div class="ts-alert-body">
-                <div class="ts-alert-title">Time Shortage of <?= $disc_h ?></div>
-                <div class="ts-alert-sub">Required: <?= $req_h ?>h &middot; Logged: <?= $logged_h ?>h &middot; Period: <?= htmlspecialchars($from) ?> &rarr; <?= htmlspecialchars($to) ?> (<?= $adjusted_working_days ?? $working_days ?> working days<?php if (!empty($selected_user_id) && isset($adjusted_working_days) && $adjusted_working_days !== $working_days): ?>, <?= $working_days - $adjusted_working_days ?> leave days excluded<?php endif; ?>)</div>
+                <div class="ts-alert-title">Time Shortage of <?= $disc_hms ?></div>
+                <div class="ts-alert-sub">Required: <?= $req_hms ?> &middot; Logged: <?= $logged_hms ?> &middot; Period: <?= htmlspecialchars($from) ?> &rarr; <?= htmlspecialchars($to) ?> (<?= $adjusted_working_days ?? $working_days ?> working days<?php if (!empty($selected_user_id) && isset($adjusted_working_days) && $adjusted_working_days !== $working_days): ?>, <?= $working_days - $adjusted_working_days ?> leave days excluded<?php endif; ?>)</div>
             </div>
         </div>
         <?php elseif ($disc_sec > 0): ?>
         <div class="ts-alert ts-alert-success">
             <div class="ts-alert-icon"><i class="fa fa-check-circle"></i></div>
             <div class="ts-alert-body">
-                <div class="ts-alert-title">Surplus of <?= $disc_h ?></div>
-                <div class="ts-alert-sub">Required: <?= $req_h ?>h &middot; Logged: <?= $logged_h ?>h &middot; Period: <?= htmlspecialchars($from) ?> &rarr; <?= htmlspecialchars($to) ?> (<?= $adjusted_working_days ?? $working_days ?> working days<?php if (!empty($selected_user_id) && isset($adjusted_working_days) && $adjusted_working_days !== $working_days): ?>, <?= $working_days - $adjusted_working_days ?> leave days excluded<?php endif; ?>)</div>
+                <div class="ts-alert-title">Surplus of <?= $disc_hms ?></div>
+                <div class="ts-alert-sub">Required: <?= $req_hms ?> &middot; Logged: <?= $logged_hms ?> &middot; Period: <?= htmlspecialchars($from) ?> &rarr; <?= htmlspecialchars($to) ?> (<?= $adjusted_working_days ?? $working_days ?> working days<?php if (!empty($selected_user_id) && isset($adjusted_working_days) && $adjusted_working_days !== $working_days): ?>, <?= $working_days - $adjusted_working_days ?> leave days excluded<?php endif; ?>)</div>
             </div>
         </div>
         <?php endif; ?>
