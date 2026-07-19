@@ -284,7 +284,7 @@ class Dashboard extends MY_Controller
             }
             $brief_on .= " AND te.type = 'work'";
             $brief_q = $this->db
-                ->select("u.user_id, u.online_time, u.last_active_ping, ad.fullname as name, ad.avatar, COALESCE(SUM(te.total_seconds), 0) as today_seconds")
+                ->select("u.user_id, u.online_time, u.last_active_ping, u.role_id, ad.fullname as name, ad.avatar, COALESCE(SUM(te.total_seconds), 0) as today_seconds")
                 ->from('tbl_users u')
                 ->join('tbl_account_details ad', 'ad.user_id = u.user_id', 'left')
                 ->join('tbl_desktop_time_entries te', $brief_on, 'left')
@@ -320,13 +320,25 @@ $time_where = $has_date_range
                 ? "task_created_date >= " . $this->db->escape($since) . " AND task_created_date <= " . $this->db->escape($until)
                 : "DATE(task_created_date) = CURDATE()";
 
+            $time_scope = $company_ids !== null ? " AND user_id IN (" . implode(',', $company_ids) . ")" : "";
+            $task_scope = $company_ids !== null ? " AND created_by IN (" . implode(',', $company_ids) . ")" : "";
+
             $global = $this->db
                 ->select("
-                    (SELECT COALESCE(SUM(total_seconds), 0) FROM tbl_desktop_time_entries WHERE $time_where AND type = 'work') as total_hours,
-                    (SELECT COUNT(DISTINCT user_id) FROM tbl_desktop_time_entries WHERE is_running = 1 AND stopped_at IS NULL) as active_users,
-                    (SELECT COUNT(*) FROM tbl_task WHERE task_status = 'completed' AND $completed_where) as tasks_completed
+                    (SELECT COALESCE(SUM(total_seconds), 0) FROM tbl_desktop_time_entries WHERE $time_where AND type = 'work'$time_scope) as total_hours,
+                    (SELECT COUNT(DISTINCT user_id) FROM tbl_desktop_time_entries WHERE is_running = 1 AND stopped_at IS NULL$time_scope) as active_users,
+                    (SELECT COUNT(*) FROM tbl_task WHERE task_status = 'completed' AND $completed_where$task_scope) as tasks_completed
                 ")
                 ->get()->row();
+
+            $dept_heads = [];
+            $dept_result = $this->db->select('department_head_id')
+                ->where('department_head_id >', 0)
+                ->get('tbl_departments')
+                ->result();
+            foreach ($dept_result as $d) {
+                $dept_heads[(int)$d->department_head_id] = true;
+            }
 
             $response['team'] = [
                 'total_company_hours_today' => round((float)$global->total_hours / 3600, 1),
@@ -335,12 +347,14 @@ $time_where = $has_date_range
                 'weekly_trend' => array_map(function ($r) {
                     return ['date' => $r->date, 'total_seconds' => (int)$r->total_seconds];
                 }, $team_trend_rows),
-                'team_list' => array_map(function ($r) use ($active_user_ids, $paused_user_ids, $now_ts) {
+                'team_list' => array_map(function ($r) use ($active_user_ids, $paused_user_ids, $now_ts, $dept_heads) {
                     $uid = (int)$r->user_id;
                     $is_running = in_array($uid, $active_user_ids);
                     $is_paused = in_array($uid, $paused_user_ids);
                     $online = !empty($r->online_time) && (int)$r->online_time > ($now_ts - 300);
                     $status = $is_running ? ($is_paused ? 'paused' : 'active') : ($online ? 'idle' : 'offline');
+                    $role_id = (int)$r->role_id;
+                    $role = $role_id === 1 ? 'admin' : (isset($dept_heads[$uid]) ? 'manager' : 'member');
                     return [
                         'user_id' => $uid,
                         'name' => $r->name ?? 'Unknown',
@@ -348,6 +362,7 @@ $time_where = $has_date_range
                         'hours_today' => round((float)$r->today_seconds / 3600, 1),
                         'status' => $status,
                         'is_active_now' => !empty($r->last_active_ping) && strtotime($r->last_active_ping) >= (time() - 120),
+                        'role' => $role,
                     ];
                 }, $brief_rows),
             ];

@@ -385,6 +385,12 @@
           html = '<p class="text-muted" style="margin:0;">No teams available.</p>';
         }
         list.html(html);
+
+        // Pre-check the is_manager checkbox if user manages any team
+        var isMgrCheckbox = document.querySelector('input[name="is_manager"]');
+        if (isMgrCheckbox && data.is_manager_teams && data.is_manager_teams.length > 0) {
+          isMgrCheckbox.checked = true;
+        }
       });
     });
 

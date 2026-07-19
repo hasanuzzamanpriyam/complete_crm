@@ -271,7 +271,7 @@ class Teams extends MY_Controller {
         $this->api_auth->authenticate();
         $user_id = $this->api_auth->get_user()->user_id;
 
-        $memberships = $this->db->select('tm.*, u.username, u.email, t.name as team_name')
+        $memberships = $this->db->select('tm.*, u.username, u.email, u.role_id, t.name as team_name')
             ->from('tbl_team_members tm')
             ->join('tbl_users u', 'u.user_id = tm.user_id')
             ->join('tbl_teams t', 't.id = tm.team_id')
@@ -280,8 +280,11 @@ class Teams extends MY_Controller {
             ->get()
             ->result();
 
-        $memberships = array_map(function ($m) {
+        $dept_heads = $this->_load_dept_heads();
+        $memberships = array_map(function ($m) use ($dept_heads) {
             $m->is_manager = (int)$m->is_manager;
+            $m->role = $this->_map_role((int)$m->role_id, $m->is_manager, (int)$m->user_id, $dept_heads);
+            unset($m->role_id);
             return $m;
         }, $memberships);
 
@@ -304,8 +307,9 @@ class Teams extends MY_Controller {
         }
 
         // Embed members with is_manager per team
-        $result = array_map(function ($t) {
-            $members = $this->db->select('tm.user_id, tm.is_manager, tm.status, u.username, u.email')
+        $dept_heads = $this->_load_dept_heads();
+        $result = array_map(function ($t) use ($dept_heads) {
+            $members = $this->db->select('tm.user_id, tm.is_manager, tm.status, u.username, u.email, u.role_id')
                 ->from('tbl_team_members tm')
                 ->join('tbl_users u', 'u.user_id = tm.user_id')
                 ->where('tm.team_id', (int)$t->id)
@@ -318,10 +322,11 @@ class Teams extends MY_Controller {
                 'description' => $t->description ?? '',
                 'created_by' => (int)$t->created_by,
                 'created_at' => $t->created_at ?? null,
-                'members' => array_map(function ($m) {
+                'members' => array_map(function ($m) use ($dept_heads) {
                     return [
                         'user_id' => (int)$m->user_id,
                         'is_manager' => (int)$m->is_manager === 1,
+                        'role' => $this->_map_role((int)$m->role_id, (int)$m->is_manager, (int)$m->user_id, $dept_heads),
                         'status' => $m->status,
                         'username' => $m->username,
                         'email' => $m->email,
@@ -463,9 +468,13 @@ class Teams extends MY_Controller {
             $this->_respond(403, false, 'Team member access required');
         }
 
+        $dept_heads = $this->_load_dept_heads();
         $members = $this->Team_model->get_team_members_with_users($team_id);
-        $members = array_map(function ($m) {
+        $members = array_map(function ($m) use ($dept_heads) {
             $m->is_manager = (int)$m->is_manager;
+            $m->is_department_head = isset($dept_heads[(int)$m->user_id]);
+            $m->role = $this->_map_role((int)$m->role_id, $m->is_manager, (int)$m->user_id, $dept_heads);
+            unset($m->role_id);
             return $m;
         }, $members);
         $this->_respond(200, true, 'OK', ['data' => $members]);
@@ -617,6 +626,26 @@ class Teams extends MY_Controller {
             log_message('error', 'Send message failed: ' . $e->getMessage());
             $this->_respond(500, false, 'Server error');
         }
+    }
+
+    private function _load_dept_heads()
+    {
+        $result = $this->db->select('department_head_id')
+            ->where('department_head_id >', 0)
+            ->get('tbl_departments')
+            ->result();
+        $heads = [];
+        foreach ($result as $d) {
+            $heads[(int)$d->department_head_id] = true;
+        }
+        return $heads;
+    }
+
+    private function _map_role($role_id, $is_manager, $user_id, $dept_heads)
+    {
+        if ($role_id === 1) return 'admin';
+        if ($is_manager === 1 || isset($dept_heads[$user_id])) return 'manager';
+        return 'member';
     }
 
     private function _respond($status_code, $success, $message, $data = null)

@@ -90,7 +90,7 @@ class Team_model extends CI_Model {
 
     public function get_team_members_with_users($team_id, $status = 'approved')
     {
-        $this->db->select('tm.*, u.username, u.email')
+        $this->db->select('tm.*, u.username, u.email, u.role_id')
             ->from('tbl_team_members tm')
             ->join('tbl_users u', 'u.user_id = tm.user_id')
             ->where('tm.team_id', $team_id);

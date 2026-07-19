@@ -121,7 +121,7 @@ class Timesync_Teams extends Admin_Controller
         $teams = $this->Team_model->get_all_teams();
 
         $user_teams = $this->db
-            ->select('team_id')
+            ->select('team_id, is_manager')
             ->where('user_id', $user_id)
             ->where('status', 'approved')
             ->get('tbl_team_members')
@@ -131,11 +131,19 @@ class Timesync_Teams extends Admin_Controller
             return (int)$t->team_id;
         }, $user_teams);
 
+        $is_manager_teams = [];
+        foreach ($user_teams as $t) {
+            if ((int)$t->is_manager === 1) {
+                $is_manager_teams[] = (int)$t->team_id;
+            }
+        }
+
         $this->output
             ->set_content_type('application/json')
             ->set_output(json_encode([
                 'teams' => $teams,
                 'user_team_ids' => $user_team_ids,
+                'is_manager_teams' => $is_manager_teams,
                 'user_id' => (int)$user_id,
             ]));
     }
@@ -160,6 +168,12 @@ class Timesync_Teams extends Admin_Controller
             return (int)$m->team_id;
         }, $current);
 
+        // Build per-team is_manager map to preserve existing values
+        $current_manager_map = [];
+        foreach ($current as $m) {
+            $current_manager_map[(int)$m->team_id] = (int)$m->is_manager;
+        }
+
         $manager_team_ids = [];
         foreach ($current as $m) {
             if ((int)$m->is_manager === 1) {
@@ -174,17 +188,16 @@ class Timesync_Teams extends Admin_Controller
         $to_add = array_diff($team_ids, $current_ids);
         $to_remove = array_diff($current_ids, $team_ids);
 
-        // Update is_manager for existing memberships
+        // Update existing memberships — preserve current is_manager (don't overwrite)
         foreach ($to_keep as $tid) {
             if (!$is_super && !in_array((int)$tid, $managed_ids)) {
                 continue;
             }
-            $this->db->where('team_id', (int)$tid)
-                ->where('user_id', $user_id)
-                ->update('tbl_team_members', ['is_manager' => $is_manager]);
+            // Keep existing is_manager value; only update if status changed
         }
 
         // Add new memberships (UPSERT — handles re-adding 'left' members)
+        // Apply the form's is_manager value only to newly assigned teams
         foreach ($to_add as $tid) {
             if (!$is_super && !in_array((int)$tid, $managed_ids)) {
                 continue;

@@ -169,7 +169,7 @@ class Auth extends MY_Controller
             'erp_id' => (int)$user->user_id,
             'username' => $user->username,
             'email' => $user->email,
-            'role' => $user->role_id == 1 ? 'admin' : ($user->role_id == 3 ? 'manager' : 'employee'),
+            'role' => $user->role_id == 1 ? 'admin' : 'employee',
             'full_name' => $account->fullname ?? $user->username,
             'is_active' => $user->activated == 1,
             'created_at' => $user->created ?? date('Y-m-d H:i:s'),
