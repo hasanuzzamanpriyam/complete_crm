@@ -10,6 +10,14 @@ class Migration_Version_633 extends CI_Migration {
                 ]);
             }
         }
+
+        $this->dbforge->drop_table('tbl_hub_payments', TRUE);
+        $this->dbforge->drop_table('tbl_api_clients',    TRUE);
+        $this->dbforge->drop_table('tbl_api_tokens',    TRUE);
+        $this->dbforge->drop_table('tbl_payment_gateways', TRUE);
+        $this->dbforge->drop_table('tbl_payment_transactions', TRUE);
+        $this->dbforge->drop_table('tbl_payment_logs',  TRUE);
+        $this->dbforge->drop_table('tbl_webhook_logs',  TRUE);
     }
 
     public function down() {
