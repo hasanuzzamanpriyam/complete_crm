@@ -358,8 +358,14 @@ class Tasks extends MY_Controller
                 ]);
         }
 
-        if ($task->project_id) {
-            $this->tasks_model->set_progress($task->project_id);
+        $old_project_id = $task->project_id;
+        $new_project_id = isset($update['project_id']) ? (int)$update['project_id'] : $old_project_id;
+
+        $recalculated = [];
+        if ($old_project_id) $recalculated[] = $old_project_id;
+        if ($new_project_id && $new_project_id !== $old_project_id) $recalculated[] = $new_project_id;
+        foreach ($recalculated as $pid) {
+            $this->tasks_model->set_progress($pid);
         }
 
         return $this->_respond(200, true, 'Task updated');

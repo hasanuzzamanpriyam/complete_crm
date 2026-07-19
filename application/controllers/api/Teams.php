@@ -256,6 +256,7 @@ class Teams extends MY_Controller {
 
         $this->db->where('to_user_id', $user_id);
         $this->db->where('icon', 'fa fa-at');
+        $this->db->where('read', 0);
         if ($since) {
             $this->db->where('date >=', $since);
         }
@@ -264,6 +265,22 @@ class Teams extends MY_Controller {
         $rows = $this->db->get('tbl_notifications')->result();
 
         $this->_respond(200, true, 'OK', ['data' => $rows]);
+    }
+
+    public function mark_read()
+    {
+        $this->api_auth->authenticate();
+        $user_id = $this->api_auth->get_user()->user_id;
+        $id = $this->input->post('notifications_id');
+
+        if ($id) {
+            $this->db->where('notifications_id', $id);
+        }
+        $this->db->where('to_user_id', $user_id);
+        $this->db->where('icon', 'fa fa-at');
+        $this->db->update('tbl_notifications', ['read' => 1, 'read_inline' => 1]);
+
+        $this->_respond(200, true, 'Marked as read', []);
     }
 
     public function my_memberships()

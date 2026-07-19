@@ -345,7 +345,9 @@ class Reports extends MY_Controller
         }
         $time_sub .= " GROUP BY p2.project_id) sub";
 
-        $this->db->select("p.project_id, p.project_name, p.progress, COALESCE(sub.total_seconds, 0) as total_seconds");
+        $this->db->select("p.project_id, p.project_name, p.progress, p.project_status,
+            COALESCE(sub.total_seconds, 0) as total_seconds,
+            (SELECT COUNT(*) FROM tbl_task t WHERE t.project_id = p.project_id) as task_count");
         $this->db->from('tbl_project p');
         $this->db->join($time_sub, 'sub.project_id = p.project_id', 'left');
         if ($visible_project_ids !== null) {
@@ -361,6 +363,8 @@ class Reports extends MY_Controller
                 'project_name' => $r->project_name,
                 'total_seconds' => (int)$r->total_seconds,
                 'progress' => (int)($r->progress ?? 0),
+                'project_status' => $r->project_status ?? '',
+                'task_count' => (int)($r->task_count ?? 0),
             ];
         }, $data);
 

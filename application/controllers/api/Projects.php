@@ -14,10 +14,16 @@ class Projects extends MY_Controller
         $user = $this->api_auth->authenticate();
         $user_id = $user->user_id;
 
-        $projects = $this->db
-            ->select('project_id, project_name, description, progress, created_by, permission')
-            ->get('tbl_project')
-            ->result();
+        $visible_project_ids = $this->api_auth->get_visible_project_ids();
+
+        $this->db
+            ->select("p.project_id, p.project_name, p.description, p.progress, p.created_by, p.permission, p.project_status,
+                (SELECT COUNT(*) FROM tbl_task t WHERE t.project_id = p.project_id) as task_count")
+            ->from('tbl_project p');
+        if ($visible_project_ids !== null) {
+            $this->db->where_in('p.project_id', $visible_project_ids);
+        }
+        $projects = $this->db->get()->result();
 
         $result = array_map(function ($p) use ($user_id) {
             $perm = $p->permission ?? '';
@@ -30,6 +36,8 @@ class Projects extends MY_Controller
                 'name' => $p->project_name ?? '',
                 'description' => $p->description ?? '',
                 'progress' => (int)$p->progress,
+                'task_count' => (int)($p->task_count ?? 0),
+                'project_status' => $p->project_status ?? '',
                 'erp_id' => (int)$p->project_id,
                 'is_active' => true,
                 'is_assigned' => $is_assigned,

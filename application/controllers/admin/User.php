@@ -230,6 +230,7 @@ class User extends Admin_Controller
                 $data['date'] = date('Y-m');
             }
             $data['attendace_info'] = $this->get_report($id, $data['date']);
+            $data['timesync_summary'] = $this->_timesync_compute($id, $data['date']);
             $data['my_leave_report'] = leave_report($id);
             //
             if ($this->input->post('year', TRUE)) { // if input year
@@ -554,6 +555,428 @@ class User extends Admin_Controller
             $flag = '';
         }
         return $attendace_info;
+    }
+
+    private function _timesync_get_user_settings($user_id)
+    {
+        $setting = $this->db
+            ->query("SELECT l1.* FROM tbl_timesync_user_settings_log l1
+                INNER JOIN (
+                    SELECT user_id, MAX(changed_at) as max_changed
+                    FROM tbl_timesync_user_settings_log
+                    GROUP BY user_id
+                ) l2 ON l1.user_id = l2.user_id AND l1.changed_at = l2.max_changed
+                WHERE l1.user_id = " . (int)$user_id)
+            ->row();
+
+        if ($setting) {
+            return (float)$setting->required_daily_hours;
+        }
+
+        $config_log = $this->db
+            ->query("SELECT l1.* FROM tbl_timesync_config_log l1
+                INNER JOIN (
+                    SELECT config_key, MAX(changed_at) as max_changed
+                    FROM tbl_timesync_config_log
+                    GROUP BY config_key
+                ) l2 ON l1.config_key = l2.config_key AND l1.changed_at = l2.max_changed
+                WHERE l1.config_key = 'timesync_default_daily_hours'")
+            ->row();
+
+        return $config_log ? (float)$config_log->value : 8.00;
+    }
+
+    private function _timesync_compute($user_id, $date)
+    {
+        $month = (int)date('n', strtotime($date));
+        $year = (int)date('Y', strtotime($date));
+        $ym = sprintf('%04d-%02d', $year, $month);
+        $daily_hours = $this->_timesync_get_user_settings($user_id);
+        $daily_sec = $daily_hours * 3600;
+        $days_in_month = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+        $month_start = sprintf('%04d-%02d-01', $year, $month);
+        $month_end = sprintf('%04d-%02d-%02d', $year, $month, $days_in_month);
+
+        $holidays = $this->db
+            ->where('start_date <=', $month_end)
+            ->where('end_date >=', $month_start)
+            ->get('tbl_holiday')
+            ->result();
+        $holiday_map = [];
+        foreach ($holidays as $h) {
+            $d = new DateTime(max($h->start_date, $month_start));
+            $end_d = new DateTime(min($h->end_date, $month_end));
+            while ($d <= $end_d) {
+                $holiday_map[$d->format('Y-m-d')] = true;
+                $d->modify('+1 day');
+            }
+        }
+
+        $leaves = $this->db
+            ->where('user_id', $user_id)
+            ->where('application_status', 2)
+            ->where('leave_start_date <=', $month_end)
+            ->group_start()
+                ->where('leave_end_date >=', $month_start)
+                ->or_where('leave_end_date IS NULL')
+            ->group_end()
+            ->get('tbl_leave_application')
+            ->result();
+        $leave_map = [];
+        foreach ($leaves as $lv) {
+            $d = new DateTime(max($lv->leave_start_date, $month_start));
+            $end_date = $lv->leave_end_date ?? $lv->leave_start_date;
+            $end_d = new DateTime(min($end_date, $month_end));
+            while ($d <= $end_d) {
+                $leave_map[$d->format('Y-m-d')] = true;
+                $d->modify('+1 day');
+            }
+        }
+
+        $entries = $this->db
+            ->select('started_at, stopped_at, total_seconds')
+            ->where('user_id', $user_id)
+            ->where('started_at >=', $month_start . ' 00:00:00')
+            ->where('started_at <=', $month_end . ' 23:59:59')
+            ->where('stopped_at IS NOT NULL')
+            ->where('type', 'work')
+            ->order_by('started_at', 'ASC')
+            ->get('tbl_desktop_time_entries')
+            ->result();
+
+        $daily_entries = [];
+        $actual_total_sec = 0;
+        foreach ($entries as $e) {
+            $day = date('Y-m-d', strtotime($e->started_at));
+            if (!isset($daily_entries[$day])) {
+                $daily_entries[$day] = [
+                    'clock_in' => $e->started_at,
+                    'clock_out' => $e->stopped_at,
+                    'total_sec' => 0,
+                ];
+            }
+            if (strtotime($e->started_at) < strtotime($daily_entries[$day]['clock_in'])) {
+                $daily_entries[$day]['clock_in'] = $e->started_at;
+            }
+            if (strtotime($e->stopped_at) > strtotime($daily_entries[$day]['clock_out'])) {
+                $daily_entries[$day]['clock_out'] = $e->stopped_at;
+            }
+            $daily_entries[$day]['total_sec'] += (int)$e->total_seconds;
+            $actual_total_sec += (int)$e->total_seconds;
+        }
+
+        $balance_row = $this->db
+            ->where('user_id', $user_id)
+            ->where('year_month', $ym)
+            ->get('tbl_timesync_time_balances')
+            ->row();
+
+        $is_frozen = $balance_row && $balance_row->status === 'frozen';
+        $month_over = strtotime($month_end . ' 23:59:59') < time();
+
+        if ($month_over && !$balance_row) {
+            $this->_timesync_freeze_month($user_id, $ym, $daily_hours, $daily_entries, $holiday_map, $leave_map, $days_in_month, $month_start, $actual_total_sec);
+            $balance_row = $this->db
+                ->where('user_id', $user_id)
+                ->where('year_month', $ym)
+                ->get('tbl_timesync_time_balances')
+                ->row();
+            $is_frozen = true;
+        }
+
+        $carryover_in = 0;
+        if ($balance_row) {
+            $carryover_in = (int)$balance_row->carryover_in_sec;
+        } else {
+            $prev_row = $this->db
+                ->where('user_id', $user_id)
+                ->where('status', 'frozen')
+                ->order_by('year_month', 'DESC')
+                ->limit(1)
+                ->get('tbl_timesync_time_balances')
+                ->row();
+            if ($prev_row) {
+                $carryover_in = (int)$prev_row->carryover_out_sec;
+            }
+        }
+
+        $working_days = [];
+        $gross_expected_sec = 0;
+        for ($d = 1; $d <= $days_in_month; $d++) {
+            $date_str = sprintf('%04d-%02d-%02d', $year, $month, $d);
+            $dow = (int)date('N', strtotime($date_str));
+            if ($dow === 5) continue;
+            if (isset($holiday_map[$date_str])) continue;
+            if (isset($leave_map[$date_str])) continue;
+            $working_days[] = $date_str;
+            $gross_expected_sec += $daily_sec;
+        }
+
+        $consumed_sec = 0;
+        $weekly_consumed = 0;
+        if (!$is_frozen && $carryover_in > 0) {
+            $remaining = $carryover_in;
+            foreach ($working_days as $wd) {
+                $dow = (int)date('N', strtotime($wd));
+                if ($dow === 1) $weekly_consumed = 0;
+
+                $deduction = (int)min(3600, $remaining);
+                if ($dow !== 5) {
+                    if ($weekly_consumed >= 18000) $deduction = 0;
+                    $weekly_consumed += $deduction;
+                } else {
+                    $deduction = 0;
+                }
+                $consumed_sec += $deduction;
+                $remaining -= $deduction;
+            }
+        }
+
+        $adjusted_expected_sec = $gross_expected_sec - $consumed_sec;
+        $surplus_sec = max(0, $actual_total_sec - $adjusted_expected_sec);
+        $shortage_sec = max(0, $adjusted_expected_sec - $actual_total_sec);
+        $carryover_out = $carryover_in + $surplus_sec - $consumed_sec;
+
+        if ($balance_row && !$is_frozen) {
+            $this->db->where('id', $balance_row->id)->update('tbl_timesync_time_balances', [
+                'gross_expected_sec' => $gross_expected_sec,
+                'actual_sec' => $actual_total_sec,
+                'consumed_sec' => $consumed_sec,
+                'adjusted_expected_sec' => $adjusted_expected_sec,
+                'surplus_sec' => $surplus_sec,
+                'shortage_sec' => $shortage_sec,
+                'carryover_in_sec' => $carryover_in,
+                'carryover_out_sec' => $carryover_out,
+            ]);
+        } elseif ((!$month_over || !$balance_row) && $actual_total_sec > 0) {
+            $this->db->insert('tbl_timesync_time_balances', [
+                'user_id' => $user_id,
+                'year_month' => $ym,
+                'status' => 'open',
+                'gross_expected_sec' => $gross_expected_sec,
+                'actual_sec' => $actual_total_sec,
+                'consumed_sec' => $consumed_sec,
+                'adjusted_expected_sec' => $adjusted_expected_sec,
+                'surplus_sec' => $surplus_sec,
+                'shortage_sec' => $shortage_sec,
+                'carryover_in_sec' => $carryover_in,
+                'carryover_out_sec' => $carryover_out,
+            ]);
+        }
+
+        $daily_rows = [];
+        $remaining = $carryover_in;
+        for ($d = 1; $d <= $days_in_month; $d++) {
+            $date_str = sprintf('%04d-%02d-%02d', $year, $month, $d);
+            $dow = (int)date('N', strtotime($date_str));
+
+            $row = [
+                'date' => $date_str,
+                'clock_in' => '--',
+                'clock_out' => '--',
+                'actual_sec' => 0,
+                'expected_sec' => 0,
+                'discrepancy_sec' => 0,
+                'status' => '',
+            ];
+
+            if ($dow === 5) {
+                $row['status'] = 'weekly_holiday';
+                $daily_rows[] = $row;
+                continue;
+            }
+            if (isset($holiday_map[$date_str])) {
+                $row['status'] = 'public_holiday';
+                $daily_rows[] = $row;
+                continue;
+            }
+            if (isset($leave_map[$date_str])) {
+                $row['status'] = 'on_leave';
+                $daily_rows[] = $row;
+                continue;
+            }
+
+            $row['expected_sec'] = $daily_sec;
+            if (!$is_frozen && $remaining > 0) {
+                $deduction = (int)min(3600, $remaining);
+                $row['expected_sec'] = max(0, $daily_sec - $deduction);
+                $remaining -= $deduction;
+            }
+
+            if (isset($daily_entries[$date_str])) {
+                $e = $daily_entries[$date_str];
+                $row['clock_in'] = date('H:i', strtotime($e['clock_in']));
+                $row['clock_out'] = date('H:i', strtotime($e['clock_out']));
+                $row['actual_sec'] = $e['total_sec'];
+                $row['discrepancy_sec'] = $e['total_sec'] - $row['expected_sec'];
+                $row['status'] = $e['total_sec'] >= $row['expected_sec'] ? 'ok' : 'shortage';
+            } else {
+                $row['status'] = 'no_tracking';
+                $row['discrepancy_sec'] = -$row['expected_sec'];
+            }
+
+            if ($row['expected_sec'] < $daily_sec) {
+                $row['status'] = $row['status'] === 'ok' ? 'ot_applied_ok' : 'ot_applied_short';
+            }
+
+            $daily_rows[] = $row;
+        }
+
+        return [
+            'ym' => $ym,
+            'daily_hours' => $daily_hours,
+            'gross_expected_sec' => $gross_expected_sec,
+            'adjusted_expected_sec' => $adjusted_expected_sec,
+            'actual_sec' => $actual_total_sec,
+            'consumed_sec' => $consumed_sec,
+            'surplus_sec' => $surplus_sec,
+            'shortage_sec' => $shortage_sec,
+            'carryover_in_sec' => $carryover_in,
+            'carryover_out_sec' => $carryover_out,
+            'working_days_count' => count($working_days),
+            'is_frozen' => $is_frozen,
+            'month_over' => $month_over,
+            'daily_rows' => $daily_rows,
+        ];
+    }
+
+    private function _timesync_freeze_month($user_id, $ym, $daily_hours, $daily_entries, $holiday_map, $leave_map, $days_in_month, $month_start, $actual_total_sec)
+    {
+        $month = (int)date('n', strtotime($ym . '-01'));
+        $year = (int)date('Y', strtotime($ym . '-01'));
+        $daily_sec = $daily_hours * 3600;
+
+        $working_days = [];
+        $gross_expected_sec = 0;
+        for ($d = 1; $d <= $days_in_month; $d++) {
+            $date_str = sprintf('%04d-%02d-%02d', $year, $month, $d);
+            $dow = (int)date('N', strtotime($date_str));
+            if ($dow === 5) continue;
+            if (isset($holiday_map[$date_str])) continue;
+            if (isset($leave_map[$date_str])) continue;
+            $working_days[] = $date_str;
+            $gross_expected_sec += $daily_sec;
+        }
+
+        $prev_row = $this->db
+            ->where('user_id', $user_id)
+            ->where('status', 'frozen')
+            ->order_by('year_month', 'DESC')
+            ->limit(1)
+            ->get('tbl_timesync_time_balances')
+            ->row();
+        $carryover_in = $prev_row ? (int)$prev_row->carryover_out_sec : 0;
+
+        $surplus_sec = max(0, $actual_total_sec - $gross_expected_sec);
+
+        $this->db->replace('tbl_timesync_time_balances', [
+            'user_id' => $user_id,
+            'year_month' => $ym,
+            'status' => 'frozen',
+            'gross_expected_sec' => $gross_expected_sec,
+            'actual_sec' => $actual_total_sec,
+            'consumed_sec' => 0,
+            'adjusted_expected_sec' => $gross_expected_sec,
+            'surplus_sec' => $surplus_sec,
+            'shortage_sec' => max(0, $gross_expected_sec - $actual_total_sec),
+            'carryover_in_sec' => $carryover_in,
+            'carryover_out_sec' => $carryover_in + $surplus_sec,
+        ]);
+    }
+
+    private function _timesync_recalculate($user_id, $ym)
+    {
+        $balance = $this->db
+            ->where('user_id', $user_id)
+            ->where('year_month', $ym)
+            ->get('tbl_timesync_time_balances')
+            ->row();
+
+        if (!$balance) return;
+
+        $days_in_month = cal_days_in_month(CAL_GREGORIAN, (int)date('n', strtotime($ym . '-01')), (int)date('Y', strtotime($ym . '-01')));
+        $month_start = $ym . '-01';
+        $month_end = sprintf('%s-%02d', $ym, $days_in_month);
+        $daily_hours = $this->_timesync_get_user_settings($user_id);
+        $daily_sec = $daily_hours * 3600;
+
+        $holidays = $this->db->where('start_date <=', $month_end)->where('end_date >=', $month_start)->get('tbl_holiday')->result();
+        $holiday_map = [];
+        foreach ($holidays as $h) {
+            $d = new DateTime(max($h->start_date, $month_start));
+            $end_d = new DateTime(min($h->end_date, $month_end));
+            while ($d <= $end_d) { $holiday_map[$d->format('Y-m-d')] = true; $d->modify('+1 day'); }
+        }
+
+        $leaves = $this->db->where('user_id', $user_id)->where('application_status', 2)->where('leave_start_date <=', $month_end)->group_start()->where('leave_end_date >=', $month_start)->or_where('leave_end_date IS NULL')->group_end()->get('tbl_leave_application')->result();
+        $leave_map = [];
+        foreach ($leaves as $lv) {
+            $d = new DateTime(max($lv->leave_start_date, $month_start));
+            $end_d = new DateTime(min($lv->leave_end_date ?? $lv->leave_start_date, $month_end));
+            while ($d <= $end_d) { $leave_map[$d->format('Y-m-d')] = true; $d->modify('+1 day'); }
+        }
+
+        $actual_total_sec = (int)$this->db
+            ->select('COALESCE(SUM(total_seconds), 0) as total')
+            ->where('user_id', $user_id)
+            ->where('started_at >=', $month_start . ' 00:00:00')
+            ->where('started_at <=', $month_end . ' 23:59:59')
+            ->where('stopped_at IS NOT NULL')
+            ->where('type', 'work')
+            ->get('tbl_desktop_time_entries')
+            ->row()->total;
+
+        $gross_expected_sec = 0;
+        for ($d = 1; $d <= $days_in_month; $d++) {
+            $ds = sprintf('%s-%02d', $ym, $d);
+            if ((int)date('N', strtotime($ds)) === 5) continue;
+            if (isset($holiday_map[$ds])) continue;
+            if (isset($leave_map[$ds])) continue;
+            $gross_expected_sec += $daily_sec;
+        }
+
+        $prev_row = $this->db->where('user_id', $user_id)->where('year_month <', $ym)->where('status', 'frozen')->order_by('year_month', 'DESC')->limit(1)->get('tbl_timesync_time_balances')->row();
+        $carryover_in = $prev_row ? (int)$prev_row->carryover_out_sec : 0;
+
+        $surplus_sec = max(0, $actual_total_sec - $gross_expected_sec);
+        $carryover_out = $carryover_in + $surplus_sec;
+
+        $this->db->where('id', $balance->id)->update('tbl_timesync_time_balances', [
+            'status' => 'frozen',
+            'gross_expected_sec' => $gross_expected_sec,
+            'actual_sec' => $actual_total_sec,
+            'consumed_sec' => 0,
+            'adjusted_expected_sec' => $gross_expected_sec,
+            'surplus_sec' => $surplus_sec,
+            'shortage_sec' => max(0, $gross_expected_sec - $actual_total_sec),
+            'carryover_in_sec' => $carryover_in,
+            'carryover_out_sec' => $carryover_out,
+        ]);
+
+        $later_months = $this->db->where('user_id', $user_id)->where('year_month >', $ym)->order_by('year_month', 'ASC')->get('tbl_timesync_time_balances')->result();
+        $running = $carryover_out;
+        foreach ($later_months as $lm) {
+            $lm_out = $running + $lm->surplus_sec - $lm->consumed_sec;
+            $this->db->where('id', $lm->id)->update('tbl_timesync_time_balances', [
+                'carryover_in_sec' => $running,
+                'carryover_out_sec' => $lm_out,
+            ]);
+            $running = $lm_out;
+        }
+    }
+
+    public function recalculate_balance()
+    {
+        $user_id = (int)$this->input->post('user_id');
+        $ym = $this->input->post('year_month');
+
+        if (!$user_id || !$ym || !is_super_admin()) {
+            echo json_encode(['success' => false, 'message' => 'Unauthorized or missing params']);
+            return;
+        }
+
+        $this->_timesync_recalculate($user_id, $ym);
+        echo json_encode(['success' => true, 'message' => 'Recalculation complete']);
     }
 
     public function update_contact($update = null, $id = null)

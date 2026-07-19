@@ -161,6 +161,7 @@ $route['api/teams/approve_member']           = 'api/teams/approve_member';
 $route['api/teams/my-requests']              = 'api/teams/my_requests';
 $route['api/teams/my-memberships']           = 'api/teams/my_memberships';
 $route['api/teams/pending-requests/(:num)']  = 'api/teams/pending_requests/$1';
+$route['api/teams/mentions/mark_read'] = 'api/teams/mark_read';
 $route['api/teams/mentions'] = 'api/teams/mentions';
 $route['api/teams/managed'] = 'api/teams/managed';
 
