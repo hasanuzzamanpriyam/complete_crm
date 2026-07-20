@@ -66,6 +66,15 @@
     flex-shrink: 0;
     background: #e9ecef;
 }
+.ts-user-item .avatar.ts-avatar-fallback {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 1rem;
+    text-transform: uppercase;
+}
 .ts-user-info {
     flex: 1;
     min-width: 0;
@@ -260,7 +269,33 @@
     flex-shrink: 0;
     background: #9ca3af;
 }
-.ts-live-status.active { background: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,.15); }
+.ts-live-status.active { background: #10b981; animation: ts-dot-pulse 2s infinite ease-in-out; }
+.ts-live-status.active.tracking {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    width: 20px !important;
+    height: 20px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    animation: none !important;
+    vertical-align: middle;
+    margin-right: 5px;
+}
+.ts-status-live-clock {
+    color: #10b981 !important;
+    font-size: 18px !important;
+    animation: ts-status-clock-spin 2s linear infinite !important;
+    line-height: 1 !important;
+    display: inline-block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+@keyframes ts-status-clock-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
 .ts-live-status.paused { background: #f59e0b; }
 .ts-live-status.idle { background: #f97316; }
 .ts-live-status.offline { background: #cbd5e1; }
@@ -282,7 +317,7 @@
 .ts-live-badge.idle { background: #ffedd5; color: #9a3412; }
 .ts-live-badge.offline { background: #f1f5f9; color: #64748b; }
 .ts-live-meta {
-    font-size: 11px; color: #6c757d;
+    font-size: 11px; color: #4b5563;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     margin-top: 1px;
 }
@@ -304,4 +339,63 @@
 @keyframes ts-indicator-blink {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.3; }
+}
+
+.ts-live-clock {
+    animation: ts-clock-spin 1.6s linear infinite;
+    margin-right: 4px;
+    font-size: 12px;
+    color: #059669;
+    font-weight: bold;
+    vertical-align: middle;
+}
+@keyframes ts-clock-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.live-tracker {
+    font-variant-numeric: tabular-nums;
+    display: inline-block;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-weight: 800;
+    background: #ecfdf5;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-right: 6px;
+    vertical-align: middle;
+    line-height: 1.5;
+}
+.timer-text {
+    color: #047857;
+    font-size: 0.95rem;
+}
+
+.ts-avatar-fallback {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    flex-shrink: 0;
+}
+.ts-avatar-bg-0 { background: #3b82f6; }
+.ts-avatar-bg-1 { background: #ef4444; }
+.ts-avatar-bg-2 { background: #10b981; }
+.ts-avatar-bg-3 { background: #f59e0b; }
+.ts-avatar-bg-4 { background: #8b5cf6; }
+.ts-avatar-bg-5 { background: #ec4899; }
+.ts-avatar-bg-6 { background: #14b8a6; }
+.ts-avatar-bg-7 { background: #f97316; }
+.ts-avatar-bg-8 { background: #6366f1; }
+.ts-avatar-bg-9 { background: #84cc16; }
+
+@keyframes ts-dot-pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.3); opacity: 0.5; }
+    100% { transform: scale(1); opacity: 1; }
 }

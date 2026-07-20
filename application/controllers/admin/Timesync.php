@@ -136,7 +136,7 @@ class Timesync extends Admin_Controller
         $all_users = $this->db->get()->result();
 
         $running_rows = $this->db
-            ->select('tde.user_id, tde.paused_at, t.task_name as task_title')
+            ->select('tde.user_id, tde.paused_at, tde.started_at, t.task_name as task_title')
             ->from('tbl_desktop_time_entries tde')
             ->join('tbl_task t', 't.task_id = tde.task_id', 'left')
             ->where('tde.is_running', 1)
@@ -151,7 +151,10 @@ class Timesync extends Admin_Controller
         $running_ids = [];
         foreach ($running_rows as $e) {
             $uid = (int)$e->user_id;
-            $active_map[$uid] = ['task_title' => $e->task_title];
+            $active_map[$uid] = [
+                'task_title' => $e->task_title,
+                'started_at' => $e->started_at ? (strtotime($e->started_at . ' UTC') * 1000) : null,
+            ];
             $running_ids[] = $uid;
             if (!empty($e->paused_at)) {
                 $paused_ids[] = $uid;
@@ -197,13 +200,19 @@ class Timesync extends Admin_Controller
                 }
             }
 
+            $profile_img = null;
+            if (!empty($u->avatar) && file_exists(FCPATH . $u->avatar)) {
+                $profile_img = base_url() . $u->avatar;
+            }
+
             $list[] = [
                 'user_id' => $uid,
                 'name' => $u->fullname ?? ('User #' . $uid),
-                'avatar' => get_avatar_url($u->avatar, $u->fullname),
+                'profile_image_url' => $profile_img,
                 'status' => $status,
                 'current_task' => $is_running ? ($active_map[$uid]['task_title'] ?? null) : null,
                 'current_window' => $window,
+                'started_at' => $is_running ? ($active_map[$uid]['started_at'] ?? null) : null,
                 'is_active_now' => !empty($u->last_active_ping) && strtotime($u->last_active_ping) >= ($now_ts - 120),
                 'last_active_ping' => $u->last_active_ping,
             ];
