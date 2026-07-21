@@ -96,10 +96,18 @@ function sidebar_initials($name) {
             </div>
         </div>
 
-        <?php if (!empty($selected_user_id) && isset($selected_user)): ?>
+        <?php if (!empty($selected_user_id) && isset($selected_user)):
+            $header_has_avatar = !empty($selected_user->avatar) && file_exists(FCPATH . $selected_user->avatar);
+            $header_bg = 'ts-avatar-bg-' . ((int)$selected_user->user_id % 10);
+            $header_init = sidebar_initials($selected_user->fullname ?? '');
+        ?>
         <div class="ts-panel" style="margin-bottom:12px;">
             <div class="ts-panel-heading">
-                <img src="<?= get_avatar_url($selected_user->avatar ?? null, $selected_user->fullname ?? null) ?>" alt="" style="width:28px;height:28px;border-radius:50%;object-fit:cover;">
+                <?php if ($header_has_avatar): ?>
+                    <img src="<?= base_url() . $selected_user->avatar ?>" alt="" style="width:28px;height:28px;border-radius:50%;object-fit:cover;">
+                <?php else: ?>
+                    <div class="ts-avatar-fallback <?= $header_bg ?>" style="width:28px;height:28px;font-size:0.75rem;"><?= $header_init ?></div>
+                <?php endif; ?>
                 <?= htmlspecialchars($selected_user->fullname ?? 'User') ?>
                 <a href="<?= $base_url ?>admin/timesync/user/<?= (int)$selected_user->user_id ?>" class="pull-right" style="font-size:12px;font-weight:400;margin-left:auto;">Full Report &rarr;</a>
             </div>
