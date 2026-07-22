@@ -129,7 +129,8 @@ class Timesync extends Admin_Controller
             ->from('tbl_users u')
             ->join('tbl_account_details a', 'a.user_id = u.user_id', 'left')
             ->where('u.activated', 1)
-            ->where('u.banned', 0);
+            ->where('u.banned', 0)
+            ->where('u.role_id', 3);
         if ($allowed_ids !== null) {
             $this->db->where_in('u.user_id', $allowed_ids);
         }
@@ -1369,7 +1370,8 @@ class Timesync extends Admin_Controller
             ->select('tbl_users.user_id, tbl_account_details.fullname, tbl_account_details.avatar')
             ->from('tbl_users')
             ->join('tbl_account_details', 'tbl_account_details.user_id = tbl_users.user_id', 'left')
-            ->where('tbl_users.activated', 1);
+            ->where('tbl_users.activated', 1)
+            ->where('tbl_users.role_id', 3);
         if ($allowed_ids !== null) {
             $this->db->where_in('tbl_users.user_id', $allowed_ids);
         }

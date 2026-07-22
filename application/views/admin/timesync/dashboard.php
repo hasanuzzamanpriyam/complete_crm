@@ -58,6 +58,7 @@ function sidebar_initials($name) {
                         <div class="ts-user-info">
                             <div class="ts-user-name">
                                 <?= htmlspecialchars($u->fullname ?? 'User #' . $u->user_id) ?>
+                                <span class="ts-user-badge ts-user-badge-offline">OFFLINE</span>
                                 <?php if ($u->has_shortage): ?>
                                     <span class="badge-shortage">-<?= fmt_hms($u->shortage_hours * 3600) ?></span>
                                 <?php endif; ?>
@@ -66,6 +67,7 @@ function sidebar_initials($name) {
                                 <span class="logged-val"><?= $logged ?></span>
                                 <span class="activity-val"><?= $activity ?></span>
                             </div>
+                            <div class="ts-user-live-meta" style="display:none;"></div>
                         </div>
                     </a>
                 <?php endforeach; ?>
@@ -113,19 +115,6 @@ function sidebar_initials($name) {
             </div>
         </div>
         <?php endif; ?>
-
-        <div class="ts-panel ts-live-panel">
-            <div class="ts-panel-heading">
-                <i class="fa fa-bolt"></i> Live Users
-                <span class="ts-live-dot" title="Auto-refreshing"></span>
-                <span class="pull-right ts-live-summary" id="tsLiveSummary"></span>
-            </div>
-            <div class="ts-panel-body">
-                <div class="ts-live-grid" id="tsLiveGrid">
-                    <div class="ts-placeholder">Loading live status&hellip;</div>
-                </div>
-            </div>
-        </div>
 
         <?php if ($is_shortage): ?>
         <div class="ts-alert ts-alert-danger">
@@ -204,7 +193,6 @@ $(function() {
         });
     });
 
-    // Realtime live-users panel (active / paused / idle / offline)
     var STATUS_LABEL = { active: 'Active', paused: 'Paused', idle: 'Idle', offline: 'Offline' };
     var STATUS_CLASS = { active: 'active', paused: 'paused', idle: 'idle', offline: 'offline' };
 
@@ -212,143 +200,100 @@ $(function() {
         return $('<div>').text(s == null ? '' : s).html();
     }
 
-    function initials(name) {
-        return (name || '').split(' ').map(function(s) { return s[0] || ''; }).join('').toUpperCase().slice(0, 2);
-    }
-
-    function avatarHtml(u) {
-        if (u.profile_image_url) {
-            return '<img src="' + esc(u.profile_image_url) + '" alt="" class="ts-live-avatar">';
-        }
-        var bg = 'ts-avatar-bg-' + (Number(u.user_id) % 10);
-        return '<div class="ts-avatar-fallback ' + bg + '">' + initials(u.name) + '</div>';
-    }
-
-    function metaHtml(u) {
+    function sidebarLiveMetaHtml(u) {
         if (u.status === 'active') {
-            return '<i class="fa fa-clock-o ts-live-clock"></i>'
-                + '<span class="live-tracker" data-start-time="' + (u.started_at || '') + '"><span class="timer-text">00:00:00</span></span>'
+            return '<i class="fa fa-clock-o ts-status-live-clock"></i>'
+                + ' <span class="live-tracker" data-start-time="' + (u.started_at || '') + '"><span class="timer-text">00:00:00</span></span>'
                 + (u.current_task ? ' &middot; ' + esc(u.current_task) : '')
                 + (u.current_window ? ' &mdash; ' + esc(u.current_window) : '');
         }
         if (u.status === 'paused') {
-            return 'Timer paused' + (u.current_task ? ' &middot; ' + esc(u.current_task) : '');
+            return '<i class="fa fa-pause" style="color:#f59e0b;margin-right:4px;"></i> Timer paused'
+                + (u.current_task ? ' &middot; ' + esc(u.current_task) : '');
         }
-        if (u.status === 'idle') return 'Online, no activity';
-        return 'Not tracking';
+        if (u.status === 'idle') {
+            return '<i class="fa fa-clock-o" style="color:#f97316;margin-right:4px;"></i> Online, no activity';
+        }
+        return '';
     }
 
-    function rowHtml(u) {
-        var cls = STATUS_CLASS[u.status] || 'offline';
-        return '<div class="ts-live-row" data-user-id="' + u.user_id + '">'
-            + (u.status === 'active' && u.started_at
-                ? '<span class="ts-live-status active tracking"><i class="fa fa-clock-o ts-status-live-clock"></i></span>'
-                : '<span class="ts-live-status ' + cls + '"></span>')
-            + avatarHtml(u)
-            + '<div class="ts-live-info">'
-            + '<div class="ts-live-name">' + esc(u.name)
-            + ' <span class="ts-live-badge ' + cls + '">' + (STATUS_LABEL[u.status] || u.status) + '</span></div>'
-            + '<div class="ts-live-meta">' + metaHtml(u) + '</div></div></div>';
+    function sortTier(u) {
+        if (u.status === 'active' && u.started_at) return 0;
+        if (u.status === 'active') return 1;
+        if (u.status === 'paused') return 2;
+        if (u.status === 'idle') return 3;
+        return 4;
     }
 
     function renderLive(data) {
-        var s = data.summary || {};
-        $('#tsLiveSummary').html(
-            'Total ' + (s.total || 0)
-            + ' &middot; <span class="ls-active">' + (s.active || 0) + ' active</span>'
-            + ' &middot; <span class="ls-paused">' + (s.paused || 0) + ' paused</span>'
-            + ' &middot; <span class="ls-idle">' + (s.idle || 0) + ' idle</span>'
-            + ' &middot; <span class="ls-offline">' + (s.offline || 0) + ' offline</span>'
-        );
-
         var users = data.users || [];
-        if (!users.length) {
-            $('#tsLiveGrid').html('<div class="ts-placeholder">No users to display.</div>');
-            return;
+        var userMap = {};
+        for (var i = 0; i < users.length; i++) {
+            userMap[String(users[i].user_id)] = users[i];
         }
 
-        var order = { active: 0, paused: 1, idle: 2, offline: 3 };
-        users.sort(function(a, b) {
-            return (order[a.status] ?? 9) - (order[b.status] ?? 9) || (a.name || '').localeCompare(b.name || '');
-        });
+        var $list = $('#tsUserList');
+        var $allItems = $list.find('.ts-user-item');
+        var itemArr = [];
 
-        var $grid = $('#tsLiveGrid');
-        var existing = {};
-        $grid.find('.ts-live-row').each(function() {
-            var id = $(this).data('user-id');
-            if (id != null) existing[String(id)] = this;
-        });
+        $allItems.each(function() {
+            var $el = $(this);
+            var uid = String($el.data('user-id'));
+            var u = userMap[uid];
 
-        var seen = {};
-        for (var i = 0; i < users.length; i++) {
-            var u = users[i];
-            var uid = String(u.user_id);
-            seen[uid] = true;
-            var $row = existing[uid] ? $(existing[uid]) : null;
+            if (!u) {
+                itemArr.push({ el: this, tier: 5, name: ($el.data('name') || '').toLowerCase() });
+                return;
+            }
 
-            if ($row && $row.length) {
-                var oldStatus = $row.find('.ts-live-badge').text().toLowerCase();
-                if (oldStatus === u.status && u.status === 'active') {
-                    // Preserve clock + tracker DOM nodes
-                    var $meta = $row.find('.ts-live-meta');
-                    var $clock = $meta.find('.ts-live-clock').detach();
-                    var $tracker = $meta.find('.live-tracker').detach();
-                    $meta.empty();
-                    if ($clock.length) $meta.append($clock);
-                    if ($tracker.length) $meta.append($tracker);
-                    // Append updated task/window text as HTML
+            var cls = STATUS_CLASS[u.status] || 'offline';
+            var badgeLabel = STATUS_LABEL[u.status] || u.status;
+
+            $el.find('.ts-user-indicator').attr('class', 'ts-user-indicator' + (u.status === 'active' ? ' active' : ''));
+            $el.find('.ts-user-badge').attr('class', 'ts-user-badge ts-user-badge-' + cls).text(badgeLabel);
+
+            var $liveMeta = $el.find('.ts-user-live-meta');
+            var liveHtml = sidebarLiveMetaHtml(u);
+
+            if (liveHtml) {
+                if ($liveMeta.is(':hidden')) $liveMeta.show();
+
+                var isStillActive = u.status === 'active' && u.started_at;
+                var wasActive = $liveMeta.find('.live-tracker').length > 0;
+
+                if (isStillActive && wasActive) {
+                    var $tracker = $liveMeta.find('.live-tracker').detach();
+                    var $clock = $liveMeta.find('.ts-status-live-clock').detach();
+                    $liveMeta.empty();
+                    if ($clock.length) $liveMeta.append($clock);
+                    $liveMeta.append(' ');
+                    if ($tracker.length) $liveMeta.append($tracker);
                     var suffix = (u.current_task ? ' &middot; ' + esc(u.current_task) : '')
                         + (u.current_window ? ' &mdash; ' + esc(u.current_window) : '');
-                    if (suffix) $meta.append($.parseHTML(suffix));
-                    var $statusSpan = $row.find('.ts-live-status');
-                    if (u.started_at) {
-                        $statusSpan.attr('class', 'ts-live-status active tracking');
-                        if (!$statusSpan.find('.ts-status-live-clock').length) {
-                            $statusSpan.html('<i class="fa fa-clock-o ts-status-live-clock"></i>');
-                        }
-                    } else {
-                        $statusSpan.attr('class', 'ts-live-status active');
-                        $statusSpan.empty();
-                    }
-                    $row.find('.ts-live-badge').attr('class', 'ts-live-badge ' + (STATUS_CLASS[u.status] || 'offline')).text(STATUS_LABEL[u.status] || u.status);
-                    $row.find('.ts-live-name').contents().first().replaceWith(esc(u.name));
-                } else if (oldStatus === u.status) {
-                    // Same non-active status — safe to update meta
-                    $row.find('.ts-live-meta').html(metaHtml(u));
-                    $row.find('.ts-live-status').attr('class', 'ts-live-status ' + (STATUS_CLASS[u.status] || 'offline'));
-                    $row.find('.ts-live-badge').attr('class', 'ts-live-badge ' + (STATUS_CLASS[u.status] || 'offline')).text(STATUS_LABEL[u.status] || u.status);
-                    $row.find('.ts-live-name').contents().first().replaceWith(esc(u.name));
+                    if (suffix) $liveMeta.append($.parseHTML(suffix));
                 } else {
-                    // Status changed — full replacement
-                    $row.replaceWith(rowHtml(u));
+                    $liveMeta.html(liveHtml);
                 }
             } else {
-                // New row
-                $grid.append(rowHtml(u));
+                $liveMeta.empty().hide();
             }
-        }
 
-        // Remove stale rows
-        for (var id in existing) {
-            if (!seen[id]) $(existing[id]).remove();
-        }
+            itemArr.push({ el: this, tier: sortTier(u), name: ($el.data('name') || '').toLowerCase() });
+        });
 
-        // Sidebar indicators
-        for (var i = 0; i < users.length; i++) {
-            var u = users[i];
-            var $item = $('.ts-user-item[data-user-id="' + u.user_id + '"]');
-            if ($item.length) {
-                var cls = u.status === 'active' ? 'active' : '';
-                $item.find('.ts-user-indicator').attr('class', 'ts-user-indicator' + (cls ? ' ' + cls : ''));
-            }
+        itemArr.sort(function(a, b) {
+            if (a.tier !== b.tier) return a.tier - b.tier;
+            return a.name.localeCompare(b.name);
+        });
+
+        for (var j = 0; j < itemArr.length; j++) {
+            $list.append(itemArr[j].el);
         }
     }
 
     function fetchLive() {
         $.getJSON('<?= $base_url ?>admin/timesync/live_users', function(data) {
             if (data && data.success) renderLive(data);
-        }).fail(function() {
-            $('#tsLiveGrid').html('<div class="ts-placeholder">Live status unavailable.</div>');
         });
     }
 
