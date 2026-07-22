@@ -233,6 +233,9 @@ class Screenshots extends MY_Controller
         if (!empty($input['active_windows']) && is_array($input['active_windows'])) {
             foreach ($input['active_windows'] as $win) {
                 if (empty($win['app_name'])) continue;
+                $win_recorded = !empty($win['recorded_at'])
+                    ? date('Y-m-d H:i:s', strtotime($win['recorded_at']))
+                    : date('Y-m-d H:i:s', strtotime($captured_at) - (int)($win['active_seconds'] ?? 0));
                 $usage_data = [
                     'user_id' => $user_id,
                     'screenshot_id' => $screenshot_id,
@@ -240,7 +243,7 @@ class Screenshots extends MY_Controller
                     'window_title' => $win['window_title'] ?? null,
                     'url' => $win['url'] ?? null,
                     'total_seconds' => (int)($win['active_seconds'] ?? 0),
-                    'recorded_at' => $captured_at,
+                    'recorded_at' => $win_recorded,
                     'created_at' => date('Y-m-d H:i:s'),
                 ];
                 $this->db->insert('tbl_desktop_app_usage', $usage_data);

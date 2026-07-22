@@ -346,6 +346,14 @@
 .ts-avatar-bg-8 { background: #6366f1; }
 .ts-avatar-bg-9 { background: #84cc16; }
 
+/* App Usage Time Column */
+.ts-log-time {
+    font-weight: 600;
+    color: #4b5563;
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
 /* Compact Screenshot Preview inside Modal */
 .ts-screenshot-modal-img, 
 #screenshotModal .modal-body img {

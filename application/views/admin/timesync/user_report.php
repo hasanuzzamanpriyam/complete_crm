@@ -111,6 +111,7 @@
                     'user_id' => $user_id,
                     'from' => $from,
                     'to' => $to,
+                    'interval' => $interval ?? 'daily',
                   ]); ?>
                 <?php endif; ?>
               </div>

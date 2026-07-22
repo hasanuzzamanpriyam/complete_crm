@@ -32,6 +32,7 @@ class Timesync extends Admin_Controller
         $to = $this->input->get('to');
         if (empty($from)) $from = date('Y-m-d');
         if (empty($to)) $to = date('Y-m-d');
+        $to_end = $to . ' 23:59:59';
         $data['from'] = $from;
         $data['to'] = $to;
 
@@ -133,7 +134,7 @@ class Timesync extends Admin_Controller
             ->join('tbl_account_details a', 'a.user_id = u.user_id', 'left')
             ->where('u.activated', 1)
             ->where('u.banned', 0)
-            ->where('u.role_id', 3);
+            ->where_in('u.role_id', [1, 3]);
         if ($allowed_ids !== null) {
             $this->db->where_in('u.user_id', $allowed_ids);
         }
@@ -468,6 +469,7 @@ class Timesync extends Admin_Controller
         $to = $this->input->get('to');
         if (empty($from)) $from = date('Y-m-01');
         if (empty($to)) $to = date('Y-m-d');
+        $to_end = $to . ' 23:59:59';
 
         $data['from'] = $from;
         $data['to'] = $to;
@@ -527,7 +529,7 @@ class Timesync extends Admin_Controller
                 $total_apps = $this->db
                     ->where('user_id', $user_id)
                     ->where('recorded_at >=', $from)
-                    ->where('recorded_at <=', $to)
+                    ->where('recorded_at <=', $to_end)
                     ->count_all_results('tbl_desktop_app_usage');
                 $app_per_page = 25;
                 $app_page = max(1, (int)$this->input->get('app_page'));
@@ -662,6 +664,7 @@ class Timesync extends Admin_Controller
         $to = $this->input->get('to');
         if (empty($from)) $from = date('Y-m-01');
         if (empty($to)) $to = date('Y-m-d');
+        $to_end = $to . ' 23:59:59';
 
         // Distinct active users in period
         $allowed_ids = get_authorized_user_ids_web();
@@ -673,7 +676,7 @@ class Timesync extends Admin_Controller
         $data['usage_user_count'] = (int)$this->db
             ->select('COUNT(DISTINCT(user_id)) as cnt')
             ->where('recorded_at >=', $from)
-            ->where('recorded_at <=', $to)
+            ->where('recorded_at <=', $to_end)
             ->get('tbl_desktop_app_usage')
             ->row()->cnt;
 
@@ -685,7 +688,7 @@ class Timesync extends Admin_Controller
         $data['usage_total_seconds'] = (int)$this->db
             ->select('COALESCE(SUM(total_seconds), 0) as total')
             ->where('recorded_at >=', $from)
-            ->where('recorded_at <=', $to)
+            ->where('recorded_at <=', $to_end)
             ->get('tbl_desktop_app_usage')
             ->row()->total;
 
@@ -694,7 +697,7 @@ class Timesync extends Admin_Controller
         $user_totals_raw = $this->db
             ->select('user_id, SUM(total_seconds) as total_sec')
             ->where('recorded_at >=', $from)
-            ->where('recorded_at <=', $to);
+            ->where('recorded_at <=', $to_end);
         if ($allowed_ids !== null) {
             $this->db->where_in('user_id', $allowed_ids);
         }
@@ -711,7 +714,7 @@ class Timesync extends Admin_Controller
                 ->select('SUM(total_seconds) as sec')
                 ->where('user_id', $uid)
                 ->where('recorded_at >=', $from)
-                ->where('recorded_at <=', $to);
+                ->where('recorded_at <=', $to_end);
             if ($allowed_ids !== null) {
                 $this->db->where_in('user_id', $allowed_ids);
             }
@@ -743,7 +746,7 @@ class Timesync extends Admin_Controller
         $top_apps = $this->db
             ->select('app_name, SUM(total_seconds) as total_sec')
             ->where('recorded_at >=', $from)
-            ->where('recorded_at <=', $to);
+            ->where('recorded_at <=', $to_end);
         if ($allowed_ids !== null) {
             $this->db->where_in('user_id', $allowed_ids);
         }
@@ -796,6 +799,7 @@ class Timesync extends Admin_Controller
         $to = $this->input->get('to');
         if (empty($from)) $from = date('Y-m-01');
         if (empty($to)) $to = date('Y-m-d');
+        $to_end = $to . ' 23:59:59';
 
         $columns = ['a.recorded_at', 'ad.fullname', 'a.app_name', 'a.window_title', 'a.url', 'a.total_seconds'];
         $order_col = (int)$this->input->post('order[0][column]');
@@ -816,7 +820,7 @@ class Timesync extends Admin_Controller
         }
         if (!empty($user_id)) $this->db->where('a.user_id', (int)$user_id);
         $this->db->where('a.recorded_at >=', $from);
-        $this->db->where('a.recorded_at <=', $to);
+        $this->db->where('a.recorded_at <=', $to_end);
 
         if (!empty($search_val)) {
             $this->db->group_start();
@@ -843,13 +847,17 @@ class Timesync extends Admin_Controller
         }
         if (!empty($user_id)) $this->db->where('a.user_id', (int)$user_id);
         $this->db->where('a.recorded_at >=', $from);
-        $this->db->where('a.recorded_at <=', $to);
+        $this->db->where('a.recorded_at <=', $to_end);
         $total_all = (int)$this->db->count_all_results();
 
         $rows = [];
         foreach ($data as $row) {
+            $tz_utc = new DateTimeZone('UTC');
+            $tz_local = new DateTimeZone(date_default_timezone_get());
+            $dt = new DateTime($row->recorded_at, $tz_utc);
+            $dt->setTimezone($tz_local);
             $rows[] = [
-                htmlspecialchars($row->recorded_at, ENT_QUOTES, 'UTF-8'),
+                $dt->format('Y-m-d h:i:s A'),
                 htmlspecialchars($row->fullname ?? $row->username ?? 'User #' . $row->user_id, ENT_QUOTES, 'UTF-8'),
                 htmlspecialchars($row->app_name, ENT_QUOTES, 'UTF-8'),
                 htmlspecialchars(mb_substr($row->window_title ?? '—', 0, 60), ENT_QUOTES, 'UTF-8'),
@@ -1278,11 +1286,12 @@ class Timesync extends Admin_Controller
 
     private function _user_app_usage($user_id, $from, $to, $limit = null, $offset = null)
     {
+        $to_end = !empty($to) ? $to . ' 23:59:59' : $to;
         $this->db
             ->select('app_name, window_title, url, total_seconds, recorded_at')
             ->where('user_id', $user_id)
             ->where('recorded_at >=', $from)
-            ->where('recorded_at <=', $to)
+            ->where('recorded_at <=', $to_end)
             ->order_by('recorded_at', 'DESC')
             ->order_by('total_seconds', 'DESC');
         if ($limit !== null) $this->db->limit($limit, $offset);
@@ -1372,12 +1381,13 @@ class Timesync extends Admin_Controller
 
     private function _get_user_list_with_stats($from, $to, $allowed_ids = null)
     {
+        $to_end = $to . ' 23:59:59';
         $users = $this->db
             ->select('tbl_users.user_id, tbl_account_details.fullname, tbl_account_details.avatar')
             ->from('tbl_users')
             ->join('tbl_account_details', 'tbl_account_details.user_id = tbl_users.user_id', 'left')
             ->where('tbl_users.activated', 1)
-            ->where('tbl_users.role_id', 3);
+            ->where_in('tbl_users.role_id', [1, 3]);
         if ($allowed_ids !== null) {
             $this->db->where_in('tbl_users.user_id', $allowed_ids);
         }
@@ -1403,7 +1413,7 @@ class Timesync extends Admin_Controller
         $app_totals = $this->db
             ->select('user_id, app_name, COALESCE(SUM(total_seconds), 0) as total_sec')
             ->where('recorded_at >=', $from)
-            ->where('recorded_at <=', $to);
+            ->where('recorded_at <=', $to_end);
         if ($allowed_ids !== null) {
             $this->db->where_in('user_id', $allowed_ids);
         }
@@ -1486,6 +1496,7 @@ class Timesync extends Admin_Controller
 
     private function _aggregate_metrics($from, $to, $allowed_ids = null)
     {
+        $to_end = $to . ' 23:59:59';
         $logged = $this->db
             ->select('COALESCE(SUM(total_seconds), 0) as total')
             ->where('started_at >=', $from . ' 00:00:00')
@@ -1498,7 +1509,7 @@ class Timesync extends Admin_Controller
         $app_usage = $this->db
             ->select('app_name, COALESCE(SUM(total_seconds), 0) as total_sec')
             ->where('recorded_at >=', $from)
-            ->where('recorded_at <=', $to);
+            ->where('recorded_at <=', $to_end);
         if ($allowed_ids !== null) {
             $this->db->where_in('user_id', $allowed_ids);
         }

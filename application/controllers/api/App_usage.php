@@ -47,7 +47,7 @@ class App_usage extends MY_Controller
 
         if (!empty($time_entry_id)) $this->db->where('a.time_entry_id', (int)$time_entry_id);
         if (!empty($from)) $this->db->where('a.recorded_at >=', $from);
-        if (!empty($to)) $this->db->where('a.recorded_at <=', $to);
+        if (!empty($to)) $this->db->where('a.recorded_at <=', $to . ' 23:59:59');
 
         $this->db->order_by('a.recorded_at', 'DESC');
         $this->db->order_by('a.total_seconds', 'DESC');
@@ -86,7 +86,16 @@ class App_usage extends MY_Controller
 
         $inserted = 0;
         $errors = 0;
-        $recorded_date = date('Y-m-d');
+        $batch_time = !empty($input['app_usage'][0]['recorded_at'])
+            ? date('Y-m-d H:i:s', strtotime($input['app_usage'][0]['recorded_at']))
+            : date('Y-m-d H:i:s');
+
+        $total_batch_seconds = 0;
+        foreach ($input['app_usage'] as $item) {
+            $total_batch_seconds += (int)($item['total_seconds'] ?? 0);
+        }
+
+        $offset_seconds = $total_batch_seconds;
 
         foreach ($input['app_usage'] as $item) {
             if (empty($item['app_name'])) continue;
@@ -94,14 +103,18 @@ class App_usage extends MY_Controller
                 error_log('SYNC WARNING: time_entry_id is empty/missing for app=' . $item['app_name']);
             }
 
+            $item_seconds = (int)($item['total_seconds'] ?? 0);
+            $offset_seconds -= $item_seconds;
+            $item_time = date('Y-m-d H:i:s', strtotime($batch_time) - $offset_seconds);
+
             $data = [
                 'user_id' => $user->user_id,
                 'time_entry_id' => !empty($item['time_entry_id']) ? (int)$item['time_entry_id'] : null,
                 'app_name' => $item['app_name'],
                 'window_title' => $item['window_title'] ?? null,
                 'url' => isset($item['url']) ? $item['url'] : null,
-                'total_seconds' => (int)($item['total_seconds'] ?? 0),
-                'recorded_at' => $item['recorded_at'] ?? $recorded_date,
+                'total_seconds' => $item_seconds,
+                'recorded_at' => !empty($item['recorded_at']) ? date('Y-m-d H:i:s', strtotime($item['recorded_at'])) : $item_time,
                 'created_at' => date('Y-m-d H:i:s'),
             ];
 
