@@ -42,7 +42,7 @@ function sidebar_initials($name) {
                     $logged = fmt_hms($u->total_sec);
                     $activity = fmt_hms($u->activity_sec);
                 ?>
-                    <a href="<?= $base_url ?>admin/timesync?from=<?= urlencode($from) ?>&to=<?= urlencode($to) ?>&user_id=<?= $u->user_id ?>"
+                    <a href="<?= $base_url ?>admin/timesync?from=<?= urlencode($from) ?>&to=<?= urlencode($to) ?>&interval=<?= urlencode($interval) ?>&user_id=<?= $u->user_id ?>"
                        class="ts-user-item<?= $is_active ? ' active' : '' ?>"
                        data-user-id="<?= (int)$u->user_id ?>"
                        data-name="<?= htmlspecialchars(strtolower($u->fullname ?? ''), ENT_QUOTES, 'UTF-8') ?>">
@@ -111,7 +111,7 @@ function sidebar_initials($name) {
                     <div class="ts-avatar-fallback <?= $header_bg ?>" style="width:28px;height:28px;font-size:0.75rem;"><?= $header_init ?></div>
                 <?php endif; ?>
                 <?= htmlspecialchars($selected_user->fullname ?? 'User') ?>
-                <a href="<?= $base_url ?>admin/timesync/user/<?= (int)$selected_user->user_id ?>" class="pull-right" style="font-size:12px;font-weight:400;margin-left:auto;">Full Report &rarr;</a>
+                <a href="<?= $base_url ?>admin/timesync/user/<?= (int)$selected_user->user_id ?>?from=<?= urlencode($from) ?>&to=<?= urlencode($to) ?>&interval=<?= urlencode($interval) ?>" class="pull-right" style="font-size:12px;font-weight:400;margin-left:auto;">Full Report &rarr;</a>
             </div>
         </div>
         <?php endif; ?>

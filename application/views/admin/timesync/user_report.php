@@ -73,13 +73,13 @@
           <div class="col-md-12">
             <ul class="nav nav-tabs" id="userTabs">
               <li class="<?= $active_tab === 'entries' ? 'active' : '' ?>">
-                <a href="<?= base_url('admin/timesync/user/' . $user_id . '?tab=entries&from=' . $from . '&to=' . $to) ?>">Time Entries</a>
+                <a href="<?= base_url('admin/timesync/user/' . $user_id . '?tab=entries&from=' . $from . '&to=' . $to . '&interval=' . urlencode($interval)) ?>">Time Entries</a>
               </li>
               <li class="<?= $active_tab === 'screenshots' ? 'active' : '' ?>">
-                <a href="<?= base_url('admin/timesync/user/' . $user_id . '?tab=screenshots&from=' . $from . '&to=' . $to) ?>">Screenshots</a>
+                <a href="<?= base_url('admin/timesync/user/' . $user_id . '?tab=screenshots&from=' . $from . '&to=' . $to . '&interval=' . urlencode($interval)) ?>">Screenshots</a>
               </li>
               <li class="<?= $active_tab === 'apps' ? 'active' : '' ?>">
-                <a href="<?= base_url('admin/timesync/user/' . $user_id . '?tab=apps&from=' . $from . '&to=' . $to) ?>">App Usage</a>
+                <a href="<?= base_url('admin/timesync/user/' . $user_id . '?tab=apps&from=' . $from . '&to=' . $to . '&interval=' . urlencode($interval)) ?>">App Usage</a>
               </li>
             </ul>
             <div class="tab-content">

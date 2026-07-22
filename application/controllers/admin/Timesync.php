@@ -35,6 +35,9 @@ class Timesync extends Admin_Controller
         $data['from'] = $from;
         $data['to'] = $to;
 
+        $interval = $this->input->get('interval') ?: 'daily';
+        $data['interval'] = $interval;
+
         $selected_user_id = $this->input->get('user_id');
         $data['selected_user_id'] = $selected_user_id;
 
@@ -469,6 +472,9 @@ class Timesync extends Admin_Controller
         $data['from'] = $from;
         $data['to'] = $to;
         $data['user_id'] = $user_id;
+
+        $interval = $this->input->get('interval') ?: 'daily';
+        $data['interval'] = $interval;
 
         $tab = $this->input->get('tab');
         $allowed_tabs = ['entries', 'screenshots', 'apps'];
