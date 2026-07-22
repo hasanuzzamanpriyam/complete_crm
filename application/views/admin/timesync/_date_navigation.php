@@ -40,7 +40,7 @@
   var interval = params.get('interval') || 'daily';
   
   // Strictly track if an interval parameter is explicitly present in the URL
-  var activeHighlightInterval = params.get('interval') || null;
+  var activeHighlightInterval = params.get('interval') || 'daily';
 
   // Bulletproof SPA protection: Check if a dynamic navigation just took place
   if (window.__spaCurrentFilterState) {

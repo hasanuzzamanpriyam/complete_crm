@@ -30,7 +30,7 @@ class Timesync extends Admin_Controller
 
         $from = $this->input->get('from');
         $to = $this->input->get('to');
-        if (empty($from)) $from = date('Y-m-d', strtotime('-7 days'));
+        if (empty($from)) $from = date('Y-m-d');
         if (empty($to)) $to = date('Y-m-d');
         $data['from'] = $from;
         $data['to'] = $to;
