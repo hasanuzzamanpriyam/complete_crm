@@ -345,3 +345,16 @@
 .ts-avatar-bg-7 { background: #f97316; }
 .ts-avatar-bg-8 { background: #6366f1; }
 .ts-avatar-bg-9 { background: #84cc16; }
+
+/* Compact Screenshot Preview inside Modal */
+.ts-screenshot-modal-img, 
+#screenshotModal .modal-body img {
+    max-height: 380px !important;
+    width: auto !important;
+    max-width: 100% !important;
+    display: block !important;
+    margin: 0 auto 15px auto !important;
+    object-fit: contain !important;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
