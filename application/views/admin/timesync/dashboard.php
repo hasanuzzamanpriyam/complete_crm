@@ -247,10 +247,12 @@ $(function() {
             }
 
             var cls = STATUS_CLASS[u.status] || 'offline';
-            var badgeLabel = STATUS_LABEL[u.status] || u.status;
+            var isTracking = u.status === 'active' && u.started_at;
+            var badgeLabel = isTracking ? 'TRACKING' : (STATUS_LABEL[u.status] || u.status);
+            var badgeCls = isTracking ? 'ts-user-badge-tracking' : 'ts-user-badge-' + cls;
 
             $el.find('.ts-user-indicator').attr('class', 'ts-user-indicator' + (u.status === 'active' ? ' active' : ''));
-            $el.find('.ts-user-badge').attr('class', 'ts-user-badge ts-user-badge-' + cls).text(badgeLabel);
+            $el.find('.ts-user-badge').attr('class', 'ts-user-badge ' + badgeCls).text(badgeLabel);
 
             var $liveMeta = $el.find('.ts-user-live-meta');
             var liveHtml = sidebarLiveMetaHtml(u);
