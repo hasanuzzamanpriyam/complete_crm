@@ -39,7 +39,7 @@ class Users extends MY_Controller
     public function index()
     {
         $auth_user = $this->api_auth->authenticate();
-        $allowed_ids = $this->api_auth->get_authorized_user_ids();
+        $scope = $this->input->get('scope', true);
 
         $this->db->select('tbl_users.user_id, tbl_users.username, tbl_users.email, tbl_users.role_id, tbl_account_details.fullname');
         $this->db->from('tbl_users');
@@ -47,8 +47,12 @@ class Users extends MY_Controller
         $this->db->where('tbl_users.activated', 1);
         $this->db->where('tbl_users.banned', 0);
         $this->db->where('tbl_users.role_id !=', 2);
-        if (is_array($allowed_ids)) {
-            $this->db->where_in('tbl_users.user_id', $allowed_ids);
+
+        if ($scope !== 'task_form') {
+            $allowed_ids = $this->api_auth->get_authorized_user_ids();
+            if (is_array($allowed_ids)) {
+                $this->db->where_in('tbl_users.user_id', $allowed_ids);
+            }
         }
         $users = $this->db->get()->result();
 

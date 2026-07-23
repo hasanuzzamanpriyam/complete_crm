@@ -13,15 +13,18 @@ class Projects extends MY_Controller
     {
         $user = $this->api_auth->authenticate();
         $user_id = $user->user_id;
-
-        $visible_project_ids = $this->api_auth->get_visible_project_ids();
+        $scope = $this->input->get('scope', true);
 
         $this->db
             ->select("p.project_id, p.project_name, p.description, p.progress, p.created_by, p.permission, p.project_status,
                 (SELECT COUNT(*) FROM tbl_task t WHERE t.project_id = p.project_id) as task_count")
             ->from('tbl_project p');
-        if ($visible_project_ids !== null) {
-            $this->db->where_in('p.project_id', $visible_project_ids);
+
+        if ($scope !== 'task_form') {
+            $visible_project_ids = $this->api_auth->get_visible_project_ids();
+            if ($visible_project_ids !== null) {
+                $this->db->where_in('p.project_id', $visible_project_ids);
+            }
         }
         $projects = $this->db->get()->result();
 
