@@ -50,6 +50,35 @@ class Tracker extends MY_Controller
             $default['screenshot_interval_minutes'] = (int)$db_interval->value;
         }
 
+        // --- Hourly requirements ---
+        $user_id = $user->user_id;
+        $as_of = date('Y-m-d H:i:s');
+
+        $setting = $this->db
+            ->query("SELECT required_daily_hours, required_monthly_hours
+                    FROM tbl_timesync_user_settings_log
+                    WHERE user_id = ? AND changed_at <= ?
+                    ORDER BY changed_at DESC LIMIT 1", [$user_id, $as_of])
+            ->row();
+
+        if ($setting) {
+            $default['required_daily_hours'] = (float)$setting->required_daily_hours;
+            $default['required_monthly_hours'] = (float)$setting->required_monthly_hours;
+        } else {
+            $config_log = $this->db
+                ->query("SELECT config_key, value FROM tbl_timesync_config_log
+                        WHERE config_key IN ('timesync_default_daily_hours', 'timesync_default_monthly_hours')
+                        AND changed_at <= ?
+                        ORDER BY changed_at DESC", [$as_of])
+                ->result();
+            $config_map = [];
+            foreach ($config_log as $c) {
+                $config_map[$c->config_key] = $c->value;
+            }
+            $default['required_daily_hours'] = (float)($config_map['timesync_default_daily_hours'] ?? 8.0);
+            $default['required_monthly_hours'] = (float)($config_map['timesync_default_monthly_hours'] ?? 204.0);
+        }
+
         return $this->_respond(200, true, 'OK', ['config' => $default]);
     }
 
