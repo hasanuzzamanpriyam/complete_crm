@@ -42,6 +42,25 @@
                     </div>
 
                     <div class="form-group">
+                        <label class="col-lg-3 control-label">Screenshot Capture Interval</label>
+                        <div class="col-lg-5">
+                            <select name="screenshot_interval_minutes" class="form-control" style="width:200px;">
+                                <?php
+                                $options = [1 => '1 minute', 2 => '2 minutes', 3 => '3 minutes', 5 => '5 minutes', 10 => '10 minutes', 15 => '15 minutes', 20 => '20 minutes', 30 => '30 minutes', 60 => '60 minutes'];
+                                foreach ($options as $val => $label):
+                                    $selected = ((int)($screenshot_interval_minutes ?? 5) === $val) ? 'selected' : '';
+                                ?>
+                                    <option value="<?= $val ?>" <?= $selected ?>><?= $label ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <p class="help-block">
+                                How often screenshots are captured while the timer is running.
+                                First screenshot is taken after the interval elapses (not on timer start).
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <div class="col-lg-offset-3 col-lg-5">
                             <button type="submit" class="btn btn-primary">Save Settings</button>
                         </div>

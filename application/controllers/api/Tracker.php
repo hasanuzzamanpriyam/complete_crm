@@ -45,6 +45,11 @@ class Tracker extends MY_Controller
             }
         }
 
+        $db_interval = $this->db->where('config_key', 'screenshot_interval_minutes')->get('tbl_config')->row();
+        if ($db_interval && (int)$db_interval->value > 0) {
+            $default['screenshot_interval_minutes'] = (int)$db_interval->value;
+        }
+
         return $this->_respond(200, true, 'OK', ['config' => $default]);
     }
 
