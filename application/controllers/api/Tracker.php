@@ -73,7 +73,9 @@ class Tracker extends MY_Controller
                 ->result();
             $config_map = [];
             foreach ($config_log as $c) {
-                $config_map[$c->config_key] = $c->value;
+                if (!isset($config_map[$c->config_key])) {
+                    $config_map[$c->config_key] = $c->value;
+                }
             }
             $default['required_daily_hours'] = (float)($config_map['timesync_default_daily_hours'] ?? 8.0);
             $default['required_monthly_hours'] = (float)($config_map['timesync_default_monthly_hours'] ?? 204.0);
