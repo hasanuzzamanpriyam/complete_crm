@@ -603,7 +603,7 @@ $time_where = $has_date_range
             $cat = $this->_categorize_app($r->app_name);
             if ($cat === 'productive') $productive_seconds += $secs;
             elseif ($cat === 'neutral') $neutral_seconds += $secs;
-            $day = $r->recorded_at;
+            $day = date('Y-m-d', strtotime($r->recorded_at));
             if (!isset($daily_breakdown_map[$day])) {
                 $daily_breakdown_map[$day] = ['date' => $day, 'productive' => 0, 'unproductive' => 0];
             }
