@@ -15,6 +15,21 @@ function dhaka_time($ts, $fmt = 'M d, h:i A') {
   .ss-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,.1); }
   .ss-card img { width: 100%; height: 130px; object-fit: cover; display: block; cursor: pointer; }
   .ss-card .ss-label { padding: 6px 8px; font-size: 11px; color: #6c757d; text-align: center; }
+  .ss-card .ss-delete-btn {
+    position: absolute; top: 4px; right: 4px; background: rgba(220,53,69,.85); color: #fff;
+    border: none; border-radius: 50%; width: 24px; height: 24px; font-size: 12px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: opacity .2s;
+  }
+  .ss-card:hover .ss-delete-btn { opacity: 1; }
+  .ss-card-deleted {
+    width: calc(25% - 9px); border: 1px dashed #dc3545; border-radius: 6px; overflow: hidden;
+    background: #fff5f5; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; padding: 16px 12px; text-align: center; min-height: 170px;
+  }
+  .ss-card-deleted .deleted-icon { font-size: 24px; color: #dc3545; margin-bottom: 6px; }
+  .ss-card-deleted .deleted-text { font-size: 11px; color: #6c757d; line-height: 1.5; }
+  .ss-card { position: relative; }
   @media (max-width: 992px) { .ss-card { width: calc(33.33% - 8px); } }
   @media (max-width: 768px) { .ss-card { width: calc(50% - 6px); } }
   @media (max-width: 480px) { .ss-card { width: 100%; } }
@@ -29,12 +44,23 @@ function dhaka_time($ts, $fmt = 'M d, h:i A') {
     <?php if (!empty($screenshots)): ?>
       <div class="ss-grid">
         <?php foreach ($screenshots as $s): ?>
-          <div class="ss-card">
-            <a href="javascript:void(0)" class="screenshot-thumbnail" data-id="<?= $s->id ?>">
-              <img data-ss-id="<?= $s->id ?>" class="ss-thumb" loading="lazy">
-            </a>
-            <div class="ss-label"><?= dhaka_time($s->captured_at) ?></div>
-          </div>
+          <?php if (!empty($s->is_deleted)): ?>
+            <div class="ss-card-deleted">
+              <div class="deleted-icon"><i class="fa fa-trash-o"></i></div>
+              <div class="deleted-text">
+                Screenshot deleted by <?= htmlspecialchars($s->deleted_by_name ?? 'Unknown') ?>
+                <br>on <?= dhaka_time($s->deleted_at, 'M d, Y h:i A') ?>
+              </div>
+            </div>
+          <?php else: ?>
+            <div class="ss-card">
+              <a href="javascript:void(0)" class="screenshot-thumbnail" data-id="<?= $s->id ?>">
+                <img data-ss-id="<?= $s->id ?>" class="ss-thumb" loading="lazy">
+              </a>
+              <button class="ss-delete-btn" data-id="<?= $s->id ?>" title="Delete screenshot"><i class="fa fa-trash"></i></button>
+              <div class="ss-label"><?= dhaka_time($s->captured_at) ?></div>
+            </div>
+          <?php endif; ?>
         <?php endforeach; ?>
       </div>
 
@@ -221,4 +247,54 @@ $(document).ready(function () {
     }
   });
 });
+
+// Delete screenshot handler
+$(document).on('click', '.ss-delete-btn', function (e) {
+  e.preventDefault();
+  e.stopPropagation();
+  var btn = $(this);
+  var id = btn.data('id');
+  if (!id) return;
+  if (typeof Swal === 'undefined') {
+    if (!confirm('Delete this screenshot?')) return;
+    doDeleteScreenshot(id, btn);
+    return;
+  }
+  Swal.fire({
+    title: 'Delete Screenshot?',
+    text: 'This action cannot be undone. The image file will be removed from disk.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#dc3545',
+    confirmButtonText: 'Yes, delete it'
+  }).then(function (result) {
+    if (result.isConfirmed) doDeleteScreenshot(id, btn);
+  });
+});
+
+function doDeleteScreenshot(id, btn) {
+  $.ajax({
+    url: '<?= base_url("admin/timesync/delete_screenshot") ?>/' + id,
+    method: 'POST',
+    dataType: 'json',
+    success: function (resp) {
+      if (resp.success) {
+        var card = btn.closest('.ss-card');
+        var label = card.find('.ss-label').text() || '';
+        var placeholder = $('<div class="ss-card-deleted">' +
+          '<div class="deleted-icon"><i class="fa fa-trash-o"></i></div>' +
+          '<div class="deleted-text">Screenshot deleted<br>just now</div></div>');
+        card.replaceWith(placeholder);
+        if (typeof Swal !== 'undefined') Swal.fire('Deleted', resp.message || 'Screenshot deleted.', 'success');
+      } else {
+        if (typeof Swal !== 'undefined') Swal.fire('Error', resp.message || 'Failed to delete.', 'error');
+        else alert(resp.message || 'Failed to delete.');
+      }
+    },
+    error: function () {
+      if (typeof Swal !== 'undefined') Swal.fire('Error', 'Server error. Please try again.', 'error');
+      else alert('Server error. Please try again.');
+    }
+  });
+}
 </script>

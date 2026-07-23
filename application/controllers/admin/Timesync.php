@@ -570,6 +570,7 @@ class Timesync extends Admin_Controller
 
         // Count total matching
         $this->db->from('tbl_screenshots');
+        $this->db->where('is_deleted', 0);
         if ($allowed_ids !== null) {
             $this->db->where_in('user_id', $allowed_ids);
         }
@@ -584,10 +585,12 @@ class Timesync extends Admin_Controller
         $offset = ($page - 1) * $per_page;
 
         // Fetch page
-        $this->db->select('tbl_screenshots.*, tbl_account_details.fullname, tbl_task.task_name');
+        $this->db->select('tbl_screenshots.*, tbl_account_details.fullname, tbl_task.task_name, del_user.fullname as deleted_by_name');
         $this->db->from('tbl_screenshots');
         $this->db->join('tbl_account_details', 'tbl_account_details.user_id = tbl_screenshots.user_id', 'left');
         $this->db->join('tbl_task', 'tbl_task.task_id = tbl_screenshots.task_id', 'left');
+        $this->db->join('tbl_account_details del_user', 'del_user.user_id = tbl_screenshots.deleted_by', 'left');
+        $this->db->where('tbl_screenshots.is_deleted', 0);
         if ($allowed_ids !== null) {
             $this->db->where_in('tbl_screenshots.user_id', $allowed_ids);
         }
@@ -602,6 +605,7 @@ class Timesync extends Admin_Controller
         $data['screenshot_count'] = count($data['screenshots']);
         $this->db->reset_query();
         $data['total_screenshots'] = $this->db->from('tbl_screenshots');
+        $this->db->where('is_deleted', 0);
         if ($allowed_ids !== null) {
             $this->db->where_in('user_id', $allowed_ids);
         }
@@ -613,6 +617,7 @@ class Timesync extends Admin_Controller
         // Activity trend: screenshots per day for last 14 days
         $trend = $this->db
             ->select('DATE(captured_at) as day, COUNT(*) as cnt')
+            ->where('is_deleted', 0)
             ->where('captured_at >=', date('Y-m-d', strtotime('-13 days')) . ' 00:00:00');
         if ($allowed_ids !== null) {
             $this->db->where_in('user_id', $allowed_ids);
@@ -882,7 +887,7 @@ class Timesync extends Admin_Controller
             ob_end_clean();
         }
 
-        $screenshot = $this->db->where('id', $id)->get('tbl_screenshots')->row();
+        $screenshot = $this->db->where('id', $id)->where('is_deleted', 0)->get('tbl_screenshots')->row();
         if (empty($screenshot)) {
             $this->_output_transparent_pixel();
             return;
@@ -922,7 +927,7 @@ class Timesync extends Admin_Controller
             }
         }
 
-        $screenshot = $this->db->where('id', $screenshot_id)->get('tbl_screenshots')->row();
+        $screenshot = $this->db->where('id', $screenshot_id)->where('is_deleted', 0)->get('tbl_screenshots')->row();
         if (empty($screenshot)) {
             $this->output->set_status_header(404)->set_output(json_encode(['error' => 'Screenshot not found']));
             return;
@@ -1083,6 +1088,7 @@ class Timesync extends Admin_Controller
             $u->last_active = $stats->last_active;
             $u->screenshot_count = (int) $this->db
                 ->where('user_id', $u->user_id)
+                ->where('is_deleted', 0)
                 ->where('captured_at >=', $start_date . ' 00:00:00')
                 ->where('captured_at <=', $end_date . ' 23:59:59')
                 ->count_all_results('tbl_screenshots');
@@ -1225,6 +1231,7 @@ class Timesync extends Admin_Controller
 
         $screenshot_count = $this->db
             ->where('user_id', $user_id)
+            ->where('is_deleted', 0)
             ->where('captured_at >=', $from . ' 00:00:00')
             ->where('captured_at <=', $to . ' 23:59:59')
             ->count_all_results('tbl_screenshots');
@@ -1280,10 +1287,13 @@ class Timesync extends Admin_Controller
 
     private function _user_screenshots($user_id, $from, $to, $limit = null, $offset = null)
     {
-        $this->db->where('user_id', $user_id);
-        $this->db->where('captured_at >=', $from . ' 00:00:00');
-        $this->db->where('captured_at <=', $to . ' 23:59:59');
-        $this->db->order_by('captured_at', 'DESC');
+        $this->db->select('tbl_screenshots.*, del_user.fullname as deleted_by_name');
+        $this->db->join('tbl_account_details del_user', 'del_user.user_id = tbl_screenshots.deleted_by', 'left');
+        $this->db->where('tbl_screenshots.user_id', $user_id);
+        $this->db->where('tbl_screenshots.is_deleted', 0);
+        $this->db->where('tbl_screenshots.captured_at >=', $from . ' 00:00:00');
+        $this->db->where('tbl_screenshots.captured_at <=', $to . ' 23:59:59');
+        $this->db->order_by('tbl_screenshots.captured_at', 'DESC');
         if ($limit !== null) $this->db->limit($limit, $offset);
         return $this->db->get('tbl_screenshots')->result();
     }
@@ -1644,7 +1654,7 @@ class Timesync extends Admin_Controller
         }
 
         $placeholders = implode(',', array_fill(0, count($id_array), '?'));
-        $screenshots = $this->db->query("SELECT id, file_path FROM tbl_screenshots WHERE id IN ($placeholders)", $id_array)->result();
+        $screenshots = $this->db->query("SELECT id, file_path FROM tbl_screenshots WHERE id IN ($placeholders) AND is_deleted = 0", $id_array)->result();
 
         $result = [];
         foreach ($screenshots as $s) {
@@ -1658,6 +1668,42 @@ class Timesync extends Admin_Controller
         }
 
         $this->output->set_content_type('application/json')->set_output(json_encode(['success' => true, 'data' => $result]));
+    }
+
+    public function delete_screenshot($id)
+    {
+        if (!is_super_admin() && !can_action_by_label('timesync', 'edited')) {
+            $this->output->set_status_header(403)->set_content_type('application/json')->set_output(json_encode(['success' => false, 'message' => 'Access denied']));
+            return;
+        }
+
+        $screenshot = $this->db->where('id', $id)->where('is_deleted', 0)->get('tbl_screenshots')->row();
+        if (empty($screenshot)) {
+            $this->output->set_status_header(404)->set_content_type('application/json')->set_output(json_encode(['success' => false, 'message' => 'Screenshot not found or already deleted']));
+            return;
+        }
+
+        $current_user = $this->session->userdata('user_id');
+        if (!is_super_admin() && (int)$screenshot->user_id !== (int)$current_user) {
+            $this->output->set_status_header(403)->set_content_type('application/json')->set_output(json_encode(['success' => false, 'message' => 'You can only delete your own screenshots']));
+            return;
+        }
+
+        $file_path = FCPATH . $screenshot->file_path;
+        if (!empty($screenshot->file_path) && file_exists($file_path)) {
+            @unlink($file_path);
+        }
+
+        $this->db->where('id', $id)->update('tbl_screenshots', [
+            'is_deleted' => 1,
+            'deleted_by' => $current_user,
+            'deleted_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        $this->output->set_status_header(200)->set_content_type('application/json')->set_output(json_encode([
+            'success' => true,
+            'message' => 'Screenshot deleted successfully',
+        ]));
     }
 }
 

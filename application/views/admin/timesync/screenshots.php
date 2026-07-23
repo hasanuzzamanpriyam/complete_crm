@@ -36,6 +36,21 @@ function dhaka_time($ts, $fmt = 'M d, Y h:i A') {
     padding: 8px 10px; font-size: 12px; line-height: 1.4;
   }
   .screenshot-card .card-footer strong { display: block; font-size: 13px; }
+  .screenshot-card .ss-delete-btn {
+    position: absolute; top: 6px; right: 6px; background: rgba(220,53,69,.85); color: #fff;
+    border: none; border-radius: 50%; width: 26px; height: 26px; font-size: 12px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: opacity .2s;
+  }
+  .screenshot-card:hover .ss-delete-btn { opacity: 1; }
+  .screenshot-card { position: relative; }
+  .screenshot-card-deleted {
+    width: calc(25% - 12px); border: 1px dashed #dc3545; border-radius: 8px; overflow: hidden;
+    background: #fff5f5; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; padding: 20px 14px; text-align: center; min-height: 190px;
+  }
+  .screenshot-card-deleted .deleted-icon { font-size: 28px; color: #dc3545; margin-bottom: 8px; }
+  .screenshot-card-deleted .deleted-text { font-size: 12px; color: #6c757d; line-height: 1.6; }
   @media (max-width: 992px) { .screenshot-card { width: calc(33.33% - 11px); } }
   @media (max-width: 768px) { .screenshot-card { width: calc(50% - 8px); } }
   @media (max-width: 480px) { .screenshot-card { width: 100%; } }
@@ -93,18 +108,29 @@ function dhaka_time($ts, $fmt = 'M d, Y h:i A') {
         <?php if (!empty($screenshots)): ?>
           <div class="screenshot-grid">
             <?php foreach ($screenshots as $s): ?>
-              <div class="screenshot-card">
-                <a href="<?= base_url('admin/timesync/view_image/' . $s->id) ?>" target="_blank" rel="noopener">
-                  <img data-ss-id="<?= $s->id ?>" class="ss-thumb" loading="lazy">
-                </a>
-                <div class="card-footer">
-                  <strong><?= htmlspecialchars($s->fullname ?? 'User') ?></strong>
-                  <?= dhaka_time($s->captured_at) ?>
-                  <?php if (!empty($s->task_id)): ?>
-                    <br><a href="<?= base_url('admin/tasks/view/' . $s->task_id) ?>"><?= htmlspecialchars($s->task_name ?? 'Task #' . $s->task_id) ?></a>
-                  <?php endif; ?>
+              <?php if (!empty($s->is_deleted)): ?>
+                <div class="screenshot-card-deleted">
+                  <div class="deleted-icon"><i class="fa fa-trash-o"></i></div>
+                  <div class="deleted-text">
+                    Screenshot deleted by <?= htmlspecialchars($s->deleted_by_name ?? 'Unknown') ?>
+                    <br>on <?= dhaka_time($s->deleted_at, 'M d, Y h:i A') ?>
+                  </div>
                 </div>
-              </div>
+              <?php else: ?>
+                <div class="screenshot-card">
+                  <a href="<?= base_url('admin/timesync/view_image/' . $s->id) ?>" target="_blank" rel="noopener">
+                    <img data-ss-id="<?= $s->id ?>" class="ss-thumb" loading="lazy">
+                  </a>
+                  <button class="ss-delete-btn" data-id="<?= $s->id ?>" title="Delete screenshot"><i class="fa fa-trash"></i></button>
+                  <div class="card-footer">
+                    <strong><?= htmlspecialchars($s->fullname ?? 'User') ?></strong>
+                    <?= dhaka_time($s->captured_at) ?>
+                    <?php if (!empty($s->task_id)): ?>
+                      <br><a href="<?= base_url('admin/tasks/view/' . $s->task_id) ?>"><?= htmlspecialchars($s->task_name ?? 'Task #' . $s->task_id) ?></a>
+                    <?php endif; ?>
+                  </div>
+                </div>
+              <?php endif; ?>
             <?php endforeach; ?>
           </div>
 
@@ -209,4 +235,53 @@ $(document).ready(function () {
     }
   });
 });
+
+// Delete screenshot handler
+$(document).on('click', '.ss-delete-btn', function (e) {
+  e.preventDefault();
+  e.stopPropagation();
+  var btn = $(this);
+  var id = btn.data('id');
+  if (!id) return;
+  if (typeof Swal === 'undefined') {
+    if (!confirm('Delete this screenshot?')) return;
+    doDeleteScreenshot(id, btn);
+    return;
+  }
+  Swal.fire({
+    title: 'Delete Screenshot?',
+    text: 'This action cannot be undone. The image file will be removed from disk.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#dc3545',
+    confirmButtonText: 'Yes, delete it'
+  }).then(function (result) {
+    if (result.isConfirmed) doDeleteScreenshot(id, btn);
+  });
+});
+
+function doDeleteScreenshot(id, btn) {
+  $.ajax({
+    url: '<?= base_url("admin/timesync/delete_screenshot") ?>/' + id,
+    method: 'POST',
+    dataType: 'json',
+    success: function (resp) {
+      if (resp.success) {
+        var card = btn.closest('.screenshot-card');
+        var placeholder = $('<div class="screenshot-card-deleted">' +
+          '<div class="deleted-icon"><i class="fa fa-trash-o"></i></div>' +
+          '<div class="deleted-text">Screenshot deleted<br>just now</div></div>');
+        card.fadeOut(200, function () { card.replaceWith(placeholder); });
+        if (typeof Swal !== 'undefined') Swal.fire('Deleted', resp.message || 'Screenshot deleted.', 'success');
+      } else {
+        if (typeof Swal !== 'undefined') Swal.fire('Error', resp.message || 'Failed to delete.', 'error');
+        else alert(resp.message || 'Failed to delete.');
+      }
+    },
+    error: function () {
+      if (typeof Swal !== 'undefined') Swal.fire('Error', 'Server error. Please try again.', 'error');
+      else alert('Server error. Please try again.');
+    }
+  });
+}
 </script>
