@@ -535,7 +535,7 @@ $time_where = $has_date_range
                 ->join('tbl_account_details ad', 'ad.user_id = u.user_id', 'left')
                 ->where('u.user_id', $effective_user_id)
                 ->get()->row();
-            $role_map = [1 => 'admin', 2 => 'employee', 3 => 'manager'];
+            $role_map = [1 => 'admin', 2 => 'employee', 3 => 'employee'];
             $profile = [
                 'name' => $u->fullname ?? $u->username ?? 'Unknown',
                 'role' => $role_map[(int)$u->role_id] ?? 'employee',
@@ -648,6 +648,7 @@ $time_where = $has_date_range
         $screenshot_q = $this->db
             ->select('id, file_path, captured_at, keystroke_count, mouse_click_count, activity_percentage')
             ->from('tbl_screenshots')
+            ->where('is_deleted', 0)
             ->where('captured_at >=', $since)
             ->where('captured_at <=', $until);
         if ($effective_user_id !== null) {

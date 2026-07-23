@@ -1001,6 +1001,7 @@ class Timesync extends Admin_Controller
 
         $this->db->reset_query();
         $total_screenshots = $this->db->from('tbl_screenshots');
+        $this->db->where('is_deleted', 0);
         if ($allowed_ids !== null) {
             $this->db->where_in('user_id', $allowed_ids);
         }

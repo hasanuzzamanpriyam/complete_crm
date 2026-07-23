@@ -49,6 +49,7 @@ class Screenshots extends MY_Controller
         $this->db->select('tbl_screenshots.*, tbl_account_details.fullname');
         $this->db->from('tbl_screenshots');
         $this->db->join('tbl_account_details', 'tbl_account_details.user_id = tbl_screenshots.user_id', 'left');
+        $this->db->where('tbl_screenshots.is_deleted', 0);
 
         if ($allowed_ids !== null) {
             $this->db->where_in('tbl_screenshots.user_id', $allowed_ids);
@@ -93,6 +94,7 @@ class Screenshots extends MY_Controller
         $user = $this->api_auth->authenticate();
         $allowed_ids = $this->api_auth->get_authorized_user_ids();
         $this->db->where('id', $id);
+        $this->db->where('is_deleted', 0);
         if ($allowed_ids !== null) {
             $this->db->where_in('user_id', $allowed_ids);
         }
@@ -119,6 +121,7 @@ class Screenshots extends MY_Controller
         $user = $this->api_auth->authenticate();
         $allowed_ids = $this->api_auth->get_authorized_user_ids();
         $this->db->where('id', $id);
+        $this->db->where('is_deleted', 0);
         if ($allowed_ids !== null) {
             $this->db->where_in('user_id', $allowed_ids);
         }
@@ -261,6 +264,7 @@ class Screenshots extends MY_Controller
         $user = $this->api_auth->authenticate();
         $allowed_ids = $this->api_auth->get_authorized_user_ids();
         $this->db->where('id', $id);
+        $this->db->where('is_deleted', 0);
         if ($allowed_ids !== null) {
             $this->db->where_in('user_id', $allowed_ids);
         }
