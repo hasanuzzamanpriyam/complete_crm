@@ -412,7 +412,11 @@ class Reports extends MY_Controller
 
         foreach ($rows as $r) {
             $hours = round((float)$r->total_seconds / 3600, 1);
-            $status = $hours >= 8 ? 'present' : ($hours >= 4 ? 'half-day' : 'absent');
+            $daily_h = $this->_resolve_daily_hours_for_calendar(
+                $target_user_id ?? $user->user_id,
+                "$year-$month-" . date('t', strtotime("$year-$month-01"))
+            );
+            $status = $hours >= $daily_h ? 'present' : ($hours >= $daily_h / 2 ? 'half-day' : 'absent');
             $result[$r->date] = ['total_hours' => $hours, 'status' => $status];
             $month_total += $hours;
         }
@@ -434,6 +438,29 @@ class Reports extends MY_Controller
         ];
 
         return $this->_respond(200, true, 'OK', $result);
+    }
+
+    private function _resolve_daily_hours_for_calendar($user_id, $as_of_date)
+    {
+        $as_of = $as_of_date . ' 23:59:59';
+
+        $setting = $this->db
+            ->query("SELECT required_daily_hours FROM tbl_timesync_user_settings_log
+                    WHERE user_id = ? AND changed_at <= ?
+                    ORDER BY changed_at DESC LIMIT 1", [$user_id, $as_of])
+            ->row();
+
+        if ($setting) {
+            return (float)$setting->required_daily_hours;
+        }
+
+        $config = $this->db
+            ->query("SELECT value FROM tbl_timesync_config_log
+                    WHERE config_key = 'timesync_default_daily_hours' AND changed_at <= ?
+                    ORDER BY changed_at DESC LIMIT 1", [$as_of])
+            ->row();
+
+        return (float)($config->value ?? config_item('timesync_default_daily_hours') ?: 8.0);
     }
 
     public function day_details()
