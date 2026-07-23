@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
 class Reports extends MY_Controller
@@ -410,12 +410,13 @@ class Reports extends MY_Controller
         $result = [];
         $month_total = 0;
 
+        $daily_h = $this->_resolve_daily_hours_for_calendar(
+            $target_user_id ?? $user->user_id,
+            "$year-$month-" . date('t', strtotime("$year-$month-01"))
+        );
+
         foreach ($rows as $r) {
             $hours = round((float)$r->total_seconds / 3600, 1);
-            $daily_h = $this->_resolve_daily_hours_for_calendar(
-                $target_user_id ?? $user->user_id,
-                "$year-$month-" . date('t', strtotime("$year-$month-01"))
-            );
             $status = $hours >= $daily_h ? 'present' : ($hours >= $daily_h / 2 ? 'half-day' : 'absent');
             $result[$r->date] = ['total_hours' => $hours, 'status' => $status];
             $month_total += $hours;
@@ -460,7 +461,7 @@ class Reports extends MY_Controller
                     ORDER BY changed_at DESC LIMIT 1", [$as_of])
             ->row();
 
-        return (float)($config->value ?? config_item('timesync_default_daily_hours') ?: 8.0);
+        return (float)(($config->value ?? null) ?? config_item('timesync_default_daily_hours') ?: 8.0);
     }
 
     public function day_details()
