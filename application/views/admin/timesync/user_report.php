@@ -62,7 +62,7 @@
           <div class="col-md-12">
             <ul class="nav nav-tabs" id="userTabs">
               <li class="<?= $active_tab === 'timeline' ? 'active' : '' ?>">
-                <a href="<?= base_url('admin/timesync/user/' . $user_id . '?tab=timeline&from=' . $from . '&to=' . $to . '&interval=' . urlencode($interval)) ?>"><i class="fa fa-clock-o"></i> Activity Timeline</a>
+                <a href="<?= base_url('admin/timesync/user/' . $user_id . '?tab=timeline&from=' . $from . '&to=' . $to . '&interval=' . urlencode($interval)) ?>">Activity Timeline</a>
               </li>
               <li class="<?= $active_tab === 'entries' ? 'active' : '' ?>">
                 <a href="<?= base_url('admin/timesync/user/' . $user_id . '?tab=entries&from=' . $from . '&to=' . $to . '&interval=' . urlencode($interval)) ?>">Time Entries</a>
