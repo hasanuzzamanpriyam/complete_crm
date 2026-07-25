@@ -479,9 +479,9 @@ class Timesync extends Admin_Controller
         $data['interval'] = $interval;
 
         $tab = $this->input->get('tab');
-        $allowed_tabs = ['entries', 'screenshots', 'apps'];
+        $allowed_tabs = ['entries', 'screenshots', 'apps', 'timeline'];
         if (empty($tab) || !in_array($tab, $allowed_tabs)) {
-            $tab = 'entries';
+            $tab = 'timeline';
         }
         $data['active_tab'] = $tab;
 
@@ -539,6 +539,9 @@ class Timesync extends Admin_Controller
                 $data['app_usage'] = $this->_user_app_usage($user_id, $from, $to, $app_per_page, $app_offset);
                 $data['app_page'] = $app_page;
                 $data['app_total_pages'] = $app_total_pages;
+                break;
+            case 'timeline':
+                $data['timeline_days'] = $this->_timeline_data($user_id, $from, $to);
                 break;
         }
 
@@ -1311,6 +1314,107 @@ class Timesync extends Admin_Controller
             ->order_by('total_seconds', 'DESC');
         if ($limit !== null) $this->db->limit($limit, $offset);
         return $this->db->get('tbl_desktop_app_usage')->result();
+    }
+
+    private function _timeline_data($user_id, $from, $to)
+    {
+        $to_end = $to . ' 23:59:59';
+
+        $entries = $this->db
+            ->select('te.started_at, te.stopped_at, te.total_seconds, te.type, COALESCE(t.task_name, "No Task") as task_name')
+            ->from('tbl_desktop_time_entries te')
+            ->join('tbl_task t', 't.task_id = te.task_id', 'left')
+            ->where('te.user_id', $user_id)
+            ->where('te.started_at >=', $from . ' 00:00:00')
+            ->where('te.started_at <=', $to_end)
+            ->order_by('te.started_at', 'ASC')
+            ->get()
+            ->result();
+
+        $app_usage = $this->db
+            ->select('app_name, window_title, url, total_seconds, recorded_at, time_entry_id')
+            ->where('user_id', $user_id)
+            ->where('recorded_at >=', $from)
+            ->where('recorded_at <=', $to_end)
+            ->order_by('recorded_at', 'ASC')
+            ->get('tbl_desktop_app_usage')
+            ->result();
+
+        $screenshots = $this->db
+            ->select('id, captured_at, file_path, keystroke_count, mouse_click_count, activity_percentage')
+            ->where('user_id', $user_id)
+            ->where('is_deleted', 0)
+            ->where('captured_at >=', $from . ' 00:00:00')
+            ->where('captured_at <=', $to_end)
+            ->order_by('captured_at', 'ASC')
+            ->get('tbl_screenshots')
+            ->result();
+
+        $days = [];
+        $d = new DateTime($from);
+        $end = new DateTime($to);
+        while ($d <= $end) {
+            $day = $d->format('Y-m-d');
+            $days[$day] = [
+                'date' => $day,
+                'day_label' => $d->format('D, M j'),
+                'time_entries' => [],
+                'app_usage' => [],
+                'screenshots' => [],
+            ];
+            $d->modify('+1 day');
+        }
+
+        foreach ($entries as $e) {
+            $day = substr($e->started_at, 0, 10);
+            if (!isset($days[$day])) continue;
+            $start_time = substr($e->started_at, 11, 5);
+            $end_time = !empty($e->stopped_at) ? substr($e->stopped_at, 11, 5) : date('H:i');
+            $days[$day]['time_entries'][] = [
+                'start' => $start_time,
+                'end' => $end_time,
+                'start_ts' => $e->started_at,
+                'end_ts' => $e->stopped_at ?: date('Y-m-d H:i:s'),
+                'total_seconds' => (int)$e->total_seconds,
+                'task_name' => $e->task_name,
+                'type' => $e->type,
+            ];
+        }
+
+        foreach ($app_usage as $au) {
+            $day = substr($au->recorded_at, 0, 10);
+            if (!isset($days[$day])) continue;
+            $cat = $this->_categorize_app($au->app_name);
+            $start_dt = new DateTime($au->recorded_at);
+            $start_dt->modify('-' . (int)$au->total_seconds . ' seconds');
+            $days[$day]['app_usage'][] = [
+                'start' => $start_dt->format('H:i'),
+                'end' => substr($au->recorded_at, 11, 5),
+                'start_ts' => $start_dt->format('Y-m-d H:i:s'),
+                'end_ts' => $au->recorded_at,
+                'app_name' => $au->app_name,
+                'window_title' => $au->window_title ?? '',
+                'url' => $au->url ?? '',
+                'total_seconds' => (int)$au->total_seconds,
+                'category' => $cat,
+            ];
+        }
+
+        foreach ($screenshots as $ss) {
+            $day = substr($ss->captured_at, 0, 10);
+            if (!isset($days[$day])) continue;
+            $days[$day]['screenshots'][] = [
+                'time' => substr($ss->captured_at, 11, 5),
+                'captured_at' => $ss->captured_at,
+                'id' => (int)$ss->id,
+                'keystroke_count' => (int)$ss->keystroke_count,
+                'mouse_click_count' => (int)$ss->mouse_click_count,
+                'activity_percentage' => (float)$ss->activity_percentage,
+                'image_url' => base_url('admin/timesync/view_image/' . $ss->id),
+            ];
+        }
+
+        return array_values($days);
     }
 
     private function _categorize_app($name)

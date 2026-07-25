@@ -57,21 +57,13 @@
           </div>
         </div>
 
-        <!-- Daily Hours Trend -->
-        <div class="row mb-lg" style="margin-bottom:24px;">
-          <div class="col-md-12">
-            <div class="panel panel-custom">
-              <div class="panel-heading"><h4 class="panel-title"><i class="fa fa-bar-chart"></i> Daily Hours</h4></div>
-              <div class="panel-body">
-                <canvas id="userDailyHoursChart" height="80"></canvas>
-              </div>
-            </div>
-          </div>
-        </div>
-
+        <!-- Daily Hours Trend (replaced by Activity Timeline) -->
         <div class="row mt-lg">
           <div class="col-md-12">
             <ul class="nav nav-tabs" id="userTabs">
+              <li class="<?= $active_tab === 'timeline' ? 'active' : '' ?>">
+                <a href="<?= base_url('admin/timesync/user/' . $user_id . '?tab=timeline&from=' . $from . '&to=' . $to . '&interval=' . urlencode($interval)) ?>"><i class="fa fa-clock-o"></i> Activity Timeline</a>
+              </li>
               <li class="<?= $active_tab === 'entries' ? 'active' : '' ?>">
                 <a href="<?= base_url('admin/timesync/user/' . $user_id . '?tab=entries&from=' . $from . '&to=' . $to . '&interval=' . urlencode($interval)) ?>">Time Entries</a>
               </li>
@@ -84,7 +76,11 @@
             </ul>
             <div class="tab-content">
               <div class="tab-pane active">
-                <?php if ($active_tab === 'entries'): ?>
+                <?php if ($active_tab === 'timeline'): ?>
+                  <?php $this->load->view('admin/timesync/user_timeline_tab', [
+                    'timeline_days' => $timeline_days ?? [],
+                  ]); ?>
+                <?php elseif ($active_tab === 'entries'): ?>
                   <?php $this->load->view('admin/timesync/user_entries_tab', [
                     'entries' => $entries ?? [],
                     'entry_page' => $entry_page ?? 1,
@@ -123,37 +119,3 @@
   </div>
 </div>
 
-<script src="<?= base_url() ?>assets/plugins/Chart.js/Chart.js"></script>
-<script>
-$(document).ready(function () {
-  requestAnimationFrame(function () {
-    var hoursLabels = <?= $chart_user_hours_labels ?? '[]' ?>;
-    var hoursValues = <?= $chart_user_hours_values ?? '[]' ?>;
-    var hrCanvas = document.getElementById('userDailyHoursChart');
-    if (hoursLabels.length > 0 && hrCanvas && hrCanvas.parentElement.offsetWidth > 0) {
-      new Chart(hrCanvas, {
-        type: 'bar',
-        data: {
-          labels: hoursLabels,
-          datasets: [{
-            label: 'Hours',
-            data: hoursValues,
-            backgroundColor: 'rgba(35, 183, 229, 0.5)',
-            borderColor: 'rgba(35, 183, 229, 1)',
-            borderWidth: 1
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: true,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { ticks: { maxRotation: 45, font: { size: 9 } } },
-            y: { beginAtZero: true, ticks: { font: { size: 9 } } }
-          }
-        }
-      });
-    }
-  });
-});
-</script>
