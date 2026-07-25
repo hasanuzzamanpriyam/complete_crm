@@ -78,6 +78,9 @@
 .tl-ss-card-activity.tl-act-mid{background:#fef3c7;color:#92400e}
 .tl-ss-card-activity.tl-act-low{background:#f1f5f9;color:#64748b}
 
+.tl-app-icon{display:inline-block;vertical-align:middle;margin-right:6px;border-radius:3px;object-fit:contain}
+.tl-app-icon-fa{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:4px;margin-right:6px;font-size:14px;vertical-align:middle;background:rgba(0,0,0,.06)}
+
 .tl-empty{padding:60px 40px;text-align:center;color:#94a3b8;font-size:14px}
 .tl-empty i{font-size:36px;display:block;margin-bottom:12px;color:#cbd5e1}
 .tl-legend{display:flex;gap:18px;margin-bottom:16px;flex-wrap:wrap;padding:10px 16px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0}
@@ -156,6 +159,94 @@
   function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  function extractDomain(url) {
+    if (!url) return null;
+    try {
+      var a = document.createElement('a');
+      a.href = url;
+      var host = a.hostname;
+      if (!host || host === 'localhost' || host === '127.0.0.1') return null;
+      return host.replace(/^www\./, '');
+    } catch(e) { return null; }
+  }
+
+  function getAppIconHtml(appName, appUrl) {
+    var lower = (appName || '').toLowerCase();
+
+    if (appUrl) {
+      var domain = extractDomain(appUrl);
+      if (domain) {
+        return '<img class="tl-app-icon" src="https://www.google.com/s2/favicons?domain=' + encodeURIComponent(domain) + '&sz=32" width="18" height="18" onerror="this.style.display=\'none\'" />';
+      }
+    }
+
+    var faMap = [
+      [/chrome/i, 'fa-chrome', '#4285f4'],
+      [/firefox/i, 'fa-firefox', '#ff7139'],
+      [/opera/i, 'fa-opera', '#ff1b2d'],
+      [/safari/i, 'fa-safari', '#006CFF'],
+      [/\bcode\b|visual studio|phpstorm|webstorm|intellij|pycharm|cursor|windsurf|rider|goland|clion|datagrip|rubymine|appcode/i, 'fa-code', '#007acc'],
+      [/sublime|atom|notepad|brackets|lighttable/i, 'fa-code', '#66595C'],
+      [/terminal|cmd|powershell|windows terminal|git bash|wsl|mintty|hyper|iterm|alacritty|wezterm|kitty|tilix/i, 'fa-terminal', '#4d4d4d'],
+      [/slack/i, 'fa-slack', '#4a154b'],
+      [/skype/i, 'fa-skype', '#00aff0'],
+      [/discord/i, 'fa-comment', '#5865F2'],
+      [/teams/i, 'fa-comment', '#6264A7'],
+      [/whatsapp/i, 'fa-comment', '#25D366'],
+      [/telegram/i, 'fa-send', '#0088cc'],
+      [/zoom/i, 'fa-video-camera', '#2D8CFF'],
+      [/excel/i, 'fa-file-excel-o', '#217346'],
+      [/word/i, 'fa-file-word-o', '#2b579a'],
+      [/powerpoint/i, 'fa-file-powerpoint-o', '#b7472a'],
+      [/onenote/i, 'fa-sticky-note', '#7719aa'],
+      [/outlook/i, 'fa-envelope', '#0078d4'],
+      [/\bgit\b|github|sourcetree|gitkraken|tortoisegit/i, 'fa-code-fork', '#f05032'],
+      [/docker/i, 'fa-cube', '#2496ed'],
+      [/kubernetes|kubectl|k8s/i, 'fa-cube', '#326CE5'],
+      [/jenkins/i, 'fa-cog', '#D33833'],
+      [/terraform/i, 'fa-cog', '#7B42BC'],
+      [/ansible/i, 'fa-cog', '#EE0000'],
+      [/heidisql|tableplus|dbeaver|mysql|navicat|pgadmin|redis|workbench/i, 'fa-database', '#336791'],
+      [/figma/i, 'fa-pencil-square-o', '#a259ff'],
+      [/sketch/i, 'fa-pencil-square-o', '#F7B500'],
+      [/photoshop|psd/i, 'fa-pencil-square-o', '#31a8ff'],
+      [/illustrator|ai\b/i, 'fa-pencil-square-o', '#ff9a00'],
+      [/premiere|after effects|premiere pro|ae\b/i, 'fa-film', '#9999ff'],
+      [/indesign/i, 'fa-pencil-square-o', '#FF3366'],
+      [/blender/i, 'fa-cube', '#E87D0D'],
+      [/spotify/i, 'fa-spotify', '#1db954'],
+      [/vlc/i, 'fa-play-circle', '#ff8800'],
+      [/itunes|apple music/i, 'fa-music', '#fc3c44'],
+      [/youtube/i, 'fa-play', '#FF0000'],
+      [/netflix/i, 'fa-play', '#E50914'],
+      [/twitch/i, 'fa-play', '#9146FF'],
+      [/explorer|file explorer|finder|nautilus|dolphin/i, 'fa-folder-open-o', '#f5ba42'],
+      [/calculator/i, 'fa-calculator', '#1a73e8'],
+      [/settings|preferences|preferences\.app/i, 'fa-cogs', '#666'],
+      [/task manager|activity monitor|system monitor/i, 'fa-bar-chart', '#1a73e8'],
+      [/notion/i, 'fa-sticky-note', '#000000'],
+      [/obsidian/i, 'fa-sticky-note', '#7C3AED'],
+      [/evernote/i, 'fa-sticky-note', '#00A82D'],
+      [/trello/i, 'fa-th-large', '#0052CC'],
+      [/asana/i, 'fa-th-large', '#F06A6A'],
+      [/jira/i, 'fa-th-large', '#0052CC'],
+      [/linear/i, 'fa-th-large', '#5E6AD2'],
+      [/postman/i, 'fa-th-large', '#FF6C37'],
+      [/insomnia/i, 'fa-th-large', '#4000BF'],
+      [/soapui/i, 'fa-th-large', '#0D73F6'],
+    ];
+
+    for (var i = 0; i < faMap.length; i++) {
+      if (faMap[i][0].test(lower)) {
+        return '<i class="fa ' + faMap[i][1] + ' tl-app-icon-fa" style="color:' + faMap[i][2] + '"></i>';
+      }
+    }
+
+    if (appUrl) return '<i class="fa fa-globe tl-app-icon-fa" style="color:#4285f4"></i>';
+
+    return '<i class="fa fa-th-large tl-app-icon-fa" style="color:#94a3b8"></i>';
   }
 
   function actBadgeClass(pct) {
@@ -507,7 +598,7 @@
     } else if (type === 'app') {
       var cat = el.getAttribute('data-category');
       var catColor = { productive: '#22c55e', neutral: '#f59e0b', distracting: '#ef4444' }[cat] || '#94a3b8';
-      tipHtml = '<div class="tl-tooltip-title"><i class="fa fa-th-large" style="color:' + catColor + '"></i>' + escapeHtml(el.getAttribute('data-app')) + '</div>' +
+      tipHtml = '<div class="tl-tooltip-title">' + getAppIconHtml(el.getAttribute('data-app'), el.getAttribute('data-url')) + escapeHtml(el.getAttribute('data-app')) + '</div>' +
         '<div class="tl-tooltip-row"><strong>Time:</strong> ' + el.getAttribute('data-start') + ' &mdash; ' + el.getAttribute('data-end') + '</div>' +
         '<div class="tl-tooltip-row"><strong>Duration:</strong> ' + formatSeconds(parseInt(el.getAttribute('data-seconds'))) + '</div>' +
         '<div class="tl-tooltip-row"><span class="tl-tooltip-dot" style="background:' + catColor + '"></span><strong>Status:</strong> ' + cat.charAt(0).toUpperCase() + cat.slice(1) + '</div>';
