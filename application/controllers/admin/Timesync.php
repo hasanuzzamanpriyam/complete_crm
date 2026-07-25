@@ -1373,8 +1373,8 @@ class Timesync extends Admin_Controller
             $days[$day]['time_entries'][] = [
                 'start' => $start_time,
                 'end' => $end_time,
-                'start_ts' => $e->started_at,
-                'end_ts' => $e->stopped_at ?: date('Y-m-d H:i:s'),
+                'start_ts' => str_replace(' ', 'T', $e->started_at) . 'Z',
+                'end_ts' => str_replace(' ', 'T', $e->stopped_at ?: date('Y-m-d H:i:s')) . 'Z',
                 'total_seconds' => (int)$e->total_seconds,
                 'task_name' => $e->task_name,
                 'type' => $e->type,
@@ -1390,8 +1390,8 @@ class Timesync extends Admin_Controller
             $days[$day]['app_usage'][] = [
                 'start' => $start_dt->format('H:i'),
                 'end' => substr($au->recorded_at, 11, 5),
-                'start_ts' => $start_dt->format('Y-m-d H:i:s'),
-                'end_ts' => $au->recorded_at,
+                'start_ts' => $start_dt->format('Y-m-d\TH:i:s') . 'Z',
+                'end_ts' => str_replace(' ', 'T', $au->recorded_at) . 'Z',
                 'app_name' => $au->app_name,
                 'window_title' => $au->window_title ?? '',
                 'url' => $au->url ?? '',
@@ -1405,7 +1405,7 @@ class Timesync extends Admin_Controller
             if (!isset($days[$day])) continue;
             $days[$day]['screenshots'][] = [
                 'time' => substr($ss->captured_at, 11, 5),
-                'captured_at' => $ss->captured_at,
+                'captured_at' => str_replace(' ', 'T', $ss->captured_at) . 'Z',
                 'id' => (int)$ss->id,
                 'keystroke_count' => (int)$ss->keystroke_count,
                 'mouse_click_count' => (int)$ss->mouse_click_count,
