@@ -700,15 +700,23 @@
       });
   };
 
-  /* Initial render: use embedded data if available, otherwise AJAX */
-  var uid = root.getAttribute('data-user-id');
-  var fromVal = root.getAttribute('data-from');
-  var toVal = root.getAttribute('data-to');
+  window.initTimesyncTimeline = function(forceReload) {
+    root = document.getElementById('tl-root');
+    if (!root) return;
 
-  if (embeddedData && embeddedData.length > 0) {
-    requestAnimationFrame(function() { renderTimeline(embeddedData); });
-  } else if (uid && fromVal && toVal) {
-    requestAnimationFrame(function() { loadTimeline(uid, fromVal, toVal); });
-  }
+    if (!forceReload && root.querySelector('.tl-day')) return;
+
+    var uid = root.getAttribute('data-user-id');
+    var fromVal = root.getAttribute('data-from');
+    var toVal = root.getAttribute('data-to');
+
+    if (embeddedData && embeddedData.length > 0) {
+      requestAnimationFrame(function() { renderTimeline(embeddedData); });
+    } else if (uid && fromVal && toVal) {
+      requestAnimationFrame(function() { loadTimeline(uid, fromVal, toVal); });
+    }
+  };
+
+  requestAnimationFrame(function() { window.initTimesyncTimeline(); });
 })();
 </script>

@@ -123,9 +123,8 @@
 </div>
 
 <script>
-$(function() {
+$(document).on('ready timesync:spa_loaded', function() {
   var userId = <?= json_encode($user_id) ?>;
-  var isTimelineTab = <?= json_encode($active_tab === 'timeline') ?>;
 
   function getFilterParams() {
     return {
@@ -137,35 +136,35 @@ $(function() {
   function isTimelineActive() {
     var active = $('#userTabs li.active a');
     if (active.length && active.attr('href').indexOf('tab=timeline') !== -1) return true;
-    var hash = window.location.hash;
-    if (hash && hash.indexOf('tab=timeline') !== -1) return true;
     return false;
   }
 
-  function refreshTimeline() {
+  function refreshTimeline(forceReload) {
     if (!isTimelineActive()) return;
-    if (typeof window.loadTimeline !== 'function') return;
-    var p = getFilterParams();
-    window.loadTimeline(userId, p.from, p.to);
+    if (typeof window.initTimesyncTimeline === 'function') {
+      window.initTimesyncTimeline(forceReload);
+    }
+  }
+
+  if (typeof window.initTimesyncTimeline === 'function') {
+    window.initTimesyncTimeline();
   }
 
   var fromInput = document.getElementById('dn-from-hidden');
   var toInput = document.getElementById('dn-to-hidden');
   if (fromInput) {
-    new MutationObserver(function() { refreshTimeline(); }).observe(fromInput, { attributes: true, attributeFilter: ['value'] });
+    new MutationObserver(function() { refreshTimeline(true); }).observe(fromInput, { attributes: true, attributeFilter: ['value'] });
   }
   if (toInput) {
-    new MutationObserver(function() { refreshTimeline(); }).observe(toInput, { attributes: true, attributeFilter: ['value'] });
+    new MutationObserver(function() { refreshTimeline(true); }).observe(toInput, { attributes: true, attributeFilter: ['value'] });
   }
 
-  $('#userTabs').on('click', 'a', function(e) {
+  $('#userTabs').off('click.timelineTab').on('click.timelineTab', 'a', function(e) {
     var href = $(this).attr('href');
     if (href && href.indexOf('tab=timeline') !== -1) {
       e.preventDefault();
-      var p = getFilterParams();
-      if (typeof window.loadTimeline === 'function') {
-        window.loadTimeline(userId, p.from, p.to);
-      }
+      window.history.pushState({}, '', href);
+      refreshTimeline(true);
       $('#userTabs li').removeClass('active');
       $(this).parent().addClass('active');
     }

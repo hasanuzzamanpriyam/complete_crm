@@ -46,6 +46,7 @@
                 }
                 cleanupWidgets();
                 replaceContent($target, data.html || '');
+                $(document).trigger('timesync:spa_loaded');
                 updateActiveSidebar(url);
                 $target.removeClass('spa-loading');
             })
