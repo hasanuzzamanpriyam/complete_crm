@@ -11,6 +11,11 @@
 .tl-day-body{overflow:hidden;transition:max-height .4s cubic-bezier(.4,0,.2,1),opacity .3s ease}
 .tl-body{padding:0 16px 12px;overflow-x:auto;overflow-y:hidden;position:relative}
 
+.tl-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;line-height:1}
+.tl-badge-incomplete{background:#fef3c7;color:#92400e;border:1px solid #fde68a}
+.tl-badge-complete{background:#dcfce7;color:#15803d;border:1px solid #bbf7d0}
+.tl-badge i{font-size:9px}
+
 .tl-scale{display:flex;position:relative;height:26px;border-bottom:2px solid #e2e8f0;margin-bottom:0;background:#fff}
 .tl-scale-hour{flex:1;text-align:center;font-size:10px;color:#475569;line-height:26px;border-left:1px solid #f1f5f9;min-width:0;white-space:nowrap;font-weight:600}
 .tl-scale-hour:first-child{border-left:none}
@@ -26,6 +31,8 @@
 .tl-block{position:absolute;top:4px;height:24px;border-radius:4px;min-width:3px;z-index:1;cursor:default;transition:filter .15s,transform .1s}
 .tl-block:hover{filter:brightness(1.1) saturate(1.1);transform:scaleY(1.08);z-index:5}
 .tl-block-logged{background:linear-gradient(135deg,#3b82f6,#2563eb);box-shadow:0 1px 2px rgba(37,99,235,.2)}
+.tl-block-logged.tl-block-running{background:repeating-linear-gradient(135deg,#3b82f6,#3b82f6 6px,#60a5fa 6px,#60a5fa 12px);box-shadow:0 1px 4px rgba(37,99,235,.3);animation:tlPulse 2s ease-in-out infinite}
+@keyframes tlPulse{0%,100%{opacity:1}50%{opacity:.8}}
 .tl-block-productive{background:linear-gradient(135deg,#22c55e,#16a34a);box-shadow:0 1px 2px rgba(22,163,74,.15)}
 .tl-block-neutral{background:linear-gradient(135deg,#f59e0b,#d97706);box-shadow:0 1px 2px rgba(217,119,6,.15)}
 .tl-block-distracting{background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 1px 2px rgba(220,38,38,.15)}
@@ -90,6 +97,7 @@
   var HOUR_WIDTH = 50;
   var MINUTE_WIDTH = HOUR_WIDTH / 60;
   var CLUSTER_WINDOW_MIN = 2;
+  var DAILY_GOAL = 8;
   var TRACK_W = HOURS * HOUR_WIDTH;
 
   window._tlScreenshots = {};
@@ -107,18 +115,20 @@
     return new Date(isoStr);
   }
 
-  function fmtHM(date) {
-    if (!date) return '??:??';
-    var h = date.getHours(), m = date.getMinutes();
-    return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
-  }
-
   function fmtHM12(date) {
     if (!date) return '??:??';
     var h = date.getHours(), m = date.getMinutes();
     var ap = h >= 12 ? 'PM' : 'AM';
     var h12 = h % 12; if (h12 === 0) h12 = 12;
     return h12 + ':' + (m < 10 ? '0' : '') + m + ' ' + ap;
+  }
+
+  function minutesToTimeAMPM(m) {
+    var h = Math.floor(m / 60);
+    var mn = m % 60;
+    var ap = h >= 12 ? 'PM' : 'AM';
+    var h12 = h % 12; if (h12 === 0) h12 = 12;
+    return h12 + ':' + (mn < 10 ? '0' : '') + mn + ' ' + ap;
   }
 
   function fmtHourLabel(h) {
@@ -179,6 +189,8 @@
     '<span class="tl-legend-item"><span class="tl-legend-swatch" style="background:linear-gradient(90deg,#cbd5e1,#fbbf24,#06b6d4);width:48px;border-radius:3px"></span>Activity <span style="font-size:9px;color:#94a3b8">(0-100%)</span></span>' +
     '</div>';
 
+  var runningSessions = [];
+
   for (var d = 0; d < timelineData.length; d++) {
     var day = timelineData[d];
     var dayTotalSec = 0;
@@ -186,6 +198,10 @@
       dayTotalSec += day.time_entries[ei].total_seconds;
     }
     var hoursStr = formatSeconds(dayTotalSec);
+    var goalMet = dayTotalSec >= (DAILY_GOAL * 3600);
+    var goalBadge = goalMet
+      ? '<span class="tl-badge tl-badge-complete"><i class="fa fa-check-circle"></i>' + hoursStr + ' / ' + DAILY_GOAL + 'h Target</span>'
+      : '<span class="tl-badge tl-badge-incomplete"><i class="fa fa-hourglass-half"></i>' + hoursStr + ' / ' + DAILY_GOAL + 'h Target</span>';
 
     var isExpanded = (day.date === todayStr);
     if (!isExpanded && d === timelineData.length - 1) {
@@ -201,7 +217,7 @@
     html += '<div class="tl-day-header-left">';
     html += '<span class="tl-day-chevron ' + (isExpanded ? '' : 'collapsed') + '"><i class="fa fa-chevron-down"></i></span>';
     html += '<span>' + escapeHtml(day.day_label) + '</span>';
-    html += '<span class="tl-day-hours-badge"><i class="fa fa-clock-o" style="font-size:9px;margin-right:3px"></i>' + hoursStr + '</span>';
+    html += goalBadge;
     html += '</div>';
     html += '<span style="font-size:11px;color:#94a3b8">' + day.time_entries.length + ' entries &middot; ' + day.screenshots.length + ' screenshots</span>';
     html += '</div>';
@@ -222,12 +238,26 @@
     for (var ei2 = 0; ei2 < day.time_entries.length; ei2++) {
       var te = day.time_entries[ei2];
       var teStart = parseToLocal(te.start_ts);
-      var teEnd = parseToLocal(te.end_ts);
       if (!teStart) continue;
       var sMin = timeToMinutes(teStart.getHours(), teStart.getMinutes());
-      var eMin = teEnd ? timeToMinutes(teEnd.getHours(), teEnd.getMinutes()) : timeToMinutes(new Date().getHours(), new Date().getMinutes());
-      if (eMin <= sMin) eMin = sMin + 1;
-      html += '<div class="tl-block tl-block-logged" style="left:' + posFromMinutes(sMin) + 'px;width:' + getBarWidthPx(sMin, eMin) + 'px" data-type="entry" data-start="' + fmtHM(teStart) + '" data-end="' + fmtHM(teEnd) + '" data-task="' + escapeHtml(te.task_name) + '" data-seconds="' + te.total_seconds + '"></div>';
+      var eMin;
+      var isRunning = te.is_running;
+      if (isRunning) {
+        var now = new Date();
+        eMin = timeToMinutes(now.getHours(), now.getMinutes());
+        if (eMin <= sMin) eMin = sMin + 1;
+      } else {
+        var teEnd = parseToLocal(te.end_ts);
+        eMin = teEnd ? timeToMinutes(teEnd.getHours(), teEnd.getMinutes()) : sMin + 1;
+        if (eMin <= sMin) eMin = sMin + 1;
+      }
+      var runningCls = isRunning ? ' tl-block-running' : '';
+      var endLabel = isRunning ? 'Now' : fmtHM12(parseToLocal(te.end_ts));
+      var blockId = 'te-block-' + day.date + '-' + ei2;
+      html += '<div class="tl-block tl-block-logged' + runningCls + '" id="' + blockId + '" style="left:' + posFromMinutes(sMin) + 'px;width:' + getBarWidthPx(sMin, eMin) + 'px" data-type="entry" data-start="' + fmtHM12(teStart) + '" data-end="' + endLabel + '" data-task="' + escapeHtml(te.task_name) + '" data-seconds="' + te.total_seconds + '" data-smin="' + sMin + '"></div>';
+      if (isRunning) {
+        runningSessions.push({ id: blockId, sMin: sMin, startTs: te.start_ts, startLocal: teStart });
+      }
     }
     html += '</div></div>';
 
@@ -242,7 +272,7 @@
       var aeMin = timeToMinutes(auEnd.getHours(), auEnd.getMinutes());
       if (aeMin <= asMin) aeMin = asMin + 1;
       var cls2 = 'tl-block-' + au.category;
-      html += '<div class="tl-block ' + cls2 + '" style="left:' + posFromMinutes(asMin) + 'px;width:' + getBarWidthPx(asMin, aeMin) + 'px" data-type="app" data-app="' + escapeHtml(au.app_name) + '" data-title="' + escapeHtml(au.window_title) + '" data-url="' + escapeHtml(au.url) + '" data-category="' + au.category + '" data-start="' + fmtHM(auStart) + '" data-end="' + fmtHM(auEnd) + '" data-seconds="' + au.total_seconds + '"></div>';
+      html += '<div class="tl-block ' + cls2 + '" style="left:' + posFromMinutes(asMin) + 'px;width:' + getBarWidthPx(asMin, aeMin) + 'px" data-type="app" data-app="' + escapeHtml(au.app_name) + '" data-title="' + escapeHtml(au.window_title) + '" data-url="' + escapeHtml(au.url) + '" data-category="' + au.category + '" data-start="' + fmtHM12(auStart) + '" data-end="' + fmtHM12(auEnd) + '" data-seconds="' + au.total_seconds + '"></div>';
     }
     html += '</div></div>';
 
@@ -261,7 +291,7 @@
       if (aeMin2 <= asMin2) aeMin2 = asMin2 + 1;
       var akey = au2.app_name;
       if (!appColors[akey]) { appColors[akey] = colorPalette[ci % colorPalette.length]; ci++; }
-      html += '<div class="tl-block" style="left:' + posFromMinutes(asMin2) + 'px;width:' + getBarWidthPx(asMin2, aeMin2) + 'px;background:' + appColors[akey] + ';opacity:0.88" data-type="app" data-app="' + escapeHtml(au2.app_name) + '" data-title="' + escapeHtml(au2.window_title) + '" data-url="' + escapeHtml(au2.url) + '" data-category="' + au2.category + '" data-start="' + fmtHM(auStart2) + '" data-end="' + fmtHM(auEnd2) + '" data-seconds="' + au2.total_seconds + '" title="' + escapeHtml(au2.app_name) + '"></div>';
+      html += '<div class="tl-block" style="left:' + posFromMinutes(asMin2) + 'px;width:' + getBarWidthPx(asMin2, aeMin2) + 'px;background:' + appColors[akey] + ';opacity:0.88" data-type="app" data-app="' + escapeHtml(au2.app_name) + '" data-title="' + escapeHtml(au2.window_title) + '" data-url="' + escapeHtml(au2.url) + '" data-category="' + au2.category + '" data-start="' + fmtHM12(auStart2) + '" data-end="' + fmtHM12(auEnd2) + '" data-seconds="' + au2.total_seconds + '" title="' + escapeHtml(au2.app_name) + '"></div>';
     }
     html += '</div></div>';
 
@@ -344,7 +374,7 @@
             var interpPct = Math.max(0, Math.min(100, cubicInterp(pp0, pp1, pp2, pp3, frac)));
             var barMin = Math.round(segStart + (segEnd - segStart) * ((s + 1) / (steps + 1)));
             var barH = Math.max(1, (interpPct / 100) * 34);
-            html += '<div class="tl-act-bar" style="left:' + (posFromMinutes(barMin) - 1.5) + 'px;height:' + barH + 'px;background:' + actColor(interpPct) + ';opacity:' + (0.4 + 0.6 * interpPct / 100) + '" data-type="activity" data-pct="' + Math.round(interpPct) + '" data-time="' + minutesToTimeLocal(barMin) + '"></div>';
+            html += '<div class="tl-act-bar" style="left:' + (posFromMinutes(barMin) - 1.5) + 'px;height:' + barH + 'px;background:' + actColor(interpPct) + ';opacity:' + (0.4 + 0.6 * interpPct / 100) + '" data-type="activity" data-pct="' + Math.round(interpPct) + '" data-time="' + minutesToTimeAMPM(barMin) + '"></div>';
           }
         }
         var barH2 = Math.max(1, (pt.pct / 100) * 34);
@@ -372,12 +402,6 @@
   }
 
   root.innerHTML = html;
-
-  function minutesToTimeLocal(m) {
-    var h = Math.floor(m / 60);
-    var mn = m % 60;
-    return (h < 10 ? '0' : '') + h + ':' + (mn < 10 ? '0' : '') + mn;
-  }
 
   window.toggleDay = function(header) {
     var dayEl = header.closest('.tl-day');
@@ -463,7 +487,7 @@
     ch.style.left = (96 + x) + 'px';
     ch.style.height = trackContainer.scrollHeight + 'px';
     var totalMin = minutesFromPos(x);
-    ch.setAttribute('data-time', minutesToTimeLocal(totalMin));
+    ch.setAttribute('data-time', minutesToTimeAMPM(totalMin));
   }
 
   function hideCrosshair() {
@@ -539,6 +563,25 @@
       });
       bar.addEventListener('mouseleave', hideCrosshair);
     })(trackBars[j]);
+  }
+
+  /* Dynamic running session updates */
+  if (runningSessions.length > 0) {
+    setInterval(function() {
+      var now = new Date();
+      var nowMin = timeToMinutes(now.getHours(), now.getMinutes());
+      for (var ri = 0; ri < runningSessions.length; ri++) {
+        var rs = runningSessions[ri];
+        var el = document.getElementById(rs.id);
+        if (!el) continue;
+        var eMin = nowMin;
+        if (eMin <= rs.sMin) eMin = rs.sMin + 1;
+        el.style.width = getBarWidthPx(rs.sMin, eMin) + 'px';
+        el.setAttribute('data-end', 'Now');
+        var elapsed = (now.getTime() - rs.startLocal.getTime()) / 1000;
+        el.setAttribute('data-seconds', Math.max(0, Math.round(elapsed)));
+      }
+    }, 30000);
   }
 })();
 </script>

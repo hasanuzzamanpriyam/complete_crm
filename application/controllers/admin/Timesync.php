@@ -1378,6 +1378,7 @@ class Timesync extends Admin_Controller
                 'total_seconds' => (int)$e->total_seconds,
                 'task_name' => $e->task_name,
                 'type' => $e->type,
+                'is_running' => empty($e->stopped_at),
             ];
         }
 
