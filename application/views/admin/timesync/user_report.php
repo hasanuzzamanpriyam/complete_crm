@@ -122,53 +122,55 @@
   </div>
 </div>
 
+<?php if ($active_tab === 'timeline'): ?>
 <script>
-$(document).on('ready timesync:spa_loaded', function() {
-  var userId = <?= json_encode($user_id) ?>;
+(function() {
+  if (window.__tlReportInit) return;
+  window.__tlReportInit = true;
 
-  function getFilterParams() {
+  var userId = <?= json_encode($user_id) ?>;
+  var fallbackFrom = '<?= $from ?>';
+  var fallbackTo = '<?= $to ?>';
+
+  function isTimelineActive() {
+    var a = $('#userTabs li.active a');
+    return a.length && a.attr('href').indexOf('tab=timeline') !== -1;
+  }
+
+  function getFromTo() {
     return {
-      from: ($('#dn-from-hidden').val() || '<?= $from ?>'),
-      to: ($('#dn-to-hidden').val() || '<?= $to ?>')
+      from: ($('#dn-from-hidden').val() || fallbackFrom),
+      to:   ($('#dn-to-hidden').val()   || fallbackTo)
     };
   }
 
-  function isTimelineActive() {
-    var active = $('#userTabs li.active a');
-    if (active.length && active.attr('href').indexOf('tab=timeline') !== -1) return true;
-    return false;
-  }
-
-  function refreshTimeline(forceReload) {
+  function refreshFromAjax() {
     if (!isTimelineActive()) return;
+    if (typeof window.loadTimeline !== 'function') return;
+    var p = getFromTo();
+    window.loadTimeline(userId, p.from, p.to);
+  }
+
+  $(document).one('ready', function() {
     if (typeof window.initTimesyncTimeline === 'function') {
-      window.initTimesyncTimeline(forceReload);
-    }
-  }
-
-  if (typeof window.initTimesyncTimeline === 'function') {
-    window.initTimesyncTimeline();
-  }
-
-  var fromInput = document.getElementById('dn-from-hidden');
-  var toInput = document.getElementById('dn-to-hidden');
-  if (fromInput) {
-    new MutationObserver(function() { refreshTimeline(true); }).observe(fromInput, { attributes: true, attributeFilter: ['value'] });
-  }
-  if (toInput) {
-    new MutationObserver(function() { refreshTimeline(true); }).observe(toInput, { attributes: true, attributeFilter: ['value'] });
-  }
-
-  $('#userTabs').off('click.timelineTab').on('click.timelineTab', 'a', function(e) {
-    var href = $(this).attr('href');
-    if (href && href.indexOf('tab=timeline') !== -1) {
-      e.preventDefault();
-      window.history.pushState({}, '', href);
-      refreshTimeline(true);
-      $('#userTabs li').removeClass('active');
-      $(this).parent().addClass('active');
+      window.initTimesyncTimeline();
     }
   });
-});
+
+  $(document).on('timesync:spa_loaded', function() {
+    refreshFromAjax();
+  });
+
+  $(document).off('click.tlTab').on('click.tlTab', '.col-lg-12 #userTabs a', function(e) {
+    var href = $(this).attr('href');
+    if (!href || href.indexOf('tab=timeline') === -1) return;
+    e.preventDefault();
+    window.history.pushState({}, '', href);
+    $('#userTabs li').removeClass('active');
+    $(this).parent().addClass('active');
+    refreshFromAjax();
+  });
+})();
 </script>
+<?php endif; ?>
 
