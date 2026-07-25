@@ -79,6 +79,9 @@
                 <?php if ($active_tab === 'timeline'): ?>
                   <?php $this->load->view('admin/timesync/user_timeline_tab', [
                     'timeline_days' => $timeline_days ?? [],
+                    'user_id' => $user_id,
+                    'from' => $from,
+                    'to' => $to,
                   ]); ?>
                 <?php elseif ($active_tab === 'entries'): ?>
                   <?php $this->load->view('admin/timesync/user_entries_tab', [
@@ -118,4 +121,55 @@
     </section>
   </div>
 </div>
+
+<script>
+$(function() {
+  var userId = <?= json_encode($user_id) ?>;
+  var isTimelineTab = <?= json_encode($active_tab === 'timeline') ?>;
+
+  function getFilterParams() {
+    return {
+      from: ($('#dn-from-hidden').val() || '<?= $from ?>'),
+      to: ($('#dn-to-hidden').val() || '<?= $to ?>')
+    };
+  }
+
+  function isTimelineActive() {
+    var active = $('#userTabs li.active a');
+    if (active.length && active.attr('href').indexOf('tab=timeline') !== -1) return true;
+    var hash = window.location.hash;
+    if (hash && hash.indexOf('tab=timeline') !== -1) return true;
+    return false;
+  }
+
+  function refreshTimeline() {
+    if (!isTimelineActive()) return;
+    if (typeof window.loadTimeline !== 'function') return;
+    var p = getFilterParams();
+    window.loadTimeline(userId, p.from, p.to);
+  }
+
+  var fromInput = document.getElementById('dn-from-hidden');
+  var toInput = document.getElementById('dn-to-hidden');
+  if (fromInput) {
+    new MutationObserver(function() { refreshTimeline(); }).observe(fromInput, { attributes: true, attributeFilter: ['value'] });
+  }
+  if (toInput) {
+    new MutationObserver(function() { refreshTimeline(); }).observe(toInput, { attributes: true, attributeFilter: ['value'] });
+  }
+
+  $('#userTabs').on('click', 'a', function(e) {
+    var href = $(this).attr('href');
+    if (href && href.indexOf('tab=timeline') !== -1) {
+      e.preventDefault();
+      var p = getFilterParams();
+      if (typeof window.loadTimeline === 'function') {
+        window.loadTimeline(userId, p.from, p.to);
+      }
+      $('#userTabs li').removeClass('active');
+      $(this).parent().addClass('active');
+    }
+  });
+});
+</script>
 

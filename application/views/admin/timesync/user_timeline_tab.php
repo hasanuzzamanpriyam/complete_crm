@@ -88,12 +88,12 @@
 .tl-legend-swatch{width:14px;height:14px;border-radius:4px;box-shadow:0 1px 2px rgba(0,0,0,.1)}
 </style>
 
-<div class="tl-container" id="tl-root"></div>
+<div class="tl-container" id="tl-root" data-user-id="<?= $user_id ?? '' ?>" data-from="<?= $from ?? '' ?>" data-to="<?= $to ?? '' ?>"></div>
 <div class="tl-tooltip" id="tl-tooltip"></div>
 
 <script>
 (function() {
-  var timelineData = <?= json_encode($timeline_days ?? []) ?>;
+  var embeddedData = <?= json_encode($timeline_days ?? []) ?>;
   var root = document.getElementById('tl-root');
   var tooltip = document.getElementById('tl-tooltip');
   var HOURS = 24;
@@ -266,413 +266,449 @@
     return 0.5 * ((2*p1) + (-p0+p2)*t + (2*p0-5*p1+4*p2-p3)*t2 + (-p0+3*p1-3*p2+p3)*t3);
   }
 
-  if (!timelineData || timelineData.length === 0) {
-    root.innerHTML = '<div class="tl-empty"><i class="fa fa-clock-o"></i>No timeline data available for this date range.</div>';
-    return;
-  }
+  window.renderTimeline = function(timelineData) {
+    root = document.getElementById('tl-root');
+    tooltip = document.getElementById('tl-tooltip');
+    if (!root) return;
 
-  var html = '<div class="tl-legend">' +
-    '<span class="tl-legend-item"><span class="tl-legend-swatch" style="background:linear-gradient(135deg,#3b82f6,#2563eb)"></span>Logged Time</span>' +
-    '<span class="tl-legend-item"><span class="tl-legend-swatch" style="background:linear-gradient(135deg,#22c55e,#16a34a)"></span>Productive</span>' +
-    '<span class="tl-legend-item"><span class="tl-legend-swatch" style="background:linear-gradient(135deg,#f59e0b,#d97706)"></span>Neutral</span>' +
-    '<span class="tl-legend-item"><span class="tl-legend-swatch" style="background:linear-gradient(135deg,#ef4444,#dc2626)"></span>Distracting</span>' +
-    '<span class="tl-legend-item"><span class="tl-legend-swatch" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border-radius:50%"></span>Screenshot</span>' +
-    '<span class="tl-legend-item"><span class="tl-legend-swatch" style="background:linear-gradient(90deg,#cbd5e1,#fbbf24,#06b6d4);width:48px;border-radius:3px"></span>Activity <span style="font-size:9px;color:#94a3b8">(0-100%)</span></span>' +
-    '</div>';
+    window._tlScreenshots = {};
 
-  var runningSessions = [];
-
-  for (var d = 0; d < timelineData.length; d++) {
-    var day = timelineData[d];
-    var dayTotalSec = 0;
-    for (var ei = 0; ei < day.time_entries.length; ei++) {
-      dayTotalSec += day.time_entries[ei].total_seconds;
+    if (!timelineData || timelineData.length === 0) {
+      root.innerHTML = '<div class="tl-empty"><i class="fa fa-clock-o"></i>No timeline data available for this date range.</div>';
+      return;
     }
-    var hoursStr = formatSeconds(dayTotalSec);
-    var goalMet = dayTotalSec >= (DAILY_GOAL * 3600);
-    var goalBadge = goalMet
-      ? '<span class="tl-badge tl-badge-complete"><i class="fa fa-check-circle"></i>' + hoursStr + ' / ' + DAILY_GOAL + 'h Target</span>'
-      : '<span class="tl-badge tl-badge-incomplete"><i class="fa fa-hourglass-half"></i>' + hoursStr + ' / ' + DAILY_GOAL + 'h Target</span>';
 
-    var isExpanded = (day.date === todayStr);
-    if (!isExpanded && d === timelineData.length - 1) {
-      var hasToday = false;
-      for (var dd = 0; dd < timelineData.length; dd++) {
-        if (timelineData[dd].date === todayStr) { hasToday = true; break; }
+    var html = '<div class="tl-legend">' +
+      '<span class="tl-legend-item"><span class="tl-legend-swatch" style="background:linear-gradient(135deg,#3b82f6,#2563eb)"></span>Logged Time</span>' +
+      '<span class="tl-legend-item"><span class="tl-legend-swatch" style="background:linear-gradient(135deg,#22c55e,#16a34a)"></span>Productive</span>' +
+      '<span class="tl-legend-item"><span class="tl-legend-swatch" style="background:linear-gradient(135deg,#f59e0b,#d97706)"></span>Neutral</span>' +
+      '<span class="tl-legend-item"><span class="tl-legend-swatch" style="background:linear-gradient(135deg,#ef4444,#dc2626)"></span>Distracting</span>' +
+      '<span class="tl-legend-item"><span class="tl-legend-swatch" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border-radius:50%"></span>Screenshot</span>' +
+      '<span class="tl-legend-item"><span class="tl-legend-swatch" style="background:linear-gradient(90deg,#cbd5e1,#fbbf24,#06b6d4);width:48px;border-radius:3px"></span>Activity <span style="font-size:9px;color:#94a3b8">(0-100%)</span></span>' +
+      '</div>';
+
+    var runningSessions = [];
+
+    for (var d = 0; d < timelineData.length; d++) {
+      var day = timelineData[d];
+      var dayTotalSec = 0;
+      for (var ei = 0; ei < day.time_entries.length; ei++) {
+        dayTotalSec += day.time_entries[ei].total_seconds;
       }
-      if (!hasToday) isExpanded = true;
-    }
+      var hoursStr = formatSeconds(dayTotalSec);
+      var goalMet = dayTotalSec >= (DAILY_GOAL * 3600);
+      var goalBadge = goalMet
+        ? '<span class="tl-badge tl-badge-complete"><i class="fa fa-check-circle"></i>' + hoursStr + ' / ' + DAILY_GOAL + 'h Target</span>'
+        : '<span class="tl-badge tl-badge-incomplete"><i class="fa fa-hourglass-half"></i>' + hoursStr + ' / ' + DAILY_GOAL + 'h Target</span>';
 
-    html += '<div class="tl-day" data-day="' + day.date + '">';
-    html += '<div class="tl-day-header" onclick="toggleDay(this)">';
-    html += '<div class="tl-day-header-left">';
-    html += '<span class="tl-day-chevron ' + (isExpanded ? '' : 'collapsed') + '"><i class="fa fa-chevron-down"></i></span>';
-    html += '<span>' + escapeHtml(day.day_label) + '</span>';
-    html += goalBadge;
-    html += '</div>';
-    html += '<span style="font-size:11px;color:#94a3b8">' + day.time_entries.length + ' entries &middot; ' + day.screenshots.length + ' screenshots</span>';
-    html += '</div>';
-    html += '<div class="tl-day-body" style="' + (isExpanded ? '' : 'max-height:0;opacity:0') + '">';
-
-    html += '<div class="tl-body" data-day="' + day.date + '">';
-    html += '<div class="tl-scale">';
-    for (var h = 0; h < HOURS; h++) {
-      var noonCls = (h === 12) ? ' tl-scale-noon' : '';
-      html += '<div class="tl-scale-hour' + noonCls + '">' + fmtHourLabel(h) + '</div>';
-    }
-    html += '</div>';
-    html += '<div class="tl-crosshair" id="ch-' + day.date + '"></div>';
-    html += '<div class="tl-tracks">';
-
-    /* Track 1: Logged Time */
-    html += '<div class="tl-track"><div class="tl-track-label"><span class="tl-label-icon"><i class="fa fa-clock-o"></i></span>Logged</div><div class="tl-track-bar" data-track="logged" data-day="' + day.date + '">';
-    for (var ei2 = 0; ei2 < day.time_entries.length; ei2++) {
-      var te = day.time_entries[ei2];
-      var teStart = parseToLocal(te.start_ts);
-      if (!teStart) continue;
-      var sMin = timeToMinutes(teStart.getHours(), teStart.getMinutes());
-      var eMin;
-      var isRunning = te.is_running;
-      if (isRunning) {
-        var now = new Date();
-        eMin = timeToMinutes(now.getHours(), now.getMinutes());
-        if (eMin <= sMin) eMin = sMin + 1;
-      } else {
-        var teEnd = parseToLocal(te.end_ts);
-        eMin = teEnd ? timeToMinutes(teEnd.getHours(), teEnd.getMinutes()) : sMin + 1;
-        if (eMin <= sMin) eMin = sMin + 1;
-      }
-      var runningCls = isRunning ? ' tl-block-running' : '';
-      var endLabel = isRunning ? 'Now' : fmtHM12(parseToLocal(te.end_ts));
-      var blockId = 'te-block-' + day.date + '-' + ei2;
-      html += '<div class="tl-block tl-block-logged' + runningCls + '" id="' + blockId + '" style="left:' + posFromMinutes(sMin) + 'px;width:' + getBarWidthPx(sMin, eMin) + 'px" data-type="entry" data-start="' + fmtHM12(teStart) + '" data-end="' + endLabel + '" data-task="' + escapeHtml(te.task_name) + '" data-seconds="' + te.total_seconds + '" data-smin="' + sMin + '"></div>';
-      if (isRunning) {
-        runningSessions.push({ id: blockId, sMin: sMin, startTs: te.start_ts, startLocal: teStart });
-      }
-    }
-    html += '</div></div>';
-
-    /* Track 2: Productivity */
-    html += '<div class="tl-track"><div class="tl-track-label"><span class="tl-label-icon"><i class="fa fa-pie-chart"></i></span>Prod.</div><div class="tl-track-bar" data-track="productivity" data-day="' + day.date + '">';
-    for (var ai = 0; ai < day.app_usage.length; ai++) {
-      var au = day.app_usage[ai];
-      var auStart = parseToLocal(au.start_ts);
-      var auEnd = parseToLocal(au.end_ts);
-      if (!auStart || !auEnd) continue;
-      var asMin = timeToMinutes(auStart.getHours(), auStart.getMinutes());
-      var aeMin = timeToMinutes(auEnd.getHours(), auEnd.getMinutes());
-      if (aeMin <= asMin) aeMin = asMin + 1;
-      var cls2 = 'tl-block-' + au.category;
-      html += '<div class="tl-block ' + cls2 + '" style="left:' + posFromMinutes(asMin) + 'px;width:' + getBarWidthPx(asMin, aeMin) + 'px" data-type="app" data-app="' + escapeHtml(au.app_name) + '" data-title="' + escapeHtml(au.window_title) + '" data-url="' + escapeHtml(au.url) + '" data-category="' + au.category + '" data-start="' + fmtHM12(auStart) + '" data-end="' + fmtHM12(auEnd) + '" data-seconds="' + au.total_seconds + '"></div>';
-    }
-    html += '</div></div>';
-
-    /* Track 3: Apps (colored by app) */
-    html += '<div class="tl-track"><div class="tl-track-label"><span class="tl-label-icon"><i class="fa fa-th-large"></i></span>Apps</div><div class="tl-track-bar" data-track="apps" data-day="' + day.date + '">';
-    var appColors = {};
-    var colorPalette = ['#3b82f6','#8b5cf6','#ec4899','#f97316','#14b8a6','#06b6d4','#84cc16','#e11d48','#7c3aed','#0ea5e9','#f59e0b','#10b981'];
-    var ci = 0;
-    for (var ai2 = 0; ai2 < day.app_usage.length; ai2++) {
-      var au2 = day.app_usage[ai2];
-      var auStart2 = parseToLocal(au2.start_ts);
-      var auEnd2 = parseToLocal(au2.end_ts);
-      if (!auStart2 || !auEnd2) continue;
-      var asMin2 = timeToMinutes(auStart2.getHours(), auStart2.getMinutes());
-      var aeMin2 = timeToMinutes(auEnd2.getHours(), auEnd2.getMinutes());
-      if (aeMin2 <= asMin2) aeMin2 = asMin2 + 1;
-      var akey = au2.app_name;
-      if (!appColors[akey]) { appColors[akey] = colorPalette[ci % colorPalette.length]; ci++; }
-      html += '<div class="tl-block" style="left:' + posFromMinutes(asMin2) + 'px;width:' + getBarWidthPx(asMin2, aeMin2) + 'px;background:' + appColors[akey] + ';opacity:0.88" data-type="app" data-app="' + escapeHtml(au2.app_name) + '" data-title="' + escapeHtml(au2.window_title) + '" data-url="' + escapeHtml(au2.url) + '" data-category="' + au2.category + '" data-start="' + fmtHM12(auStart2) + '" data-end="' + fmtHM12(auEnd2) + '" data-seconds="' + au2.total_seconds + '" title="' + escapeHtml(au2.app_name) + '"></div>';
-    }
-    html += '</div></div>';
-
-    /* Track 4: Screenshots (clustered) */
-    html += '<div class="tl-track"><div class="tl-track-label"><span class="tl-label-icon"><i class="fa fa-camera"></i></span>Shots</div><div class="tl-track-bar" data-track="screenshots" data-day="' + day.date + '">';
-    var ssSorted = day.screenshots.slice().sort(function(a, b) {
-      return a.captured_at.localeCompare(b.captured_at);
-    });
-    var clusters = [];
-    var curCluster = null;
-    for (var si = 0; si < ssSorted.length; si++) {
-      var ss = ssSorted[si];
-      var ssDate = parseToLocal(ss.captured_at);
-      if (!ssDate) continue;
-      var ssMin = timeToMinutes(ssDate.getHours(), ssDate.getMinutes());
-      if (!curCluster || (ssMin - curCluster.endMin) > CLUSTER_WINDOW_MIN) {
-        curCluster = { startMin: ssMin, endMin: ssMin, items: [] };
-        clusters.push(curCluster);
-      }
-      curCluster.endMin = ssMin;
-      curCluster.items.push({ ss: ss, date: ssDate, min: ssMin });
-    }
-    var globalClusterIdx = 0;
-    for (var ci2 = 0; ci2 < clusters.length; ci2++) {
-      var cl = clusters[ci2];
-      var clMidMin = Math.round((cl.startMin + cl.endMin) / 2);
-      var clLeft = posFromMinutes(clMidMin) - 13;
-      if (cl.items.length === 1) {
-        var ssi = cl.items[0];
-        html += '<div class="tl-ss-cluster" style="left:' + clLeft + 'px">' +
-          '<div class="tl-ss-badge" data-type="screenshot" data-time="' + fmtHM12(ssi.date) + '" data-id="' + ssi.ss.id + '" data-keystrokes="' + ssi.ss.keystroke_count + '" data-mouse="' + ssi.ss.mouse_click_count + '" data-activity="' + ssi.ss.activity_percentage + '" data-img="' + escapeHtml(ssi.ss.image_url) + '">' +
-          '<i class="fa fa-camera"></i></div></div>';
-      } else {
-        var key = 'c_' + globalClusterIdx;
-        window._tlScreenshots[key] = [];
-        for (var sj = 0; sj < cl.items.length; sj++) {
-          var sjItem = cl.items[sj];
-          window._tlScreenshots[key].push({
-            id: sjItem.ss.id,
-            time: fmtHM12(sjItem.date),
-            activity: sjItem.ss.activity_percentage,
-            keystrokes: sjItem.ss.keystroke_count,
-            mouse: sjItem.ss.mouse_click_count,
-            imageUrl: sjItem.ss.image_url
-          });
+      var isExpanded = (day.date === todayStr);
+      if (!isExpanded && d === timelineData.length - 1) {
+        var hasToday = false;
+        for (var dd = 0; dd < timelineData.length; dd++) {
+          if (timelineData[dd].date === todayStr) { hasToday = true; break; }
         }
-        html += '<div class="tl-ss-cluster" style="left:' + clLeft + 'px">' +
-          '<div class="tl-ss-badge" data-type="cluster" data-cluster-id="' + key + '" data-count="' + cl.items.length + '">' +
-          '<i class="fa fa-camera"></i>' +
-          '<span class="tl-ss-count">' + cl.items.length + '</span></div></div>';
-        globalClusterIdx++;
+        if (!hasToday) isExpanded = true;
       }
-    }
-    html += '</div></div>';
 
-    /* Track 5: Activity Heatmap (continuous) */
-    html += '<div class="tl-track tl-track-activity"><div class="tl-track-label"><span class="tl-label-icon"><i class="fa fa-area-chart"></i></span>Activity</div><div class="tl-track-bar" data-track="activity" data-day="' + day.date + '">';
-    var actPoints = [];
-    for (var si2 = 0; si2 < ssSorted.length; si2++) {
-      var ss2 = ssSorted[si2];
-      var ssDate2 = parseToLocal(ss2.captured_at);
-      if (!ssDate2) continue;
-      actPoints.push({ min: timeToMinutes(ssDate2.getHours(), ssDate2.getMinutes()), pct: ss2.activity_percentage, date: ssDate2, ss: ss2 });
-    }
-    if (actPoints.length > 0) {
-      var prevMin = Math.max(0, actPoints[0].min - 5);
-      var prevPct = 0;
-      for (var ap = 0; ap < actPoints.length; ap++) {
-        var pt = actPoints[ap];
-        if (ap > 0) {
-          var segStart = prevMin;
-          var segEnd = pt.min;
-          var steps = Math.max(1, Math.round((segEnd - segStart) / 3));
-          var pp0 = (ap >= 2) ? actPoints[ap-2].pct : prevPct;
-          var pp1 = prevPct;
-          var pp2 = pt.pct;
-          var pp3 = (ap + 1 < actPoints.length) ? actPoints[ap+1].pct : pt.pct;
-          for (var s = 0; s < steps; s++) {
-            var frac = (s + 1) / (steps + 1);
-            var interpPct = Math.max(0, Math.min(100, cubicInterp(pp0, pp1, pp2, pp3, frac)));
-            var barMin = Math.round(segStart + (segEnd - segStart) * ((s + 1) / (steps + 1)));
-            var barH = Math.max(1, (interpPct / 100) * 34);
-            html += '<div class="tl-act-bar" style="left:' + (posFromMinutes(barMin) - 1.5) + 'px;height:' + barH + 'px;background:' + actColor(interpPct) + ';opacity:' + (0.4 + 0.6 * interpPct / 100) + '" data-type="activity" data-pct="' + Math.round(interpPct) + '" data-time="' + minutesToTimeAMPM(barMin) + '"></div>';
+      html += '<div class="tl-day" data-day="' + day.date + '">';
+      html += '<div class="tl-day-header" onclick="toggleDay(this)">';
+      html += '<div class="tl-day-header-left">';
+      html += '<span class="tl-day-chevron ' + (isExpanded ? '' : 'collapsed') + '"><i class="fa fa-chevron-down"></i></span>';
+      html += '<span>' + escapeHtml(day.day_label) + '</span>';
+      html += goalBadge;
+      html += '</div>';
+      html += '<span style="font-size:11px;color:#94a3b8">' + day.time_entries.length + ' entries &middot; ' + day.screenshots.length + ' screenshots</span>';
+      html += '</div>';
+      html += '<div class="tl-day-body" style="' + (isExpanded ? '' : 'max-height:0;opacity:0') + '">';
+
+      html += '<div class="tl-body" data-day="' + day.date + '">';
+      html += '<div class="tl-scale">';
+      for (var h = 0; h < HOURS; h++) {
+        var noonCls = (h === 12) ? ' tl-scale-noon' : '';
+        html += '<div class="tl-scale-hour' + noonCls + '">' + fmtHourLabel(h) + '</div>';
+      }
+      html += '</div>';
+      html += '<div class="tl-crosshair" id="ch-' + day.date + '"></div>';
+      html += '<div class="tl-tracks">';
+
+      /* Track 1: Logged Time */
+      html += '<div class="tl-track"><div class="tl-track-label"><span class="tl-label-icon"><i class="fa fa-clock-o"></i></span>Logged</div><div class="tl-track-bar" data-track="logged" data-day="' + day.date + '">';
+      for (var ei2 = 0; ei2 < day.time_entries.length; ei2++) {
+        var te = day.time_entries[ei2];
+        var teStart = parseToLocal(te.start_ts);
+        if (!teStart) continue;
+        var sMin = timeToMinutes(teStart.getHours(), teStart.getMinutes());
+        var eMin;
+        var isRunning = te.is_running;
+        if (isRunning) {
+          var now = new Date();
+          eMin = timeToMinutes(now.getHours(), now.getMinutes());
+          if (eMin <= sMin) eMin = sMin + 1;
+        } else {
+          var teEnd = parseToLocal(te.end_ts);
+          eMin = teEnd ? timeToMinutes(teEnd.getHours(), teEnd.getMinutes()) : sMin + 1;
+          if (eMin <= sMin) eMin = sMin + 1;
+        }
+        var runningCls = isRunning ? ' tl-block-running' : '';
+        var endLabel = isRunning ? 'Now' : fmtHM12(parseToLocal(te.end_ts));
+        var blockId = 'te-block-' + day.date + '-' + ei2;
+        html += '<div class="tl-block tl-block-logged' + runningCls + '" id="' + blockId + '" style="left:' + posFromMinutes(sMin) + 'px;width:' + getBarWidthPx(sMin, eMin) + 'px" data-type="entry" data-start="' + fmtHM12(teStart) + '" data-end="' + endLabel + '" data-task="' + escapeHtml(te.task_name) + '" data-seconds="' + te.total_seconds + '" data-smin="' + sMin + '"></div>';
+        if (isRunning) {
+          runningSessions.push({ id: blockId, sMin: sMin, startTs: te.start_ts, startLocal: teStart });
+        }
+      }
+      html += '</div></div>';
+
+      /* Track 2: Productivity */
+      html += '<div class="tl-track"><div class="tl-track-label"><span class="tl-label-icon"><i class="fa fa-pie-chart"></i></span>Prod.</div><div class="tl-track-bar" data-track="productivity" data-day="' + day.date + '">';
+      for (var ai = 0; ai < day.app_usage.length; ai++) {
+        var au = day.app_usage[ai];
+        var auStart = parseToLocal(au.start_ts);
+        var auEnd = parseToLocal(au.end_ts);
+        if (!auStart || !auEnd) continue;
+        var asMin = timeToMinutes(auStart.getHours(), auStart.getMinutes());
+        var aeMin = timeToMinutes(auEnd.getHours(), auEnd.getMinutes());
+        if (aeMin <= asMin) aeMin = asMin + 1;
+        var cls2 = 'tl-block-' + au.category;
+        html += '<div class="tl-block ' + cls2 + '" style="left:' + posFromMinutes(asMin) + 'px;width:' + getBarWidthPx(asMin, aeMin) + 'px" data-type="app" data-app="' + escapeHtml(au.app_name) + '" data-title="' + escapeHtml(au.window_title) + '" data-url="' + escapeHtml(au.url) + '" data-category="' + au.category + '" data-start="' + fmtHM12(auStart) + '" data-end="' + fmtHM12(auEnd) + '" data-seconds="' + au.total_seconds + '"></div>';
+      }
+      html += '</div></div>';
+
+      /* Track 3: Apps (colored by app) */
+      html += '<div class="tl-track"><div class="tl-track-label"><span class="tl-label-icon"><i class="fa fa-th-large"></i></span>Apps</div><div class="tl-track-bar" data-track="apps" data-day="' + day.date + '">';
+      var appColors = {};
+      var colorPalette = ['#3b82f6','#8b5cf6','#ec4899','#f97316','#14b8a6','#06b6d4','#84cc16','#e11d48','#7c3aed','#0ea5e9','#f59e0b','#10b981'];
+      var ci = 0;
+      for (var ai2 = 0; ai2 < day.app_usage.length; ai2++) {
+        var au2 = day.app_usage[ai2];
+        var auStart2 = parseToLocal(au2.start_ts);
+        var auEnd2 = parseToLocal(au2.end_ts);
+        if (!auStart2 || !auEnd2) continue;
+        var asMin2 = timeToMinutes(auStart2.getHours(), auStart2.getMinutes());
+        var aeMin2 = timeToMinutes(auEnd2.getHours(), auEnd2.getMinutes());
+        if (aeMin2 <= asMin2) aeMin2 = asMin2 + 1;
+        var akey = au2.app_name;
+        if (!appColors[akey]) { appColors[akey] = colorPalette[ci % colorPalette.length]; ci++; }
+        html += '<div class="tl-block" style="left:' + posFromMinutes(asMin2) + 'px;width:' + getBarWidthPx(asMin2, aeMin2) + 'px;background:' + appColors[akey] + ';opacity:0.88" data-type="app" data-app="' + escapeHtml(au2.app_name) + '" data-title="' + escapeHtml(au2.window_title) + '" data-url="' + escapeHtml(au2.url) + '" data-category="' + au2.category + '" data-start="' + fmtHM12(auStart2) + '" data-end="' + fmtHM12(auEnd2) + '" data-seconds="' + au2.total_seconds + '" title="' + escapeHtml(au2.app_name) + '"></div>';
+      }
+      html += '</div></div>';
+
+      /* Track 4: Screenshots (clustered) */
+      html += '<div class="tl-track"><div class="tl-track-label"><span class="tl-label-icon"><i class="fa fa-camera"></i></span>Shots</div><div class="tl-track-bar" data-track="screenshots" data-day="' + day.date + '">';
+      var ssSorted = day.screenshots.slice().sort(function(a, b) {
+        return a.captured_at.localeCompare(b.captured_at);
+      });
+      var clusters = [];
+      var curCluster = null;
+      for (var si = 0; si < ssSorted.length; si++) {
+        var ss = ssSorted[si];
+        var ssDate = parseToLocal(ss.captured_at);
+        if (!ssDate) continue;
+        var ssMin = timeToMinutes(ssDate.getHours(), ssDate.getMinutes());
+        if (!curCluster || (ssMin - curCluster.endMin) > CLUSTER_WINDOW_MIN) {
+          curCluster = { startMin: ssMin, endMin: ssMin, items: [] };
+          clusters.push(curCluster);
+        }
+        curCluster.endMin = ssMin;
+        curCluster.items.push({ ss: ss, date: ssDate, min: ssMin });
+      }
+      var globalClusterIdx = 0;
+      for (var ci2 = 0; ci2 < clusters.length; ci2++) {
+        var cl = clusters[ci2];
+        var clMidMin = Math.round((cl.startMin + cl.endMin) / 2);
+        var clLeft = posFromMinutes(clMidMin) - 13;
+        if (cl.items.length === 1) {
+          var ssi = cl.items[0];
+          html += '<div class="tl-ss-cluster" style="left:' + clLeft + 'px">' +
+            '<div class="tl-ss-badge" data-type="screenshot" data-time="' + fmtHM12(ssi.date) + '" data-id="' + ssi.ss.id + '" data-keystrokes="' + ssi.ss.keystroke_count + '" data-mouse="' + ssi.ss.mouse_click_count + '" data-activity="' + ssi.ss.activity_percentage + '" data-img="' + escapeHtml(ssi.ss.image_url) + '">' +
+            '<i class="fa fa-camera"></i></div></div>';
+        } else {
+          var key = 'c_' + globalClusterIdx;
+          window._tlScreenshots[key] = [];
+          for (var sj = 0; sj < cl.items.length; sj++) {
+            var sjItem = cl.items[sj];
+            window._tlScreenshots[key].push({
+              id: sjItem.ss.id,
+              time: fmtHM12(sjItem.date),
+              activity: sjItem.ss.activity_percentage,
+              keystrokes: sjItem.ss.keystroke_count,
+              mouse: sjItem.ss.mouse_click_count,
+              imageUrl: sjItem.ss.image_url
+            });
+          }
+          html += '<div class="tl-ss-cluster" style="left:' + clLeft + 'px">' +
+            '<div class="tl-ss-badge" data-type="cluster" data-cluster-id="' + key + '" data-count="' + cl.items.length + '">' +
+            '<i class="fa fa-camera"></i>' +
+            '<span class="tl-ss-count">' + cl.items.length + '</span></div></div>';
+          globalClusterIdx++;
+        }
+      }
+      html += '</div></div>';
+
+      /* Track 5: Activity Heatmap (continuous) */
+      html += '<div class="tl-track tl-track-activity"><div class="tl-track-label"><span class="tl-label-icon"><i class="fa fa-area-chart"></i></span>Activity</div><div class="tl-track-bar" data-track="activity" data-day="' + day.date + '">';
+      var actPoints = [];
+      for (var si2 = 0; si2 < ssSorted.length; si2++) {
+        var ss2 = ssSorted[si2];
+        var ssDate2 = parseToLocal(ss2.captured_at);
+        if (!ssDate2) continue;
+        actPoints.push({ min: timeToMinutes(ssDate2.getHours(), ssDate2.getMinutes()), pct: ss2.activity_percentage, date: ssDate2, ss: ss2 });
+      }
+      if (actPoints.length > 0) {
+        var prevMin = Math.max(0, actPoints[0].min - 5);
+        var prevPct = 0;
+        for (var ap = 0; ap < actPoints.length; ap++) {
+          var pt = actPoints[ap];
+          if (ap > 0) {
+            var segStart = prevMin;
+            var segEnd = pt.min;
+            var steps = Math.max(1, Math.round((segEnd - segStart) / 3));
+            var pp0 = (ap >= 2) ? actPoints[ap-2].pct : prevPct;
+            var pp1 = prevPct;
+            var pp2 = pt.pct;
+            var pp3 = (ap + 1 < actPoints.length) ? actPoints[ap+1].pct : pt.pct;
+            for (var s = 0; s < steps; s++) {
+              var frac = (s + 1) / (steps + 1);
+              var interpPct = Math.max(0, Math.min(100, cubicInterp(pp0, pp1, pp2, pp3, frac)));
+              var barMin = Math.round(segStart + (segEnd - segStart) * ((s + 1) / (steps + 1)));
+              var barH = Math.max(1, (interpPct / 100) * 34);
+              html += '<div class="tl-act-bar" style="left:' + (posFromMinutes(barMin) - 1.5) + 'px;height:' + barH + 'px;background:' + actColor(interpPct) + ';opacity:' + (0.4 + 0.6 * interpPct / 100) + '" data-type="activity" data-pct="' + Math.round(interpPct) + '" data-time="' + minutesToTimeAMPM(barMin) + '"></div>';
+            }
+          }
+          var barH2 = Math.max(1, (pt.pct / 100) * 34);
+          html += '<div class="tl-act-point" style="left:' + (posFromMinutes(pt.min) - 3.5) + 'px;bottom:' + (Math.max(2, (pt.pct / 100) * 34) - 3) + 'px" data-type="activity" data-pct="' + pt.pct + '" data-time="' + fmtHM12(pt.date) + '" data-keystrokes="' + pt.ss.keystroke_count + '" data-mouse="' + pt.ss.mouse_click_count + '" data-img="' + escapeHtml(pt.ss.image_url) + '"></div>';
+          html += '<div class="tl-act-bar" style="left:' + (posFromMinutes(pt.min) - 1.5) + 'px;height:' + barH2 + 'px;background:' + actColor(pt.pct) + ';opacity:' + (0.4 + 0.6 * pt.pct / 100) + '"></div>';
+          prevMin = pt.min;
+          prevPct = pt.pct;
+        }
+        var lastMin = prevMin + 5;
+        if (lastMin <= 1439) {
+          var fadeEnd = Math.min(lastMin + 15, 1439);
+          var fadeSteps = Math.max(1, Math.round((fadeEnd - lastMin) / 3));
+          for (var fs = 0; fs < fadeSteps; fs++) {
+            var fadeFrac = 1 - ((fs + 1) / (fadeSteps + 1));
+            var fadePct = prevPct * fadeFrac;
+            var fadeBarMin = Math.round(lastMin + (fadeEnd - lastMin) * ((fs + 1) / (fadeSteps + 1)));
+            var fadeBarH = Math.max(1, (fadePct / 100) * 34);
+            html += '<div class="tl-act-bar" style="left:' + (posFromMinutes(fadeBarMin) - 1.5) + 'px;height:' + fadeBarH + 'px;background:' + actColor(fadePct) + ';opacity:' + (0.4 + 0.6 * fadeFrac) + '"></div>';
           }
         }
-        var barH2 = Math.max(1, (pt.pct / 100) * 34);
-        html += '<div class="tl-act-point" style="left:' + (posFromMinutes(pt.min) - 3.5) + 'px;bottom:' + (Math.max(2, (pt.pct / 100) * 34) - 3) + 'px" data-type="activity" data-pct="' + pt.pct + '" data-time="' + fmtHM12(pt.date) + '" data-keystrokes="' + pt.ss.keystroke_count + '" data-mouse="' + pt.ss.mouse_click_count + '" data-img="' + escapeHtml(pt.ss.image_url) + '"></div>';
-        html += '<div class="tl-act-bar" style="left:' + (posFromMinutes(pt.min) - 1.5) + 'px;height:' + barH2 + 'px;background:' + actColor(pt.pct) + ';opacity:' + (0.4 + 0.6 * pt.pct / 100) + '"></div>';
-        prevMin = pt.min;
-        prevPct = pt.pct;
       }
-      var lastMin = prevMin + 5;
-      if (lastMin <= 1439) {
-        var fadeEnd = Math.min(lastMin + 15, 1439);
-        var fadeSteps = Math.max(1, Math.round((fadeEnd - lastMin) / 3));
-        for (var fs = 0; fs < fadeSteps; fs++) {
-          var fadeFrac = 1 - ((fs + 1) / (fadeSteps + 1));
-          var fadePct = prevPct * fadeFrac;
-          var fadeBarMin = Math.round(lastMin + (fadeEnd - lastMin) * ((fs + 1) / (fadeSteps + 1)));
-          var fadeBarH = Math.max(1, (fadePct / 100) * 34);
-          html += '<div class="tl-act-bar" style="left:' + (posFromMinutes(fadeBarMin) - 1.5) + 'px;height:' + fadeBarH + 'px;background:' + actColor(fadePct) + ';opacity:' + (0.4 + 0.6 * fadeFrac) + '"></div>';
-        }
+      html += '</div></div>';
+
+      html += '</div></div></div></div>';
+    }
+
+    root.innerHTML = html;
+
+    window.toggleDay = function(header) {
+      var dayEl = header.closest('.tl-day');
+      var body = dayEl.querySelector('.tl-day-body');
+      var chevron = header.querySelector('.tl-day-chevron');
+      if (body.style.maxHeight && body.style.maxHeight !== '0px') {
+        body.style.maxHeight = '0px';
+        body.style.opacity = '0';
+        chevron.classList.add('collapsed');
+      } else {
+        body.style.maxHeight = body.scrollHeight + 500 + 'px';
+        body.style.opacity = '1';
+        chevron.classList.remove('collapsed');
+        setTimeout(function() { body.style.maxHeight = 'none'; }, 400);
+      }
+    };
+
+    var expandedBodies = root.querySelectorAll('.tl-day-body');
+    for (var eb = 0; eb < expandedBodies.length; eb++) {
+      if (expandedBodies[eb].style.maxHeight !== '0px') {
+        expandedBodies[eb].style.maxHeight = expandedBodies[eb].scrollHeight + 500 + 'px';
       }
     }
-    html += '</div></div>';
 
-    html += '</div></div></div></div>';
-  }
+    function showTooltip(e, tipHtml) {
+      tooltip.innerHTML = tipHtml;
+      tooltip.style.display = 'block';
+      var rect = tooltip.getBoundingClientRect();
+      var x = e.clientX + 16;
+      var y = e.clientY - 12;
+      if (x + rect.width > window.innerWidth - 12) x = e.clientX - rect.width - 16;
+      if (y + rect.height > window.innerHeight - 12) y = window.innerHeight - rect.height - 12;
+      if (y < 8) y = 8;
+      tooltip.style.left = x + 'px';
+      tooltip.style.top = y + 'px';
+    }
 
-  root.innerHTML = html;
+    function hideTooltip() { tooltip.style.display = 'none'; }
 
-  window.toggleDay = function(header) {
-    var dayEl = header.closest('.tl-day');
-    var body = dayEl.querySelector('.tl-day-body');
-    var chevron = header.querySelector('.tl-day-chevron');
-    if (body.style.maxHeight && body.style.maxHeight !== '0px') {
-      body.style.maxHeight = '0px';
-      body.style.opacity = '0';
-      chevron.classList.add('collapsed');
-    } else {
-      body.style.maxHeight = body.scrollHeight + 500 + 'px';
-      body.style.opacity = '1';
-      chevron.classList.remove('collapsed');
-      setTimeout(function() { body.style.maxHeight = 'none'; }, 400);
+    function openScreenshotModal(clusterId) {
+      var items = window._tlScreenshots[clusterId];
+      if (!items || items.length === 0) return;
+      var overlay = document.createElement('div');
+      overlay.className = 'tl-ss-modal-overlay';
+      overlay.setAttribute('data-modal', 'ss-gallery');
+      var gridHtml = '';
+      for (var i = 0; i < items.length; i++) {
+        var it = items[i];
+        gridHtml += '<div class="tl-ss-card">' +
+          '<img src="' + escapeHtml(it.imageUrl) + '" onerror="this.style.background=\'#f1f5f9\';this.alt=\'No preview\'" loading="lazy" />' +
+          '<div class="tl-ss-card-info">' +
+          '<div class="tl-ss-card-time">' + it.time + '</div>' +
+          '<span class="tl-ss-card-activity ' + actBadgeClass(it.activity) + '">' + it.activity + '%</span>' +
+          '</div></div>';
+      }
+      overlay.innerHTML =
+        '<div class="tl-ss-modal">' +
+        '<div class="tl-ss-modal-header"><span><i class="fa fa-camera" style="color:#8b5cf6"></i> ' + items.length + ' Screenshots</span>' +
+        '<button class="tl-ss-modal-close" data-close-modal="ss-gallery">&times;</button></div>' +
+        '<div class="tl-ss-modal-body"><div class="tl-ss-modal-grid">' + gridHtml + '</div></div></div>';
+      document.body.appendChild(overlay);
+      overlay.addEventListener('click', function(e) {
+        if (e.target === overlay || e.target.getAttribute('data-close-modal')) {
+          overlay.remove();
+        }
+      });
+      document.addEventListener('keydown', function onEsc(e) {
+        if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', onEsc); }
+      });
+    }
+
+    function showCrosshair(e, dayDate) {
+      var ch = document.getElementById('ch-' + dayDate);
+      if (!ch) return;
+      var trackContainer = ch.parentElement.querySelector('.tl-tracks');
+      if (!trackContainer) return;
+      var firstBar = trackContainer.querySelector('.tl-track-bar');
+      if (!firstBar) return;
+      var barRect = firstBar.getBoundingClientRect();
+      var x = e.clientX - barRect.left;
+      if (x < 0 || x > barRect.width) { ch.style.display = 'none'; return; }
+      ch.style.display = 'block';
+      ch.style.left = (96 + x) + 'px';
+      ch.style.height = trackContainer.scrollHeight + 'px';
+      var totalMin = minutesFromPos(x);
+      ch.setAttribute('data-time', minutesToTimeAMPM(totalMin));
+    }
+
+    function hideCrosshair() {
+      var els = document.querySelectorAll('.tl-crosshair');
+      for (var i = 0; i < els.length; i++) els[i].style.display = 'none';
+    }
+
+    function handleBlockHover(e) {
+      var el = e.currentTarget;
+      var type = el.getAttribute('data-type');
+      var tipHtml = '';
+      if (type === 'entry') {
+        tipHtml = '<div class="tl-tooltip-title"><i class="fa fa-clock-o" style="color:#3b82f6"></i>Time Entry</div>' +
+          '<div class="tl-tooltip-row"><strong>Time:</strong> ' + el.getAttribute('data-start') + ' &mdash; ' + el.getAttribute('data-end') + '</div>' +
+          '<div class="tl-tooltip-row"><strong>Duration:</strong> ' + formatSeconds(parseInt(el.getAttribute('data-seconds'))) + '</div>' +
+          '<div class="tl-tooltip-row"><strong>Task:</strong> ' + escapeHtml(el.getAttribute('data-task')) + '</div>';
+      } else if (type === 'app') {
+        var cat = el.getAttribute('data-category');
+        var catColor = { productive: '#22c55e', neutral: '#f59e0b', distracting: '#ef4444' }[cat] || '#94a3b8';
+        tipHtml = '<div class="tl-tooltip-title">' + getAppIconHtml(el.getAttribute('data-app'), el.getAttribute('data-url')) + escapeHtml(el.getAttribute('data-app')) + '</div>' +
+          '<div class="tl-tooltip-row"><strong>Time:</strong> ' + el.getAttribute('data-start') + ' &mdash; ' + el.getAttribute('data-end') + '</div>' +
+          '<div class="tl-tooltip-row"><strong>Duration:</strong> ' + formatSeconds(parseInt(el.getAttribute('data-seconds'))) + '</div>' +
+          '<div class="tl-tooltip-row"><span class="tl-tooltip-dot" style="background:' + catColor + '"></span><strong>Status:</strong> ' + cat.charAt(0).toUpperCase() + cat.slice(1) + '</div>';
+        var ttl = el.getAttribute('data-title');
+        if (ttl) tipHtml += '<div class="tl-tooltip-row"><strong>Window:</strong> ' + escapeHtml(ttl).substring(0, 50) + '</div>';
+        var url = el.getAttribute('data-url');
+        if (url) tipHtml += '<div class="tl-tooltip-row"><strong>URL:</strong> ' + escapeHtml(url).substring(0, 50) + '</div>';
+      } else if (type === 'screenshot') {
+        tipHtml = '<div class="tl-tooltip-title"><i class="fa fa-camera" style="color:#8b5cf6"></i>Screenshot</div>' +
+          '<div class="tl-tooltip-row"><strong>Time:</strong> ' + el.getAttribute('data-time') + '</div>' +
+          '<div class="tl-tooltip-row"><strong>Activity:</strong> ' + el.getAttribute('data-activity') + '%</div>' +
+          '<div class="tl-tooltip-row"><strong>Keystrokes:</strong> ' + el.getAttribute('data-keystrokes') + '</div>' +
+          '<div class="tl-tooltip-row"><strong>Mouse:</strong> ' + el.getAttribute('data-mouse') + ' clicks</div>';
+        var imgSrc = el.getAttribute('data-img');
+        if (imgSrc) tipHtml += '<img class="tl-tooltip-img" src="' + imgSrc + '" onerror="this.style.display=\'none\'" />';
+      } else if (type === 'activity') {
+        tipHtml = '<div class="tl-tooltip-title"><i class="fa fa-area-chart" style="color:#06b6d4"></i>Activity Level</div>' +
+          '<div class="tl-tooltip-row"><strong>Time:</strong> ' + el.getAttribute('data-time') + '</div>' +
+          '<div class="tl-tooltip-row"><strong>Level:</strong> ' + el.getAttribute('data-pct') + '%</div>';
+        var ks = el.getAttribute('data-keystrokes');
+        if (ks) tipHtml += '<div class="tl-tooltip-row"><strong>Keys:</strong> ' + ks + '</div>';
+        var mc = el.getAttribute('data-mouse');
+        if (mc) tipHtml += '<div class="tl-tooltip-row"><strong>Mouse:</strong> ' + mc + ' clicks</div>';
+        var actImg = el.getAttribute('data-img');
+        if (actImg) tipHtml += '<img class="tl-tooltip-img" src="' + actImg + '" onerror="this.style.display=\'none\'" />';
+      }
+      if (tipHtml) showTooltip(e, tipHtml);
+    }
+
+    var blocks = root.querySelectorAll('.tl-block, .tl-ss-badge, .tl-act-point');
+    for (var i = 0; i < blocks.length; i++) {
+      blocks[i].addEventListener('mouseenter', handleBlockHover);
+      blocks[i].addEventListener('mousemove', handleBlockHover);
+      blocks[i].addEventListener('mouseleave', hideTooltip);
+    }
+
+    var clusterBadges = root.querySelectorAll('.tl-ss-badge[data-type="cluster"]');
+    for (var ci3 = 0; ci3 < clusterBadges.length; ci3++) {
+      (function(badge) {
+        badge.addEventListener('click', function(e) {
+          e.stopPropagation();
+          var cid = badge.getAttribute('data-cluster-id');
+          if (cid) openScreenshotModal(cid);
+        });
+      })(clusterBadges[ci3]);
+    }
+
+    var trackBars = root.querySelectorAll('.tl-track-bar');
+    for (var j = 0; j < trackBars.length; j++) {
+      (function(bar) {
+        bar.addEventListener('mousemove', function(e) {
+          showCrosshair(e, bar.getAttribute('data-day'));
+        });
+        bar.addEventListener('mouseleave', hideCrosshair);
+      })(trackBars[j]);
+    }
+
+    /* Dynamic running session updates */
+    if (window._tlRunningInterval) clearInterval(window._tlRunningInterval);
+    if (runningSessions.length > 0) {
+      window._tlRunningInterval = setInterval(function() {
+        var now = new Date();
+        var nowMin = timeToMinutes(now.getHours(), now.getMinutes());
+        for (var ri = 0; ri < runningSessions.length; ri++) {
+          var rs = runningSessions[ri];
+          var el = document.getElementById(rs.id);
+          if (!el) continue;
+          var eMin = nowMin;
+          if (eMin <= rs.sMin) eMin = rs.sMin + 1;
+          el.style.width = getBarWidthPx(rs.sMin, eMin) + 'px';
+          el.setAttribute('data-end', 'Now');
+          var elapsed = (now.getTime() - rs.startLocal.getTime()) / 1000;
+          el.setAttribute('data-seconds', Math.max(0, Math.round(elapsed)));
+        }
+      }, 30000);
     }
   };
 
-  var expandedBodies = root.querySelectorAll('.tl-day-body');
-  for (var eb = 0; eb < expandedBodies.length; eb++) {
-    if (expandedBodies[eb].style.maxHeight !== '0px') {
-      expandedBodies[eb].style.maxHeight = expandedBodies[eb].scrollHeight + 500 + 'px';
-    }
-  }
+  window.loadTimeline = function(userId, from, to) {
+    root = document.getElementById('tl-root');
+    if (!root) return;
+    root.innerHTML = '<div class="tl-empty"><i class="fa fa-spinner fa-spin"></i>Loading timeline...</div>';
 
-  function showTooltip(e, tipHtml) {
-    tooltip.innerHTML = tipHtml;
-    tooltip.style.display = 'block';
-    var rect = tooltip.getBoundingClientRect();
-    var x = e.clientX + 16;
-    var y = e.clientY - 12;
-    if (x + rect.width > window.innerWidth - 12) x = e.clientX - rect.width - 16;
-    if (y + rect.height > window.innerHeight - 12) y = window.innerHeight - rect.height - 12;
-    if (y < 8) y = 8;
-    tooltip.style.left = x + 'px';
-    tooltip.style.top = y + 'px';
-  }
+    var baseUrl = (document.querySelector('base') || {}).href || window.location.origin;
+    var url = baseUrl + '/admin/timesync/timeline_json/' + userId + '?from=' + encodeURIComponent(from) + '&to=' + encodeURIComponent(to);
 
-  function hideTooltip() { tooltip.style.display = 'none'; }
-
-  function openScreenshotModal(clusterId) {
-    var items = window._tlScreenshots[clusterId];
-    if (!items || items.length === 0) return;
-    var overlay = document.createElement('div');
-    overlay.className = 'tl-ss-modal-overlay';
-    overlay.setAttribute('data-modal', 'ss-gallery');
-    var gridHtml = '';
-    for (var i = 0; i < items.length; i++) {
-      var it = items[i];
-      gridHtml += '<div class="tl-ss-card">' +
-        '<img src="' + escapeHtml(it.imageUrl) + '" onerror="this.style.background=\'#f1f5f9\';this.alt=\'No preview\'" loading="lazy" />' +
-        '<div class="tl-ss-card-info">' +
-        '<div class="tl-ss-card-time">' + it.time + '</div>' +
-        '<span class="tl-ss-card-activity ' + actBadgeClass(it.activity) + '">' + it.activity + '%</span>' +
-        '</div></div>';
-    }
-    overlay.innerHTML =
-      '<div class="tl-ss-modal">' +
-      '<div class="tl-ss-modal-header"><span><i class="fa fa-camera" style="color:#8b5cf6"></i> ' + items.length + ' Screenshots</span>' +
-      '<button class="tl-ss-modal-close" data-close-modal="ss-gallery">&times;</button></div>' +
-      '<div class="tl-ss-modal-body"><div class="tl-ss-modal-grid">' + gridHtml + '</div></div></div>';
-    document.body.appendChild(overlay);
-    overlay.addEventListener('click', function(e) {
-      if (e.target === overlay || e.target.getAttribute('data-close-modal')) {
-        overlay.remove();
-      }
-    });
-    document.addEventListener('keydown', function onEsc(e) {
-      if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', onEsc); }
-    });
-  }
-
-  function showCrosshair(e, dayDate) {
-    var ch = document.getElementById('ch-' + dayDate);
-    if (!ch) return;
-    var trackContainer = ch.parentElement.querySelector('.tl-tracks');
-    if (!trackContainer) return;
-    var firstBar = trackContainer.querySelector('.tl-track-bar');
-    if (!firstBar) return;
-    var barRect = firstBar.getBoundingClientRect();
-    var x = e.clientX - barRect.left;
-    if (x < 0 || x > barRect.width) { ch.style.display = 'none'; return; }
-    ch.style.display = 'block';
-    ch.style.left = (96 + x) + 'px';
-    ch.style.height = trackContainer.scrollHeight + 'px';
-    var totalMin = minutesFromPos(x);
-    ch.setAttribute('data-time', minutesToTimeAMPM(totalMin));
-  }
-
-  function hideCrosshair() {
-    var els = document.querySelectorAll('.tl-crosshair');
-    for (var i = 0; i < els.length; i++) els[i].style.display = 'none';
-  }
-
-  function handleBlockHover(e) {
-    var el = e.currentTarget;
-    var type = el.getAttribute('data-type');
-    var tipHtml = '';
-    if (type === 'entry') {
-      tipHtml = '<div class="tl-tooltip-title"><i class="fa fa-clock-o" style="color:#3b82f6"></i>Time Entry</div>' +
-        '<div class="tl-tooltip-row"><strong>Time:</strong> ' + el.getAttribute('data-start') + ' &mdash; ' + el.getAttribute('data-end') + '</div>' +
-        '<div class="tl-tooltip-row"><strong>Duration:</strong> ' + formatSeconds(parseInt(el.getAttribute('data-seconds'))) + '</div>' +
-        '<div class="tl-tooltip-row"><strong>Task:</strong> ' + escapeHtml(el.getAttribute('data-task')) + '</div>';
-    } else if (type === 'app') {
-      var cat = el.getAttribute('data-category');
-      var catColor = { productive: '#22c55e', neutral: '#f59e0b', distracting: '#ef4444' }[cat] || '#94a3b8';
-      tipHtml = '<div class="tl-tooltip-title">' + getAppIconHtml(el.getAttribute('data-app'), el.getAttribute('data-url')) + escapeHtml(el.getAttribute('data-app')) + '</div>' +
-        '<div class="tl-tooltip-row"><strong>Time:</strong> ' + el.getAttribute('data-start') + ' &mdash; ' + el.getAttribute('data-end') + '</div>' +
-        '<div class="tl-tooltip-row"><strong>Duration:</strong> ' + formatSeconds(parseInt(el.getAttribute('data-seconds'))) + '</div>' +
-        '<div class="tl-tooltip-row"><span class="tl-tooltip-dot" style="background:' + catColor + '"></span><strong>Status:</strong> ' + cat.charAt(0).toUpperCase() + cat.slice(1) + '</div>';
-      var ttl = el.getAttribute('data-title');
-      if (ttl) tipHtml += '<div class="tl-tooltip-row"><strong>Window:</strong> ' + escapeHtml(ttl).substring(0, 50) + '</div>';
-      var url = el.getAttribute('data-url');
-      if (url) tipHtml += '<div class="tl-tooltip-row"><strong>URL:</strong> ' + escapeHtml(url).substring(0, 50) + '</div>';
-    } else if (type === 'screenshot') {
-      tipHtml = '<div class="tl-tooltip-title"><i class="fa fa-camera" style="color:#8b5cf6"></i>Screenshot</div>' +
-        '<div class="tl-tooltip-row"><strong>Time:</strong> ' + el.getAttribute('data-time') + '</div>' +
-        '<div class="tl-tooltip-row"><strong>Activity:</strong> ' + el.getAttribute('data-activity') + '%</div>' +
-        '<div class="tl-tooltip-row"><strong>Keystrokes:</strong> ' + el.getAttribute('data-keystrokes') + '</div>' +
-        '<div class="tl-tooltip-row"><strong>Mouse:</strong> ' + el.getAttribute('data-mouse') + ' clicks</div>';
-      var imgSrc = el.getAttribute('data-img');
-      if (imgSrc) tipHtml += '<img class="tl-tooltip-img" src="' + imgSrc + '" onerror="this.style.display=\'none\'" />';
-    } else if (type === 'activity') {
-      tipHtml = '<div class="tl-tooltip-title"><i class="fa fa-area-chart" style="color:#06b6d4"></i>Activity Level</div>' +
-        '<div class="tl-tooltip-row"><strong>Time:</strong> ' + el.getAttribute('data-time') + '</div>' +
-        '<div class="tl-tooltip-row"><strong>Level:</strong> ' + el.getAttribute('data-pct') + '%</div>';
-      var ks = el.getAttribute('data-keystrokes');
-      if (ks) tipHtml += '<div class="tl-tooltip-row"><strong>Keys:</strong> ' + ks + '</div>';
-      var mc = el.getAttribute('data-mouse');
-      if (mc) tipHtml += '<div class="tl-tooltip-row"><strong>Mouse:</strong> ' + mc + ' clicks</div>';
-      var actImg = el.getAttribute('data-img');
-      if (actImg) tipHtml += '<img class="tl-tooltip-img" src="' + actImg + '" onerror="this.style.display=\'none\'" />';
-    }
-    if (tipHtml) showTooltip(e, tipHtml);
-  }
-
-  var blocks = root.querySelectorAll('.tl-block, .tl-ss-badge, .tl-act-point');
-  for (var i = 0; i < blocks.length; i++) {
-    blocks[i].addEventListener('mouseenter', handleBlockHover);
-    blocks[i].addEventListener('mousemove', handleBlockHover);
-    blocks[i].addEventListener('mouseleave', hideTooltip);
-  }
-
-  var clusterBadges = root.querySelectorAll('.tl-ss-badge[data-type="cluster"]');
-  for (var ci3 = 0; ci3 < clusterBadges.length; ci3++) {
-    (function(badge) {
-      badge.addEventListener('click', function(e) {
-        e.stopPropagation();
-        var cid = badge.getAttribute('data-cluster-id');
-        if (cid) openScreenshotModal(cid);
+    fetch(url)
+      .then(function(r) { return r.json(); })
+      .then(function(data) { renderTimeline(data); })
+      .catch(function() {
+        root.innerHTML = '<div class="tl-empty"><i class="fa fa-exclamation-triangle"></i>Failed to load timeline data.</div>';
       });
-    })(clusterBadges[ci3]);
-  }
+  };
 
-  var trackBars = root.querySelectorAll('.tl-track-bar');
-  for (var j = 0; j < trackBars.length; j++) {
-    (function(bar) {
-      bar.addEventListener('mousemove', function(e) {
-        showCrosshair(e, bar.getAttribute('data-day'));
-      });
-      bar.addEventListener('mouseleave', hideCrosshair);
-    })(trackBars[j]);
-  }
+  /* Initial render: use embedded data if available, otherwise AJAX */
+  var uid = root.getAttribute('data-user-id');
+  var fromVal = root.getAttribute('data-from');
+  var toVal = root.getAttribute('data-to');
 
-  /* Dynamic running session updates */
-  if (runningSessions.length > 0) {
-    setInterval(function() {
-      var now = new Date();
-      var nowMin = timeToMinutes(now.getHours(), now.getMinutes());
-      for (var ri = 0; ri < runningSessions.length; ri++) {
-        var rs = runningSessions[ri];
-        var el = document.getElementById(rs.id);
-        if (!el) continue;
-        var eMin = nowMin;
-        if (eMin <= rs.sMin) eMin = rs.sMin + 1;
-        el.style.width = getBarWidthPx(rs.sMin, eMin) + 'px';
-        el.setAttribute('data-end', 'Now');
-        var elapsed = (now.getTime() - rs.startLocal.getTime()) / 1000;
-        el.setAttribute('data-seconds', Math.max(0, Math.round(elapsed)));
-      }
-    }, 30000);
+  if (embeddedData && embeddedData.length > 0) {
+    requestAnimationFrame(function() { renderTimeline(embeddedData); });
+  } else if (uid && fromVal && toVal) {
+    requestAnimationFrame(function() { loadTimeline(uid, fromVal, toVal); });
   }
 })();
 </script>

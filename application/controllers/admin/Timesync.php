@@ -549,6 +549,26 @@ class Timesync extends Admin_Controller
         $this->_render_or_ajax($data);
     }
 
+    public function timeline_json($user_id = null)
+    {
+        if (!is_super_admin() && !can_action_by_label('timesync', 'view')) {
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode(['error' => 'Unauthorized']));
+            return;
+        }
+
+        $from = $this->input->get('from');
+        $to = $this->input->get('to');
+        if (empty($from)) $from = date('Y-m-01');
+        if (empty($to)) $to = date('Y-m-d');
+
+        $data = $this->_timeline_data($user_id, $from, $to);
+        $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
+
     public function screenshots()
     {
         if (!is_super_admin()) {
