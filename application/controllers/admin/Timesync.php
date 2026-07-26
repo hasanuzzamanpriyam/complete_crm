@@ -1134,9 +1134,6 @@ class Timesync extends Admin_Controller
         $data['title'] = 'TimeSync Settings';
 
         if ($this->input->post()) {
-            $demo_mode = $this->input->post('demo_mode') == '1' ? '1' : '0';
-            $this->_save_config('timesync_demo_mode', $demo_mode);
-
             $retention_days = (int)$this->input->post('screenshot_retention_days');
             $this->_save_config('screenshot_retention_days', (string)$retention_days);
 
@@ -1177,7 +1174,6 @@ class Timesync extends Admin_Controller
             redirect('admin/timesync/settings');
         }
 
-        $data['demo_mode'] = config_item('timesync_demo_mode');
         $data['screenshot_retention_days'] = config_item('screenshot_retention_days') ?: '90';
         $data['screenshot_interval_minutes'] = config_item('screenshot_interval_minutes') ?: '5';
 
