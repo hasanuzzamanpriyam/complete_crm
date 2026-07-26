@@ -190,6 +190,13 @@
                         <p class="help-block">Frequency while timer is running. First capture after interval elapses.</p>
                     </div>
 
+                    <div class="form-group">
+                        <label class="field-label">Desktop App Sync Interval (min)</label>
+                        <input type="number" name="desktop_sync_interval_minutes" class="form-control"
+                               value="<?= $desktop_sync_interval_minutes ?>" min="1" max="60">
+                        <p class="help-block">How often desktop apps sync with ERP. Changes apply on next app restart.</p>
+                    </div>
+
                     <button type="submit" class="btn-save"><i class="fa fa-check" style="margin-right:4px;"></i> Save Settings</button>
                 <?php echo form_close(); ?>
             </div>

@@ -1140,6 +1140,9 @@ class Timesync extends Admin_Controller
             $screenshot_interval = (int)$this->input->post('screenshot_interval_minutes');
             $this->_save_config('screenshot_interval_minutes', (string)max(1, min(60, $screenshot_interval)));
 
+            $sync_interval = (int)$this->input->post('desktop_sync_interval_minutes');
+            $this->_save_config('desktop_sync_interval_minutes', (string)max(1, min(60, $sync_interval)));
+
             $default_daily = $this->input->post('default_daily_hours');
             if ($default_daily !== null) {
                 $this->_save_config('timesync_default_daily_hours', (string)max(0, (float)$default_daily));
@@ -1176,6 +1179,7 @@ class Timesync extends Admin_Controller
 
         $data['screenshot_retention_days'] = config_item('screenshot_retention_days') ?: '90';
         $data['screenshot_interval_minutes'] = config_item('screenshot_interval_minutes') ?: '5';
+        $data['desktop_sync_interval_minutes'] = config_item('desktop_sync_interval_minutes') ?: '5';
 
         $config_log = $this->db
             ->query("SELECT l1.* FROM tbl_timesync_config_log l1

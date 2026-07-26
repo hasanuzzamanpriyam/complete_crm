@@ -50,6 +50,9 @@ class Tracker extends MY_Controller
             $default['screenshot_interval_minutes'] = (int)$db_interval->value;
         }
 
+        $sync_cfg = $this->db->where('config_key', 'desktop_sync_interval_minutes')->get('tbl_config')->row();
+        $default['sync_interval_minutes'] = ($sync_cfg && (int)$sync_cfg->value > 0) ? (int)$sync_cfg->value : 5;
+
         // --- Hourly requirements ---
         $user_id = $user->user_id;
         $as_of = date('Y-m-d H:i:s');
