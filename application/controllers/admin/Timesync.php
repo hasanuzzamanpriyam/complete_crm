@@ -555,6 +555,9 @@ class Timesync extends Admin_Controller
             case 'timeline':
                 $data['timeline_days'] = $this->_timeline_data($user_id, $from, $to);
                 $data['app_breakdown'] = $this->_user_app_breakdown($user_id, $from, $to);
+                if ($data['app_breakdown']['grand_total'] > $stats['total_seconds']) {
+                    $data['app_breakdown']['grand_total'] = $stats['total_seconds'];
+                }
                 break;
         }
 
@@ -1285,23 +1288,39 @@ class Timesync extends Admin_Controller
     {
         $to_end = $to . ' 23:59:59';
         $rows = $this->db
-            ->select('app_name, COALESCE(SUM(total_seconds), 0) as total_seconds')
-            ->where('user_id', $user_id)
-            ->where('recorded_at >=', $from)
-            ->where('recorded_at <=', $to_end)
-            ->group_by('app_name')
+            ->select('a.app_name, COALESCE(SUM(a.total_seconds), 0) as total_seconds')
+            ->from('tbl_desktop_app_usage a')
+            ->join('tbl_desktop_time_entries te',
+                'te.user_id = a.user_id
+                 AND a.recorded_at >= te.started_at
+                 AND a.recorded_at <= COALESCE(te.stopped_at, UTC_TIMESTAMP())',
+                'inner')
+            ->where('a.user_id', $user_id)
+            ->where('a.recorded_at >=', $from)
+            ->where('a.recorded_at <=', $to_end)
+            ->where('te.started_at >=', $from . ' 00:00:00')
+            ->where('te.started_at <=', $to_end)
+            ->group_by('a.app_name')
             ->order_by('total_seconds', 'DESC')
-            ->get('tbl_desktop_app_usage')
+            ->get()
             ->result();
 
         $url_rows = $this->db
-            ->select('app_name, url')
-            ->where('user_id', $user_id)
-            ->where('recorded_at >=', $from)
-            ->where('recorded_at <=', $to_end)
-            ->where('url IS NOT NULL')
-            ->order_by('recorded_at', 'DESC')
-            ->get('tbl_desktop_app_usage')
+            ->select('a.app_name, a.url')
+            ->from('tbl_desktop_app_usage a')
+            ->join('tbl_desktop_time_entries te',
+                'te.user_id = a.user_id
+                 AND a.recorded_at >= te.started_at
+                 AND a.recorded_at <= COALESCE(te.stopped_at, UTC_TIMESTAMP())',
+                'inner')
+            ->where('a.user_id', $user_id)
+            ->where('a.recorded_at >=', $from)
+            ->where('a.recorded_at <=', $to_end)
+            ->where('te.started_at >=', $from . ' 00:00:00')
+            ->where('te.started_at <=', $to_end)
+            ->where('a.url IS NOT NULL')
+            ->order_by('a.recorded_at', 'DESC')
+            ->get()
             ->result();
 
         $url_map = [];
@@ -1627,14 +1646,22 @@ class Timesync extends Admin_Controller
         }
 
         $app_totals = $this->db
-            ->select('user_id, app_name, COALESCE(SUM(total_seconds), 0) as total_sec')
-            ->where('recorded_at >=', $from)
-            ->where('recorded_at <=', $to_end);
+            ->select('a.user_id, a.app_name, COALESCE(SUM(a.total_seconds), 0) as total_sec')
+            ->from('tbl_desktop_app_usage a')
+            ->join('tbl_desktop_time_entries te',
+                'te.user_id = a.user_id
+                 AND a.recorded_at >= te.started_at
+                 AND a.recorded_at <= COALESCE(te.stopped_at, UTC_TIMESTAMP())',
+                'inner')
+            ->where('a.recorded_at >=', $from)
+            ->where('a.recorded_at <=', $to_end)
+            ->where('te.started_at >=', $from . ' 00:00:00')
+            ->where('te.started_at <=', $to_end);
         if ($allowed_ids !== null) {
-            $this->db->where_in('user_id', $allowed_ids);
+            $this->db->where_in('a.user_id', $allowed_ids);
         }
-        $app_totals = $this->db->group_by(['user_id', 'app_name'])
-            ->get('tbl_desktop_app_usage')
+        $app_totals = $this->db->group_by(['a.user_id', 'a.app_name'])
+            ->get()
             ->result();
 
         $app_map = [];
@@ -1691,7 +1718,7 @@ class Timesync extends Admin_Controller
         foreach ($users as &$u) {
             $uid = (int)$u->user_id;
             $u->total_sec = $entry_map[$uid] ?? 0;
-            $u->activity_sec = $app_map[$uid] ?? 0;
+            $u->activity_sec = min($app_map[$uid] ?? 0, $u->total_sec);
             $prod_sec = $prod_map[$uid] ?? 0;
             $act = $u->activity_sec;
             $u->productive_pct = $act > 0 ? round(($prod_sec / $act) * 100, 1) : 0;
@@ -1723,14 +1750,22 @@ class Timesync extends Admin_Controller
         $logged = (int)$logged->get('tbl_desktop_time_entries')->row()->total;
 
         $app_usage = $this->db
-            ->select('app_name, COALESCE(SUM(total_seconds), 0) as total_sec')
-            ->where('recorded_at >=', $from)
-            ->where('recorded_at <=', $to_end);
+            ->select('a.app_name, COALESCE(SUM(a.total_seconds), 0) as total_sec')
+            ->from('tbl_desktop_app_usage a')
+            ->join('tbl_desktop_time_entries te',
+                'te.user_id = a.user_id
+                 AND a.recorded_at >= te.started_at
+                 AND a.recorded_at <= COALESCE(te.stopped_at, UTC_TIMESTAMP())',
+                'inner')
+            ->where('a.recorded_at >=', $from)
+            ->where('a.recorded_at <=', $to_end)
+            ->where('te.started_at >=', $from . ' 00:00:00')
+            ->where('te.started_at <=', $to_end);
         if ($allowed_ids !== null) {
-            $this->db->where_in('user_id', $allowed_ids);
+            $this->db->where_in('a.user_id', $allowed_ids);
         }
-        $app_usage = $this->db->group_by('app_name')
-            ->get('tbl_desktop_app_usage')->result();
+        $app_usage = $this->db->group_by('a.app_name')
+            ->get()->result();
 
         $activity_sec = 0;
         $productive_sec = 0;
@@ -1745,6 +1780,8 @@ class Timesync extends Admin_Controller
             }
         }
 
+        $activity_sec = min($activity_sec, $logged);
+        $productive_sec = min($productive_sec, $activity_sec);
         $productive_pct = $activity_sec > 0 ? round(($productive_sec / $activity_sec) * 100, 1) : 0;
 
         return [
