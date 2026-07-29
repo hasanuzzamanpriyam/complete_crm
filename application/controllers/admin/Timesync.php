@@ -1294,6 +1294,23 @@ class Timesync extends Admin_Controller
             ->get('tbl_desktop_app_usage')
             ->result();
 
+        $url_rows = $this->db
+            ->select('app_name, url')
+            ->where('user_id', $user_id)
+            ->where('recorded_at >=', $from)
+            ->where('recorded_at <=', $to_end)
+            ->where('url IS NOT NULL')
+            ->order_by('recorded_at', 'DESC')
+            ->get('tbl_desktop_app_usage')
+            ->result();
+
+        $url_map = [];
+        foreach ($url_rows as $u) {
+            if (!isset($url_map[$u->app_name])) {
+                $url_map[$u->app_name] = $u->url;
+            }
+        }
+
         $productive = [];
         $unproductive = [];
         $productive_total = 0;
@@ -1302,11 +1319,16 @@ class Timesync extends Admin_Controller
         foreach ($rows as $r) {
             $cat = $this->_categorize_app($r->app_name);
             $sec = (int)$r->total_seconds;
+            $entry = [
+                'app_name' => $r->app_name,
+                'total_seconds' => $sec,
+                'url' => $url_map[$r->app_name] ?? null,
+            ];
             if ($cat === 'distracting') {
-                $unproductive[] = ['app_name' => $r->app_name, 'total_seconds' => $sec];
+                $unproductive[] = $entry;
                 $unproductive_total += $sec;
             } else {
-                $productive[] = ['app_name' => $r->app_name, 'total_seconds' => $sec];
+                $productive[] = $entry;
                 $productive_total += $sec;
             }
         }

@@ -96,10 +96,7 @@
 .ab-card-body{padding:10px 16px 14px;max-height:360px;overflow-y:auto}
 .ab-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f1f5f9}
 .ab-row:last-child{border-bottom:none}
-.ab-icon{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-.ab-icon-prod{background:#22c55e}
-.ab-icon-neutral{background:#f59e0b}
-.ab-icon-unprod{background:#ef4444}
+.ab-app-icon{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;flex-shrink:0}
 .ab-name{flex:1;font-size:12px;font-weight:600;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ab-dur{font-size:11px;color:#6c757d;white-space:nowrap;min-width:70px;text-align:right;font-variant-numeric:tabular-nums}
 .ab-bar-wrap{width:80px;min-width:60px}
@@ -143,8 +140,8 @@ $has_data = $grand > 0;
         <?php if ($has_data && !empty($prod_list)): ?>
           <?php foreach ($prod_list as $a): ?>
             <?php $sec = (int)$a['total_seconds']; $pct = _ab_pct($sec, $grand); ?>
-            <div class="ab-row">
-              <span class="ab-icon ab-icon-prod"></span>
+            <div class="ab-row" data-app-name="<?= htmlspecialchars($a['app_name']) ?>" data-app-url="<?= htmlspecialchars($a['url'] ?? '') ?>">
+              <span class="ab-app-icon"></span>
               <span class="ab-name" title="<?= htmlspecialchars($a['app_name']) ?>"><?= htmlspecialchars($a['app_name']) ?></span>
               <span class="ab-dur"><?= _ab_fmt($sec) ?></span>
               <div class="ab-bar-wrap"><div class="ab-bar"><div class="ab-bar-fill ab-bar-prod" style="width:<?= $pct ?>%"></div></div></div>
@@ -166,8 +163,8 @@ $has_data = $grand > 0;
         <?php if ($has_data && !empty($unprod_list)): ?>
           <?php foreach ($unprod_list as $a): ?>
             <?php $sec = (int)$a['total_seconds']; $pct = _ab_pct($sec, $grand); ?>
-            <div class="ab-row">
-              <span class="ab-icon ab-icon-unprod"></span>
+            <div class="ab-row" data-app-name="<?= htmlspecialchars($a['app_name']) ?>" data-app-url="<?= htmlspecialchars($a['url'] ?? '') ?>">
+              <span class="ab-app-icon"></span>
               <span class="ab-name" title="<?= htmlspecialchars($a['app_name']) ?>"><?= htmlspecialchars($a['app_name']) ?></span>
               <span class="ab-dur"><?= _ab_fmt($sec) ?></span>
               <div class="ab-bar-wrap"><div class="ab-bar"><div class="ab-bar-fill ab-bar-unprod" style="width:<?= $pct ?>%"></div></div></div>
@@ -804,5 +801,22 @@ $has_data = $grand > 0;
   };
 
   requestAnimationFrame(function() { window.initTimesyncTimeline(); });
+
+  function _abInjectIcons() {
+    document.querySelectorAll('.ab-row').forEach(function(row) {
+      var name = row.getAttribute('data-app-name');
+      var url = row.getAttribute('data-app-url');
+      if (!name) return;
+      var iconHtml = getAppIconHtml(name, url);
+      var container = row.querySelector('.ab-app-icon');
+      if (container) container.innerHTML = iconHtml;
+    });
+  }
+
+  _abInjectIcons();
+
+  $(document).on('timesync:spa_loaded', function() {
+    _abInjectIcons();
+  });
 })();
 </script>
