@@ -26,7 +26,7 @@
           <div class="col-md-3">
             <div class="panel panel-info" id="stat-total-hours">
               <div class="panel-body text-center">
-                <h2><?= round($total_seconds / 3600, 1) ?>h</h2>
+                <h2><?= floor($total_seconds / 3600) ?>h <?= floor(($total_seconds % 3600) / 60) ?>m <?= ($total_seconds % 60) ?>s</h2>
                 <p class="text-muted">Total Hours</p>
               </div>
             </div>
