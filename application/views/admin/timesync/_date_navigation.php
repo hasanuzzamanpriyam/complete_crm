@@ -77,17 +77,14 @@
         f = new Date(d); t = new Date(d);
         break;
       case 'weekly':
-        var day = d.getDay();
-        var diff = day === 0 ? -6 : 1 - day;
+        t = new Date(d);
         f = new Date(d);
-        f.setDate(d.getDate() + diff);
-        t = new Date(f);
-        t.setDate(f.getDate() + 6);
+        f.setDate(d.getDate() - 6);
         break;
       case 'fortnightly':
-        f = new Date(d);
         t = new Date(d);
-        t.setDate(d.getDate() + 13);
+        f = new Date(d);
+        f.setDate(d.getDate() - 13);
         break;
       case 'monthly':
         f = new Date(d.getFullYear(), d.getMonth(), 1);
