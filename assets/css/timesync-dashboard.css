@@ -354,6 +354,37 @@
     white-space: nowrap;
 }
 
+/* Custom Date Navigation Inputs */
+#dn-custom-inputs {
+    display: none;
+    align-items: center;
+    gap: 6px;
+}
+#dn-custom-inputs input[type="date"] {
+    height: 28px;
+    font-size: 12px;
+    width: 140px;
+    display: inline-block;
+    border-radius: 4px;
+    border: 1px solid #d0d4d8;
+    padding: 2px 8px;
+    background: #fff;
+    cursor: pointer;
+    line-height: normal;
+}
+#dn-custom-inputs input[type="date"]:focus {
+    border-color: #86b7fe;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(13,110,253,.1);
+}
+#dn-custom-inputs input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: .6;
+}
+#dn-custom-inputs input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
 /* Compact Screenshot Preview inside Modal */
 .ts-screenshot-modal-img, 
 #screenshotModal .modal-body img {

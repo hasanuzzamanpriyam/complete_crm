@@ -30,8 +30,14 @@ class Timesync extends Admin_Controller
 
         $from = $this->input->get('from');
         $to = $this->input->get('to');
-        if (empty($from)) $from = date('Y-m-d');
-        if (empty($to)) $to = date('Y-m-d');
+        if (empty($from) && empty($to)) {
+            $from = date('Y-m-d');
+            $to = date('Y-m-d');
+        } elseif (empty($from)) {
+            $from = $to;
+        } elseif (empty($to)) {
+            $to = $from;
+        }
         $to_end = $to . ' 23:59:59';
         $data['from'] = $from;
         $data['to'] = $to;
@@ -467,8 +473,14 @@ class Timesync extends Admin_Controller
 
         $from = $this->input->get('from');
         $to = $this->input->get('to');
-        if (empty($from)) $from = date('Y-m-01');
-        if (empty($to)) $to = date('Y-m-d');
+        if (empty($from) && empty($to)) {
+            $from = date('Y-m-01');
+            $to = date('Y-m-d');
+        } elseif (empty($from)) {
+            $from = $to;
+        } elseif (empty($to)) {
+            $to = $from;
+        }
         $to_end = $to . ' 23:59:59';
 
         $data['from'] = $from;

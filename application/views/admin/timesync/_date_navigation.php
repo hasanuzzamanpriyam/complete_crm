@@ -2,10 +2,11 @@
   <div class="dn-left" style="display:flex;align-items:center;gap:6px;">
     <i class="fa fa-calendar" style="font-size:16px;color:#555;"></i>
     <span id="dn-period-label" style="font-weight:600;font-size:14px;min-width:120px;display:inline-block;"></span>
-    <a href="#" id="dn-date-picker-trigger" style="color:#999;text-decoration:none;font-size:12px;position:relative;" title="Pick a date">
-      <i class="fa fa-caret-down"></i>
-      <input type="text" id="dn-date-picker" class="datepicker" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;border:none;padding:0;margin:0;font-size:1px;" autocomplete="off" readonly>
-    </a>
+    <span id="dn-custom-inputs" style="display:none;align-items:center;gap:6px;">
+      <input type="date" id="dn-custom-from" class="form-control input-sm" style="height:28px;font-size:12px;width:140px;display:inline-block;">
+      <span style="color:#999;font-size:12px;">—</span>
+      <input type="date" id="dn-custom-to" class="form-control input-sm" style="height:28px;font-size:12px;width:140px;display:inline-block;">
+    </span>
   </div>
 
   <div class="dn-middle" style="display:flex;align-items:center;gap:4px;margin-left:12px;">
@@ -25,6 +26,7 @@
     <button type="button" class="btn btn-xs dn-interval-tab" data-interval="weekly" style="border-radius:4px;padding:2px 10px;font-size:11px;">Weekly</button>
     <button type="button" class="btn btn-xs dn-interval-tab" data-interval="fortnightly" style="border-radius:4px;padding:2px 10px;font-size:11px;">Fortnightly</button>
     <button type="button" class="btn btn-xs dn-interval-tab" data-interval="monthly" style="border-radius:4px;padding:2px 10px;font-size:11px;">Monthly</button>
+    <button type="button" class="btn btn-xs dn-interval-tab" data-interval="custom" style="border-radius:4px;padding:2px 10px;font-size:11px;">Custom</button>
   </div>
 
   <input type="hidden" name="from" id="dn-from-hidden" value="">
@@ -38,11 +40,9 @@
   var fromStr = params.get('from') || '';
   var toStr = params.get('to') || '';
   var interval = params.get('interval') || 'daily';
-  
-  // Strictly track if an interval parameter is explicitly present in the URL
+
   var activeHighlightInterval = params.get('interval') || 'daily';
 
-  // Bulletproof SPA protection: Check if a dynamic navigation just took place
   if (window.__spaCurrentFilterState) {
     if (window.__spaCurrentFilterState.interval) {
       interval = window.__spaCurrentFilterState.interval;
@@ -50,7 +50,7 @@
     }
     if (window.__spaCurrentFilterState.from) fromStr = window.__spaCurrentFilterState.from;
     if (window.__spaCurrentFilterState.to) toStr = window.__spaCurrentFilterState.to;
-    window.__spaCurrentFilterState = null; // Reset to avoid stale data contamination
+    window.__spaCurrentFilterState = null;
   }
 
   function parseYmd(str) {
@@ -93,6 +93,13 @@
         f = new Date(d.getFullYear(), d.getMonth(), 1);
         t = new Date(d.getFullYear(), d.getMonth() + 1, 0);
         break;
+      case 'custom':
+        if (!from || !to) {
+          f = new Date(d); t = new Date(d);
+        } else {
+          return { from: from, to: to };
+        }
+        break;
       default:
         f = new Date(d); t = new Date(d);
     }
@@ -111,18 +118,42 @@
     var label = '';
     var isDaily = interval === 'daily';
     var isMonthly = interval === 'monthly';
+    var isCustom = interval === 'custom';
 
-    if (isMonthly) {
-      label = from.toLocaleString('en', { month: 'long', year: 'numeric' });
-    } else if (isDaily) {
-      label = from.toLocaleString('en', { month: 'short', day: 'numeric', year: 'numeric' });
+    if (isCustom) {
+      label = fmtYmd(from) + ' \u2014 ' + fmtYmd(to);
+      document.getElementById('dn-period-label').style.display = 'none';
+      var cust = document.getElementById('dn-custom-inputs');
+      cust.style.display = 'inline-flex';
+      document.getElementById('dn-custom-from').value = fmtYmd(from);
+      document.getElementById('dn-custom-to').value = fmtYmd(to);
+      document.getElementById('dn-btn-prev').style.display = 'none';
+      document.getElementById('dn-btn-next').style.display = 'none';
+      document.getElementById('dn-btn-current').style.display = 'none';
     } else {
-      var sameMonth = from.getMonth() === to.getMonth() && from.getFullYear() === to.getFullYear();
-      if (sameMonth) {
-        label = from.toLocaleString('en', { month: 'short' }) + ' ' + from.getDate() + ' \u2013 ' + to.getDate();
+      document.getElementById('dn-custom-inputs').style.display = 'none';
+      document.getElementById('dn-period-label').style.display = 'inline-block';
+      document.getElementById('dn-btn-prev').style.display = '';
+      document.getElementById('dn-btn-next').style.display = '';
+
+      if (isMonthly) {
+        label = from.toLocaleString('en', { month: 'long', year: 'numeric' });
+      } else if (isDaily) {
+        label = from.toLocaleString('en', { month: 'short', day: 'numeric', year: 'numeric' });
       } else {
-        label = from.toLocaleString('en', { month: 'short', day: 'numeric' }) + ' \u2013 ' + to.toLocaleString('en', { month: 'short', day: 'numeric' });
+        var sameMonth = from.getMonth() === to.getMonth() && from.getFullYear() === to.getFullYear();
+        if (sameMonth) {
+          label = from.toLocaleString('en', { month: 'short' }) + ' ' + from.getDate() + ' \u2013 ' + to.getDate();
+        } else {
+          label = from.toLocaleString('en', { month: 'short', day: 'numeric' }) + ' \u2013 ' + to.toLocaleString('en', { month: 'short', day: 'numeric' });
+        }
       }
+
+      var td = today();
+      var fn = new Date(from); fn.setHours(0,0,0,0);
+      var tn = new Date(to); tn.setHours(0,0,0,0);
+      var showCurrent = td < fn || td > tn;
+      document.getElementById('dn-btn-current').style.display = showCurrent ? '' : 'none';
     }
 
     document.getElementById('dn-period-label').textContent = label;
@@ -131,13 +162,6 @@
     document.getElementById('dn-to-hidden').value = fmtYmd(to);
     document.getElementById('dn-interval-hidden').value = interval;
 
-    var td = today();
-    var fn = new Date(from); fn.setHours(0,0,0,0);
-    var tn = new Date(to); tn.setHours(0,0,0,0);
-    var showCurrent = td < fn || td > tn;
-    document.getElementById('dn-btn-current').style.display = showCurrent ? '' : 'none';
-
-    // Highlight filter buttons ONLY if explicitly activated/tapped
     document.querySelectorAll('.dn-interval-tab').forEach(function(btn) {
       if (activeHighlightInterval && btn.dataset.interval === activeHighlightInterval) {
         btn.style.background = '#337ab7';
@@ -176,6 +200,7 @@
   }
 
   document.getElementById('dn-btn-prev').addEventListener('click', function() {
+    if (interval === 'custom') return;
     var nf = new Date(from), nt = new Date(to);
     switch (interval) {
       case 'daily': nf.setDate(from.getDate() - 1); nt.setDate(to.getDate() - 1); break;
@@ -187,6 +212,7 @@
   });
 
   document.getElementById('dn-btn-next').addEventListener('click', function() {
+    if (interval === 'custom') return;
     var nf = new Date(from), nt = new Date(to);
     switch (interval) {
       case 'daily': nf.setDate(from.getDate() + 1); nt.setDate(to.getDate() + 1); break;
@@ -205,9 +231,8 @@
   document.querySelectorAll('.dn-interval-tab').forEach(function(btn) {
     btn.addEventListener('click', function() {
       var ni = this.dataset.interval;
-      activeHighlightInterval = ni; // Capture dynamic target immediately upon user tap
-      
-      // Instant clear & active switch response
+      activeHighlightInterval = ni;
+
       document.querySelectorAll('.dn-interval-tab').forEach(function(b) {
         if (b.dataset.interval === ni) {
           b.style.background = '#337ab7';
@@ -220,28 +245,29 @@
         }
       });
 
-      var r = getIntervalRange(ni, today());
-      navigate(r.from, r.to, ni);
+      if (ni === 'custom') {
+        navigate(from, to, ni);
+      } else {
+        var r = getIntervalRange(ni, today());
+        navigate(r.from, r.to, ni);
+      }
     });
   });
 
-  $(function() {
-    $('#dn-date-picker').datepicker({
-      autoclose: true,
-      format: 'yyyy-mm-dd',
-      todayBtn: "linked"
-    }).on('changeDate', function(e) {
-      var picked = e.date;
-      if (!picked) return;
-      
-      var r = getIntervalRange(interval, picked);
-      navigate(r.from, r.to, interval);
-    });
+  document.getElementById('dn-custom-from').addEventListener('change', function() {
+    var newFrom = parseYmd(this.value);
+    var newTo = parseYmd(document.getElementById('dn-custom-to').value);
+    if (newFrom && newTo && !isNaN(newFrom.getTime()) && !isNaN(newTo.getTime())) {
+      navigate(newFrom, newTo, 'custom');
+    }
   });
 
-  document.getElementById('dn-date-picker-trigger').addEventListener('click', function(e) {
-    e.preventDefault();
-    $('#dn-date-picker').datepicker('show');
+  document.getElementById('dn-custom-to').addEventListener('change', function() {
+    var newFrom = parseYmd(document.getElementById('dn-custom-from').value);
+    var newTo = parseYmd(this.value);
+    if (newFrom && newTo && !isNaN(newFrom.getTime()) && !isNaN(newTo.getTime())) {
+      navigate(newFrom, newTo, 'custom');
+    }
   });
 
   updateUI();
