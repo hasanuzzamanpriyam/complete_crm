@@ -87,10 +87,99 @@
 .tl-legend{display:flex;gap:18px;margin-bottom:16px;flex-wrap:wrap;padding:10px 16px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0}
 .tl-legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:#64748b;font-weight:500}
 .tl-legend-swatch{width:14px;height:14px;border-radius:4px;box-shadow:0 1px 2px rgba(0,0,0,.1)}
+
+/* Productive vs Unproductive App Breakdown */
+.ab-section{margin-top:24px}
+.ab-card{border:1px solid #e2e8f0;border-radius:10px;background:#fff;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.ab-card-header{padding:12px 16px;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e2e8f0}
+.ab-card-header .ab-card-total{font-size:11px;font-weight:600;opacity:.85}
+.ab-card-body{padding:10px 16px 14px;max-height:360px;overflow-y:auto}
+.ab-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f1f5f9}
+.ab-row:last-child{border-bottom:none}
+.ab-icon{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.ab-icon-prod{background:#22c55e}
+.ab-icon-neutral{background:#f59e0b}
+.ab-icon-unprod{background:#ef4444}
+.ab-name{flex:1;font-size:12px;font-weight:600;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ab-dur{font-size:11px;color:#6c757d;white-space:nowrap;min-width:70px;text-align:right;font-variant-numeric:tabular-nums}
+.ab-bar-wrap{width:80px;min-width:60px}
+.ab-bar{height:6px;background:#f0f2f5;border-radius:4px;overflow:hidden}
+.ab-bar-fill{height:100%;border-radius:4px;transition:width .3s}
+.ab-bar-prod{background:#22c55e}
+.ab-bar-unprod{background:#ef4444}
+.ab-empty{padding:20px 0;text-align:center;color:#94a3b8;font-size:12px}
 </style>
 
 <div class="tl-container" id="tl-root" data-user-id="<?= $user_id ?? '' ?>" data-from="<?= $from ?? '' ?>" data-to="<?= $to ?? '' ?>"></div>
 <div class="tl-tooltip" id="tl-tooltip"></div>
+
+<?php
+$b = $app_breakdown ?? [];
+$prod_list = $b['productive'] ?? [];
+$unprod_list = $b['unproductive'] ?? [];
+$prod_total = (int)($b['productive_total'] ?? 0);
+$unprod_total = (int)($b['unproductive_total'] ?? 0);
+$grand = (int)($b['grand_total'] ?? 0);
+
+function _ab_fmt($sec) {
+    $sec = max(0, (int)$sec);
+    return floor($sec / 3600) . 'h ' . floor(($sec % 3600) / 60) . 'm ' . ($sec % 60) . 's';
+}
+function _ab_pct($sec, $total) {
+    return $total > 0 ? round($sec / $total * 100, 1) : 0;
+}
+$prod_pct = _ab_pct($prod_total, $grand);
+$unprod_pct = _ab_pct($unprod_total, $grand);
+$has_data = $grand > 0;
+?>
+<div class="row ab-section">
+  <div class="col-md-6">
+    <div class="ab-card">
+      <div class="ab-card-header" style="color:#15803d;background:#f0fdf4;border-bottom-color:#bbf7d0;">
+        <span><i class="fa fa-check-circle" style="color:#22c55e;"></i> Productive</span>
+        <span class="ab-card-total"><?= _ab_fmt($prod_total) ?> (<?= $prod_pct ?>%)</span>
+      </div>
+      <div class="ab-card-body">
+        <?php if ($has_data && !empty($prod_list)): ?>
+          <?php foreach ($prod_list as $a): ?>
+            <?php $sec = (int)$a['total_seconds']; $pct = _ab_pct($sec, $grand); ?>
+            <div class="ab-row">
+              <span class="ab-icon ab-icon-prod"></span>
+              <span class="ab-name" title="<?= htmlspecialchars($a['app_name']) ?>"><?= htmlspecialchars($a['app_name']) ?></span>
+              <span class="ab-dur"><?= _ab_fmt($sec) ?></span>
+              <div class="ab-bar-wrap"><div class="ab-bar"><div class="ab-bar-fill ab-bar-prod" style="width:<?= $pct ?>%"></div></div></div>
+            </div>
+          <?php endforeach; ?>
+        <?php else: ?>
+          <div class="ab-empty"><i class="fa fa-check-circle" style="font-size:20px;display:block;margin-bottom:6px;color:#bbf7d0;"></i> No productive apps recorded</div>
+        <?php endif; ?>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="ab-card">
+      <div class="ab-card-header" style="color:#991b1b;background:#fef2f2;border-bottom-color:#fecaca;">
+        <span><i class="fa fa-exclamation-triangle" style="color:#ef4444;"></i> Unproductive</span>
+        <span class="ab-card-total"><?= _ab_fmt($unprod_total) ?> (<?= $unprod_pct ?>%)</span>
+      </div>
+      <div class="ab-card-body">
+        <?php if ($has_data && !empty($unprod_list)): ?>
+          <?php foreach ($unprod_list as $a): ?>
+            <?php $sec = (int)$a['total_seconds']; $pct = _ab_pct($sec, $grand); ?>
+            <div class="ab-row">
+              <span class="ab-icon ab-icon-unprod"></span>
+              <span class="ab-name" title="<?= htmlspecialchars($a['app_name']) ?>"><?= htmlspecialchars($a['app_name']) ?></span>
+              <span class="ab-dur"><?= _ab_fmt($sec) ?></span>
+              <div class="ab-bar-wrap"><div class="ab-bar"><div class="ab-bar-fill ab-bar-unprod" style="width:<?= $pct ?>%"></div></div></div>
+            </div>
+          <?php endforeach; ?>
+        <?php else: ?>
+          <div class="ab-empty"><i class="fa fa-check-circle" style="font-size:20px;display:block;margin-bottom:6px;color:#bbf7d0;"></i> No unproductive apps recorded</div>
+        <?php endif; ?>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
 (function() {

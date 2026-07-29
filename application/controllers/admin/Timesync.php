@@ -554,6 +554,7 @@ class Timesync extends Admin_Controller
                 break;
             case 'timeline':
                 $data['timeline_days'] = $this->_timeline_data($user_id, $from, $to);
+                $data['app_breakdown'] = $this->_user_app_breakdown($user_id, $from, $to);
                 break;
         }
 
@@ -1277,6 +1278,47 @@ class Timesync extends Admin_Controller
             'entry_count' => (int)$result->entries,
             'day_count' => (int)$result->days,
             'screenshot_count' => $screenshot_count,
+        ];
+    }
+
+    private function _user_app_breakdown($user_id, $from, $to)
+    {
+        $to_end = $to . ' 23:59:59';
+        $rows = $this->db
+            ->select('app_name, COALESCE(SUM(total_seconds), 0) as total_seconds')
+            ->where('user_id', $user_id)
+            ->where('recorded_at >=', $from)
+            ->where('recorded_at <=', $to_end)
+            ->group_by('app_name')
+            ->order_by('total_seconds', 'DESC')
+            ->get('tbl_desktop_app_usage')
+            ->result();
+
+        $productive = [];
+        $unproductive = [];
+        $productive_total = 0;
+        $unproductive_total = 0;
+
+        foreach ($rows as $r) {
+            $cat = $this->_categorize_app($r->app_name);
+            $sec = (int)$r->total_seconds;
+            if ($cat === 'distracting') {
+                $unproductive[] = ['app_name' => $r->app_name, 'total_seconds' => $sec];
+                $unproductive_total += $sec;
+            } else {
+                $productive[] = ['app_name' => $r->app_name, 'total_seconds' => $sec];
+                $productive_total += $sec;
+            }
+        }
+
+        $grand_total = $productive_total + $unproductive_total;
+
+        return [
+            'productive' => $productive,
+            'unproductive' => $unproductive,
+            'productive_total' => $productive_total,
+            'unproductive_total' => $unproductive_total,
+            'grand_total' => $grand_total,
         ];
     }
 
