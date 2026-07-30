@@ -32,16 +32,12 @@
                    } ?>">
                     <div class="n-box media-box ">
                         <div class="pull-left">
-                            <?php
-                            if ($notification->from_user_id != 0) {
-                                $img = base_url() . staffImage($notification->from_user_id);
-                            } else {
-                                $img = '' . $notification->icon . '.png';
-                            } ?>
-                            <img src="<?= $img ?>" alt="Avatar"
-                                 width="40"
-                                 height="40" class="img-thumbnail img-circle n-image">
-                        </div>
+                            <?php if ($notification->from_user_id != 0): ?>
+                                <img src="<?= base_url() . staffImage($notification->from_user_id) ?>" alt="Avatar"
+                                     width="40" height="40" class="img-thumbnail img-circle n-image">
+                            <?php else: ?>
+                                <i class="fa <?= htmlspecialchars($notification->icon) ?>" style="width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center;font-size:20px;background:#f0f0f0;border-radius:50%;color:#999;"></i>
+                            <?php endif; ?>
                         <div class="media-box-body clearfix">
                             <?php
                             $description = lang($notification->description, $notification->value);

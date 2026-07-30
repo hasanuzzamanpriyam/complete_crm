@@ -80,20 +80,20 @@ function sidebar_initials($name) {
         <div class="ts-metric-row">
             <div class="ts-metric-card">
                 <div class="ts-metric-label">Time Logged</div>
-                <div class="ts-metric-value"><?= $logged_hms ?></div>
+                <div class="ts-metric-value" id="total-logged-time"><?= $logged_hms ?></div>
                 <div style="font-size:12px;color:#6c757d;">In selected period</div>
             </div>
             <div class="ts-metric-card">
                 <div class="ts-metric-label">Activity Time</div>
-                <div class="ts-metric-value"><?= $activity_hms ?></div>
+                <div class="ts-metric-value" id="total-activity-time"><?= $activity_hms ?></div>
                 <div class="ts-progress-track">
                     <div class="ts-progress-fill <?= $productive_ratio >= 70 ? 'good' : ($productive_ratio >= 40 ? 'warn' : 'bad') ?>" style="width:<?= min(100, $productive_ratio) ?>%;"></div>
                 </div>
-                <div style="font-size:12px;color:#6c757d;margin-top:4px;"><?= $productive_ratio ?>% productive</div>
+                <div style="font-size:12px;color:#6c757d;margin-top:4px;" id="total-productive-pct"><?= $productive_ratio ?>% productive</div>
             </div>
             <div class="ts-metric-card" style="display:flex;flex-direction:column;justify-content:center;">
                 <div class="ts-metric-label">Required Hours</div>
-                <div class="ts-metric-value"><?= $req_hms ?></div>
+                <div class="ts-metric-value" id="total-required-time"><?= $req_hms ?></div>
                                 <div style="font-size:12px;color:#6c757d;"><?php if (!empty($selected_user_id)): ?>@ <?= number_format($required_daily_avg, 1) ?>h/day &mdash; <?= $adjusted_working_days ?? $working_days ?> working days<?php else: ?>Across <?= count($users) ?> users &times; <?= $working_days ?> working days<?php endif; ?></div>
             </div>
         </div>
@@ -116,6 +116,7 @@ function sidebar_initials($name) {
         </div>
         <?php endif; ?>
 
+        <div id="time-shortage-banner">
         <?php if ($is_shortage): ?>
         <div class="ts-alert ts-alert-danger">
             <div class="ts-alert-icon"><i class="fa fa-exclamation-triangle"></i></div>
@@ -133,6 +134,7 @@ function sidebar_initials($name) {
             </div>
         </div>
         <?php endif; ?>
+        </div>
 
         <div class="ts-panel">
             <div class="ts-panel-heading"><i class="fa fa-calendar-o"></i> Days Off / Leaves</div>
@@ -202,8 +204,9 @@ $(function() {
 
     function sidebarLiveMetaHtml(u) {
         if (u.status === 'active') {
+            if (!u.started_at) return '';
             return '<i class="fa fa-clock-o ts-status-live-clock"></i>'
-                + ' <span class="live-tracker" data-start-time="' + (u.started_at || '') + '"><span class="timer-text">00:00:00</span></span>'
+                + ' <span class="live-tracker" data-start-time="' + u.started_at + '"><span class="timer-text">00:00:00</span></span>'
                 + (u.current_task ? ' &middot; ' + esc(u.current_task) : '')
                 + (u.current_window ? ' &mdash; ' + esc(u.current_window) : '');
         }
@@ -293,14 +296,63 @@ $(function() {
         }
     }
 
+    function updatePeriodMetrics(data) {
+        if (!data.period) return;
+        var p = data.period;
+        $('#total-logged-time').text(p.logged_fmt);
+        $('#total-activity-time').text(p.activity_fmt);
+        $('#total-required-time').text(p.required_fmt);
+        $('#total-productive-pct').text(p.productive_pct + '% productive');
+
+        var $banner = $('#time-shortage-banner');
+        if (p.is_shortage) {
+            $banner.html(
+                '<div class="ts-alert ts-alert-danger">'
+                + '<div class="ts-alert-icon"><i class="fa fa-exclamation-triangle"></i></div>'
+                + '<div class="ts-alert-body">'
+                + '<div class="ts-alert-title">Time Shortage of ' + p.shortage_fmt + '</div>'
+                + '<div class="ts-alert-sub">Required: ' + p.required_fmt + ' &middot; Logged: ' + p.logged_fmt + '</div>'
+                + '</div></div>'
+            );
+        } else if (p.shortage_sec > 0) {
+            $banner.html(
+                '<div class="ts-alert ts-alert-success">'
+                + '<div class="ts-alert-icon"><i class="fa fa-check-circle"></i></div>'
+                + '<div class="ts-alert-body">'
+                + '<div class="ts-alert-title">Surplus of ' + p.shortage_fmt + '</div>'
+                + '<div class="ts-alert-sub">Required: ' + p.required_fmt + ' &middot; Logged: ' + p.logged_fmt + '</div>'
+                + '</div></div>'
+            );
+        } else {
+            $banner.empty();
+        }
+
+        if (data.users) {
+            data.users.forEach(function(u) {
+                if (!u.logged_fmt) return;
+                var $item = $('.ts-user-item[data-user-id="' + u.user_id + '"]');
+                $item.find('.logged-val').text(u.logged_fmt);
+            });
+        }
+    }
+
     function fetchLive() {
-        $.getJSON('<?= $base_url ?>admin/timesync/live_users', function(data) {
-            if (data && data.success) renderLive(data);
+        var from = $('#dn-from-hidden').val();
+        var to = $('#dn-to-hidden').val();
+        var userId = <?= isset($selected_user_id) && $selected_user_id ? (int)$selected_user_id : 'null' ?>;
+        var params = {};
+        if (from && to) { params.from = from; params.to = to; }
+        if (userId) { params.user_id = userId; }
+        $.getJSON('<?= $base_url ?>admin/timesync/live_users', params, function(data) {
+            if (data && data.success) {
+                renderLive(data);
+                updatePeriodMetrics(data);
+            }
         });
     }
 
     fetchLive();
-    setInterval(fetchLive, 5000);
+    setInterval(fetchLive, 3000);
 
     function tickTrackers() {
         var now = Date.now();

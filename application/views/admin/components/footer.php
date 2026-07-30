@@ -92,11 +92,21 @@
                 $pusher_options['cluster'] = config_item('pusher_cluster');
             } ?>
             var pusher_options = <?php echo json_encode($pusher_options); ?>;
-            var pusher = new Pusher("<?php echo config_item('pusher_app_key'); ?>", pusher_options);
-            var channel = pusher.subscribe('notifications-channel-<?php echo $this->session->userdata('user_id'); ?>');
-            channel.bind('notification', function(data) {
-                fetch_notifications();
-            });
+            try {
+                var pusher = new Pusher("<?php echo config_item('pusher_app_key'); ?>", pusher_options);
+                pusher.connection.bind('error', function(err) {
+                    if (err && err.error && err.error.code === 4004) {
+                        console.warn('Pusher over-quota limit reached — falling back to HTTP polling');
+                        pusher.disconnect();
+                    }
+                });
+                var channel = pusher.subscribe('notifications-channel-<?php echo $this->session->userdata('user_id'); ?>');
+                channel.bind('notification', function(data) {
+                    fetch_notifications();
+                });
+            } catch(e) {
+                console.warn('Pusher unavailable — using HTTP polling');
+            }
         </script>
     <?php } ?>
     <!-- =============== APP SCRIPTS ===============-->

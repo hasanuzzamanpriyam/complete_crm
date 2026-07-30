@@ -55,6 +55,29 @@ class Timesync extends Admin_Controller
         $working_days = $this->_count_working_days($from, $to);
         $data['working_days'] = $working_days;
 
+        // Inject live running seconds into per-user totals if range includes today
+        $today = date('Y-m-d');
+        if ($from <= $today && $to >= $today) {
+            $live_extra = $this->_get_live_running_seconds($from, $to, $allowed_ids);
+            $total_live_delta = 0;
+            foreach ($data['users'] as &$u) {
+                $uid = (int)$u->user_id;
+                $extra = $live_extra[$uid] ?? 0;
+                if ($extra > 0) {
+                    $total_live_delta += $extra;
+                    $u->total_sec += $extra;
+                    $u->activity_sec = min($u->activity_sec + $extra, $u->total_sec);
+                    $logged_hours = $u->total_sec / 3600;
+                    $required_in_range = $u->required_daily * max(0, $working_days - $u->leave_days);
+                    $u->has_shortage = $logged_hours < $required_in_range;
+                    $u->shortage_hours = max(0, $required_in_range - $logged_hours);
+                }
+            }
+            unset($u);
+        } else {
+            $total_live_delta = 0;
+        }
+
         $data['holidays'] = $this->db
             ->where('start_date <=', $to)
             ->where('end_date >=', $from)
@@ -105,15 +128,18 @@ class Timesync extends Admin_Controller
             }
         } else {
             $metrics = $this->_aggregate_metrics($from, $to, $allowed_ids);
-            $data['total_logged_seconds'] = $metrics['logged_sec'];
-            $data['total_activity_seconds'] = $metrics['activity_sec'];
-            $data['productive_ratio'] = $metrics['productive_pct'];
+            $logged = $metrics['logged_sec'] + $total_live_delta;
+            $activity = min($metrics['activity_sec'] + $total_live_delta, $logged);
+            $data['total_logged_seconds'] = $logged;
+            $data['total_activity_seconds'] = $activity;
+            $prod_pct = $activity > 0 ? round(($metrics['productive_pct'] / 100 * $metrics['activity_sec'] / $activity) * 100, 1) : 0;
+            $data['productive_ratio'] = $prod_pct;
 
             $required = $this->_get_aggregated_required_hours($from, $to, $allowed_ids);
             $data['required_seconds'] = $required['required_sec'];
             $data['required_daily_avg'] = $required['daily_avg'];
 
-            $data['discrepancy_seconds'] = $metrics['logged_sec'] - $required['required_sec'];
+            $data['discrepancy_seconds'] = $logged - $required['required_sec'];
         }
 
         $data['subview'] = $this->load->view('admin/timesync/dashboard', $data, true);
@@ -147,7 +173,7 @@ class Timesync extends Admin_Controller
         $all_users = $this->db->get()->result();
 
         $running_rows = $this->db
-            ->select('tde.user_id, tde.paused_at, tde.started_at, t.task_name as task_title')
+            ->select('tde.user_id, tde.paused_at, tde.resumed_at, tde.total_seconds, tde.started_at, t.task_name as task_title')
             ->from('tbl_desktop_time_entries tde')
             ->join('tbl_task t', 't.task_id = tde.task_id', 'left')
             ->where('tde.is_running', 1)
@@ -165,6 +191,9 @@ class Timesync extends Admin_Controller
             $active_map[$uid] = [
                 'task_title' => $e->task_title,
                 'started_at' => $e->started_at ? (strtotime($e->started_at . ' UTC') * 1000) : null,
+                'total_seconds' => (int)$e->total_seconds,
+                'paused_at' => $e->paused_at,
+                'resumed_at' => $e->resumed_at,
             ];
             $running_ids[] = $uid;
             if (!empty($e->paused_at)) {
@@ -221,28 +250,110 @@ class Timesync extends Admin_Controller
                 'name' => $u->fullname ?? ('User #' . $uid),
                 'profile_image_url' => $profile_img,
                 'status' => $status,
+                'is_running' => $is_running,
                 'current_task' => $is_running ? ($active_map[$uid]['task_title'] ?? null) : null,
                 'current_window' => $window,
                 'started_at' => $is_running ? ($active_map[$uid]['started_at'] ?? null) : null,
+                'total_seconds' => $is_running ? ($active_map[$uid]['total_seconds'] ?? 0) : 0,
+                'paused_at' => $is_running ? ($active_map[$uid]['paused_at'] ?? null) : null,
+                'resumed_at' => $is_running ? ($active_map[$uid]['resumed_at'] ?? null) : null,
                 'is_active_now' => !empty($u->last_active_ping) && strtotime($u->last_active_ping) >= ($now_ts - 120),
                 'last_active_ping' => $u->last_active_ping,
             ];
         }
 
+        $period = null;
+        $from = $this->input->get('from');
+        $to = $this->input->get('to');
+        $selected_user_id = $this->input->get('user_id');
+
+        if (!empty($from) && !empty($to)) {
+            $live_extra = $this->_get_live_running_seconds($from, $to, $allowed_ids);
+            $total_live_delta = array_sum($live_extra);
+
+            $metrics = $this->_aggregate_metrics($from, $to, $allowed_ids);
+            $logged_sec = $metrics['logged_sec'] + $total_live_delta;
+            $activity_sec = min($metrics['activity_sec'] + $total_live_delta, $logged_sec);
+            $prod_pct = $activity_sec > 0 ? round(($metrics['productive_pct'] / 100 * ($metrics['activity_sec'] ?: 1) / $activity_sec) * 100, 1) : 0;
+
+            $required = $this->_get_aggregated_required_hours($from, $to, $allowed_ids);
+            $shortage_sec = $logged_sec - $required['required_sec'];
+
+            $period = [
+                'from' => $from,
+                'to' => $to,
+                'logged_sec' => $logged_sec,
+                'logged_fmt' => $this->_fmt_hms($logged_sec),
+                'activity_sec' => $activity_sec,
+                'activity_fmt' => $this->_fmt_hms($activity_sec),
+                'required_sec' => $required['required_sec'],
+                'required_fmt' => $this->_fmt_hms($required['required_sec']),
+                'productive_pct' => $prod_pct,
+                'shortage_sec' => $shortage_sec,
+                'shortage_fmt' => $this->_fmt_hms(abs($shortage_sec)),
+                'is_shortage' => $shortage_sec < 0,
+                'required_daily_avg' => $required['daily_avg'],
+            ];
+
+            if (!empty($selected_user_id)) {
+                $uid = (int)$selected_user_id;
+                $user_list = $this->_get_user_list_with_stats($from, $to, $allowed_ids);
+                foreach ($user_list as $u) {
+                    if ((int)$u->user_id === $uid) {
+                        $user_extra = $live_extra[$uid] ?? 0;
+                        $user_logged = $u->total_sec + $user_extra;
+                        $user_activity = min($u->activity_sec + $user_extra, $user_logged);
+                        $period['user_logged_fmt'] = $this->_fmt_hms($user_logged);
+                        $period['user_activity_fmt'] = $this->_fmt_hms($user_activity);
+                        break;
+                    }
+                }
+            }
+
+            // Add per-user logged/activity to the user list
+            $entry_totals = $this->db
+                ->select('user_id, COALESCE(SUM(total_seconds), 0) as total_sec')
+                ->where('started_at >=', $from . ' 00:00:00')
+                ->where('started_at <=', $to . ' 23:59:59')
+                ->group_by('user_id');
+            if ($allowed_ids !== null) {
+                $entry_totals = $this->db->where_in('user_id', $allowed_ids);
+            }
+            $entry_totals = $entry_totals->get('tbl_desktop_time_entries')->result();
+            $per_user_db = [];
+            foreach ($entry_totals as $et) {
+                $per_user_db[(int)$et->user_id] = (int)$et->total_sec;
+            }
+
+            foreach ($list as &$lu) {
+                $luid = (int)$lu['user_id'];
+                $db_sec = $per_user_db[$luid] ?? 0;
+                $extra = $live_extra[$luid] ?? 0;
+                $logged = $db_sec + $extra;
+                $lu['logged_fmt'] = $this->_fmt_hms($logged);
+            }
+            unset($lu);
+        }
+
+        $response = [
+            'success' => true,
+            'summary' => [
+                'total' => count($all_users),
+                'active' => $active_count,
+                'paused' => $paused_count,
+                'idle' => $idle_count,
+                'offline' => $offline_count,
+            ],
+            'users' => $list,
+            'server_time' => date('Y-m-d H:i:s'),
+        ];
+        if ($period !== null) {
+            $response['period'] = $period;
+        }
+
         $this->output
             ->set_content_type('application/json')
-            ->set_output(json_encode([
-                'success' => true,
-                'summary' => [
-                    'total' => count($all_users),
-                    'active' => $active_count,
-                    'paused' => $paused_count,
-                    'idle' => $idle_count,
-                    'offline' => $offline_count,
-                ],
-                'users' => $list,
-                'server_time' => date('Y-m-d H:i:s'),
-            ]));
+            ->set_output(json_encode($response));
     }
 
     public function entries()
@@ -1612,6 +1723,47 @@ class Timesync extends Admin_Controller
             }
         }
         return count($leave_map);
+    }
+
+    private function _fmt_hms($sec)
+    {
+        $sec = max(0, (int)$sec);
+        $h = floor($sec / 3600);
+        $m = floor(($sec % 3600) / 60);
+        $s = $sec % 60;
+        return "{$h}h {$m}m {$s}s";
+    }
+
+    private function _get_live_running_seconds($from, $to, $allowed_ids = null)
+    {
+        $to_end = $to . ' 23:59:59';
+        $running = $this->db
+            ->select('user_id, started_at, paused_at, resumed_at, total_seconds')
+            ->where('is_running', 1)
+            ->where('stopped_at IS NULL', null, false)
+            ->where('started_at >=', $from . ' 00:00:00')
+            ->where('started_at <=', $to_end);
+        if ($allowed_ids !== null) {
+            $this->db->where_in('user_id', $allowed_ids);
+        }
+        $running = $running->get('tbl_desktop_time_entries')->result();
+
+        $now = time();
+        $live_extra = [];
+        foreach ($running as $e) {
+            $uid = (int)$e->user_id;
+            $stored = (int)$e->total_seconds;
+            if (empty($e->paused_at) || !empty($e->resumed_at)) {
+                $wall = max(0, $now - strtotime($e->started_at . ' UTC'));
+                $live = max($stored, $wall);
+            } else {
+                $live = $stored;
+            }
+            $delta = max(0, $live - $stored);
+            if (!isset($live_extra[$uid])) $live_extra[$uid] = 0;
+            $live_extra[$uid] += $delta;
+        }
+        return $live_extra;
     }
 
     private function _get_user_list_with_stats($from, $to, $allowed_ids = null)
