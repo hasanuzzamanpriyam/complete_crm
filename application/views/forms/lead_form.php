@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
     <title><?php echo $form->name; ?></title>
+
     <!-- =============== VENDOR STYLES ===============-->
     <!-- FONT AWESOME-->
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/plugins/fontawesome/css/font-awesome.min.css">
@@ -14,7 +15,7 @@
     <!-- =============== BOOTSTRAP STYLES ===============-->
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/bootstrap.min.css" id="bscss">
     <!-- =============== APP STYLES ===============-->
-    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/app.min.css" id="maincss">
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/app.min.css?v=2" id="maincss">
 
     <!-- Datepicker-->
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/datepicker.min.css">
@@ -22,7 +23,7 @@
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/timepicker.min.css">
 
     <!-- JQUERY-->
-    <script src="<?php echo base_url(); ?>assets/plugins/jquery/dist/jquery.min.js"></script>
+    <script src="<?php echo base_url(); ?>assets/plugins/jquery/dist/jquery.min.js?v=2"></script>
 
     <?php if (config_item('recaptcha_secret_key') != '' && config_item('recaptcha_site_key') != '') { ?>
         <script src='https://www.google.com/recaptcha/api.js'></script>

@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8">
     <title><?php echo $title; ?></title>
+
     <!-- =============== VENDOR STYLES ===============-->
     <!-- FONT AWESOME-->
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/plugins/fontawesome/css/font-awesome.min.css">
@@ -12,7 +13,7 @@
     <!-- =============== BOOTSTRAP STYLES ===============-->
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/bootstrap.css" id="bscss">
     <!-- =============== APP STYLES ===============-->
-    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/app.css" id="maincss">
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/app.css?v=2" id="maincss">
     <?php
     $custom_color = config_item('active_custom_color');
     if (!empty($custom_color) && $custom_color == 1) {

@@ -13,10 +13,10 @@
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/plugins/fontawesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/toastr.min.css">
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/bootstrap.min.css" id="bscss">
-    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/app.min.css" id="maincss">
-    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/booking.css">
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/app.min.css?v=2" id="maincss">
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/booking.css?v=2">
 
-    <script src="<?php echo base_url(); ?>assets/plugins/jquery/dist/jquery.min.js"></script>
+    <script src="<?php echo base_url(); ?>assets/plugins/jquery/dist/jquery.min.js?v=2"></script>
 </head>
 <body class="booking-page">
 
@@ -51,6 +51,6 @@
 
 <script src="<?= base_url() ?>assets/js/toastr.min.js"></script>
 <script src="<?php echo base_url(); ?>assets/plugins/bootstrap/dist/js/bootstrap.min.js"></script>
-<script src="<?php echo base_url() ?>assets/js/booking.js"></script>
+<script src="<?php echo base_url() ?>assets/js/booking.js?v=2"></script>
 </body>
 </html>

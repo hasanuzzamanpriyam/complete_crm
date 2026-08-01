@@ -10,6 +10,7 @@
     <?php else: ?>
         <link rel="icon" href="<?php echo base_url('assets/img/favicon.ico'); ?>" type="image/png">
     <?php endif; ?>
+
     <!-- =============== VENDOR STYLES ===============-->
     <!-- FONT AWESOME-->
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/plugins/fontawesome/css/font-awesome.min.css">
@@ -18,10 +19,10 @@
     <!-- =============== BOOTSTRAP STYLES ===============-->
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/bootstrap.min.css" id="bscss">
     <!-- =============== APP STYLES ===============-->
-    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/app.min.css" id="maincss">
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/app.min.css?v=2" id="maincss">
 
     <!-- JQUERY-->
-    <script src="<?php echo base_url(); ?>assets/plugins/jquery/dist/jquery.min.js"></script>
+    <script src="<?php echo base_url(); ?>assets/plugins/jquery/dist/jquery.min.js?v=2"></script>
 
     <?php if (config_item('recaptcha_secret_key') != '' && config_item('recaptcha_site_key') != '') { ?>
         <script src='https://www.google.com/recaptcha/api.js'></script>

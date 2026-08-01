@@ -14,6 +14,7 @@
     <?php else : ?>
         <link rel="icon" href="<?php echo base_url('assets/img/favicon.ico'); ?>" type="image/png">
     <?php endif; ?>
+
     <!-- =============== VENDOR STYLES ===============-->
     <!-- FONT AWESOME-->
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/plugins/fontawesome/css/font-awesome.min.css">
@@ -36,12 +37,12 @@
     if (!empty($RTL)) {
         ?>
         <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/bootstrap-rtl.min.css" id="bscss">
-        <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/app-rtl.min.css" id="maincss">
+        <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/app-rtl.min.css?v=2" id="maincss">
     <?php } else {
         ?>
         <!-- =============== BOOTSTRAP STYLES ===============-->
         <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/bootstrap.min.css" id="bscss">
-        <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/app.css" id="maincss">
+        <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/app.css?v=2" id="maincss">
     <?php }
     $custom_color = config_item('active_custom_color');
     if (!empty($custom_color) && $custom_color == 1) {
@@ -92,7 +93,7 @@
     <link href="<?php echo base_url() ?>assets/plugins/chat/chat.min.css" rel="stylesheet">
     
     <!-- JQUERY-->
-    <script src="<?= base_url() ?>assets/js/jquery.min.js"></script>
+    <script src="<?= base_url() ?>assets/js/jquery.min.js?v=2"></script>
     
     <link href="<?php echo base_url() ?>asset/css/bootstrap-toggle.min.css" rel="stylesheet">
     <script src="<?php echo base_url() ?>asset/js/bootstrap-toggle.min.js"></script>
