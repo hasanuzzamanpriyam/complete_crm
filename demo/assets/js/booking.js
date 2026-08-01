@@ -299,6 +299,8 @@
             }
         });
 
-        loadConsultants();
+        if (cfg.getConsultantsUrl && $('#consultant-list').length) {
+            loadConsultants();
+        }
     });
 })(jQuery);

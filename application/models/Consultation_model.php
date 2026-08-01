@@ -450,9 +450,15 @@ class Consultation_model extends MY_Model
 
         $candidates = array();
         foreach ($day_slots as $slot) {
-            $start = strtotime($consultant_date_str . ' ' . $slot->start_time);
-            $end = strtotime($consultant_date_str . ' ' . $slot->end_time);
-            if ($start === false || $end === false || $end <= $start) {
+            try {
+                $sdt = new DateTime($consultant_date_str . ' ' . $this->_normalize_time_string($slot->start_time) . ':00', new DateTimeZone($consultant_tz));
+                $edt = new DateTime($consultant_date_str . ' ' . $this->_normalize_time_string($slot->end_time) . ':00', new DateTimeZone($consultant_tz));
+            } catch (Exception $e) {
+                continue;
+            }
+            $start = $sdt->getTimestamp();
+            $end = $edt->getTimestamp();
+            if ($end <= $start) {
                 continue;
             }
             for ($t = $start; ($t + $duration * 60) <= $end; $t += 30 * 60) {
