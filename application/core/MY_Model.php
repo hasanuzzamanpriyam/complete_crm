@@ -1209,6 +1209,7 @@
             "bugs_lang.php" => APPPATH,
             "calendar_lang.php" => APPPATH,
             "client_lang.php" => APPPATH,
+            "consultation_lang.php" => APPPATH,
             "date_lang.php" => APPPATH,
             "db_lang.php" => APPPATH,
             "departments_lang.php" => APPPATH,

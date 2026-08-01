@@ -237,6 +237,13 @@ $type = $this->session->userdata('c_message');
                 <img style="width: 100%;"
                      src="<?= base_url() . config_item('company_logo') ?>" class="m-r-sm">
             </div>
+            <?php if ((string)config_item('consultation_booking_enabled') === '1') { ?>
+                <div class="text-center" style="margin-bottom: 20px">
+                    <a href="<?= base_url() ?>book-free-consultation" class="btn btn-success btn-block btn-lg">
+                        <i class="fa fa-calendar-check-o"></i> Book a Free Consultation
+                    </a>
+                </div>
+            <?php } ?>
             <?= message_box('success'); ?>
             <?= message_box('error'); ?>
             <div class="error_login">

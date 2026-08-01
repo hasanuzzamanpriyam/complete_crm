@@ -48,6 +48,7 @@ class Cronjob extends MY_Controller
             $this->database_backup();
             $this->autoclose_tickets();
             $this->reminders();
+            $this->consultation_reminders();
             $this->outgoing_emails();
             $this->process_email_queue_cron();
             // check domain and hosting expiry
@@ -293,6 +294,62 @@ class Cronjob extends MY_Controller
             'data' => $result,
         ]);
         exit;
+    }
+
+    function consultation_reminders()
+    {
+        $this->load->model('consultation_model');
+
+        $lead_times = consultation_reminder_lead_times();
+        if (empty($lead_times)) {
+            log_message('info', 'Consultation reminders: no lead times configured');
+            return array('success' => TRUE, 'result' => 'No reminder lead times configured');
+        }
+
+        $now = time();
+        $appointments = $this->consultation_model->get_upcoming_appointments('confirmed');
+        $sent_count = 0;
+
+        foreach ($appointments as $appointment) {
+            $start_utc = consultation_appointment_start_utc($appointment);
+            if ($start_utc <= $now) {
+                continue;
+            }
+            $already = array();
+            if (!empty($appointment->reminders_sent)) {
+                foreach (explode(',', $appointment->reminders_sent) as $part) {
+                    $part = (int)trim($part);
+                    if ($part > 0) {
+                        $already[] = $part;
+                    }
+                }
+            }
+
+            $due = array();
+            foreach ($lead_times as $hours) {
+                if (in_array($hours, $already, true)) {
+                    continue;
+                }
+                if ($now >= ($start_utc - $hours * 3600)) {
+                    $due[] = $hours;
+                }
+            }
+            if (empty($due)) {
+                continue;
+            }
+
+            $tokens = consultation_mail_tokens($appointment);
+            $tokens['MEETING_URL'] = $appointment->meeting_url;
+            consultation_send_mail('consultation_reminder', $appointment->customer_email, $tokens);
+
+            $this->consultation_model->update_appointment($appointment->appointment_id, array(
+                'reminders_sent' => implode(',', array_unique(array_merge($already, $due))),
+            ));
+            $sent_count++;
+        }
+
+        log_message('info', 'Consultation reminders: ' . $sent_count . ' reminder email(s) sent');
+        return array('success' => TRUE, 'result' => $sent_count . ' consultation reminder(s) sent');
     }
 
     function client_sms_reminder($data, $mobile)

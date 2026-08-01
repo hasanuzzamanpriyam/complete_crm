@@ -1,0 +1,335 @@
+.booking-page {
+    background: #f4f6f9;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.booking-topbar {
+    background: #fff;
+    border-bottom: 1px solid #e7ecf1;
+    padding: 14px 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.booking-topbar .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.booking-brand {
+    font-size: 18px;
+    font-weight: 700;
+    color: #2b3a55;
+}
+
+.booking-brand i {
+    color: #27ae60;
+    margin-right: 6px;
+}
+
+.booking-back-home {
+    border-radius: 20px;
+}
+
+.booking-wrap {
+    flex: 1;
+    padding: 40px 0 60px;
+}
+
+.booking-card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 34px 34px 40px;
+}
+
+.booking-card-header h2 {
+    margin: 0 0 6px;
+    color: #2b3a55;
+    font-weight: 700;
+}
+
+.booking-steps {
+    display: flex;
+    justify-content: space-between;
+    margin: 26px 0 30px;
+    position: relative;
+}
+
+.booking-steps:before {
+    content: '';
+    position: absolute;
+    top: 18px;
+    left: 8%;
+    right: 8%;
+    height: 3px;
+    background: #e7ecf1;
+}
+
+.booking-step {
+    position: relative;
+    z-index: 1;
+    background: #fff;
+    padding: 0 10px;
+    font-size: 13px;
+    color: #8a94a6;
+    text-align: center;
+}
+
+.booking-step .step-num {
+    display: inline-block;
+    width: 34px;
+    height: 34px;
+    line-height: 30px;
+    border-radius: 50%;
+    border: 3px solid #e7ecf1;
+    background: #fff;
+    color: #8a94a6;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.booking-step.active {
+    color: #2b3a55;
+    font-weight: 600;
+}
+
+.booking-step.active .step-num {
+    border-color: #27ae60;
+    color: #27ae60;
+}
+
+.booking-step.done .step-num {
+    background: #27ae60;
+    border-color: #27ae60;
+    color: #fff;
+}
+
+.booking-pane {
+    display: none;
+}
+
+.booking-pane.active {
+    display: block;
+}
+
+/* Step 1 - consultants */
+.consultant-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 18px;
+}
+
+.consultant-card {
+    border: 2px solid #e7ecf1;
+    border-radius: 10px;
+    padding: 20px;
+    cursor: pointer;
+    text-align: center;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.consultant-card:hover {
+    border-color: #27ae60;
+    box-shadow: 0 3px 12px rgba(39, 174, 96, 0.12);
+}
+
+.consultant-card.selected {
+    border-color: #27ae60;
+    background: #f0faf3;
+}
+
+.consultant-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #27ae60;
+    color: #fff;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 64px;
+    margin: 0 auto 12px;
+    overflow: hidden;
+}
+
+.consultant-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.consultant-card h4 {
+    margin: 0 0 4px;
+    font-size: 16px;
+    color: #2b3a55;
+}
+
+.consultant-card .consultant-meta {
+    color: #8a94a6;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.consultant-card .consultant-bio {
+    color: #6b7488;
+    font-size: 13px;
+    line-height: 1.5;
+    max-height: 60px;
+    overflow: hidden;
+}
+
+.consultant-card .choose-btn {
+    margin-top: 12px;
+}
+
+/* Step 2 - date strip & time pills */
+.timezone-banner {
+    background: #eef5ff;
+    border: 1px solid #d4e4ff;
+    color: #2b5a9e;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 18px;
+    font-size: 14px;
+}
+
+.date-strip {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    margin-bottom: 8px;
+}
+
+.date-cell {
+    flex: 0 0 auto;
+    width: 86px;
+    border: 2px solid #e7ecf1;
+    border-radius: 10px;
+    padding: 12px 6px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+}
+
+.date-cell:hover {
+    border-color: #27ae60;
+}
+
+.date-cell.selected {
+    border-color: #27ae60;
+    background: #f0faf3;
+}
+
+.date-cell.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.date-cell .date-weekday {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #8a94a6;
+}
+
+.date-cell .date-day {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2b3a55;
+}
+
+.date-cell .date-month {
+    font-size: 12px;
+    color: #8a94a6;
+}
+
+.time-list {
+    min-height: 90px;
+}
+
+.time-pill {
+    display: inline-block;
+    margin: 6px;
+    padding: 9px 20px;
+    border: 2px solid #e7ecf1;
+    border-radius: 24px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.time-pill:hover {
+    border-color: #27ae60;
+}
+
+.time-pill.selected {
+    border-color: #27ae60;
+    background: #27ae60;
+    color: #fff;
+}
+
+/* Step 3 - form & summary */
+.booking-summary {
+    background: #f8fafc;
+    border: 1px solid #e7ecf1;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.booking-summary h4 {
+    margin: 0 0 14px;
+    color: #2b3a55;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px dashed #e0e6ee;
+}
+
+.summary-row:last-child {
+    border-bottom: 0;
+}
+
+.summary-row span {
+    color: #8a94a6;
+}
+
+/* Confirmation */
+.booking-confirm .confirm-icon {
+    font-size: 72px;
+    color: #27ae60;
+    margin-bottom: 10px;
+}
+
+.booking-confirm h2 {
+    color: #2b3a55;
+    font-weight: 700;
+}
+
+.appointment-summary-box {
+    max-width: 480px;
+    margin: 24px auto;
+    background: #f8fafc;
+    border: 1px solid #e7ecf1;
+    border-radius: 10px;
+    padding: 14px 20px;
+    text-align: left;
+}
+
+.booking-footer {
+    padding: 20px 0;
+    color: #8a94a6;
+    font-size: 13px;
+}
+
+.mt { margin-top: 16px; }
+.mt-sm { margin-top: 10px; }
+.mt-lg { margin-top: 26px; }
+.p-lg { padding: 26px; }

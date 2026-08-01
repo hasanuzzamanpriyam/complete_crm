@@ -16,6 +16,8 @@ $route['piprapay/callback_success']        = 'Piprapay_gateway/callback_success'
 $route['piprapay/callback_cancel']         = 'Piprapay_gateway/callback_cancel';
 
 $route['default_controller'] = 'login';
+$route['book-free-consultation'] = 'booking';
+$route['book-free-consultation/confirm/(:any)'] = 'booking/confirm/$1';
 $route['404'] = "login/not_found";
 $route['career'] = "frontend";
 $route['admin/mark_attendance'] = "admin/dashboard/mark_attendance";
@@ -50,6 +52,13 @@ $route['api/v1/payments/initiate']          = 'api/payments/initiate';
 $route['api/v1/payments/callback/(:any)']   = 'api/payments/callback/$1';
 $route['api/v1/payments/status/(:any)']     = 'api/payments/status/$1';
 $route['api/v1/payments/gateways']          = 'api/payments/gateways';
+
+/* ------------------------------------------ Consultation API routes (v1) ------------------------------------------ */
+$route['api/v1/consultations/consultants']                 = 'api/consultations/consultants';
+$route['api/v1/consultations/slots']                       = 'api/consultations/slots';
+$route['api/v1/consultations/bookings']                    = 'api/consultations/bookings';
+$route['api/v1/consultations/bookings/(:num)']             = 'api/consultations/booking/$1';
+$route['api/v1/consultations/bookings/(:num)/cancel']      = 'api/consultations/cancel/$1';
 
 $route['cronjob/process_email_queue']       = 'cronjob/process_email_queue_manual';
 $route['404'] = "login/not_found";
