@@ -23,7 +23,7 @@ class Consultations extends MY_Controller
 
     public function consultants()
     {
-        $this->api_auth->authenticate();
+        $this->api_auth->authenticate_consultation();
 
         $consultants = $this->consultation_model->get_consultants(true);
         $result = array();
@@ -43,7 +43,7 @@ class Consultations extends MY_Controller
 
     public function slots()
     {
-        $this->api_auth->authenticate();
+        $this->api_auth->authenticate_consultation();
 
         $consultant_id = (int)$this->input->get('consultant_id');
         $date = $this->input->get('date');
@@ -73,7 +73,7 @@ class Consultations extends MY_Controller
 
     public function bookings()
     {
-        $this->api_auth->authenticate();
+        $this->api_auth->authenticate_consultation();
 
         if ($this->input->method(true) === 'POST') {
             return $this->_create_booking();
@@ -98,7 +98,7 @@ class Consultations extends MY_Controller
 
     public function booking($id)
     {
-        $this->api_auth->authenticate();
+        $this->api_auth->authenticate_consultation();
 
         $appointment = $this->consultation_model->get_appointment((int)$id);
         if (empty($appointment)) {
@@ -109,7 +109,7 @@ class Consultations extends MY_Controller
 
     public function cancel($id)
     {
-        $this->api_auth->authenticate();
+        $this->api_auth->authenticate_consultation();
 
         $appointment = $this->consultation_model->get_appointment((int)$id);
         if (empty($appointment)) {

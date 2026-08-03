@@ -80,6 +80,40 @@ class Api_auth
         return $this->user;
     }
 
+    /**
+     * Authenticate for public-facing endpoints (e.g. consultations).
+     *
+     * Accepts a valid Bearer token (CRM apps) OR a shared API key sent via the
+     * X-API-Key header. The key is stored in tbl_config as
+     * 'consultation_api_key'. When the key setting is empty the API key path is
+     * disabled and only Bearer tokens are accepted.
+     *
+     * @return object|null Authenticated user for Bearer token calls, null when
+     *                     authenticated via API key.
+     */
+    public function authenticate_consultation()
+    {
+        $user = $this->authenticate_optional();
+
+        if (!empty($user)) {
+            return $user;
+        }
+
+        $api_key = $this->_extract_api_key();
+        if (empty($api_key)) {
+            $this->_deny('Authentication required. Provide a Bearer token or a valid X-API-Key.', 401);
+        }
+
+        $row = $this->ci->db->where('config_key', 'consultation_api_key')->get('tbl_config')->row();
+        $expected = !empty($row) ? trim($row->value) : '';
+
+        if (empty($expected) || !hash_equals($expected, $api_key)) {
+            $this->_deny('Invalid or disabled API key', 401);
+        }
+
+        return null;
+    }
+
     public function get_user()
     {
         return $this->user;
@@ -264,6 +298,31 @@ class Api_auth
         }
 
         return null;
+    }
+
+    private function _extract_api_key()
+    {
+        $key = $this->ci->input->server('HTTP_X_API_KEY');
+
+        if (empty($key)) {
+            $key = $this->ci->input->server('REDIRECT_HTTP_X_API_KEY');
+        }
+
+        if (empty($key)) {
+            if (function_exists('apache_request_headers')) {
+                $h = apache_request_headers();
+                $key = $h['X-API-Key'] ?? $h['x-api-key'] ?? null;
+            } elseif (function_exists('getallheaders')) {
+                $h = getallheaders();
+                $key = $h['X-API-Key'] ?? $h['x-api-key'] ?? null;
+            }
+        }
+
+        if (empty($key) && !empty($_SERVER['HTTP_X_API_KEY'])) {
+            $key = $_SERVER['HTTP_X_API_KEY'];
+        }
+
+        return $key;
     }
 
     private function _deny($message, $http_code = 401)

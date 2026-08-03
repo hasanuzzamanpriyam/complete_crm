@@ -56,3 +56,38 @@ $s = $settings;
         </form>
     </div>
 </div>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <div class="panel-title"><?= lang('consultation_api_key') ?></div>
+    </div>
+    <div class="panel-body">
+        <p class="help-block"><?= lang('consultation_api_key_help') ?></p>
+        <div class="input-group">
+            <input type="text" class="form-control" readonly
+                   value="<?= htmlspecialchars(isset($s['api_key']) ? $s['api_key'] : '') ?>"
+                   placeholder="No API key set - API-key access is disabled">
+            <span class="input-group-btn">
+                <button type="button" class="btn btn-default" id="copy-api-key"
+                        data-toggle="tooltip" title="Copy">
+                    <i class="fa fa-copy"></i>
+                </button>
+            </span>
+        </div>
+        <form method="post" action="<?= base_url() ?>admin/consultation/regenerate_api_key"
+              class="mt" onsubmit="return confirm('<?= lang('consultation_api_key_regenerate_confirm') ?>');">
+            <button type="submit" class="btn btn-purple">
+                <i class="fa fa-refresh"></i> <?= lang('consultation_api_key_generate') ?>
+            </button>
+        </form>
+    </div>
+</div>
+<script>
+    $(function () {
+        $('#copy-api-key').on('click', function () {
+            var input = $(this).closest('.input-group').find('input')[0];
+            if (!input || !input.value) return;
+            input.select();
+            document.execCommand('copy');
+        });
+    });
+</script>

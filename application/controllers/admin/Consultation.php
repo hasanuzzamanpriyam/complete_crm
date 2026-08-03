@@ -315,6 +315,14 @@ class Consultation extends Admin_Controller
         redirect('admin/consultation/settings');
     }
 
+    public function regenerate_api_key()
+    {
+        $key = bin2hex(random_bytes(32));
+        $this->consultation_model->set_setting('api_key', $key);
+        set_message('success', lang('consultation_api_key_generated'));
+        redirect('admin/consultation/settings');
+    }
+
     /* -----------------------------------------------------------------
      * Internal helpers
      * ---------------------------------------------------------------- */

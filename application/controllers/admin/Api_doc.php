@@ -387,6 +387,112 @@ class Api_doc extends Admin_Controller
                     ]
                 ]
             ],
+            [
+                'name' => 'List Consultants',
+                'description' => 'List active consultants. Auth: Bearer token OR X-API-Key header (key managed under Consultation Settings).',
+                'method' => 'GET',
+                'endpoint' => 'api/v1/consultations/consultants',
+                'parameters' => [],
+                'response_example' => [
+                    'success' => true,
+                    'message' => 'OK',
+                    'consultants' => [
+                        [
+                            'consultant_id' => 4,
+                            'name' => 'aaa',
+                            'email' => 'aaa@example.com',
+                            'phone' => '',
+                            'timezone' => 'Asia/Dhaka',
+                            'department' => '',
+                            'bio' => '',
+                        ]
+                    ]
+                ]
+            ],
+            [
+                'name' => 'Available Slots',
+                'description' => 'Get available time slots for a consultant on a date. Auth: Bearer token OR X-API-Key header.',
+                'method' => 'GET',
+                'endpoint' => 'api/v1/consultations/slots',
+                'parameters' => [
+                    ['name' => 'consultant_id', 'type' => 'int', 'description' => 'Consultant ID (required)'],
+                    ['name' => 'date', 'type' => 'date', 'description' => 'Target date YYYY-MM-DD (required)'],
+                    ['name' => 'timezone', 'type' => 'string', 'description' => 'Customer timezone (defaults to company timezone)'],
+                    ['name' => 'duration', 'type' => 'int', 'description' => 'Meeting duration in minutes (defaults to setting)'],
+                ],
+                'response_example' => [
+                    'success' => true,
+                    'message' => 'OK',
+                    'consultant_id' => 4,
+                    'date' => '2026-08-05',
+                    'timezone' => 'Asia/Dhaka',
+                    'duration' => 30,
+                    'slots' => [['time' => '10:00', 'end_time' => '10:30']],
+                ]
+            ],
+            [
+                'name' => 'Create Booking',
+                'description' => 'Create a consultation booking. Emails confirmation to customer and consultant. Auth: Bearer token OR X-API-Key header.',
+                'method' => 'POST',
+                'endpoint' => 'api/v1/consultations/bookings',
+                'parameters' => [
+                    ['name' => 'consultant_id', 'type' => 'int', 'description' => 'Consultant ID (required)'],
+                    ['name' => 'customer_name', 'type' => 'string', 'description' => 'Customer name (required)'],
+                    ['name' => 'customer_email', 'type' => 'string', 'description' => 'Valid customer email (required)'],
+                    ['name' => 'customer_timezone', 'type' => 'string', 'description' => 'Customer timezone (required)'],
+                    ['name' => 'appointment_date', 'type' => 'date', 'description' => 'Date YYYY-MM-DD (required)'],
+                    ['name' => 'appointment_time', 'type' => 'string', 'description' => 'Start time H:i (required)'],
+                    ['name' => 'customer_phone', 'type' => 'string', 'description' => 'Customer phone'],
+                    ['name' => 'company', 'type' => 'string', 'description' => 'Company name'],
+                    ['name' => 'country', 'type' => 'string', 'description' => 'Country'],
+                    ['name' => 'consultation_type', 'type' => 'string', 'description' => 'Type (defaults to consultation)'],
+                    ['name' => 'notes', 'type' => 'string', 'description' => 'Notes'],
+                    ['name' => 'duration_minutes', 'type' => 'int', 'description' => 'Duration (defaults to setting)'],
+                ],
+                'response_example' => [
+                    'success' => true,
+                    'message' => 'Booking created',
+                    'appointment' => [
+                        'appointment_id' => 10,
+                        'consultant_id' => 4,
+                        'consultant_name' => 'aaa',
+                        'customer_name' => 'John Doe',
+                        'customer_email' => 'john@client.com',
+                        'status' => 'confirmed',
+                        'appointment_date' => '2026-08-05',
+                        'appointment_time' => '10:00',
+                        'meeting_url' => 'https://meet.example.com/...',
+                    ]
+                ]
+            ],
+            [
+                'name' => 'List Bookings',
+                'description' => 'List consultation appointments, optionally filtered by status. Auth: Bearer token OR X-API-Key header.',
+                'method' => 'GET',
+                'endpoint' => 'api/v1/consultations/bookings',
+                'parameters' => [
+                    ['name' => 'status', 'type' => 'string', 'description' => 'Filter: confirmed|pending|cancelled|completed|no_show'],
+                ],
+                'response_example' => [
+                    'success' => true,
+                    'message' => 'OK',
+                    'appointments' => [
+                        ['appointment_id' => 10, 'customer_name' => 'John Doe', 'status' => 'confirmed']
+                    ]
+                ]
+            ],
+            [
+                'name' => 'Cancel Booking',
+                'description' => 'Cancel a consultation appointment. Auth: Bearer token OR X-API-Key header.',
+                'method' => 'POST',
+                'endpoint' => 'api/v1/consultations/bookings/:id/cancel',
+                'parameters' => [],
+                'response_example' => [
+                    'success' => true,
+                    'message' => 'Appointment cancelled',
+                    'appointment' => ['appointment_id' => 10, 'status' => 'cancelled'],
+                ]
+            ],
         ];
 
         $data['subview'] = $this->load->view('admin/api_doc/index', $data, true);

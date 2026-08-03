@@ -56,6 +56,12 @@ $lang['consultation_reminder_hours'] = 'Reminder Email Lead Times (comma separat
 $lang['consultation_reminder_hours_help'] = 'Reminders are sent this many hours before each appointment, e.g. 24, 1 sends one reminder a day before and one an hour before.';
 $lang['consultation_settings_saved'] = 'Settings saved successfully.';
 
+$lang['consultation_api_key'] = 'API Key (external sites)';
+$lang['consultation_api_key_generate'] = 'Generate New Key';
+$lang['consultation_api_key_generated'] = 'New API key generated. Copy it now - it is not shown again.';
+$lang['consultation_api_key_regenerate_confirm'] = 'Generate a new API key? External sites using the old key will stop working.';
+$lang['consultation_api_key_help'] = 'External sites use this key to book consultations through the API. Send it as an X-API-Key header (e.g. X-API-Key: YOUR_KEY). Leave empty to disable API-key access - Bearer tokens still work.';
+
 $lang['consultation_status_confirmed'] = 'Confirmed';
 $lang['consultation_status_pending'] = 'Pending';
 $lang['consultation_status_completed'] = 'Completed';
