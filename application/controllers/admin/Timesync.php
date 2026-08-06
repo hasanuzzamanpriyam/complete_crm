@@ -676,6 +676,105 @@ class Timesync extends Admin_Controller
         $this->_render_or_ajax($data);
     }
 
+    public function user_live_data($user_id = null)
+    {
+        if (!is_super_admin() && !can_action_by_label('timesync', 'view')) {
+            $this->output
+                ->set_status_header(403)
+                ->set_content_type('application/json')
+                ->set_output(json_encode(['success' => false, 'message' => 'Access denied']));
+            return;
+        }
+
+        if (empty($user_id)) {
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode(['success' => false, 'message' => 'Invalid user']));
+            return;
+        }
+
+        $from = $this->input->get('from') ?: date('Y-m-d');
+        $to = $this->input->get('to') ?: date('Y-m-d');
+        if (strtotime($to) < strtotime($from)) {
+            $tmp = $to;
+            $to = $from;
+            $from = $tmp;
+        }
+
+        $tab = $this->input->get('tab');
+        $allowed_tabs = ['entries', 'screenshots', 'apps', 'timeline'];
+        if (empty($tab) || !in_array($tab, $allowed_tabs)) {
+            $tab = 'timeline';
+        }
+
+        $stats = $this->_user_stats($user_id, $from, $to);
+        $live_extra = $this->_get_live_running_seconds($from, $to);
+        $stats['total_seconds'] += (int)($live_extra[(int)$user_id] ?? 0);
+
+        $timeline = $this->_timeline_data($user_id, $from, $to);
+        $app_breakdown = $this->_user_app_breakdown($user_id, $from, $to);
+        if ($app_breakdown['grand_total'] > $stats['total_seconds']) {
+            $app_breakdown['grand_total'] = $stats['total_seconds'];
+        }
+
+        $data = [
+            'success' => true,
+            'stats' => $stats,
+            'presence' => $this->_user_presence((int)$user_id),
+            'current' => $this->_user_current((int)$user_id),
+            'timeline' => $timeline,
+            'app_breakdown' => $app_breakdown,
+        ];
+
+        switch ($tab) {
+            case 'entries':
+                $data['entries'] = [];
+                foreach ($this->_user_entries($user_id, $from, $to, 25, 0) as $e) {
+                    $data['entries'][] = [
+                        'id' => (int)$e->id,
+                        'started_at' => $e->started_at,
+                        'stopped_at' => $e->stopped_at,
+                        'total_seconds' => (int)$e->total_seconds,
+                        'type' => $e->type,
+                        'task_id' => (int)$e->task_id,
+                        'task_name' => $e->task_name ?? ('#' . $e->task_id),
+                    ];
+                }
+                break;
+            case 'screenshots':
+                $data['screenshots'] = [];
+                foreach ($this->_user_screenshots($user_id, $from, $to, 100, 0) as $s) {
+                    $data['screenshots'][] = [
+                        'id' => (int)$s->id,
+                        'captured_at' => $s->captured_at,
+                    ];
+                }
+                break;
+            case 'apps':
+                $data['app_usage'] = [];
+                foreach ($this->_user_app_usage($user_id, $from, $to, 25, 0) as $a) {
+                    $data['app_usage'][] = [
+                        'app_name' => $a->app_name,
+                        'window_title' => $a->window_title ?? '',
+                        'url' => $a->url ?? '',
+                        'total_seconds' => (int)$a->total_seconds,
+                        'recorded_at' => $a->recorded_at,
+                    ];
+                }
+                break;
+        }
+
+        $data['signature'] = md5(json_encode([
+            'stats' => $stats,
+            'timeline' => $timeline,
+            'app_breakdown' => $app_breakdown,
+        ]));
+
+        $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
+
     public function timeline_json($user_id = null)
     {
         if (!is_super_admin() && !can_action_by_label('timesync', 'view')) {
@@ -1392,6 +1491,79 @@ class Timesync extends Admin_Controller
             'entry_count' => (int)$result->entries,
             'day_count' => (int)$result->days,
             'screenshot_count' => $screenshot_count,
+        ];
+    }
+
+    private function _user_presence($user_id)
+    {
+        $u = $this->db
+            ->select('online_time, last_active_ping')
+            ->where('user_id', $user_id)
+            ->get('tbl_users')
+            ->row();
+
+        $now_ts = time();
+
+        $running = $this->db
+            ->select('tde.paused_at, tde.resumed_at')
+            ->from('tbl_desktop_time_entries tde')
+            ->where('tde.user_id', $user_id)
+            ->where('tde.is_running', 1)
+            ->where('tde.stopped_at IS NULL', null, false)
+            ->limit(1)
+            ->get()
+            ->row();
+
+        $status = 'offline';
+        if (!empty($running)) {
+            $status = !empty($running->paused_at) ? 'paused' : 'active';
+        } else {
+            $online_ok = !empty($u->online_time) && (int)$u->online_time > ($now_ts - 300);
+            if ($online_ok) {
+                $status = 'idle';
+            }
+        }
+
+        return [
+            'status' => $status,
+            'is_active_now' => !empty($u->last_active_ping) && strtotime($u->last_active_ping) >= ($now_ts - 120),
+            'last_active_ping' => $u->last_active_ping,
+            'online_time' => $u->online_time,
+        ];
+    }
+
+    private function _user_current($user_id)
+    {
+        $entry = $this->db
+            ->select('tde.started_at, tde.total_seconds, tde.paused_at, tde.resumed_at, t.task_name')
+            ->from('tbl_desktop_time_entries tde')
+            ->join('tbl_task t', 't.task_id = tde.task_id', 'left')
+            ->where('tde.user_id', $user_id)
+            ->where('tde.is_running', 1)
+            ->where('tde.stopped_at IS NULL', null, false)
+            ->order_by('tde.started_at', 'DESC')
+            ->limit(1)
+            ->get()
+            ->row();
+
+        $window = $this->db
+            ->select('app_name, window_title')
+            ->from('tbl_desktop_app_usage')
+            ->where('user_id', $user_id)
+            ->order_by('created_at', 'DESC')
+            ->limit(1)
+            ->get()
+            ->row();
+
+        return [
+            'is_running' => !empty($entry),
+            'task_name' => !empty($entry) ? $entry->task_name : null,
+            'started_at' => !empty($entry) ? (strtotime($entry->started_at . ' UTC') * 1000) : null,
+            'total_seconds' => !empty($entry) ? (int)$entry->total_seconds : 0,
+            'paused_at' => !empty($entry) ? $entry->paused_at : null,
+            'resumed_at' => !empty($entry) ? $entry->resumed_at : null,
+            'app_name' => !empty($window) ? $window->app_name : null,
+            'window_title' => !empty($window) ? $window->window_title : null,
         ];
     }
 

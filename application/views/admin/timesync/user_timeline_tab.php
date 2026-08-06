@@ -813,6 +813,9 @@ $has_data = $grand > 0;
     });
   }
 
+  window.getAppIconHtml = getAppIconHtml;
+  window._abInjectIcons = _abInjectIcons;
+
   _abInjectIcons();
 
   $(document).on('timesync:spa_loaded', function() {
