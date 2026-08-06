@@ -304,11 +304,26 @@
     $('#stat-day-count h2').text(s.day_count);
   }
 
+  function fmt12(dateStr) {
+    if (!dateStr) return '';
+    var d = new Date(dateStr.replace(/-/g, '/'));
+    if (isNaN(d.getTime())) return dateStr;
+    var h = d.getHours();
+    var m = ('0' + d.getMinutes()).slice(-2);
+    var s = ('0' + d.getSeconds()).slice(-2);
+    var ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12;
+    if (h === 0) h = 12;
+    var mo = ('0' + (d.getMonth() + 1)).slice(-2);
+    var day = ('0' + d.getDate()).slice(-2);
+    return d.getFullYear() + '-' + mo + '-' + day + ' ' + h + ':' + m + ':' + s + ' ' + ampm;
+  }
+
   function updatePresence(p) {
     var meta = STATUS_META[p.status] || STATUS_META.offline;
     var liveNow = p.is_active_now ? ' <i class="fa fa-circle" style="color:#5cb85c;font-size:10px;"></i>' : '';
     $('#live-status-badge').html('<span class="label ' + meta.cls + '">' + meta.label + '</span>' + liveNow);
-    var detail = p.last_active_ping ? ('Last ping ' + p.last_active_ping) : 'No heartbeat yet';
+    var detail = p.last_active_ping ? ('Last ping ' + fmt12(p.last_active_ping)) : 'No heartbeat yet';
     $('#live-status-detail').text(detail);
     $('#stat-status').css('border-top-color', STATUS_BORDER[p.status] || STATUS_BORDER.offline);
   }

@@ -412,7 +412,7 @@ class Timesync extends Admin_Controller
         if ($allowed_ids !== null) {
             $this->db->where_in('tbl_desktop_time_entries.user_id', $allowed_ids);
         }
-        $this->db->order_by('tbl_desktop_time_entries.started_at', 'DESC')
+        $data['entries'] = $this->db->order_by('tbl_desktop_time_entries.started_at', 'DESC')
             ->get()
             ->result();
 
@@ -456,7 +456,7 @@ class Timesync extends Admin_Controller
         if ($allowed_ids !== null) {
             $this->db->where_in('tbl_desktop_time_entries.user_id', $allowed_ids);
         }
-        $this->db->order_by('tbl_desktop_time_entries.started_at', 'ASC')
+        $data['entries'] = $this->db->order_by('tbl_desktop_time_entries.started_at', 'ASC')
             ->get()
             ->result();
 
@@ -679,6 +679,7 @@ class Timesync extends Admin_Controller
     public function user_live_data($user_id = null)
     {
         if (!is_super_admin() && !can_action_by_label('timesync', 'view')) {
+            ob_clean();
             $this->output
                 ->set_status_header(403)
                 ->set_content_type('application/json')
@@ -687,6 +688,7 @@ class Timesync extends Admin_Controller
         }
 
         if (empty($user_id)) {
+            ob_clean();
             $this->output
                 ->set_content_type('application/json')
                 ->set_output(json_encode(['success' => false, 'message' => 'Invalid user']));
@@ -770,6 +772,7 @@ class Timesync extends Admin_Controller
             'app_breakdown' => $app_breakdown,
         ]));
 
+        ob_clean();
         $this->output
             ->set_content_type('application/json')
             ->set_output(json_encode($data));
