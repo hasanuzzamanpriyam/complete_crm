@@ -27,7 +27,7 @@ function sidebar_initials($name) {
     return substr($initials, 0, 2) ?: '?';
 }
 ?>
-<link rel="stylesheet" href="<?= $base_url ?>assets/css/timesync-dashboard.css">
+<link rel="stylesheet" href="<?= $base_url ?>assets/css/timesync-dashboard.css?v=2">
 <?php $this->load->view('admin/timesync/_date_navigation'); ?>
 <div class="ts-dash-wrapper">
     <aside class="ts-sidebar">

@@ -4,8 +4,9 @@
     align-items: flex-start;
 }
 .ts-sidebar {
-    width: 350px;
-    min-width: 350px;
+    width: 310px;
+    min-width: 310px;
+    height: 415px;
     background: #fff;
     border: 1px solid #e9ecef;
     border-radius: 10px;
@@ -40,8 +41,8 @@
 .ts-user-item {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 10px 14px;
+    gap: 8px;
+    padding: 5px 12px;
     cursor: pointer;
     transition: background .12s;
     border-left: 3px solid transparent;
@@ -59,8 +60,8 @@
     border-left-color: #3b82f6;
 }
 .ts-user-item .avatar {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     object-fit: cover;
     flex-shrink: 0;
@@ -72,7 +73,7 @@
     justify-content: center;
     color: #fff;
     font-weight: 700;
-    font-size: 1rem;
+    font-size: .8rem;
     text-transform: uppercase;
 }
 .ts-user-info {
@@ -80,7 +81,7 @@
     min-width: 0;
 }
 .ts-user-name {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     display: flex;
     align-items: center;
@@ -99,11 +100,11 @@
     white-space: nowrap;
 }
 .ts-user-meta {
-    font-size: 11px;
+    font-size: 10.5px;
     color: #6c757d;
     display: flex;
     gap: 10px;
-    margin-top: 2px;
+    margin-top: 0;
 }
 .ts-user-meta span {
     display: inline-flex;
@@ -123,9 +124,9 @@
 .ts-user-badge.idle { background: #ffedd5; color: #9a3412; }
 .ts-user-badge.offline { background: #f1f5f9; color: #64748b; }
 .ts-user-live-meta {
-    font-size: 11px; color: #4b5563;
+    font-size: 10.5px; color: #4b5563;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    margin-top: 3px;
+    margin-top: 1px;
     display: flex;
     align-items: center;
     gap: 4px;
