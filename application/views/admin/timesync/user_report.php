@@ -108,6 +108,7 @@
                 <?php if ($active_tab === 'timeline'): ?>
                   <?php $this->load->view('admin/timesync/user_timeline_tab', [
                     'timeline_days' => $timeline_days ?? [],
+                    'analytics' => $analytics ?? [],
                     'user_id' => $user_id,
                     'from' => $from,
                     'to' => $to,
@@ -389,42 +390,6 @@
     });
   }
 
-  function renderAppBreakdown(b) {
-    var $section = $('.ab-section');
-    if (!$section.length || !b) return;
-    var prod = b.productive || [];
-    var unprod = b.unproductive || [];
-    var prodTotal = b.productive_total || 0;
-    var unprodTotal = b.unproductive_total || 0;
-    var grand = b.grand_total || 0;
-    function pct(sec) { return grand > 0 ? Math.round(sec / grand * 1000) / 10 : 0; }
-    function rows(list, cls, icon) {
-      if (!list.length) {
-        return '<div class="ab-empty"><i class="fa ' + icon + '" style="font-size:20px;display:block;margin-bottom:6px;color:#bbf7d0;"></i> No apps recorded</div>';
-      }
-      var html = '';
-      for (var i = 0; i < list.length; i++) {
-        var a = list[i];
-        var sec = a.total_seconds || 0;
-        html += '<div class="ab-row" data-app-name="' + escapeHtml(a.app_name) + '" data-app-url="' + escapeHtml(a.url || '') + '">'
-          + '<span class="ab-app-icon"></span>'
-          + '<span class="ab-name" title="' + escapeHtml(a.app_name) + '">' + escapeHtml(a.app_name) + '</span>'
-          + '<span class="ab-dur">' + fmtHMS(sec) + '</span>'
-          + '<div class="ab-bar-wrap"><div class="ab-bar"><div class="ab-bar-fill ab-bar-' + cls + '" style="width:' + pct(sec) + '%"></div></div></div>'
-          + '</div>';
-      }
-      return html;
-    }
-    var $cards = $section.find('.ab-card');
-    if ($cards.length >= 2) {
-      $cards.eq(0).find('.ab-card-body').html(rows(prod, 'prod', 'fa-check-circle'));
-      $cards.eq(1).find('.ab-card-body').html(rows(unprod, 'unprod', 'fa-exclamation-triangle'));
-      $cards.eq(0).find('.ab-card-total').text(fmtHMS(prodTotal) + ' (' + pct(prodTotal) + '%)');
-      $cards.eq(1).find('.ab-card-total').text(fmtHMS(unprodTotal) + ' (' + pct(unprodTotal) + '%)');
-    }
-    if (typeof window._abInjectIcons === 'function') window._abInjectIcons();
-  }
-
   function openScreenshotDetail(id) {
     var modal = $('#screenshotModal');
     if (!modal.length) return;
@@ -599,7 +564,9 @@
           if (typeof window.renderTimeline === 'function' && resp.timeline) {
             var expanded = expandedDayDates();
             window.renderTimeline(resp.timeline);
-            renderAppBreakdown(resp.app_breakdown);
+            if (typeof window.renderAnalytics === 'function' && resp.analytics) {
+              window.renderAnalytics(resp.analytics);
+            }
             reapplyExpanded(expanded);
           }
         }

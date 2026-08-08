@@ -519,3 +519,4 @@ $config['default_controller'] = 'frontcms/home';
 
 $config['biometric_api_token'] = 'zkteco_sync_token_123';
 $config['timesync_update_secret'] = '';
+$config['timesync_stale_running_seconds'] = 600;

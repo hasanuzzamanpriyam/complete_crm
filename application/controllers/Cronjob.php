@@ -55,6 +55,8 @@ class Cronjob extends MY_Controller
             $this->check_domain_hosting_expiry();
             // auto-delete old screenshots per retention policy
             $this->screenshot_retention_cleanup();
+            // auto-stop stale desktop time-tracking sessions
+            $this->timesync_auto_stop_stale();
         }
     }
 
@@ -1184,6 +1186,31 @@ class Cronjob extends MY_Controller
         $this->db->where_in('id', $ids)->delete('tbl_screenshots');
 
         log_message('info', "Screenshot retention: deleted " . count($ids) . " screenshots older than {$retention_days} days");
+    }
+
+    private function timesync_auto_stop_stale()
+    {
+        if (!$this->db->table_exists('tbl_desktop_time_entries')) {
+            return;
+        }
+
+        $threshold = (int)config_item('timesync_stale_running_seconds');
+        if ($threshold <= 0) {
+            $threshold = 600;
+        }
+
+        $this->db->query(
+            "UPDATE tbl_desktop_time_entries e
+             JOIN tbl_users u ON u.user_id = e.user_id
+             SET e.is_running = 0,
+                 e.stopped_at = GREATEST(e.started_at, COALESCE(u.last_active_ping, e.started_at))
+             WHERE e.is_running = 1
+               AND e.stopped_at IS NULL
+               AND (u.last_active_ping IS NULL
+                    OR u.last_active_ping < DATE_SUB(NOW(), INTERVAL " . (int)$threshold . " SECOND))"
+        );
+
+        log_message('info', 'timesync_auto_stop_stale: auto-stopped stale running time entries');
     }
 
     public function send_offer_email_test($offer_id)

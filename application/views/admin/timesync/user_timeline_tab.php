@@ -88,95 +88,104 @@
 .tl-legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:#64748b;font-weight:500}
 .tl-legend-swatch{width:14px;height:14px;border-radius:4px;box-shadow:0 1px 2px rgba(0,0,0,.1)}
 
-/* Productive vs Unproductive App Breakdown */
-.ab-section{margin-top:24px}
-.ab-card{border:1px solid #e2e8f0;border-radius:10px;background:#fff;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06)}
-.ab-card-header{padding:12px 16px;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e2e8f0}
-.ab-card-header .ab-card-total{font-size:11px;font-weight:600;opacity:.85}
-.ab-card-body{padding:10px 16px 14px;max-height:360px;overflow-y:auto}
-.ab-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f1f5f9}
-.ab-row:last-child{border-bottom:none}
-.ab-app-icon{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;flex-shrink:0}
-.ab-name{flex:1;font-size:12px;font-weight:600;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ab-dur{font-size:11px;color:#6c757d;white-space:nowrap;min-width:70px;text-align:right;font-variant-numeric:tabular-nums}
-.ab-bar-wrap{width:80px;min-width:60px}
-.ab-bar{height:6px;background:#f0f2f5;border-radius:4px;overflow:hidden}
-.ab-bar-fill{height:100%;border-radius:4px;transition:width .3s}
-.ab-bar-prod{background:#22c55e}
-.ab-bar-unprod{background:#ef4444}
-.ab-empty{padding:20px 0;text-align:center;color:#94a3b8;font-size:12px}
+/* Analytics dashboard (light, ERP style) */
+.an-panel{margin-top:24px}
+.an-section{display:flex;flex-wrap:wrap}
+.an-section .col-md-6{flex:0 0 50%;max-width:50%}
+.an-section .an-card{height:100%}
+@media (max-width: 991px){.an-section .col-md-6{flex:0 0 100%;max-width:100%}}
+.an-card{border:1px solid #e4e6ef;border-radius:8px;background:#ffffff;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:16px}
+.an-card-head{padding:11px 16px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:8px;color:#3f4254;border-bottom:1px solid #e4e6ef;text-transform:uppercase;letter-spacing:.5px;background:#f9f9fc}
+.an-card-head i{color:#28a745;font-size:13px}
+.an-card-body{padding:16px}
+.an-clock{font-size:42px;font-weight:700;color:#212529;font-variant-numeric:tabular-nums;line-height:1;letter-spacing:1px}
+.an-sub{font-size:10px;color:#7e8299;margin:6px 0 14px;text-transform:uppercase;letter-spacing:.6px}
+.an-stack{display:flex;height:10px;border-radius:5px;overflow:hidden;background:#f1f3f7;margin-bottom:14px}
+.an-stack-seg{height:100%;transition:width .3s}
+.an-stack-prod{background:#28a745}
+.an-stack-unprod{background:#ffc107}
+.an-legend{display:flex;flex-direction:column;gap:8px}
+.an-legend-item{display:flex;align-items:center;gap:8px;font-size:12px;color:#3f4254}
+.an-legend-item strong{color:#212529;font-variant-numeric:tabular-nums;font-weight:600}
+.an-score{font-size:12px;color:#7e8299;margin-top:4px}
+.an-score strong{color:#28a745;font-weight:700;font-size:14px}
+.an-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.an-dot-prod{background:#28a745}
+.an-dot-unprod{background:#ffc107}
+.an-chart{display:flex;align-items:flex-end;gap:2px;height:140px;padding-top:6px}
+.an-hcol{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end;height:100%;cursor:default}
+.an-hseg{width:100%;transition:height .3s;border-radius:1px 1px 0 0}
+.an-hseg+.an-hseg{border-radius:0}
+.an-chart-axis{display:flex;gap:2px;margin-top:6px;overflow:visible}
+.an-axis-label{flex:1;min-width:0;text-align:center;font-size:8px;color:#7e8299;white-space:nowrap;overflow:visible;text-overflow:clip;line-height:1.7}
+.an-apps{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0}
+.an-app-badge{display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;min-width:0;cursor:default}
+.an-app-ic{width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:#f4f5f7;border:1px solid #e4e6ef;border-radius:10px;overflow:hidden}
+.an-app-ic img.tl-app-icon{width:26px;height:26px;margin:0}
+.an-app-ic .tl-app-icon-fa{width:44px;height:44px;font-size:22px;margin:0;border-radius:0;background:none}
+.an-app-pct{font-size:12px;font-weight:600;color:#3f4254;font-variant-numeric:tabular-nums}
+.an-empty{padding:24px 0;text-align:center;color:#a1a5b7;font-size:12px}
+.an-tooltip{position:fixed;z-index:1000;background:#ffffff;border:1px solid #e4e6ef;border-radius:8px;padding:10px 12px;box-shadow:0 8px 24px rgba(0,0,0,.12);pointer-events:none;display:none;max-width:280px;font-size:11px;color:#3f4254;line-height:1.5}
+.an-tooltip b{color:#212529}
+.an-tooltip-row{display:flex;align-items:center;gap:6px;margin-top:4px;white-space:nowrap}
+.an-tooltip-row .an-dot{width:8px;height:8px;border-radius:2px}
 </style>
 
 <div class="tl-container" id="tl-root" data-user-id="<?= $user_id ?? '' ?>" data-from="<?= $from ?? '' ?>" data-to="<?= $to ?? '' ?>"></div>
 <div class="tl-tooltip" id="tl-tooltip"></div>
 
-<?php
-$b = $app_breakdown ?? [];
-$prod_list = $b['productive'] ?? [];
-$unprod_list = $b['unproductive'] ?? [];
-$prod_total = (int)($b['productive_total'] ?? 0);
-$unprod_total = (int)($b['unproductive_total'] ?? 0);
-$grand = (int)($b['grand_total'] ?? 0);
-
-function _ab_fmt($sec) {
-    $sec = max(0, (int)$sec);
-    return floor($sec / 3600) . 'h ' . floor(($sec % 3600) / 60) . 'm ' . ($sec % 60) . 's';
-}
-function _ab_pct($sec, $total) {
-    return $total > 0 ? round($sec / $total * 100, 1) : 0;
-}
-$prod_pct = _ab_pct($prod_total, $grand);
-$unprod_pct = _ab_pct($unprod_total, $grand);
-$has_data = $grand > 0;
-?>
-<div class="row ab-section">
-  <div class="col-md-6">
-    <div class="ab-card">
-      <div class="ab-card-header" style="color:#15803d;background:#f0fdf4;border-bottom-color:#bbf7d0;">
-        <span><i class="fa fa-check-circle" style="color:#22c55e;"></i> Productive</span>
-        <span class="ab-card-total"><?= _ab_fmt($prod_total) ?> (<?= $prod_pct ?>%)</span>
-      </div>
-      <div class="ab-card-body">
-        <?php if ($has_data && !empty($prod_list)): ?>
-          <?php foreach ($prod_list as $a): ?>
-            <?php $sec = (int)$a['total_seconds']; $pct = _ab_pct($sec, $grand); ?>
-            <div class="ab-row" data-app-name="<?= htmlspecialchars($a['app_name']) ?>" data-app-url="<?= htmlspecialchars($a['url'] ?? '') ?>">
-              <span class="ab-app-icon"></span>
-              <span class="ab-name" title="<?= htmlspecialchars($a['app_name']) ?>"><?= htmlspecialchars($a['app_name']) ?></span>
-              <span class="ab-dur"><?= _ab_fmt($sec) ?></span>
-              <div class="ab-bar-wrap"><div class="ab-bar"><div class="ab-bar-fill ab-bar-prod" style="width:<?= $pct ?>%"></div></div></div>
-            </div>
-          <?php endforeach; ?>
-        <?php else: ?>
-          <div class="ab-empty"><i class="fa fa-check-circle" style="font-size:20px;display:block;margin-bottom:6px;color:#bbf7d0;"></i> No productive apps recorded</div>
-        <?php endif; ?>
-      </div>
-    </div>
+<?php $an = $analytics ?? []; ?>
+<div class="panel panel-custom an-panel">
+  <div class="panel-heading">
+    <h3 class="panel-title"><i class="fa fa-line-chart"></i> Desktop Activity &amp; Analytics</h3>
   </div>
-  <div class="col-md-6">
-    <div class="ab-card">
-      <div class="ab-card-header" style="color:#991b1b;background:#fef2f2;border-bottom-color:#fecaca;">
-        <span><i class="fa fa-exclamation-triangle" style="color:#ef4444;"></i> Unproductive</span>
-        <span class="ab-card-total"><?= _ab_fmt($unprod_total) ?> (<?= $unprod_pct ?>%)</span>
-      </div>
-      <div class="ab-card-body">
-        <?php if ($has_data && !empty($unprod_list)): ?>
-          <?php foreach ($unprod_list as $a): ?>
-            <?php $sec = (int)$a['total_seconds']; $pct = _ab_pct($sec, $grand); ?>
-            <div class="ab-row" data-app-name="<?= htmlspecialchars($a['app_name']) ?>" data-app-url="<?= htmlspecialchars($a['url'] ?? '') ?>">
-              <span class="ab-app-icon"></span>
-              <span class="ab-name" title="<?= htmlspecialchars($a['app_name']) ?>"><?= htmlspecialchars($a['app_name']) ?></span>
-              <span class="ab-dur"><?= _ab_fmt($sec) ?></span>
-              <div class="ab-bar-wrap"><div class="ab-bar"><div class="ab-bar-fill ab-bar-unprod" style="width:<?= $pct ?>%"></div></div></div>
+  <div class="panel-body">
+    <div class="row an-section" id="an-section">
+      <div class="col-md-6">
+        <div class="an-card">
+          <div class="an-card-head"><i class="fa fa-tachometer"></i> Activity Overview</div>
+          <div class="an-card-body">
+            <div class="an-clock" id="an-clock">00:00</div>
+            <div class="an-sub">Total activity time</div>
+            <div class="an-stack" id="an-stack"></div>
+            <div class="an-legend">
+              <div class="an-legend-item"><span class="an-dot an-dot-prod"></span>Productive: <strong id="an-prod-time">00:00 h</strong></div>
+              <div class="an-legend-item"><span class="an-dot an-dot-unprod"></span>Unproductive: <strong id="an-unprod-time">00:00 h</strong></div>
+              <div class="an-score">Activity score: <strong id="an-score">0%</strong></div>
             </div>
-          <?php endforeach; ?>
-        <?php else: ?>
-          <div class="ab-empty"><i class="fa fa-check-circle" style="font-size:20px;display:block;margin-bottom:6px;color:#bbf7d0;"></i> No unproductive apps recorded</div>
-        <?php endif; ?>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="an-card">
+          <div class="an-card-head"><i class="fa fa-bar-chart"></i> Productivity by Hour</div>
+          <div class="an-card-body">
+            <div class="an-chart" id="an-hour-chart"></div>
+            <div class="an-chart-axis" id="an-hour-axis"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6" style="margin-top:14px">
+        <div class="an-card">
+          <div class="an-card-head"><i class="fa fa-th-large"></i> Top Active Apps</div>
+          <div class="an-card-body">
+            <div class="an-apps" id="an-top-apps"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6" style="margin-top:14px">
+        <div class="an-card">
+          <div class="an-card-head"><i class="fa fa-columns"></i> App Usage by Hour</div>
+          <div class="an-card-body">
+            <div class="an-chart" id="an-app-chart"></div>
+            <div class="an-chart-axis" id="an-app-axis"></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
+<div class="an-tooltip" id="an-tooltip"></div>
 
 <script>
 (function() {
@@ -802,24 +811,203 @@ $has_data = $grand > 0;
 
   requestAnimationFrame(function() { window.initTimesyncTimeline(); });
 
-  function _abInjectIcons() {
-    document.querySelectorAll('.ab-row').forEach(function(row) {
-      var name = row.getAttribute('data-app-name');
-      var url = row.getAttribute('data-app-url');
-      if (!name) return;
-      var iconHtml = getAppIconHtml(name, url);
-      var container = row.querySelector('.ab-app-icon');
-      if (container) container.innerHTML = iconHtml;
+  var embeddedAnalytics = <?= json_encode($analytics ?? []) ?>;
+
+  var AN_PALETTE = ['#28a745', '#36a3f7', '#8950fc', '#f64e60', '#0bb783', '#ffa800', '#6993ff', '#e83e8c', '#6f42c1', '#ffc107'];
+  var AN_AXIS_HOURS = {6: 1, 8: 1, 10: 1, 12: 1, 14: 1, 16: 1, 18: 1, 20: 1, 22: 1, 0: 1, 2: 1, 4: 1};
+  var lastTopApps = [];
+
+  function anFmtHHMM(sec) {
+    sec = Math.max(0, parseInt(sec, 10) || 0);
+    var h = Math.floor(sec / 3600);
+    var m = Math.floor((sec % 3600) / 60);
+    return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+  }
+
+  function anFmtDur(sec) {
+    sec = Math.max(0, parseInt(sec, 10) || 0);
+    var h = Math.floor(sec / 3600);
+    var m = Math.floor((sec % 3600) / 60);
+    var s = sec % 60;
+    var parts = [];
+    if (h > 0) parts.push(h + (h === 1 ? ' hr' : ' hrs'));
+    if (m > 0) parts.push(m + (m === 1 ? ' min' : ' mins'));
+    if (h === 0 && m === 0 && s > 0) parts.push(s + (s === 1 ? ' sec' : ' secs'));
+    return parts.length ? parts.join(' ') : '0 mins';
+  }
+
+  function anAmpmHour(h) {
+    h = ((h % 24) + 24) % 24;
+    var ap = h >= 12 ? 'PM' : 'AM';
+    var h12 = h % 12;
+    if (h12 === 0) h12 = 12;
+    return (h12 < 10 ? '0' : '') + h12 + ':00 ' + ap;
+  }
+
+  function anHourRangeTip(h, rowsHtml) {
+    return '<b>' + anAmpmHour(h) + ' - ' + anAmpmHour((h + 1) % 24) + '</b>' + (rowsHtml || '');
+  }
+
+  function anAxisHtml() {
+    var cells = '';
+    for (var h = 0; h < 24; h++) {
+      cells += '<div class="an-axis-label">' + (AN_AXIS_HOURS[h] ? anAmpmHour(h) : '') + '</div>';
+    }
+    return cells;
+  }
+
+  function anHourChartHtml(buckets, segsFn, maxOfFn) {
+    var max = 0;
+    for (var h = 0; h < 24; h++) {
+      var m = buckets[h] ? maxOfFn(buckets[h]) : 0;
+      if (m > max) max = m;
+    }
+    if (max <= 0) return '<div class="an-empty"><i class="fa fa-bar-chart" style="font-size:20px;display:block;margin-bottom:8px;color:#d1d5db;"></i>No activity recorded</div>';
+    var html = '';
+    for (var h2 = 0; h2 < 24; h2++) {
+      var segs = segsFn(h2, buckets[h2] || {});
+      html += '<div class="an-hcol" data-h="' + h2 + '" data-tip="' + escapeHtml(anHourRangeTip(h2, segs.tip)) + '">';
+      for (var i = 0; i < segs.bars.length; i++) {
+        var pct = (segs.bars[i].sec / max) * 100;
+        if (segs.bars[i].sec > 0 && pct < 1.5) pct = 1.5;
+        html += '<div class="an-hseg" style="background:' + segs.bars[i].color + ';height:' + pct.toFixed(2) + '%"></div>';
+      }
+      html += '</div>';
+    }
+    return html;
+  }
+
+  function hourProdMax(d) { return (d.productive || 0) + (d.unproductive || 0); }
+
+  function hourProdSegs(h, d) {
+    var bars = [];
+    if (d.productive > 0) bars.push({sec: d.productive, color: '#28a745'});
+    if (d.unproductive > 0) bars.push({sec: d.unproductive, color: '#ffc107'});
+    var tip = '';
+    if (bars.length) {
+      tip += '<div class="an-tooltip-row"><span class="an-dot" style="background:#28a745"></span>Productive: <b>' + anFmtDur(d.productive) + '</b></div>';
+      tip += '<div class="an-tooltip-row"><span class="an-dot" style="background:#ffc107"></span>Unproductive: <b>' + anFmtDur(d.unproductive) + '</b></div>';
+    } else {
+      tip = '<div class="an-tooltip-row">No activity</div>';
+    }
+    return {bars: bars, tip: tip};
+  }
+
+  function hourAppMax(d) {
+    var t = 0, k;
+    for (k in d) t += (d[k] || 0);
+    return t;
+  }
+
+  function anAppColor(name) {
+    var idx = 0;
+    for (var i = 0; i < lastTopApps.length; i++) {
+      if (lastTopApps[i].app_name === name) { idx = i; break; }
+    }
+    return AN_PALETTE[idx % AN_PALETTE.length];
+  }
+
+  function hourAppSegs(h, d) {
+    var names = Object.keys(d).sort(function(a, b) { return (d[b] || 0) - (d[a] || 0); });
+    var bars = [];
+    var tip = '';
+    for (var i = 0; i < names.length; i++) {
+      var color = anAppColor(names[i]);
+      bars.push({sec: d[names[i]], color: color});
+      tip += '<div class="an-tooltip-row"><span class="an-dot" style="background:' + color + '"></span>' + escapeHtml(names[i]) + ': <b>' + anFmtDur(d[names[i]]) + '</b></div>';
+    }
+    if (!bars.length) tip = '<div class="an-tooltip-row">No activity</div>';
+    return {bars: bars, tip: tip};
+  }
+
+  function renderTopApps(topApps) {
+    if (!topApps || !topApps.length) {
+      return '<div class="an-empty" style="flex:1"><i class="fa fa-th-large" style="font-size:20px;display:block;margin-bottom:8px;color:#d1d5db;"></i>No app usage recorded</div>';
+    }
+    var html = '';
+    for (var i = 0; i < topApps.length; i++) {
+      var a = topApps[i];
+      html += '<div class="an-app-badge" title="' + escapeHtml(a.app_name) + '">'
+        + '<div class="an-app-ic">' + getAppIconHtml(a.app_name, a.url) + '</div>'
+        + '<div class="an-app-pct">' + (Math.round((a.pct || 0) * 10) / 10) + '%</div>'
+        + '</div>';
+    }
+    return html;
+  }
+
+  function renderAnalytics(a) {
+    if (!a) return;
+    lastTopApps = a.top_apps || [];
+    var grand = a.grand_total || 0;
+    var prod = a.productive_total || 0;
+    var unprod = a.unproductive_total || 0;
+
+    var clockEl = document.getElementById('an-clock');
+    if (clockEl) clockEl.textContent = anFmtHHMM(grand);
+    var prodEl = document.getElementById('an-prod-time');
+    if (prodEl) prodEl.textContent = anFmtHHMM(prod) + ' h';
+    var unprodEl = document.getElementById('an-unprod-time');
+    if (unprodEl) unprodEl.textContent = anFmtHHMM(unprod) + ' h';
+    var scoreEl = document.getElementById('an-score');
+    if (scoreEl) scoreEl.textContent = (a.activity_score || 0) + '%';
+
+    var stackEl = document.getElementById('an-stack');
+    if (stackEl) {
+      var pw = grand > 0 ? (prod / grand) * 100 : 0;
+      var uw = grand > 0 ? (unprod / grand) * 100 : 0;
+      stackEl.innerHTML = '<div class="an-stack-seg an-stack-prod" style="width:' + pw.toFixed(2) + '%"></div>'
+        + '<div class="an-stack-seg an-stack-unprod" style="width:' + uw.toFixed(2) + '%"></div>';
+    }
+
+    var hourChart = document.getElementById('an-hour-chart');
+    var hourAxis = document.getElementById('an-hour-axis');
+    if (hourChart) hourChart.innerHTML = anHourChartHtml(a.hourly || [], hourProdSegs, hourProdMax);
+    if (hourAxis) hourAxis.innerHTML = anAxisHtml();
+
+    var appChart = document.getElementById('an-app-chart');
+    var appAxis = document.getElementById('an-app-axis');
+    if (appChart) appChart.innerHTML = anHourChartHtml(a.app_hourly || [], hourAppSegs, hourAppMax);
+    if (appAxis) appAxis.innerHTML = anAxisHtml();
+
+    var topEl = document.getElementById('an-top-apps');
+    if (topEl) topEl.innerHTML = renderTopApps(a.top_apps || []);
+  }
+
+  var anTooltip = null;
+  function anShowTip(html, x, y) {
+    if (!anTooltip) anTooltip = document.getElementById('an-tooltip');
+    if (!anTooltip) return;
+    anTooltip.innerHTML = html;
+    anTooltip.style.display = 'block';
+    var w = anTooltip.offsetWidth;
+    var h = anTooltip.offsetHeight;
+    var px = Math.min(x + 14, window.innerWidth - w - 10);
+    var py = y + 14;
+    if (py + h > window.innerHeight) py = y - h - 10;
+    anTooltip.style.left = px + 'px';
+    anTooltip.style.top = py + 'px';
+  }
+  function anHideTip() {
+    if (anTooltip) anTooltip.style.display = 'none';
+  }
+  var anSectionEl = document.getElementById('an-section');
+  if (anSectionEl) {
+    anSectionEl.addEventListener('mousemove', function(e) {
+      var col = e.target.closest ? e.target.closest('.an-hcol') : null;
+      if (!col) { anHideTip(); return; }
+      var tip = col.getAttribute('data-tip');
+      if (tip) anShowTip(tip, e.clientX, e.clientY);
     });
+    anSectionEl.addEventListener('mouseleave', anHideTip);
   }
 
   window.getAppIconHtml = getAppIconHtml;
-  window._abInjectIcons = _abInjectIcons;
+  window.renderAnalytics = renderAnalytics;
 
-  _abInjectIcons();
+  renderAnalytics(embeddedAnalytics);
 
   $(document).on('timesync:spa_loaded', function() {
-    _abInjectIcons();
+    renderAnalytics(embeddedAnalytics);
   });
 })();
 </script>

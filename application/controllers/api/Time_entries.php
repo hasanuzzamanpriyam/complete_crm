@@ -115,11 +115,26 @@ class Time_entries extends MY_Controller
         // desktop, so for sessions with pauses the two legitimately differ. We keep
         // the computed value as-is and let the client's total_seconds stand.
 
+        $effective_started_at = $started_at ?? date('Y-m-d H:i:s');
+
+        if (!empty($input['is_running'])) {
+            // Auto-close any previously unstopped running entry for this user so
+            // a stale/crashed session never keeps the timer running on the server.
+            $this->db
+                ->where('user_id', $user->user_id)
+                ->where('is_running', 1)
+                ->where('stopped_at IS NULL', null, false)
+                ->update('tbl_desktop_time_entries', [
+                    'stopped_at' => $effective_started_at,
+                    'is_running' => 0,
+                ]);
+        }
+
         $data = [
             'task_id' => !empty($input['task_id']) ? (int)$input['task_id'] : null,
             'user_id' => $user->user_id,
             'type' => $input['type'] ?? 'work',
-            'started_at' => $started_at ?? date('Y-m-d H:i:s'),
+            'started_at' => $effective_started_at,
             'paused_at' => $paused_at,
             'resumed_at' => $resumed_at,
             'stopped_at' => $stopped_at,

@@ -17,6 +17,27 @@ class Timesync extends Admin_Controller
         }
     }
 
+    private function _running_stale_threshold()
+    {
+        $cfg = (int)config_item('timesync_stale_running_seconds');
+        if ($cfg <= 0) {
+            $cfg = 600;
+        }
+        return $cfg;
+    }
+
+    private function _entry_is_stale($last_active_ping)
+    {
+        if (empty($last_active_ping)) {
+            return true;
+        }
+        $ping_ts = strtotime($last_active_ping);
+        if ($ping_ts === false) {
+            return true;
+        }
+        return $ping_ts < (time() - $this->_running_stale_threshold());
+    }
+
     public function index()
     {
         if (!is_super_admin()) {
@@ -172,6 +193,11 @@ class Timesync extends Admin_Controller
         }
         $all_users = $this->db->get()->result();
 
+        $ping_map = [];
+        foreach ($all_users as $u) {
+            $ping_map[(int)$u->user_id] = $u->last_active_ping;
+        }
+
         $running_rows = $this->db
             ->select('tde.user_id, tde.paused_at, tde.resumed_at, tde.total_seconds, tde.started_at, t.task_name as task_title')
             ->from('tbl_desktop_time_entries tde')
@@ -188,6 +214,9 @@ class Timesync extends Admin_Controller
         $running_ids = [];
         foreach ($running_rows as $e) {
             $uid = (int)$e->user_id;
+            if ($this->_entry_is_stale($ping_map[$uid] ?? null)) {
+                continue;
+            }
             $active_map[$uid] = [
                 'task_title' => $e->task_title,
                 'started_at' => $e->started_at ? (strtotime($e->started_at . ' UTC') * 1000) : null,
@@ -665,9 +694,9 @@ class Timesync extends Admin_Controller
                 break;
             case 'timeline':
                 $data['timeline_days'] = $this->_timeline_data($user_id, $from, $to);
-                $data['app_breakdown'] = $this->_user_app_breakdown($user_id, $from, $to);
-                if ($data['app_breakdown']['grand_total'] > $stats['total_seconds']) {
-                    $data['app_breakdown']['grand_total'] = $stats['total_seconds'];
+                $data['analytics'] = $this->_user_analytics($user_id, $from, $to);
+                if ($data['analytics']['grand_total'] > $stats['total_seconds']) {
+                    $data['analytics']['grand_total'] = $stats['total_seconds'];
                 }
                 break;
         }
@@ -714,9 +743,9 @@ class Timesync extends Admin_Controller
         $stats['total_seconds'] += (int)($live_extra[(int)$user_id] ?? 0);
 
         $timeline = $this->_timeline_data($user_id, $from, $to);
-        $app_breakdown = $this->_user_app_breakdown($user_id, $from, $to);
-        if ($app_breakdown['grand_total'] > $stats['total_seconds']) {
-            $app_breakdown['grand_total'] = $stats['total_seconds'];
+        $analytics = $this->_user_analytics($user_id, $from, $to);
+        if ($analytics['grand_total'] > $stats['total_seconds']) {
+            $analytics['grand_total'] = $stats['total_seconds'];
         }
 
         $data = [
@@ -725,7 +754,7 @@ class Timesync extends Admin_Controller
             'presence' => $this->_user_presence((int)$user_id),
             'current' => $this->_user_current((int)$user_id),
             'timeline' => $timeline,
-            'app_breakdown' => $app_breakdown,
+            'analytics' => $analytics,
         ];
 
         switch ($tab) {
@@ -769,7 +798,7 @@ class Timesync extends Admin_Controller
         $data['signature'] = md5(json_encode([
             'stats' => $stats,
             'timeline' => $timeline,
-            'app_breakdown' => $app_breakdown,
+            'analytics' => $analytics,
         ]));
 
         ob_clean();
@@ -1236,13 +1265,18 @@ class Timesync extends Admin_Controller
 
         $allowed_ids = get_authorized_user_ids_web();
 
-        $active_users = $this->db->select('COUNT(DISTINCT user_id) as count')
-            ->where('started_at >=', $today)
-            ->where('is_running', 1);
+        $active_users = $this->db
+            ->select('COUNT(DISTINCT tde.user_id) as count')
+            ->from('tbl_desktop_time_entries tde')
+            ->join('tbl_users u', 'u.user_id = tde.user_id', 'left')
+            ->where('tde.started_at >=', $today)
+            ->where('tde.is_running', 1)
+            ->where('tde.stopped_at IS NULL', null, false)
+            ->where('u.last_active_ping >= DATE_SUB(NOW(), INTERVAL ' . (int)$this->_running_stale_threshold() . ' SECOND)', null, false);
         if ($allowed_ids !== null) {
-            $this->db->where_in('user_id', $allowed_ids);
+            $this->db->where_in('tde.user_id', $allowed_ids);
         }
-        $active_users = (int) $active_users->get('tbl_desktop_time_entries')->row()->count ?? 0;
+        $active_users = (int) $active_users->get()->row()->count ?? 0;
 
         $this->db->reset_query();
         $total_entries = $this->db->from('tbl_desktop_time_entries');
@@ -1518,7 +1552,7 @@ class Timesync extends Admin_Controller
             ->row();
 
         $status = 'offline';
-        if (!empty($running)) {
+        if (!empty($running) && !$this->_entry_is_stale($u->last_active_ping)) {
             $status = !empty($running->paused_at) ? 'paused' : 'active';
         } else {
             $online_ok = !empty($u->online_time) && (int)$u->online_time > ($now_ts - 300);
@@ -1549,6 +1583,13 @@ class Timesync extends Admin_Controller
             ->get()
             ->row();
 
+        $user = $this->db
+            ->select('last_active_ping')
+            ->where('user_id', $user_id)
+            ->get('tbl_users')
+            ->row();
+        $live_entry = (!empty($entry) && !$this->_entry_is_stale($user->last_active_ping ?? null)) ? $entry : null;
+
         $window = $this->db
             ->select('app_name, window_title')
             ->from('tbl_desktop_app_usage')
@@ -1559,22 +1600,22 @@ class Timesync extends Admin_Controller
             ->row();
 
         return [
-            'is_running' => !empty($entry),
-            'task_name' => !empty($entry) ? $entry->task_name : null,
-            'started_at' => !empty($entry) ? (strtotime($entry->started_at . ' UTC') * 1000) : null,
-            'total_seconds' => !empty($entry) ? (int)$entry->total_seconds : 0,
-            'paused_at' => !empty($entry) ? $entry->paused_at : null,
-            'resumed_at' => !empty($entry) ? $entry->resumed_at : null,
+            'is_running' => !empty($live_entry),
+            'task_name' => !empty($live_entry) ? $live_entry->task_name : null,
+            'started_at' => !empty($live_entry) ? (strtotime($live_entry->started_at . ' UTC') * 1000) : null,
+            'total_seconds' => !empty($live_entry) ? (int)$live_entry->total_seconds : 0,
+            'paused_at' => !empty($live_entry) ? $live_entry->paused_at : null,
+            'resumed_at' => !empty($live_entry) ? $live_entry->resumed_at : null,
             'app_name' => !empty($window) ? $window->app_name : null,
             'window_title' => !empty($window) ? $window->window_title : null,
         ];
     }
 
-    private function _user_app_breakdown($user_id, $from, $to)
+    private function _user_analytics($user_id, $from, $to)
     {
         $to_end = $to . ' 23:59:59';
         $rows = $this->db
-            ->select('a.app_name, COALESCE(SUM(a.total_seconds), 0) as total_seconds')
+            ->select('a.app_name, a.url, a.total_seconds, a.recorded_at')
             ->from('tbl_desktop_app_usage a')
             ->join('tbl_desktop_time_entries te',
                 'te.user_id = a.user_id
@@ -1586,92 +1627,138 @@ class Timesync extends Admin_Controller
             ->where('a.recorded_at <=', $to_end)
             ->where('te.started_at >=', $from . ' 00:00:00')
             ->where('te.started_at <=', $to_end)
-            ->group_by('a.app_name')
-            ->order_by('total_seconds', 'DESC')
+            ->order_by('a.recorded_at', 'ASC')
             ->get()
             ->result();
 
-        $url_rows = $this->db
-            ->select('a.app_name, a.url')
-            ->from('tbl_desktop_app_usage a')
-            ->join('tbl_desktop_time_entries te',
-                'te.user_id = a.user_id
-                 AND a.recorded_at >= te.started_at
-                 AND a.recorded_at <= COALESCE(te.stopped_at, UTC_TIMESTAMP())',
-                'inner')
-            ->where('a.user_id', $user_id)
-            ->where('a.recorded_at >=', $from)
-            ->where('a.recorded_at <=', $to_end)
-            ->where('te.started_at >=', $from . ' 00:00:00')
-            ->where('te.started_at <=', $to_end)
-            ->where('a.url IS NOT NULL')
-            ->order_by('a.recorded_at', 'DESC')
-            ->get()
-            ->result();
-
-        $url_map = [];
-        foreach ($url_rows as $u) {
-            if (!isset($url_map[$u->app_name])) {
-                $url_map[$u->app_name] = $u->url;
-            }
-        }
-
-        $productive = [];
-        $unproductive = [];
+        $hourly = array_fill(0, 24, ['productive' => 0, 'unproductive' => 0]);
+        $app_hourly = array_fill(0, 24, []);
+        $app_totals = [];
+        $app_urls = [];
         $productive_total = 0;
         $unproductive_total = 0;
 
         foreach ($rows as $r) {
-            $cat = $this->_categorize_app($r->app_name);
             $sec = (int)$r->total_seconds;
-            $entry = [
-                'app_name' => $r->app_name,
-                'total_seconds' => $sec,
-                'url' => $url_map[$r->app_name] ?? null,
-            ];
-            if ($cat === 'distracting') {
-                $unproductive[] = $entry;
+            if ($sec <= 0) {
+                continue;
+            }
+            $unprod = ($this->_categorize_app($r->app_name) === 'distracting');
+
+            if ($unprod) {
                 $unproductive_total += $sec;
             } else {
-                $productive[] = $entry;
                 $productive_total += $sec;
+            }
+
+            $app_totals[$r->app_name] = ($app_totals[$r->app_name] ?? 0) + $sec;
+            if (!empty($r->url)) {
+                $app_urls[$r->app_name] = $r->url;
+            }
+
+            $tz = new DateTimeZone('Asia/Dhaka');
+            $utc = new DateTimeZone('UTC');
+            $entry_end = (new DateTime($r->recorded_at, $utc))->setTimezone($tz);
+            $entry_start = (clone $entry_end)->modify('-' . $sec . ' seconds');
+
+            $slot_start_ts = $entry_start->getTimestamp();
+            $slot_end_ts = $entry_end->getTimestamp();
+            $cursor_ts = $slot_start_ts;
+
+            while ($cursor_ts < $slot_end_ts) {
+                $cursor_dt = (new DateTime('@' . $cursor_ts))->setTimezone($tz);
+                $hour = (int)$cursor_dt->format('H');
+                $hour_start_ts = (new DateTime($cursor_dt->format('Y-m-d H:00:00'), $tz))->getTimestamp();
+                $hour_end_ts = $hour_start_ts + 3600;
+
+                $overlap_start = max($hour_start_ts, $slot_start_ts);
+                $overlap_end = min($hour_end_ts, $slot_end_ts);
+                $overlap = (int)max(0, $overlap_end - $overlap_start);
+
+                if ($overlap > 0) {
+                    if ($unprod) {
+                        $hourly[$hour]['unproductive'] += $overlap;
+                    } else {
+                        $hourly[$hour]['productive'] += $overlap;
+                    }
+                    $app_hourly[$hour][$r->app_name] = ($app_hourly[$hour][$r->app_name] ?? 0) + $overlap;
+                }
+
+                $cursor_ts = $overlap_end;
             }
         }
 
         $grand_total = $productive_total + $unproductive_total;
 
+        arsort($app_totals);
+        $top_apps = [];
+        $i = 0;
+        foreach ($app_totals as $name => $sec) {
+            if ($i >= 5) {
+                break;
+            }
+            $top_apps[] = [
+                'app_name' => $name,
+                'url' => $app_urls[$name] ?? null,
+                'total_seconds' => $sec,
+                'pct' => $grand_total > 0 ? round($sec / $grand_total * 100, 1) : 0,
+            ];
+            $i++;
+        }
+
+        $top_names = [];
+        foreach ($top_apps as $t) {
+            $top_names[$t['app_name']] = true;
+        }
+        foreach ($app_hourly as $h => $map) {
+            foreach ($map as $name => $sec) {
+                if (!isset($top_names[$name])) {
+                    unset($app_hourly[$h][$name]);
+                }
+            }
+        }
+
         return [
-            'productive' => $productive,
-            'unproductive' => $unproductive,
             'productive_total' => $productive_total,
             'unproductive_total' => $unproductive_total,
             'grand_total' => $grand_total,
+            'activity_score' => $grand_total > 0 ? round($productive_total / $grand_total * 100, 1) : 0,
+            'hourly' => array_values($hourly),
+            'top_apps' => $top_apps,
+            'app_hourly' => array_values($app_hourly),
         ];
     }
 
     private function _user_daily_hours($user_id, $from, $to)
     {
+        $tz = new DateTimeZone('Asia/Dhaka');
+        $utc = new DateTimeZone('UTC');
+        $range_start = (new DateTime($from . ' 00:00:00', $tz))->setTimezone($utc)->format('Y-m-d H:i:s');
+        $range_end = (new DateTime($to . ' 23:59:59', $tz))->setTimezone($utc)->format('Y-m-d H:i:s');
+
         $result = $this->db
-            ->select('DATE(started_at) as day, COALESCE(SUM(total_seconds), 0) as total_sec')
+            ->select('started_at, COALESCE(SUM(total_seconds), 0) as total_sec')
             ->where('user_id', $user_id)
-            ->where('started_at >=', $from . ' 00:00:00')
-            ->where('started_at <=', $to . ' 23:59:59')
-            ->group_by('DATE(started_at)')
-            ->order_by('day', 'ASC')
+            ->where('started_at >=', $range_start)
+            ->where('started_at <=', $range_end)
+            ->group_by('started_at')
             ->get('tbl_desktop_time_entries')
             ->result();
-        $labels = [];
-        $values = [];
+
         $data_map = [];
         foreach ($result as $r) {
-            $data_map[$r->day] = round($r->total_sec / 3600, 1);
+            $day = (new DateTime($r->started_at, $utc))->setTimezone($tz)->format('Y-m-d');
+            $data_map[$day] = ($data_map[$day] ?? 0) + (float)$r->total_sec;
         }
-        $d = new DateTime($from);
-        $end = new DateTime($to);
+
+        $labels = [];
+        $values = [];
+        $d = new DateTime($from, $tz);
+        $end = new DateTime($to, $tz);
         while ($d <= $end) {
             $day = $d->format('Y-m-d');
             $labels[] = $day;
-            $values[] = $data_map[$day] ?? 0;
+            $values[] = round(($data_map[$day] ?? 0) / 3600, 1);
             $d->modify('+1 day');
         }
         return ['labels' => $labels, 'values' => $values];
@@ -1721,6 +1808,13 @@ class Timesync extends Admin_Controller
     {
         $to_end = $to . ' 23:59:59';
 
+        $last_ping = $this->db
+            ->select('last_active_ping')
+            ->where('user_id', $user_id)
+            ->get('tbl_users')
+            ->row()->last_active_ping ?? null;
+        $ping_stale = $this->_entry_is_stale($last_ping);
+
         $entries = $this->db
             ->select('te.started_at, te.stopped_at, te.total_seconds, te.type, COALESCE(t.task_name, "No Task") as task_name')
             ->from('tbl_desktop_time_entries te')
@@ -1769,17 +1863,17 @@ class Timesync extends Admin_Controller
         foreach ($entries as $e) {
             $day = substr($e->started_at, 0, 10);
             if (!isset($days[$day])) continue;
-            $start_time = substr($e->started_at, 11, 5);
-            $end_time = !empty($e->stopped_at) ? substr($e->stopped_at, 11, 5) : date('H:i');
+            $is_running = empty($e->stopped_at) && !$ping_stale;
+            $effective_stop = !empty($e->stopped_at) ? $e->stopped_at : ($is_running ? date('Y-m-d H:i:s') : (!empty($last_ping) ? $last_ping : date('Y-m-d H:i:s')));
             $days[$day]['time_entries'][] = [
-                'start' => $start_time,
-                'end' => $end_time,
+                'start' => substr($e->started_at, 11, 5),
+                'end' => substr($effective_stop, 11, 5),
                 'start_ts' => str_replace(' ', 'T', $e->started_at) . 'Z',
-                'end_ts' => str_replace(' ', 'T', $e->stopped_at ?: date('Y-m-d H:i:s')) . 'Z',
+                'end_ts' => str_replace(' ', 'T', $effective_stop) . 'Z',
                 'total_seconds' => (int)$e->total_seconds,
                 'task_name' => $e->task_name,
                 'type' => $e->type,
-                'is_running' => empty($e->stopped_at),
+                'is_running' => $is_running,
             ];
         }
 
@@ -1913,23 +2007,33 @@ class Timesync extends Admin_Controller
     {
         $to_end = $to . ' 23:59:59';
         $running = $this->db
-            ->select('user_id, started_at, paused_at, resumed_at, total_seconds')
-            ->where('is_running', 1)
-            ->where('stopped_at IS NULL', null, false)
-            ->where('started_at >=', $from . ' 00:00:00')
-            ->where('started_at <=', $to_end);
+            ->select('e.user_id, e.started_at, e.paused_at, e.resumed_at, e.total_seconds, u.last_active_ping')
+            ->from('tbl_desktop_time_entries e')
+            ->join('tbl_users u', 'u.user_id = e.user_id', 'left')
+            ->where('e.is_running', 1)
+            ->where('e.stopped_at IS NULL', null, false)
+            ->where('e.started_at >=', $from . ' 00:00:00')
+            ->where('e.started_at <=', $to_end);
         if ($allowed_ids !== null) {
-            $this->db->where_in('user_id', $allowed_ids);
+            $this->db->where_in('e.user_id', $allowed_ids);
         }
-        $running = $running->get('tbl_desktop_time_entries')->result();
+        $running = $running->get()->result();
 
         $now = time();
         $live_extra = [];
         foreach ($running as $e) {
+            if ($this->_entry_is_stale($e->last_active_ping)) {
+                continue;
+            }
             $uid = (int)$e->user_id;
             $stored = (int)$e->total_seconds;
             if (empty($e->paused_at) || !empty($e->resumed_at)) {
-                $wall = max(0, $now - strtotime($e->started_at . ' UTC'));
+                $end = $now;
+                $ping_ts = strtotime($e->last_active_ping);
+                if ($ping_ts !== false) {
+                    $end = min($end, $ping_ts + $this->_running_stale_threshold());
+                }
+                $wall = max(0, $end - strtotime($e->started_at . ' UTC'));
                 $live = max($stored, $wall);
             } else {
                 $live = $stored;
