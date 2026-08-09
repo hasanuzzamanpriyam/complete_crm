@@ -143,50 +143,31 @@ if (!function_exists('telegram_build_deleted_message')) {
     }
 }
 
-if (!function_exists('telegram_notify_created')) {
+if (!function_exists('telegram_deliver')) {
     /**
-     * Notify Telegram about a newly created task or project.
+     * Fan out a message to Telegram recipients based on the permission value.
      *
-     * - permission 'all' (or empty / '{}') => message goes to the configured group chat
-     * - permission JSON                     => message goes to each assigned user's DM
+     * - 'all' / empty / null / '{}' / invalid JSON  => configured group chat
+     * - permission JSON                              => DM each assigned user
+     *   who has a telegram_chat_id in tbl_users
      *
-     * @param string $type 'task' or 'project'
-     * @param int $id Item id
-     * @param string $name Item title
-     * @param string $due_date Due/end date (optional)
+     * @param string $message Message text (HTML parse mode)
      * @param string $permission Raw permission column value
-     * @return bool
+     * @return bool True if at least one message was accepted by the API
      */
-    function telegram_notify_created($type, $id, $name, $due_date = '', $permission = '')
+    function telegram_deliver($message, $permission)
     {
-        $CI = &get_instance();
-        $is_task = ($type === 'task');
-        $label = $is_task ? 'Task' : 'Project';
-
-        $message = '<b>📢 New ' . $label . ' Created!</b>' . PHP_EOL;
-        $message .= '<b>Title:</b> ' . telegram_escape($name) . PHP_EOL;
-        if (!empty($due_date) && $due_date !== '0000-00-00') {
-            $message .= '<b>' . ($is_task ? 'Due Date' : 'End Date') . ':</b> ' . telegram_escape($due_date) . PHP_EOL;
-        }
-        $link = $is_task
-            ? site_url('admin/tasks/details/' . (int)$id)
-            : site_url('admin/projects/project_details/' . (int)$id);
-        $message .= '<b>Link:</b> <a href="' . $link . '">View ' . $label . '</a>';
-
-        if ($permission === 'all' || $permission === '' || $permission === null || $permission === '{}') {
+        if (telegram_should_send_to_group($permission)) {
             return send_telegram_notification(config_item('telegram_group_id'), $message);
         }
 
         $assigned = json_decode($permission, true);
-        if (!is_array($assigned) || empty($assigned)) {
-            return send_telegram_notification(config_item('telegram_group_id'), $message);
-        }
-
         $user_ids = array_map('intval', array_keys($assigned));
         if (empty($user_ids)) {
             return send_telegram_notification(config_item('telegram_group_id'), $message);
         }
 
+        $CI = &get_instance();
         $CI->db->select('user_id, telegram_chat_id');
         $CI->db->where_in('user_id', $user_ids);
         $rows = $CI->db->get('tbl_users')->result();
@@ -200,5 +181,38 @@ if (!function_exists('telegram_notify_created')) {
             }
         }
         return $sent;
+    }
+}
+
+if (!function_exists('telegram_notify_created')) {
+    /**
+     * Notify Telegram about a newly created task or project.
+     *
+     * @param string $type 'task' or 'project'
+     * @param int $id Item id
+     * @param string $name Item title
+     * @param string $due_date Due/end date (optional)
+     * @param string $permission Raw permission column value
+     * @return bool
+     */
+    function telegram_notify_created($type, $id, $name, $due_date = '', $permission = '')
+    {
+        return telegram_deliver(telegram_build_created_message($type, $id, $name, $due_date), $permission);
+    }
+}
+
+if (!function_exists('telegram_notify_deleted')) {
+    /**
+     * Notify Telegram about a deleted task or project.
+     *
+     * @param string $type 'task' or 'project'
+     * @param int $id Item id (unused today, kept for API symmetry)
+     * @param string $name Item title
+     * @param string $permission Raw permission column value
+     * @return bool
+     */
+    function telegram_notify_deleted($type, $id, $name, $permission = '')
+    {
+        return telegram_deliver(telegram_build_deleted_message($type, $name), $permission);
     }
 }
