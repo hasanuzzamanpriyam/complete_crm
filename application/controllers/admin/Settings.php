@@ -75,7 +75,9 @@ class Settings extends Admin_Controller
                 'company_phone',
                 'company_email',
                 'company_domain',
-                'company_vat'
+                'company_vat',
+                'telegram_bot_token',
+                'telegram_group_id'
             ));
 
             $this->settings_model->save_config_batch($input_data, $this->_admin_id);

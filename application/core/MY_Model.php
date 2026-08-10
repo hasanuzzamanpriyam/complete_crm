@@ -582,6 +582,9 @@
                 }
                 $this->db->where($query_table . '.permission REGEXP', $sq, false);
                 $this->db->or_where(array($query_table . '.permission' => 'all'));
+                $this->db->or_where($query_table . '.permission', NULL);
+                $this->db->or_where(array($query_table . '.permission' => ''));
+                $this->db->or_where(array($query_table . '.permission' => '{}'));
                 $this->db->group_end(); //close bracket
             }
         }
@@ -611,6 +614,9 @@
             }
             $this->db->where($table . '.permission REGEXP', $sq, false);
             $this->db->or_where(array($table . '.permission' => 'all'));
+            $this->db->or_where($table . '.permission', NULL);
+            $this->db->or_where(array($table . '.permission' => ''));
+            $this->db->or_where(array($table . '.permission' => '{}'));
             $this->db->group_end();
         }
 
@@ -630,6 +636,9 @@
         if (!empty($permission) || $role != 1) {
             if (!empty($result_info)) {
                 if ($result_info->permission != 'all') {
+                    if (empty($result_info->permission) || $result_info->permission == '{}') {
+                        return true;
+                    }
                     $get_permission = json_decode($result_info->permission);
                 } else {
                     return true;

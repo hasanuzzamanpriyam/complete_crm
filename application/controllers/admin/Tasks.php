@@ -747,6 +747,10 @@ class Tasks extends Admin_Controller
             $id = $this->tasks_model->save($u_data, $id);
             save_custom_field(3, $id);
 
+            if (empty($incoming_id) && function_exists('telegram_notify_created')) {
+                telegram_notify_created('task', $id, $data['task_name'], $data['due_date'], $data['permission']);
+            }
+
             if ($assigned == 'all') {
                 $assigned_to['assigned_to'] = array();
                 if (!empty($data['project_id'])) {
@@ -1205,10 +1209,11 @@ class Tasks extends Admin_Controller
 
         $data = $this->tasks_model->array_from_post(array('tasks_notes'));
 
-        //save data into table.
-        $this->tasks_model->_table_name = "tbl_task"; // table name
-        $this->tasks_model->_primary_key = "task_id"; // $id
-        $id = $this->tasks_model->save($data, $id);
+            $incoming_id = $id;
+            //save data into table.
+            $this->tasks_model->_table_name = "tbl_task"; // table name
+            $this->tasks_model->_primary_key = "task_id"; // $id
+            $id = $this->tasks_model->save($data, $id);
         // save into activities
         $activities = array(
             'user' => $this->session->userdata('user_id'),

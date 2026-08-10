@@ -235,6 +235,16 @@
                 </div>
             </div>
             <div class="form-group">
+                <label class="col-sm-3 control-label"><strong><?= lang('telegram_chat_id') ?> </strong></label>
+                <div class="col-sm-5">
+                    <input type="text" class="input-sm form-control" value="<?php
+                    if (!empty($telegram_chat_id)) {
+                        echo $telegram_chat_id;
+                    }
+                    ?>" name="telegram_chat_id" placeholder="123456789">
+                </div>
+            </div>
+            <div class="form-group">
                 <label class="col-sm-3 control-label"><strong><?= lang('passport') ?> </strong></label>
                 <div class="col-sm-5">
                     <input type="text" class="input-sm form-control" value="<?php

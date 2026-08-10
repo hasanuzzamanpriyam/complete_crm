@@ -984,6 +984,13 @@ class User extends Admin_Controller
         $data['title'] = lang('update_contact');
         $data['update'] = $update;
         $data['profile_info'] = $this->db->where('account_details_id', $id)->get('tbl_account_details')->row();
+        $data['telegram_chat_id'] = '';
+        if (!empty($data['profile_info']->user_id)) {
+            $tg = $this->db->select('telegram_chat_id')->where('user_id', $data['profile_info']->user_id)->get('tbl_users')->row();
+            if (!empty($tg)) {
+                $data['telegram_chat_id'] = $tg->telegram_chat_id;
+            }
+        }
         $data['modal_subview'] = $this->load->view('admin/user/update_contact', $data, FALSE);
         $this->load->view('admin/_layout_modal', $data);
     }
@@ -1003,6 +1010,9 @@ class User extends Admin_Controller
         $this->user_model->save($data, $id);
 
         $profile_info = $this->db->where('account_details_id', $id)->get('tbl_account_details')->row();
+        $this->db->where('user_id', $profile_info->user_id)->update('tbl_users', array(
+            'telegram_chat_id' => $this->input->post('telegram_chat_id', true)
+        ));
         $activities = array(
             'user' => $this->session->userdata('user_id'),
             'module' => 'user',

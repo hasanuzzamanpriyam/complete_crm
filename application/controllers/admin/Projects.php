@@ -471,6 +471,9 @@ class Projects extends Admin_Controller
                 $id = $return_id;
                 $action = 'activity_save_project';
                 $msg = lang('save_project');
+                if (function_exists('telegram_notify_created')) {
+                    telegram_notify_created('project', $id, $data['project_name'], $data['end_date'], $data['permission']);
+                }
                 $projects_email = config_item('projects_email');
                 if (!empty($projects_email) && $projects_email == 1) {
                     // Commented out to prevent hangs on localhost if SMTP is not reachable
