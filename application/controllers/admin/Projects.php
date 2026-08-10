@@ -2653,6 +2653,10 @@ class Projects extends Admin_Controller
                 $this->items_model->_primary_key = 'project_id';
                 $this->items_model->delete($id);
 
+                if (function_exists('telegram_notify_deleted')) {
+                    telegram_notify_deleted('project', $id, $project_info->project_name, $project_info->permission);
+                }
+
                 $type = 'success';
                 $message = lang('project_deleted');
             } else {
