@@ -2160,6 +2160,10 @@ class Tasks extends Admin_Controller
                 $this->tasks_model->_primary_key = "task_id"; // $id
                 $this->tasks_model->delete($id);
 
+                if (function_exists('telegram_notify_deleted')) {
+                    telegram_notify_deleted('task', $id, $task_info->task_name, $task_info->permission);
+                }
+
                 $type = 'success';
                 $message = lang('task_deleted');
             } else {
