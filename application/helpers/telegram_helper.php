@@ -99,10 +99,10 @@ if (!function_exists('telegram_should_send_to_group')) {
 
 if (!function_exists('telegram_build_created_message')) {
     /**
-     * Build the HTML message for a newly created task or project.
+     * Build the HTML message for a newly created task or project with full details.
      *
      * @param string $type 'task' or 'project'
-     * @param int $id Item id (used for the link)
+     * @param int $id Item id (used for fetching details & link)
      * @param string $name Item title
      * @param string $due_date Due/end date (optional)
      * @return string
@@ -112,15 +112,113 @@ if (!function_exists('telegram_build_created_message')) {
         $is_task = ($type === 'task');
         $label = $is_task ? 'Task' : 'Project';
 
-        $message = '<b>📢 New ' . $label . ' Created!</b>' . PHP_EOL;
-        $message .= '<b>Title:</b> ' . telegram_escape($name) . PHP_EOL;
-        if (!empty($due_date) && $due_date !== '0000-00-00') {
-            $message .= '<b>' . ($is_task ? 'Due Date' : 'End Date') . ':</b> ' . telegram_escape($due_date) . PHP_EOL;
+        $details = array();
+        $CI = function_exists('get_instance') ? get_instance() : null;
+
+        if ($is_task && !empty($id) && $CI && isset($CI->db) && method_exists($CI->db, 'where')) {
+            try {
+                $task = $CI->db->where('task_id', (int)$id)->get('tbl_task')->row();
+                if ($task) {
+                    if (!empty($task->task_description)) {
+                        $details['description'] = trim(strip_tags($task->task_description));
+                    }
+                    if (!empty($task->task_start_date) && $task->task_start_date !== '0000-00-00') {
+                        $details['start_date'] = $task->task_start_date;
+                    }
+                    if (!empty($task->due_date) && $task->due_date !== '0000-00-00') {
+                        $details['due_date'] = $task->due_date;
+                    }
+                    if (!empty($task->task_status)) {
+                        $details['status'] = ucwords(str_replace('_', ' ', $task->task_status));
+                    }
+                    if (!empty($task->priority)) {
+                        $details['priority'] = ucfirst($task->priority);
+                    }
+                    
+                    // Fetch Creator Name
+                    if (!empty($task->created_by)) {
+                        $creator = $CI->db->select('fullname')->where('user_id', (int)$task->created_by)->get('tbl_account_details')->row();
+                        if ($creator && !empty($creator->fullname)) {
+                            $details['created_by'] = $creator->fullname;
+                        }
+                    }
+
+                    // Fetch Project Name
+                    if (!empty($task->project_id)) {
+                        $project = $CI->db->select('project_name')->where('project_id', (int)$task->project_id)->get('tbl_project')->row();
+                        if ($project && !empty($project->project_name)) {
+                            $details['project_name'] = $project->project_name;
+                        }
+                    }
+
+                    // Fetch Assigned Users
+                    if (!empty($task->permission)) {
+                        if ($task->permission === 'all') {
+                            $details['assigned_to'] = 'Everyone';
+                        } else {
+                            $assigned_map = json_decode($task->permission, true);
+                            if (is_array($assigned_map) && !empty($assigned_map)) {
+                                $uids = array_map('intval', array_keys($assigned_map));
+                                $users = $CI->db->select('fullname')->where_in('user_id', $uids)->get('tbl_account_details')->result();
+                                $names = array();
+                                foreach ($users as $u) {
+                                    if (!empty($u->fullname)) $names[] = $u->fullname;
+                                }
+                                if (!empty($names)) {
+                                    $details['assigned_to'] = implode(', ', $names);
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (Exception $e) {
+                // Ignore DB errors in fallback scenarios
+            }
         }
+
         $link = $is_task
             ? site_url('admin/tasks/details/' . (int)$id)
             : site_url('admin/projects/project_details/' . (int)$id);
-        $message .= '<b>Link:</b> <a href="' . $link . '">View ' . $label . '</a>';
+
+        $message = '<b>📢 New ' . $label . ' Created!</b>' . PHP_EOL . PHP_EOL;
+        $message .= '<b>' . $label . ' ID:</b> #' . (int)$id . PHP_EOL;
+        $message .= '<b>Title:</b> ' . telegram_escape($name) . PHP_EOL;
+
+        if (!empty($details['status'])) {
+            $message .= '<b>Status:</b> ' . telegram_escape($details['status']) . PHP_EOL;
+        }
+        if (!empty($details['priority'])) {
+            $message .= '<b>Priority:</b> ' . telegram_escape($details['priority']) . PHP_EOL;
+        }
+        if (!empty($details['start_date'])) {
+            $message .= '<b>Start Date:</b> ' . telegram_escape($details['start_date']) . PHP_EOL;
+        }
+
+        $final_due = !empty($details['due_date']) ? $details['due_date'] : $due_date;
+        if (!empty($final_due) && $final_due !== '0000-00-00') {
+            $message .= '<b>' . ($is_task ? 'Due Date' : 'End Date') . ':</b> ' . telegram_escape($final_due) . PHP_EOL;
+        }
+
+        if (!empty($details['project_name'])) {
+            $message .= '<b>Project:</b> ' . telegram_escape($details['project_name']) . PHP_EOL;
+        }
+        if (!empty($details['created_by'])) {
+            $message .= '<b>Created By:</b> ' . telegram_escape($details['created_by']) . PHP_EOL;
+        }
+        if (!empty($details['assigned_to'])) {
+            $message .= '<b>Assigned To:</b> ' . telegram_escape($details['assigned_to']) . PHP_EOL;
+        }
+        if (!empty($details['description'])) {
+            $desc = $details['description'];
+            if (mb_strlen($desc) > 300) {
+                $desc = mb_substr($desc, 0, 300) . '...';
+            }
+            $message .= '<b>Description:</b> ' . telegram_escape($desc) . PHP_EOL;
+        }
+
+        $message .= PHP_EOL . '<b>🔗 Task Link:</b>' . PHP_EOL;
+        $message .= '<a href="' . $link . '">' . $link . '</a>';
+
         return $message;
     }
 }
