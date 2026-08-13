@@ -8,3 +8,4 @@ downloads/*.exe
 downloads/*.msi
 downloads/*.zip
 downloads/*.sig
+.freebuff/

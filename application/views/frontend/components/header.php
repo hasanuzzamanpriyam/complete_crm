@@ -34,8 +34,15 @@
             <!-- START Left navbar-->
             <ul class="nav navbar-nav">
                 <li><a href="<?= base_url() ?>frontend"><?= lang('all_job_circular') ?></a></li>
-                <li><a href="<?= base_url() ?>knowledgebase"><?= lang('knowledgebase') ?></a></li>
-                <li class="pull-right"><a href="<?= base_url() ?>login"><?= lang('login') ?></a></li>
+            <li><a href="<?= base_url() ?>knowledgebase"><?= lang('knowledgebase') ?></a></li>
+            <?php if ((string)config_item('consultation_booking_enabled') === '1') { ?>
+                <li>
+                    <a href="<?= base_url() ?>book-free-consultation">
+                        <i class="fa fa-calendar-check-o"></i> Book a Free Consultation
+                    </a>
+                </li>
+            <?php } ?>
+            <li class="pull-right"><a href="<?= base_url() ?>login"><?= lang('login') ?></a></li>
             </ul>
     </nav>
     <!-- END Top Navbar-->
