@@ -26,7 +26,7 @@
                     $link = '#';
                 }
                 ?>
-                <a href="<?php echo base_url() . $notification->link; ?>"
+                <a href="<?php echo $link; ?>"
                    class="n-top n-link list-group-item <?php if ($notification->read_inline == 0) {
                        echo ' unread';
                    } ?>">
@@ -38,6 +38,7 @@
                             <?php else: ?>
                                 <i class="fa <?= htmlspecialchars($notification->icon) ?>" style="width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center;font-size:20px;background:#f0f0f0;border-radius:50%;color:#999;"></i>
                             <?php endif; ?>
+                        </div>
                         <div class="media-box-body clearfix">
                             <?php
                             $description = lang($notification->description, $notification->value);

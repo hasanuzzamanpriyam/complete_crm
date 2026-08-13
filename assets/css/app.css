@@ -7219,7 +7219,13 @@ Component: chart-flot.less
 }
 
 .n-title {
+  display: block;
   white-space: normal;
+  color: #333333;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  word-break: break-word;
 }
 
 .dropzone {
