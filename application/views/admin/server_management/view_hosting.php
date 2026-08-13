@@ -34,15 +34,20 @@
                             <td class="border-none p-v-sm text-dark">
                                 <?php
                                 $badge_class = 'badge-soft-secondary';
-                                switch ($hosting->status) {
+                                $v_status = $hosting->status;
+                                if (!empty($hosting->purchase_date) && strtotime($hosting->purchase_date) < strtotime(date('Y-m-d')) && $v_status != 'Cancelled' && $v_status != 'Suspended') {
+                                    $v_status = 'Expired';
+                                }
+                                switch ($v_status) {
                                     case 'Active': $badge_class = 'badge-soft-success'; break;
+                                    case 'Expiring': $badge_class = 'badge-soft-warning'; break;
                                     case 'Expired': $badge_class = 'badge-soft-danger'; break;
                                     case 'Pending': $badge_class = 'badge-soft-warning'; break;
                                     case 'Suspended': $badge_class = 'badge-soft-info'; break;
                                     case 'Cancelled': $badge_class = 'badge-soft-danger'; break;
                                 }
                                 ?>
-                                <span class="badge <?= $badge_class ?>"><?= htmlspecialchars($hosting->status) ?></span>
+                                <span class="badge <?= $badge_class ?>"><?= htmlspecialchars($v_status) ?></span>
                             </td>
                         </tr>
                         <tr>

@@ -482,12 +482,24 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Status <span class="text-danger">*</span></label>
+                                <?php
+                                $hosting_status = isset($hosting_info) ? $hosting_info->status : '';
+                                if (isset($hosting_info) && !empty($hosting_info->purchase_date)) {
+                                    $today_ts = strtotime(date('Y-m-d'));
+                                    $exp_ts = strtotime($hosting_info->purchase_date);
+                                    if ($exp_ts < $today_ts && $hosting_status != 'Cancelled' && $hosting_status != 'Suspended') {
+                                        $hosting_status = 'Expired';
+                                    }
+                                }
+                                ?>
                                 <select name="status" class="form-control" required>
                                     <option value="">Select Status</option>
-                                    <option value="Active" <?= isset($hosting_info) && $hosting_info->status == 'Active' ? 'selected' : '' ?>>Active</option>
-                                    <option value="Pending" <?= isset($hosting_info) && $hosting_info->status == 'Pending' ? 'selected' : '' ?>>Pending</option>
-                                    <option value="Suspended" <?= isset($hosting_info) && $hosting_info->status == 'Suspended' ? 'selected' : '' ?>>Suspended</option>
-                                    <option value="Cancelled" <?= isset($hosting_info) && $hosting_info->status == 'Cancelled' ? 'selected' : '' ?>>Cancelled</option>
+                                    <option value="Active" <?= $hosting_status == 'Active' ? 'selected' : '' ?>>Active</option>
+                                    <option value="Expiring" <?= $hosting_status == 'Expiring' ? 'selected' : '' ?>>Expiring</option>
+                                    <option value="Pending" <?= $hosting_status == 'Pending' ? 'selected' : '' ?>>Pending</option>
+                                    <option value="Suspended" <?= $hosting_status == 'Suspended' ? 'selected' : '' ?>>Suspended</option>
+                                    <option value="Cancelled" <?= $hosting_status == 'Cancelled' ? 'selected' : '' ?>>Cancelled</option>
+                                    <option value="Expired" <?= $hosting_status == 'Expired' ? 'selected' : '' ?>>Expired</option>
                                 </select>
                             </div>
                         </div>
