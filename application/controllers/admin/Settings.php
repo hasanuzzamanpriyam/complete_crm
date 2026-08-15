@@ -56,6 +56,20 @@ class Settings extends Admin_Controller
 
     }
 
+    public function telegram()
+    {
+        $data['page'] = lang('settings');
+        $data['load_setting'] = 'telegram';
+        $data['title'] = lang('telegram_integration'); //Page title
+        $can_do = can_do(271);
+        if (!empty($can_do)) {
+            $data['subview'] = $this->load->view('admin/settings/settings', $data, TRUE);
+        } else {
+            $data['subview'] = $this->load->view('admin/settings/not_found', $data, TRUE);
+        }
+        $this->load->view('admin/_layout_main', $data); //page load
+    }
+
     public function save_settings()
     {
 
