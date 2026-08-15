@@ -736,7 +736,7 @@ class Tasks extends Admin_Controller
 
             if ($data['task_status'] == 'completed') {
                 $saved_task_info = $this->db->where('task_id', $id)->get('tbl_task')->row();
-                if ($saved_task_info && in_array($saved_task_info->module, ['domain', 'server_hosting'])) {
+                if ($saved_task_info && in_array($saved_task_info->module, ['domain', 'server_hosting', 'billing'])) {
                     $this->tasks_model->process_automated_renewal($saved_task_info->module, $saved_task_info->module_field_id);
                 }
             }
@@ -1116,7 +1116,7 @@ class Tasks extends Admin_Controller
             $this->tasks_model->_primary_key = "task_id"; // $id
             $id = $this->tasks_model->save($data, $tasks_id);
 
-            if ($data['task_status'] == 'completed' && in_array($tasks_info->module, ['domain', 'server_hosting'])) {
+            if ($data['task_status'] == 'completed' && in_array($tasks_info->module, ['domain', 'server_hosting', 'billing'])) {
                 $this->tasks_model->process_automated_renewal($tasks_info->module, $tasks_info->module_field_id);
             }
             $activity = 'activity_update_task';
@@ -1169,7 +1169,7 @@ class Tasks extends Admin_Controller
 
             if ($data['task_status'] == 'completed') {
                 $saved_task_info = $this->db->where('task_id', $id)->get('tbl_task')->row();
-                if ($saved_task_info && in_array($saved_task_info->module, ['domain', 'server_hosting'])) {
+                if ($saved_task_info && in_array($saved_task_info->module, ['domain', 'server_hosting', 'billing'])) {
                     $this->tasks_model->process_automated_renewal($saved_task_info->module, $saved_task_info->module_field_id);
                 }
             }

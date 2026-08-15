@@ -223,16 +223,20 @@ class Billing_model extends MY_Model
         $events = array();
         $upcoming_days = config_item('upcoming_expiry_days') ? config_item('upcoming_expiry_days') : 7;
 
+        $this->load->model('tasks_model');
+
         $expiring = $this->get_expiring_billing($upcoming_days);
         $expired = $this->get_expired_billing();
 
         foreach ($expiring as $billing) {
+            $task_id = $this->tasks_model->get_or_create_renewal_task('billing', $billing['id']);
+            $url = $task_id ? 'admin/tasks/details/' . $task_id : $billing['link'];
             $events[] = array(
                 'title' => '[BIL] ' . $billing['name'],
                 'start' => $billing['expiry_date'],
                 'end' => $billing['expiry_date'],
                 'color' => '#8e44ad',
-                'url' => base_url() . $billing['link'],
+                'url' => base_url() . $url,
                 'type' => 'billing',
                 'status' => 'upcoming',
                 'days_left' => $billing['days_left']
@@ -240,12 +244,14 @@ class Billing_model extends MY_Model
         }
 
         foreach ($expired as $billing) {
+            $task_id = $this->tasks_model->get_or_create_renewal_task('billing', $billing['id']);
+            $url = $task_id ? 'admin/tasks/details/' . $task_id : $billing['link'];
             $events[] = array(
                 'title' => '[BIL] ' . $billing['name'],
                 'start' => $billing['expiry_date'],
                 'end' => $billing['expiry_date'],
                 'color' => '#c0392b',
-                'url' => base_url() . $billing['link'],
+                'url' => base_url() . $url,
                 'type' => 'billing',
                 'status' => 'expired',
                 'days_expired' => $billing['days_expired']
