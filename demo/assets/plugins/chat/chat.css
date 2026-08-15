@@ -81,9 +81,8 @@
 
 .chat-body {
     width: 250px;
-    /*height: 280px;*/
-    height: 250px;
-    overflow-y: scroll;
+    height: calc(100% - 120px) !important;
+    overflow-y: auto !important;
 }
 .conversation_chat {
     height: 650px;

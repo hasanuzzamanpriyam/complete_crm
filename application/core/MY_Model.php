@@ -1215,6 +1215,7 @@
     public function all_files()
     {
         $language = array(
+            "ai_lang.php" => APPPATH,
             "bugs_lang.php" => APPPATH,
             "calendar_lang.php" => APPPATH,
             "client_lang.php" => APPPATH,

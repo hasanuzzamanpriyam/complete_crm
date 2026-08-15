@@ -18,6 +18,29 @@ if (!empty($mid) && $frontend != 'frontend') { ?>
                 </div>
             </div>
             <ul class="nav b bt0">
+                <?php
+                $ai_user_id = (int) $this->session->userdata('user_id');
+                $ai_user_type = (int) $this->session->userdata('user_type');
+                $ai_visible = !empty($ai_user_id) && !empty($mid)
+                    && $ai_user_type != 2
+                    && config_item('ai_assistant_enabled') == '1';
+                if ($ai_visible) { ?>
+                    <li>
+                        <a href="#" id="ai_start_chat" class="media-box p pb-sm pt-sm bb mt0">
+                            <span class="pull-right"><span class="circle circle-success circle-lg"></span></span>
+                            <span class="pull-left">
+                                <span class="ai-chat-avatar custom-bg"><i class="fa fa-magic"></i></span>
+                            </span>
+                            <span class="media-box-body">
+                                <span class="media-box-heading">
+                                    <strong class="text-sm"><?= lang('ai_fab_title') ?></strong>
+                                    <br>
+                                    <small class="text-muted"><span class="pull-left"><?= lang('ai_online') ?></span></small>
+                                </span>
+                            </span>
+                        </a>
+                    </li>
+                <?php } ?>
                 <li>
                     <?php
                     $users = $this->admin_model->get_online_users();
@@ -74,6 +97,76 @@ if (!empty($mid) && $frontend != 'frontend') { ?>
             </ul>
         </div>
         <div id="chat_box"></div>
+
+        <?php if ($ai_visible) :
+            $ai_seg1 = $this->uri->segment(1);
+            $ai_seg2 = $this->uri->segment(2);
+            $ai_context_url = $this->uri->uri_string();
+            $ai_module = trim($ai_seg1 . ' > ' . $ai_seg2, ' > ');
+            if (empty($ai_module)) {
+                $ai_module = 'dashboard';
+            }
+            $ai_avatar = staffImage($mid);
+            ?>
+            <link rel="stylesheet" href="<?= base_url('assets/css/ai_chat.css') ?>">
+
+            <div class="panel b0 mb0 ai-chat-panel" id="ai_chat_panel">
+                <div class="panel-heading custom-bg pt-sm">
+                    <div>
+                        <span class="chat_title"><i class="fa fa-magic"></i> <?= lang('ai_fab_title') ?></span>
+                        <div class="pull-right chat-icon">
+                            <div class="dropdown ai-chat-dropdown">
+                                <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"
+                                   title="<?= lang('settings') ?>" href="#">
+                                    <i class="fa fa-cog" aria-hidden="true"></i>
+                                </a>
+                                <ul class="dropdown-menu chat-setting-dropdown animated zoomIn ai-chat-menu">
+                                    <li class="ai-provider-menu-item" id="ai_provider_menu_item" style="display:none;">
+                                        <i class="fa fa-plug"></i> <span id="ai_provider_label"><?= lang('ai_no_provider_active') ?></span>
+                                    </li>
+                                    <li><a href="#" data-ai-action="new"><i class="fa fa-plus"></i> <?= lang('ai_new_chat') ?></a></li>
+                                    <li><a href="#" data-ai-action="history"><i class="fa fa-clock-o"></i> <?= lang('ai_history') ?></a></li>
+                                    <li><a href="#" data-ai-action="close"><i class="fa fa-times"></i> <?= lang('ai_close') ?></a></li>
+                                </ul>
+                            </div>
+                            <i data-toggle="tooltip" data-placement="top" data-ai-action="close"
+                               title="<?= lang('ai_close') ?>" class="fa fa-times" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ai-chat-history" id="ai_chat_history">
+                    <div class="ai-chat-history-head">
+                        <span><i class="fa fa-clock-o"></i> <?= lang('ai_history') ?></span>
+                        <span class="pull-right"><a href="#" id="ai_history_close"><i class="fa fa-times"></i></a></span>
+                    </div>
+                    <div class="ai-chat-history-body" id="ai_chat_history_body"></div>
+                </div>
+
+                <div class="chat-body br bl" id="ai_chat_body">
+                    <ul id="ai_chat_messages"></ul>
+                </div>
+                <div class="panel-footer b0 chat-input-box">
+                    <input class="form-control" id="ai_chat_input" placeholder="<?= lang('ai_type_message') ?>">
+                </div>
+            </div>
+
+            <script type="text/javascript">
+                window.AIChatConfig = {
+                    baseUrl: <?= json_encode(base_url()) ?>,
+                    userId: <?= (int) $ai_user_id ?>,
+                    userAvatar: <?= json_encode(base_url($ai_avatar)) ?>,
+                    contextUrl: <?= json_encode($ai_context_url) ?>,
+                    contextModule: <?= json_encode($ai_module) ?>,
+                    strings: <?= json_encode(array(
+                        'thinking'      => lang('ai_thinking'),
+                        'confirmDelete' => lang('ai_confirm_delete_session'),
+                        'emptyChat'     => lang('ai_chat_empty'),
+                    )) ?>
+                };
+            </script>
+            <script src="<?= base_url('assets/js/ai_chat.js') ?>"></script>
+        <?php endif; ?>
         <audio id="chat-tune" controls="">
             <source src="<?= base_url() ?>assets/plugins/chat/chat_tune.mp3" type="audio/mpeg">
         </audio>
