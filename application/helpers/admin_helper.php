@@ -1881,6 +1881,17 @@ function add_notification($values)
     }
     $data['date'] = date('Y-m-d H:i:s');
     $CI->db->insert('tbl_notifications', $data);
+
+    // Mirror every topbar notification to the super admin's Telegram DM.
+    // Best-effort: never breaks the request (function guards itself + try/catch).
+    if (function_exists('telegram_notify_super_admins')) {
+        try {
+            telegram_notify_super_admins($data);
+        } catch (Exception $e) {
+            log_message('error', 'add_notification telegram mirror failed: ' . $e->getMessage());
+        }
+    }
+
     return true;
 }
 

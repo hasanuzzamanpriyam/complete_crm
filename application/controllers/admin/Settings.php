@@ -91,7 +91,8 @@ class Settings extends Admin_Controller
                 'company_domain',
                 'company_vat',
                 'telegram_bot_token',
-                'telegram_group_id'
+                'telegram_group_id',
+                'telegram_super_admin_notify'
             ));
 
             $this->settings_model->save_config_batch($input_data, $this->_admin_id);
@@ -109,6 +110,10 @@ class Settings extends Admin_Controller
             $type = "success";
             $message = lang('save_general_settings');
             set_message($type, $message);
+        }
+        // When the telegram settings form was submitted, return to that page
+        if ($this->input->post('telegram_super_admin_notify') !== null) {
+            redirect('admin/settings/telegram');
         }
         redirect('admin/settings');
     }

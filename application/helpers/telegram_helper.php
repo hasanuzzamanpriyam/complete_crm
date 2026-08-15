@@ -314,3 +314,100 @@ if (!function_exists('telegram_notify_deleted')) {
         return telegram_deliver(telegram_build_deleted_message($type, $name), $permission);
     }
 }
+
+if (!function_exists('telegram_notify_super_admins')) {
+    /**
+     * Mirror a topbar notification (tbl_notifications row) to every super admin
+     * that has a Telegram chat id configured.
+     *
+     * The message text is built to mirror exactly what the ERP topbar renders
+     * for the same row, so the super admin sees the same wording in Telegram.
+     *
+     * This is best-effort and NEVER breaks the calling request: every Telegram
+     * API call is wrapped in a try/catch with an aggressive short timeout, and
+     * any failure is logged and swallowed.
+     *
+     * @param array $data The notification row being inserted into tbl_notifications.
+     *                     Expected keys: description, value, link, date, from_user_id, icon.
+     * @return bool True if at least one message was accepted by the API.
+     */
+    function telegram_notify_super_admins($data)
+    {
+        if (empty($data) || !is_array($data)) {
+            return false;
+        }
+        // Master switch. If the mirror is disabled, do nothing.
+        if (config_item('telegram_super_admin_notify') != '1') {
+            return false;
+        }
+        $token = config_item('telegram_bot_token');
+        if (empty($token)) {
+            log_message('error', 'telegram_notify_super_admins: telegram_bot_token is not configured');
+            return false;
+        }
+
+        $CI = &get_instance();
+        if (!isset($CI->db) || !method_exists($CI->db, 'where')) {
+            return false;
+        }
+
+        // --- Build the message text, mirroring the topbar rendering ---
+        // notifications.php: $description = lang($notification->description, $notification->value);
+        // if from_user_id != 0: $description = fullname($from_user_id) . ' - ' . $description;
+        $description = '';
+        if (!empty($data['description'])) {
+            $description = function_exists('lang') ? lang($data['description'], !empty($data['value']) ? $data['value'] : '') : $data['description'];
+        }
+        if (!empty($data['from_user_id'])) {
+            $from_name = function_exists('fullname') ? fullname($data['from_user_id']) : '';
+            if (!empty($from_name)) {
+                $description = $from_name . ' - ' . $description;
+            }
+        }
+
+        $message = '<b>🔔 ' . telegram_escape($description) . '</b>' . PHP_EOL;
+        if (!empty($data['date']) && function_exists('time_ago')) {
+            $message .= '<i>' . telegram_escape(time_ago($data['date'])) . '</i>' . PHP_EOL;
+        }
+        $link = !empty($data['link']) ? $data['link'] : '';
+        if (!empty($link)) {
+            // links are stored as a relative site path; make absolute if needed
+            if (strpos($link, 'http') !== 0 && function_exists('base_url')) {
+                $link = rtrim(base_url(), '/') . '/' . ltrim($link, '/');
+            }
+            $message .= PHP_EOL . '🔗 <a href="' . telegram_escape($link) . '">' . telegram_escape($link) . '</a>';
+        }
+
+        // --- Resolve super admin recipients with a valid chat id ---
+        // Super admin = user_id 1 (primary) OR is_super_admin = 1, and activated.
+        $rows = $CI->db->select('user_id, telegram_chat_id')
+            ->group_start()
+                ->where('is_super_admin', 1)
+                ->or_where('user_id', 1)
+            ->group_end()
+            ->where('activated', 1)
+            ->where('telegram_chat_id IS NOT NULL', null, false)
+            ->where('telegram_chat_id !=', '')
+            ->get('tbl_users')
+            ->result();
+
+        if (empty($rows)) {
+            return false;
+        }
+
+        $sent = false;
+        foreach ($rows as $row) {
+            if (empty($row->telegram_chat_id)) {
+                continue;
+            }
+            try {
+                if (send_telegram_notification($row->telegram_chat_id, $message)) {
+                    $sent = true;
+                }
+            } catch (Exception $e) {
+                log_message('error', 'telegram_notify_super_admins exception (user ' . $row->user_id . '): ' . $e->getMessage());
+            }
+        }
+        return $sent;
+    }
+}

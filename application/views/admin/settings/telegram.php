@@ -29,6 +29,15 @@
                                        placeholder="-1001234567890">
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label class="col-lg-3 control-label"><?= lang('telegram_super_admin_notify') ?></label>
+                            <div class="col-lg-7">
+                                <input type="hidden" name="telegram_super_admin_notify" value="0">
+                                <input type="checkbox" name="telegram_super_admin_notify" value="1"
+                                    <?= $this->config->item('telegram_super_admin_notify') == '1' ? 'checked' : '' ?>>
+                                <span class="help-block"><?= lang('telegram_super_admin_notify_help') ?></span>
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label class="col-lg-3"></label>
