@@ -245,6 +245,22 @@ if (!function_exists('consultation_send_mail')) {
     }
 }
 
+if (!function_exists('consultation_generic_consultant_name')) {
+    /**
+     * The customer-facing label for an assigned consultant. We never reveal the
+     * real consultant name to customers; they are matched with "a specialist".
+     *
+     * @return string
+     */
+    function consultation_generic_consultant_name()
+    {
+        $CI = &get_instance();
+        $CI->lang->load('consultation', $CI->config->item('language'));
+        $name = $CI->lang->line('consultation_specialist');
+        return empty($name) ? 'Consultation Specialist' : $name;
+    }
+}
+
 if (!function_exists('consultation_notify_cancellation')) {
     /**
      * Send cancellation notices to the customer and consultant.
@@ -258,7 +274,10 @@ if (!function_exists('consultation_notify_cancellation')) {
             return;
         }
         $tokens = consultation_mail_tokens($appointment);
-        consultation_send_mail('consultation_cancellation_customer', $appointment->customer_email, $tokens);
+        // The customer must not see the assigned consultant's real name.
+        $customer_tokens = $tokens;
+        $customer_tokens['CONSULTANT_NAME'] = consultation_generic_consultant_name();
+        consultation_send_mail('consultation_cancellation_customer', $appointment->customer_email, $customer_tokens);
         if (!empty($appointment->consultant_email)) {
             consultation_send_mail('consultation_cancellation_consultant', $appointment->consultant_email, $tokens);
         }

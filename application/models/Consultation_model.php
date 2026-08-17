@@ -260,7 +260,7 @@ class Consultation_model extends MY_Model
         if (!empty($limit)) {
             $this->db->limit($limit, $offset);
         }
-        $this->db->select('tbl_consultation_appointments.*, tbl_consultants.name as consultant_name');
+        $this->db->select('tbl_consultation_appointments.*, COALESCE(tbl_consultants.name, "") as consultant_name, COALESCE(tbl_consultants.email, "") as consultant_email');
         $this->db->from('tbl_consultation_appointments');
         $this->db->join('tbl_consultants', 'tbl_consultants.consultant_id = tbl_consultation_appointments.consultant_id', 'left');
         $this->db->order_by('appointment_date', 'desc');
@@ -598,6 +598,181 @@ class Consultation_model extends MY_Model
         }
 
         return true;
+    }
+
+    /**
+     * Get available slots for a given customer-local date across ALL active
+     * consultants. A slot is available if at least one consultant is free at
+     * that time. This powers the consultant-agnostic public booking calendar.
+     *
+     * @param string $date Customer-local date (Y-m-d)
+     * @param string $customer_tz Customer IANA timezone
+     * @param int|null $duration Meeting duration in minutes
+     * @param bool $include_booked Also return booked times (flagged available=false)
+     * @return array List of slots: array('time','time_display','date','datetime','available')
+     */
+    public function get_consultant_agnostic_slots($date, $customer_tz, $duration = null, $include_booked = false)
+    {
+        $consultants = $this->get_consultants(true);
+        if (empty($consultants)) {
+            return array();
+        }
+        if (empty($duration) || (int)$duration <= 0) {
+            $duration = (int)$this->get_setting('default_duration', 30);
+        }
+        if (empty($customer_tz)) {
+            $customer_tz = consultation_company_timezone();
+        }
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+            return array();
+        }
+
+        $min_advance = (int)$this->get_setting('min_advance_hours', 2);
+        $now = time();
+
+        // Union of candidate UTC timestamps from every consultant's schedule.
+        $candidates = array();
+        foreach ($consultants as $c) {
+            if ((int)$c->is_active !== 1) {
+                continue;
+            }
+            $cid = (int)$c->consultant_id;
+            $c_tz = !empty($c->timezone) ? $c->timezone : consultation_company_timezone();
+
+            $customer_date = new DateTime($date . ' 12:00:00', new DateTimeZone($customer_tz));
+            $c_date_obj = clone $customer_date;
+            $c_date_obj->setTimezone(new DateTimeZone($c_tz));
+            $weekday = (int)$c_date_obj->format('w');
+            $cdate = $c_date_obj->format('Y-m-d');
+
+            $slots = $this->get_slots($cid, true);
+            foreach ($slots as $slot) {
+                if ((int)$slot->day_of_week !== $weekday) {
+                    continue;
+                }
+                try {
+                    $sdt = new DateTime($cdate . ' ' . $this->_normalize_time_string($slot->start_time) . ':00', new DateTimeZone($c_tz));
+                    $edt = new DateTime($cdate . ' ' . $this->_normalize_time_string($slot->end_time) . ':00', new DateTimeZone($c_tz));
+                } catch (Exception $e) {
+                    continue;
+                }
+                $start = $sdt->getTimestamp();
+                $end = $edt->getTimestamp();
+                if ($end <= $start) {
+                    continue;
+                }
+                for ($t = $start; ($t + $duration * 60) <= $end; $t += 30 * 60) {
+                    $candidates[$t] = true;
+                }
+            }
+        }
+
+        if (empty($candidates)) {
+            return array();
+        }
+
+        $result = array();
+        foreach (array_keys($candidates) as $utc_ts) {
+            $dt_cust = new DateTime('@' . $utc_ts);
+            $dt_cust->setTimezone(new DateTimeZone($customer_tz));
+            if ($dt_cust->format('Y-m-d') !== $date) {
+                continue;
+            }
+
+            $available = false;
+            if ($utc_ts >= ($now + $min_advance * 3600)) {
+                foreach ($consultants as $c) {
+                    if ((int)$c->is_active !== 1) {
+                        continue;
+                    }
+                    if ($this->is_slot_available((int)$c->consultant_id, $date, $dt_cust->format('H:i'), $customer_tz, $duration)) {
+                        $available = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!$available && !$include_booked) {
+                continue;
+            }
+
+            $result[] = array(
+                'time'         => $dt_cust->format('H:i'),
+                'time_display' => $dt_cust->format('g:i A'),
+                'date'         => $date,
+                'datetime'     => $dt_cust->format('Y-m-d H:i'),
+                'available'    => $available,
+            );
+        }
+
+        usort($result, function ($a, $b) {
+            return strcmp($a['time'], $b['time']);
+        });
+
+        return $result;
+    }
+
+    /**
+     * Get the list of dates (within a range) that have at least one available
+     * slot across all consultants. Used to highlight the booking calendar.
+     *
+     * @param string $from Y-m-d start date
+     * @param string $to Y-m-d end date
+     * @param string $customer_tz Customer IANA timezone
+     * @param int|null $duration Meeting duration in minutes
+     * @return array List of Y-m-d date strings
+     */
+    public function get_available_dates($from, $to, $customer_tz, $duration = null)
+    {
+        $dates = array();
+        $from_ts = strtotime($from);
+        $to_ts = strtotime($to);
+        if ($from_ts === false || $to_ts === false || $to_ts < $from_ts) {
+            return $dates;
+        }
+        $days = min(92, (int)(($to_ts - $from_ts) / 86400) + 1);
+        for ($i = 0; $i < $days; $i++) {
+            $d = date('Y-m-d', strtotime('+' . $i . ' days', $from_ts));
+            $slots = $this->get_consultant_agnostic_slots($d, $customer_tz, $duration);
+            if (!empty($slots)) {
+                $dates[] = $d;
+            }
+        }
+        return $dates;
+    }
+
+    /**
+     * Assign the first available consultant for a given customer-local slot.
+     * Returns the consultant id, or 0 if nobody is free.
+     *
+     * @param string $date Customer-local date (Y-m-d)
+     * @param string $time Customer-local time (H:i)
+     * @param string $customer_tz Customer IANA timezone
+     * @param int|null $duration Meeting duration in minutes
+     * @return int
+     */
+    public function assign_consultant_for_slot($date, $time, $customer_tz, $duration = null)
+    {
+        if (empty($duration) || (int)$duration <= 0) {
+            $duration = (int)$this->get_setting('default_duration', 30);
+        }
+        if (empty($customer_tz)) {
+            $customer_tz = consultation_company_timezone();
+        }
+        $consultants = $this->get_consultants(true);
+        if (empty($consultants)) {
+            return 0;
+        }
+        foreach ($consultants as $c) {
+            if ((int)$c->is_active !== 1) {
+                continue;
+            }
+            $cid = (int)$c->consultant_id;
+            if ($this->is_slot_available($cid, $date, $time, $customer_tz, $duration)) {
+                return $cid;
+            }
+        }
+        return 0;
     }
 
     /**

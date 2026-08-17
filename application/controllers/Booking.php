@@ -64,11 +64,10 @@ class Booking extends MY_Controller
         $customer_tz = $this->input->get('timezone');
         $duration = (int)$this->input->get('duration');
         $date = $this->input->get('date');
+        $from = $this->input->get('from');
+        $to = $this->input->get('to');
         $days = (int)$this->input->get('days');
 
-        if ($consultant_id <= 0) {
-            $this->_respond(array('success' => false, 'message' => 'Invalid consultant.'), 400);
-        }
         if (empty($customer_tz)) {
             $customer_tz = consultation_company_timezone();
         }
@@ -78,9 +77,28 @@ class Booking extends MY_Controller
 
         $result = array();
         if (!empty($date) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
-            $result[$date] = $this->consultation_model->get_available_slots($consultant_id, $date, $customer_tz, $duration);
-        } elseif ($days > 0) {
-            $days = min($days, 31);
+            // Specific date: either a chosen consultant or the first free one.
+            if ($consultant_id > 0) {
+                $result[$date] = $this->consultation_model->get_available_slots($consultant_id, $date, $customer_tz, $duration);
+            } else {
+                $result[$date] = $this->consultation_model->get_consultant_agnostic_slots($date, $customer_tz, $duration);
+            }
+        } elseif (!empty($from) && !empty($to)
+            && preg_match('/^\d{4}-\d{2}-\d{2}$/', $from)
+            && preg_match('/^\d{4}-\d{2}-\d{2}$/', $to)) {
+            // Calendar range: return the available dates for highlighting.
+            $available_dates = $this->consultation_model->get_available_dates($from, $to, $customer_tz, $duration);
+            $this->_respond(array(
+                'success'         => true,
+                'duration'        => $duration,
+                'timezone'        => $customer_tz,
+                'timezone_offset' => $this->_tz_offset_minutes($customer_tz),
+                'available_dates' => $available_dates,
+            ));
+            return;
+        } elseif ($consultant_id > 0) {
+            // Legacy fallback: next N days for a specific consultant.
+            $days = $days > 0 ? min($days, 31) : 31;
             for ($i = 0; $i < $days; $i++) {
                 $d = date('Y-m-d', strtotime('+' . $i . ' days'));
                 $slots = $this->consultation_model->get_available_slots($consultant_id, $d, $customer_tz, $duration);
@@ -121,9 +139,6 @@ class Booking extends MY_Controller
         $duration = (int)$this->input->post('duration_minutes');
 
         $errors = array();
-        if ($consultant_id <= 0) {
-            $errors[] = 'Please select a consultant.';
-        }
         if (empty($customer_name)) {
             $errors[] = 'Please enter your name.';
         }
@@ -146,13 +161,18 @@ class Booking extends MY_Controller
             $duration = (int)$this->consultation_model->get_setting('default_duration', 30);
         }
 
+        // Auto-assign the first consultant who is free at the requested slot.
+        if ($consultant_id <= 0) {
+            $consultant_id = (int)$this->consultation_model->assign_consultant_for_slot($appointment_date, $appointment_time, $customer_timezone, $duration);
+        }
+
         if (!empty($errors)) {
             $this->_respond(array('success' => false, 'message' => implode(' ', $errors)), 422);
         }
 
         $consultant = $this->consultation_model->get_consultant($consultant_id);
         if (empty($consultant) || (int)$consultant->is_active !== 1) {
-            $this->_respond(array('success' => false, 'message' => 'This consultant is not available.'), 422);
+            $this->_respond(array('success' => false, 'message' => 'Sorry, no consultant is available at this time. Please choose another time.'), 409);
         }
 
         if (!$this->consultation_model->is_slot_available($consultant_id, $appointment_date, $appointment_time, $customer_timezone, $duration)) {
@@ -191,9 +211,12 @@ class Booking extends MY_Controller
         $appointment->consultant_name = $consultant->name;
         $appointment->consultant_email = $consultant->email;
 
+        // Customer-facing email must NOT reveal the assigned consultant.
         $tokens = consultation_mail_tokens($appointment);
         $tokens['MEETING_URL'] = $data['meeting_url'];
-        consultation_send_mail('consultation_confirmation_customer', $customer_email, $tokens);
+        $customer_tokens = $tokens;
+        $customer_tokens['CONSULTANT_NAME'] = consultation_generic_consultant_name();
+        consultation_send_mail('consultation_confirmation_customer', $customer_email, $customer_tokens);
 
         $tokens['MEETING_URL'] = $data['moderator_url'];
         consultation_send_mail('consultation_confirmation_consultant', $consultant->email, $tokens);

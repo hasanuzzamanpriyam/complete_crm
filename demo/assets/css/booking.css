@@ -25,7 +25,7 @@
 }
 
 .booking-brand i {
-    color: #27ae60;
+    color: #5d9cec;
     margin-right: 6px;
 }
 
@@ -99,13 +99,13 @@
 }
 
 .booking-step.active .step-num {
-    border-color: #27ae60;
-    color: #27ae60;
+    border-color: #5d9cec;
+    color: #5d9cec;
 }
 
 .booking-step.done .step-num {
-    background: #27ae60;
-    border-color: #27ae60;
+    background: #5d9cec;
+    border-color: #5d9cec;
     color: #fff;
 }
 
@@ -134,20 +134,20 @@
 }
 
 .consultant-card:hover {
-    border-color: #27ae60;
+    border-color: #5d9cec;
     box-shadow: 0 3px 12px rgba(39, 174, 96, 0.12);
 }
 
 .consultant-card.selected {
-    border-color: #27ae60;
-    background: #f0faf3;
+    border-color: #5d9cec;
+    background: #f0f6fe;
 }
 
 .consultant-avatar {
     width: 64px;
     height: 64px;
     border-radius: 50%;
-    background: #27ae60;
+    background: #5d9cec;
     color: #fff;
     font-size: 24px;
     font-weight: 700;
@@ -217,12 +217,12 @@
 }
 
 .date-cell:hover {
-    border-color: #27ae60;
+    border-color: #5d9cec;
 }
 
 .date-cell.selected {
-    border-color: #27ae60;
-    background: #f0faf3;
+    border-color: #5d9cec;
+    background: #f0f6fe;
 }
 
 .date-cell.disabled {
@@ -264,12 +264,12 @@
 }
 
 .time-pill:hover {
-    border-color: #27ae60;
+    border-color: #5d9cec;
 }
 
 .time-pill.selected {
-    border-color: #27ae60;
-    background: #27ae60;
+    border-color: #5d9cec;
+    background: #5d9cec;
     color: #fff;
 }
 
@@ -304,7 +304,7 @@
 /* Confirmation */
 .booking-confirm .confirm-icon {
     font-size: 72px;
-    color: #27ae60;
+    color: #5d9cec;
     margin-bottom: 10px;
 }
 
@@ -333,3 +333,135 @@
 .mt-sm { margin-top: 10px; }
 .mt-lg { margin-top: 26px; }
 .p-lg { padding: 26px; }
+
+/* Calendar + slots layout (consultant-agnostic booking) */
+.schedule-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+.calendar-panel {
+    flex: 1 1 300px;
+    min-width: 280px;
+    border: 1px solid #e7ecf1;
+    border-radius: 10px;
+    padding: 16px;
+    background: #fff;
+}
+
+.slots-panel {
+    flex: 1 1 300px;
+    min-width: 280px;
+}
+
+.calendar-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.calendar-head #cal-title {
+    font-weight: 700;
+    color: #2b3a55;
+}
+
+.cal-nav {
+    border: 1px solid #e7ecf1;
+    background: #fff;
+    color: #2b3a55;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.cal-nav:hover:not(:disabled) {
+    border-color: #5d9cec;
+    color: #5d9cec;
+}
+
+.cal-nav:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-size: 12px;
+    color: #8a94a6;
+    margin-bottom: 6px;
+}
+
+.calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+}
+
+.cal-day {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #e7ecf1;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #2b3a55;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.cal-day.empty {
+    border: none;
+    cursor: default;
+}
+
+.cal-day.available {
+    border-color: #5d9cec;
+    font-weight: 600;
+}
+
+.cal-day.available:hover {
+    background: #f0f6fe;
+}
+
+.cal-day.selected {
+    background: #5d9cec;
+    border-color: #5d9cec;
+    color: #fff;
+}
+
+.cal-day.disabled {
+    color: #cfdbe2;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.cal-day .dot {
+    position: absolute;
+    bottom: 6px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #5d9cec;
+}
+
+.cal-day.selected .dot {
+    background: #fff;
+}
+
+.slots-date-label {
+    color: #2b3a55;
+    margin-bottom: 14px;
+}
+
+.slots-empty {
+    color: #8a94a6;
+}

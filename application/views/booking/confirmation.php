@@ -1,7 +1,6 @@
 <?php
-$title = 'Free Consultation with ' . $appointment->consultant_name;
-$details = 'Consultation with ' . $appointment->consultant_name
-    . ' (' . $appointment->consultation_type . ')' . "\n"
+$title = lang('consultation_booking_confirmed');
+$details = 'Your free consultation is confirmed.' . "\n"
     . 'Meeting: ' . $appointment->meeting_url;
 $google_calendar = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
     . '&text=' . urlencode($title)
@@ -20,8 +19,8 @@ $google_calendar = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
 
         <div class="appointment-summary-box">
             <div class="summary-row">
-                <span>Consultant</span>
-                <strong><?= html_escape($appointment->consultant_name) ?></strong>
+            <span><?= lang('consultation_consultant') ?></span>
+            <strong><?= lang('consultation_specialist') ?></strong>
             </div>
             <div class="summary-row">
                 <span>Date</span>
@@ -39,7 +38,7 @@ $google_calendar = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
         </div>
 
         <div class="mt-lg">
-            <a href="<?= $appointment->meeting_url ?>" target="_blank" class="btn btn-success btn-lg">
+            <a href="<?= $appointment->meeting_url ?>" target="_blank" class="btn btn-primary btn-lg">
                 <i class="fa fa-video-camera"></i> Join the Meeting
             </a>
         </div>

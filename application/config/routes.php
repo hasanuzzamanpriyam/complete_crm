@@ -55,7 +55,8 @@ $route['api/v1/payments/gateways']          = 'api/payments/gateways';
 
 /* ------------------------------------------ Consultation API routes (v1) ------------------------------------------ */
 $route['api/v1/consultations/consultants']                 = 'api/consultations/consultants';
-$route['api/v1/consultations/slots']                       = 'api/consultations/slots';
+$route['api/v1/consultations/slots'] = 'api/consultations/slots';
+$route['api/v1/consultations/available_slots'] = 'api/consultations/available_slots';
 $route['api/v1/consultations/bookings']                    = 'api/consultations/bookings';
 $route['api/v1/consultations/bookings/(:num)']             = 'api/consultations/booking/$1';
 $route['api/v1/consultations/bookings/(:num)/cancel']      = 'api/consultations/cancel/$1';

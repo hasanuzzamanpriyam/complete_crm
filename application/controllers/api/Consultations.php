@@ -71,6 +71,41 @@ class Consultations extends MY_Controller
         ));
     }
 
+    /**
+     * GET: consultant-agnostic available slots for a date.
+     * The system auto-assigns the first free consultant, so external projects
+     * do not need to pick one. Pass include_booked=1 to also receive booked
+     * times (flagged available=false).
+     */
+    public function available_slots()
+    {
+        $this->api_auth->authenticate_consultation();
+
+        $date = $this->input->get('date');
+        $timezone = $this->input->get('timezone');
+        $duration = (int)$this->input->get('duration');
+        $include_booked = (bool)$this->input->get('include_booked');
+
+        if (empty($date) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+            return $this->_respond(400, false, 'date (Y-m-d) is required');
+        }
+        if (empty($timezone)) {
+            $timezone = consultation_company_timezone();
+        }
+        if ($duration <= 0) {
+            $duration = (int)$this->consultation_model->get_setting('default_duration', 30);
+        }
+
+        $slots = $this->consultation_model->get_consultant_agnostic_slots($date, $timezone, $duration, $include_booked);
+
+        return $this->_respond(200, true, 'OK', array(
+            'date'      => $date,
+            'timezone'  => $timezone,
+            'duration'  => $duration,
+            'slots'     => $slots,
+        ));
+    }
+
     public function bookings()
     {
         $this->api_auth->authenticate_consultation();
@@ -154,9 +189,6 @@ class Consultations extends MY_Controller
         $duration = (int)($input['duration_minutes'] ?? 0);
 
         $errors = array();
-        if ($consultant_id <= 0) {
-            $errors[] = 'consultant_id is required';
-        }
         if (empty($customer_name)) {
             $errors[] = 'customer_name is required';
         }
@@ -175,13 +207,19 @@ class Consultations extends MY_Controller
         if ($duration <= 0) {
             $duration = (int)$this->consultation_model->get_setting('default_duration', 30);
         }
+
+        // Auto-assign the first consultant who is free at the requested slot.
+        if ($consultant_id <= 0) {
+            $consultant_id = (int)$this->consultation_model->assign_consultant_for_slot($appointment_date, $appointment_time, $customer_timezone, $duration);
+        }
+
         if (!empty($errors)) {
             return $this->_respond(422, false, implode(' ', $errors));
         }
 
         $consultant = $this->consultation_model->get_consultant($consultant_id);
         if (empty($consultant) || (int)$consultant->is_active !== 1) {
-            return $this->_respond(422, false, 'This consultant is not available');
+            return $this->_respond(409, false, 'No consultant is available at this time. Please choose another time.');
         }
         if (!$this->consultation_model->is_slot_available($consultant_id, $appointment_date, $appointment_time, $customer_timezone, $duration)) {
             return $this->_respond(409, false, 'Sorry, that time slot is no longer available. Please pick another time.');
@@ -219,9 +257,12 @@ class Consultations extends MY_Controller
         $appointment->consultant_name = $consultant->name;
         $appointment->consultant_email = $consultant->email;
 
+        // Customer-facing email must NOT reveal the assigned consultant.
         $tokens = consultation_mail_tokens($appointment);
         $tokens['MEETING_URL'] = $data['meeting_url'];
-        consultation_send_mail('consultation_confirmation_customer', $customer_email, $tokens);
+        $customer_tokens = $tokens;
+        $customer_tokens['CONSULTANT_NAME'] = consultation_generic_consultant_name();
+        consultation_send_mail('consultation_confirmation_customer', $customer_email, $customer_tokens);
         $tokens['MEETING_URL'] = $data['moderator_url'];
         consultation_send_mail('consultation_confirmation_consultant', $consultant->email, $tokens);
 

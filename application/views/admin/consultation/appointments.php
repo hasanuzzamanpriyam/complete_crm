@@ -86,7 +86,7 @@
                                 <strong><?= htmlspecialchars($app->customer_name) ?></strong>
                                 <small class="text-muted"><?= htmlspecialchars($app->customer_email) ?></small>
                             </td>
-                            <td><?= htmlspecialchars($app->consultant_name) ?></td>
+                                                    <td><?= !empty($app->consultant_name) ? htmlspecialchars($app->consultant_name) : lang('consultation_unassigned') ?></td>
                             <td><?= consultation_format_date($app->appointment_date) ?></td>
                             <td>
                                 <?= consultation_format_time($app->appointment_time) ?>

@@ -431,12 +431,32 @@ class Api_doc extends Admin_Controller
                 ]
             ],
             [
+                'name' => 'Available Slots (auto-assign)',
+                'description' => 'Returns available 30-minute start times for a date WITHOUT requiring a consultant_id. The system auto-assigns the first free consultant. Each slot includes an "available" flag; pass include_booked=1 to also receive booked times (visible but disabled). Auth: Bearer token OR X-API-Key header.',
+                'method' => 'GET',
+                'endpoint' => 'api/v1/consultations/available_slots',
+                'parameters' => [
+                    ['name' => 'date', 'type' => 'date', 'description' => 'Target date YYYY-MM-DD (required)'],
+                    ['name' => 'timezone', 'type' => 'string', 'description' => 'Customer timezone (defaults to company timezone)'],
+                    ['name' => 'duration', 'type' => 'int', 'description' => 'Meeting duration in minutes (defaults to setting)'],
+                    ['name' => 'include_booked', 'type' => 'bool', 'description' => 'If 1, also returns booked times flagged available=false'],
+                ],
+                'response_example' => [
+                    'success' => true,
+                    'message' => 'OK',
+                    'date' => '2026-08-20',
+                    'timezone' => 'Australia/Sydney',
+                    'duration' => 30,
+                    'slots' => [['time' => '10:00', 'time_display' => '10:00 AM', 'available' => true]],
+                ]
+            ],
+            [
                 'name' => 'Create Booking',
                 'description' => 'Create a consultation booking. Emails confirmation to customer and consultant. Auth: Bearer token OR X-API-Key header.',
                 'method' => 'POST',
                 'endpoint' => 'api/v1/consultations/bookings',
                 'parameters' => [
-                    ['name' => 'consultant_id', 'type' => 'int', 'description' => 'Consultant ID (required)'],
+                    ['name' => 'consultant_id', 'type' => 'int', 'description' => 'Consultant ID (optional - auto-assigned to the first available consultant if omitted)'],
                     ['name' => 'customer_name', 'type' => 'string', 'description' => 'Customer name (required)'],
                     ['name' => 'customer_email', 'type' => 'string', 'description' => 'Valid customer email (required)'],
                     ['name' => 'customer_timezone', 'type' => 'string', 'description' => 'Customer timezone (required)'],

@@ -1,138 +1,161 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
 <div class="booking-card">
     <div class="booking-card-header text-center">
-        <h2>Book a Free Consultation</h2>
-        <p class="text-muted">Pick a consultant, choose a time that works for you, and we'll take care of the rest.</p>
+        <h2><?= lang('consultation_book_title') ?></h2>
+        <p class="text-muted"><?= lang('consultation_book_subtitle') ?></p>
     </div>
 
     <div class="booking-steps">
         <div class="booking-step active" data-step="1">
-            <span class="step-num">1</span> Consultant
+            <span class="step-num">1</span><?= lang('consultation_step_schedule') ?>
         </div>
         <div class="booking-step" data-step="2">
-            <span class="step-num">2</span> Date &amp; Time
-        </div>
-        <div class="booking-step" data-step="3">
-            <span class="step-num">3</span> Your Details
+            <span class="step-num">2</span><?= lang('consultation_step_details') ?>
         </div>
     </div>
 
-    <!-- Step 1: Consultant selection -->
-    <div class="booking-pane active" data-pane="1">
-        <div id="consultant-list" class="consultant-grid">
-            <div class="text-center p-lg"><i class="fa fa-spinner fa-spin fa-2x"></i></div>
-        </div>
-    </div>
+    <div id="booking-alert"></div>
 
-    <!-- Step 2: Date & time -->
-    <div class="booking-pane" data-pane="2">
-        <div id="timezone-banner" class="timezone-banner">
-            <i class="fa fa-globe"></i>
-            Showing times in your timezone: <strong id="tz-label">detecting...</strong>
+    <!-- Step 1: Calendar + Slots -->
+    <div class="booking-pane active" id="pane-schedule">
+        <div class="timezone-banner">
+            <i class="fa fa-clock-o"></i> <?= lang('consultation_timezone_note') ?> <strong id="tz-label"></strong>
         </div>
-        <div id="date-strip" class="date-strip">
-            <div class="text-center p-lg text-muted"><i class="fa fa-spinner fa-spin"></i> Loading available days...</div>
-        </div>
-        <div id="time-list" class="time-list">
-            <div class="text-center p-lg text-muted">Select a day above to see available times.</div>
-        </div>
-    </div>
 
-    <!-- Step 3: Customer details -->
-    <div class="booking-pane" data-pane="3">
-        <div class="row">
-            <div class="col-md-7">
-                <form id="booking-form" novalidate>
-                    <input type="hidden" name="consultant_id" id="f-consultant-id">
-                    <input type="hidden" name="appointment_date" id="f-date">
-                    <input type="hidden" name="appointment_time" id="f-time">
-                    <input type="hidden" name="duration_minutes" id="f-duration">
-
-                    <div class="form-group">
-                        <label for="f-customer-name">Your Name *</label>
-                        <input type="text" class="form-control" id="f-customer-name" name="customer_name"
-                               placeholder="John Smith" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="f-customer-email">Email *</label>
-                        <input type="email" class="form-control" id="f-customer-email" name="customer_email"
-                               placeholder="john@example.com" required>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <div class="form-group">
-                                <label for="f-customer-phone">Phone</label>
-                                <input type="text" class="form-control" id="f-customer-phone" name="customer_phone"
-                                       placeholder="+1 555 000 1234">
-                            </div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="form-group">
-                                <label for="f-company">Company</label>
-                                <input type="text" class="form-control" id="f-company" name="company">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="f-timezone">Your Timezone *</label>
-                        <select class="form-control" id="f-timezone" name="customer_timezone" required>
-                            <option value="">Select your timezone...</option>
-                            <?php foreach ($timezones as $tz) : ?>
-                                <option value="<?= $tz ?>"><?= $tz ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="f-consultation-type">Consultation Type</label>
-                        <select class="form-control" id="f-consultation-type" name="consultation_type">
-                            <option value="consultation">General Consultation</option>
-                            <option value="product_demo">Product Demo</option>
-                            <option value="sales_call">Sales Call</option>
-                            <option value="support">Support</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="f-notes">Notes</label>
-                        <textarea class="form-control" id="f-notes" name="notes" rows="3"
-                                  placeholder="Anything you'd like us to know before the call?"></textarea>
-                    </div>
-                    <button type="submit" id="book-submit" class="btn btn-success btn-lg btn-block">
-                        <i class="fa fa-check-circle"></i> Confirm Booking
-                    </button>
-                </form>
+        <div class="schedule-grid">
+            <div class="calendar-panel">
+                <div class="calendar-head">
+                    <button type="button" class="cal-nav" id="cal-prev" aria-label="Previous month"><i class="fa fa-chevron-left"></i></button>
+                    <span id="cal-title"></span>
+                    <button type="button" class="cal-nav" id="cal-next" aria-label="Next month"><i class="fa fa-chevron-right"></i></button>
+                </div>
+                <div class="calendar-weekdays">
+                    <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+                </div>
+                <div class="calendar-days" id="cal-days"></div>
             </div>
-            <div class="col-md-5">
-                <div class="booking-summary">
-                    <h4>Your Appointment</h4>
-                    <div class="summary-row">
-                        <span>Consultant</span>
-                        <strong id="summary-consultant">—</strong>
-                    </div>
-                    <div class="summary-row">
-                        <span>Date &amp; time</span>
-                        <strong id="summary-datetime">—</strong>
-                    </div>
-                    <div class="summary-row">
-                        <span>Duration</span>
-                        <strong id="summary-duration">—</strong>
-                    </div>
-                    <div class="summary-row">
-                        <span>Timezone</span>
-                        <strong id="summary-timezone">—</strong>
-                    </div>
-                    <p class="text-muted mt-sm">You'll receive a confirmation email with your video meeting link.</p>
+
+            <div class="slots-panel">
+                <h4 class="slots-date-label" id="slots-date-label"><?= lang('consultation_select_day') ?></h4>
+                <div class="time-list" id="slots-list">
+                    <p class="text-muted slots-empty"><?= lang('consultation_pick_day_first') ?></p>
                 </div>
             </div>
         </div>
+
+        <div class="booking-actions">
+            <a href="<?= base_url() ?>" class="btn btn-default"><?= lang('consultation_back_home') ?></a>
+            <button type="button" class="btn btn-primary" id="to-details" disabled><?= lang('consultation_continue') ?></button>
+        </div>
+    </div>
+
+    <!-- Step 2: Details -->
+    <div class="booking-pane" id="pane-details">
+        <div class="booking-summary">
+            <h4><?= lang('consultation_selected') ?></h4>
+            <div class="summary-row">
+                <span><?= lang('consultation_date') ?></span>
+                <strong id="sum-date"></strong>
+            </div>
+            <div class="summary-row">
+                <span><?= lang('consultation_time') ?></span>
+                <strong id="sum-time"></strong>
+            </div>
+            <div class="summary-row">
+                <span><?= lang('consultation_consultant') ?></span>
+                <strong><?= lang('consultation_specialist') ?></strong>
+            </div>
+        </div>
+
+        <form id="booking-form" class="mt" novalidate>
+            <input type="hidden" name="appointment_date" id="f-date">
+            <input type="hidden" name="appointment_time" id="f-time">
+            <input type="hidden" name="customer_timezone" id="f-timezone">
+            <input type="hidden" name="duration_minutes" id="f-duration">
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label><?= lang('consultation_customer_name') ?> <span class="text-danger">*</span></label>
+                        <input type="text" name="customer_name" id="f-name" class="form-control" required>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label><?= lang('consultation_customer_email') ?> <span class="text-danger">*</span></label>
+                        <input type="email" name="customer_email" id="f-email" class="form-control" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label><?= lang('consultation_customer_phone') ?></label>
+                        <input type="text" name="customer_phone" id="f-phone" class="form-control">
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label><?= lang('consultation_company') ?></label>
+                        <input type="text" name="company" id="f-company" class="form-control">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label><?= lang('consultation_country') ?></label>
+                        <input type="text" name="country" id="f-country" class="form-control">
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label><?= lang('consultation_consultation_type') ?></label>
+                        <select name="consultation_type" id="f-type" class="form-control">
+                            <option value="consultation">General Consultation</option>
+                            <option value="sales">Sales</option>
+                            <option value="support">Support</option>
+                            <option value="technical">Technical</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label><?= lang('consultation_notes') ?></label>
+                <textarea name="notes" id="f-notes" class="form-control" rows="3"></textarea>
+            </div>
+
+            <div class="booking-actions">
+                <button type="button" class="btn btn-default" id="back-schedule"><?= lang('consultation_back') ?></button>
+                <button type="submit" class="btn btn-primary" id="book-btn"><?= lang('consultation_confirm_booking') ?></button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Success -->
+    <div class="booking-pane booking-confirm text-center" id="pane-success">
+        <div class="confirm-icon"><i class="fa fa-check-circle"></i></div>
+        <h2><?= lang('consultation_booked_title') ?></h2>
+        <p class="lead"><?= lang('consultation_booked_text') ?></p>
+        <a href="#" id="success-link" class="btn btn-primary btn-lg"><?= lang('consultation_view_details') ?></a>
     </div>
 </div>
 
+<?php if (isset($booking_scripts)) echo $booking_scripts; ?>
+
 <script>
-    window.BookingConfig = {
-        baseUrl: '<?= base_url() ?>',
-        getConsultantsUrl: '<?= site_url('booking/get_consultants') ?>',
-        getSlotsUrl: '<?= site_url('booking/get_slots') ?>',
-        bookUrl: '<?= site_url('booking/book') ?>',
-        defaultDuration: <?= (int)config_item('consultation_default_duration') ?: 30 ?>,
-        slotDays: 14
+    var BookingConfig = {
+        getSlotsUrl: "<?= site_url('booking/get_slots') ?>",
+        bookUrl: "<?= site_url('booking/book') ?>",
+        defaultDuration: <?= (int)$this->consultation_model->get_setting('default_duration', 30) ?>,
+        companyTimezone: "<?= consultation_company_timezone() ?>",
+        lang: {
+            noSlots: "<?= lang('consultation_no_slots') ?>",
+            confirmBooking: "<?= lang('consultation_confirm_booking') ?>"
+        }
     };
 </script>
