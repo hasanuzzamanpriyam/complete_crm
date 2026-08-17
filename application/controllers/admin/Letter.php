@@ -751,6 +751,7 @@ class Letter extends Admin_Controller
         $data['margin_left'] = $letter->margin_left;
         $data['margin_right'] = $letter->margin_right;
         $data['print'] = true;
+        $data['hide_logo'] = $this->input->get('hide_logo');
 
         $this->load->view('admin/letter/generate_pdf', $data);
     }

@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <style>
         @page {
-            size: A4;
-            margin: 0;
+            size: A4 portrait;
+            margin: 2.54cm;
         }
         @media print {
             body {
@@ -15,13 +15,14 @@
                 print-color-adjust: exact !important;
             }
             .letter-content {
-                width: 210mm;
-                min-height: 297mm;
+                width: 100%;
+                min-height: 100%;
                 padding: <?= (int)$margin_top ?>px <?= (int)$margin_right ?>px <?= (int)$margin_bottom ?>px <?= (int)$margin_left ?>px;
                 margin: 0 auto;
                 box-sizing: border-box;
             }
             .no-print { display: none !important; }
+            .hide-logo .company-logo { display: none !important; }
         }
         body {
             font-family: 'DejaVu Sans', sans-serif;
@@ -43,7 +44,7 @@
     </style>
 </head>
 <body>
-    <div class="letter-content">
+    <div class="letter-content<?= !empty($hide_logo) ? ' hide-logo' : '' ?>">
         <?php
         $logo = config_item('company_logo');
         if (!empty($logo)) {
