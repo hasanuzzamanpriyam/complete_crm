@@ -4,7 +4,65 @@ import { useAuthStore } from './store/useAuthStore'
 import AppLayout from './components/layout/AppLayout'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
-import PlaceholderPage from './pages/PlaceholderPage'
+
+// Main Section Pages
+import CalendarPage from './pages/CalendarPage'
+import MailboxPage from './pages/MailboxPage'
+import ChatPage from './pages/ChatPage'
+import AnnouncementsPage from './pages/AnnouncementsPage'
+
+// CRM & Sales Pages
+import ClientsPage from './pages/ClientsPage'
+import LeadsPage from './pages/LeadsPage'
+import OpportunitiesPage from './pages/OpportunitiesPage'
+import InvoicesPage from './pages/InvoicesPage'
+import EstimatesPage from './pages/EstimatesPage'
+import ProposalsPage from './pages/ProposalsPage'
+import PaymentsPage from './pages/PaymentsPage'
+import CreditNotesPage from './pages/CreditNotesPage'
+import TaxRatesPage from './pages/TaxRatesPage'
+import ContractsPage from './pages/ContractsPage'
+import WooCommercePage from './pages/WooCommercePage'
+
+// Projects & Work Pages
+import ProjectsPage from './pages/ProjectsPage'
+import TasksPage from './pages/TasksPage'
+import BugsPage from './pages/BugsPage'
+import TimeSyncPage from './pages/TimeSyncPage'
+import SpreadsheetPage from './pages/SpreadsheetPage'
+
+// Finance & Accounting Pages
+import AccountingPage from './pages/AccountingPage'
+import TransactionsPage from './pages/TransactionsPage'
+import BankAccountsPage from './pages/BankAccountsPage'
+
+// Human Resources Pages
+import DepartmentsPage from './pages/DepartmentsPage'
+import AttendancePage from './pages/AttendancePage'
+import LeavesPage from './pages/LeavesPage'
+import PayrollPage from './pages/PayrollPage'
+import RecruitmentPage from './pages/RecruitmentPage'
+import PerformancePage from './pages/PerformancePage'
+import LifecyclePage from './pages/LifecyclePage'
+
+// Inventory & Stock Pages
+import ItemsPage from './pages/ItemsPage'
+import StockPage from './pages/StockPage'
+import PurchasesPage from './pages/PurchasesPage'
+
+// Support & Collaboration Pages
+import TicketsPage from './pages/TicketsPage'
+import ComplaintsPage from './pages/ComplaintsPage'
+import KnowledgebasePage from './pages/KnowledgebasePage'
+import MeetingsPage from './pages/MeetingsPage'
+import FileManagerPage from './pages/FileManagerPage'
+
+// System & Settings Pages
+import UsersPage from './pages/UsersPage'
+import ServerManagementPage from './pages/ServerManagementPage'
+import ModulesPage from './pages/ModulesPage'
+import DeveloperPage from './pages/DeveloperPage'
+import SettingsPage from './pages/SettingsPage'
 
 // Protected Route Guard
 function ProtectedRoute({ children }) {
@@ -33,63 +91,63 @@ export default function App() {
         >
           {/* Main */}
           <Route index element={<Dashboard />} />
-          <Route path="calendar" element={<PlaceholderPage title="Calendar & Events" category="Main" />} />
-          <Route path="mailbox" element={<PlaceholderPage title="Mailbox & Communications" category="Main" />} />
-          <Route path="chat" element={<PlaceholderPage title="Team Live Chat" category="Main" />} />
-          <Route path="announcements" element={<PlaceholderPage title="Company Announcements" category="Main" />} />
+          <Route path="calendar" element={<CalendarPage />} />
+          <Route path="mailbox" element={<MailboxPage />} />
+          <Route path="chat" element={<ChatPage />} />
+          <Route path="announcements" element={<AnnouncementsPage />} />
 
           {/* CRM & Sales */}
-          <Route path="clients" element={<PlaceholderPage title="Clients Directory" category="CRM & Sales" />} />
-          <Route path="leads" element={<PlaceholderPage title="Leads & Opportunity Pipeline" category="CRM & Sales" />} />
-          <Route path="opportunities" element={<PlaceholderPage title="Business Opportunities" category="CRM & Sales" />} />
-          <Route path="invoices" element={<PlaceholderPage title="Invoices Management" category="CRM & Sales" />} />
-          <Route path="estimates" element={<PlaceholderPage title="Price Estimates" category="CRM & Sales" />} />
-          <Route path="proposals" element={<PlaceholderPage title="Sales Proposals" category="CRM & Sales" />} />
-          <Route path="payments" element={<PlaceholderPage title="Payments Received" category="CRM & Sales" />} />
-          <Route path="credit-notes" element={<PlaceholderPage title="Credit Notes" category="CRM & Sales" />} />
-          <Route path="tax-rates" element={<PlaceholderPage title="Tax Rates" category="CRM & Sales" />} />
-          <Route path="contracts" element={<PlaceholderPage title="Contracts Management" category="CRM & Sales" />} />
-          <Route path="woocommerce" element={<PlaceholderPage title="WooCommerce Stores" category="CRM & Sales" />} />
+          <Route path="clients" element={<ClientsPage />} />
+          <Route path="leads" element={<LeadsPage />} />
+          <Route path="opportunities" element={<OpportunitiesPage />} />
+          <Route path="invoices" element={<InvoicesPage />} />
+          <Route path="estimates" element={<EstimatesPage />} />
+          <Route path="proposals" element={<ProposalsPage />} />
+          <Route path="payments" element={<PaymentsPage />} />
+          <Route path="credit-notes" element={<CreditNotesPage />} />
+          <Route path="tax-rates" element={<TaxRatesPage />} />
+          <Route path="contracts" element={<ContractsPage />} />
+          <Route path="woocommerce" element={<WooCommercePage />} />
 
           {/* Projects & Work */}
-          <Route path="projects" element={<PlaceholderPage title="Projects Management" category="Projects & Work" />} />
-          <Route path="tasks" element={<PlaceholderPage title="Tasks & Kanban Board" category="Projects & Work" />} />
-          <Route path="bugs" element={<PlaceholderPage title="Bug Tracking System" category="Projects & Work" />} />
-          <Route path="timesync" element={<PlaceholderPage title="TimeSync Desktop Tracker" category="Projects & Work" />} />
-          <Route path="spreadsheet" element={<PlaceholderPage title="Spreadsheet & Worksheets" category="Projects & Work" />} />
+          <Route path="projects" element={<ProjectsPage />} />
+          <Route path="tasks" element={<TasksPage />} />
+          <Route path="bugs" element={<BugsPage />} />
+          <Route path="timesync" element={<TimeSyncPage />} />
+          <Route path="spreadsheet" element={<SpreadsheetPage />} />
 
           {/* Finance & Accounting */}
-          <Route path="accounting/*" element={<PlaceholderPage title="General Accounting" category="Finance & Accounting" />} />
-          <Route path="transactions" element={<PlaceholderPage title="Transactions & Expenses" category="Finance & Accounting" />} />
-          <Route path="bank-accounts" element={<PlaceholderPage title="Bank & Cash Accounts" category="Finance & Accounting" />} />
+          <Route path="accounting/*" element={<AccountingPage />} />
+          <Route path="transactions" element={<TransactionsPage />} />
+          <Route path="bank-accounts" element={<BankAccountsPage />} />
 
           {/* Human Resources */}
-          <Route path="departments" element={<PlaceholderPage title="Departments & Designations" category="HRM" />} />
-          <Route path="attendance" element={<PlaceholderPage title="Attendance & Biometrics" category="HRM" />} />
-          <Route path="leaves" element={<PlaceholderPage title="Leave Management" category="HRM" />} />
-          <Route path="payroll/*" element={<PlaceholderPage title="Payroll & Salary System" category="HRM" />} />
-          <Route path="recruitment" element={<PlaceholderPage title="Recruitment & Job Circulars" category="HRM" />} />
-          <Route path="performance" element={<PlaceholderPage title="Performance Appraisals" category="HRM" />} />
-          <Route path="lifecycle/*" element={<PlaceholderPage title="Employee Lifecycle" category="HRM" />} />
+          <Route path="departments" element={<DepartmentsPage />} />
+          <Route path="attendance" element={<AttendancePage />} />
+          <Route path="leaves" element={<LeavesPage />} />
+          <Route path="payroll/*" element={<PayrollPage />} />
+          <Route path="recruitment" element={<RecruitmentPage />} />
+          <Route path="performance" element={<PerformancePage />} />
+          <Route path="lifecycle/*" element={<LifecyclePage />} />
 
           {/* Inventory & Stock */}
-          <Route path="items" element={<PlaceholderPage title="Items Catalog" category="Inventory" />} />
-          <Route path="stock" element={<PlaceholderPage title="Stock & Warehouses" category="Inventory" />} />
-          <Route path="purchases" element={<PlaceholderPage title="Suppliers & Purchases" category="Inventory" />} />
+          <Route path="items" element={<ItemsPage />} />
+          <Route path="stock" element={<StockPage />} />
+          <Route path="purchases" element={<PurchasesPage />} />
 
           {/* Support & Collaboration */}
-          <Route path="tickets" element={<PlaceholderPage title="Support Tickets" category="Support" />} />
-          <Route path="complaints" element={<PlaceholderPage title="Customer Complaints" category="Support" />} />
-          <Route path="kb" element={<PlaceholderPage title="Knowledgebase & Help Articles" category="Support" />} />
-          <Route path="meetings" element={<PlaceholderPage title="Video Meetings" category="Support" />} />
-          <Route path="filemanager" element={<PlaceholderPage title="File Manager" category="Support" />} />
+          <Route path="tickets" element={<TicketsPage />} />
+          <Route path="complaints" element={<ComplaintsPage />} />
+          <Route path="kb" element={<KnowledgebasePage />} />
+          <Route path="meetings" element={<MeetingsPage />} />
+          <Route path="filemanager" element={<FileManagerPage />} />
 
           {/* System & Settings */}
-          <Route path="users" element={<PlaceholderPage title="Users & Access Permissions" category="System" />} />
-          <Route path="servers/*" element={<PlaceholderPage title="Server Management" category="System" />} />
-          <Route path="modules" element={<PlaceholderPage title="System Modules & Add-ons" category="System" />} />
-          <Route path="developer" element={<PlaceholderPage title="API Routes & Documentation" category="System" />} />
-          <Route path="settings" element={<PlaceholderPage title="System Configuration" category="System" />} />
+          <Route path="users" element={<UsersPage />} />
+          <Route path="servers/*" element={<ServerManagementPage />} />
+          <Route path="modules" element={<ModulesPage />} />
+          <Route path="developer" element={<DeveloperPage />} />
+          <Route path="settings" element={<SettingsPage />} />
 
           {/* Catch-all */}
           <Route path="*" element={<Navigate to="/" replace />} />
