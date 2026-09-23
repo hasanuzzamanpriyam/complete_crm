@@ -63,6 +63,12 @@ import ServerManagementPage from './pages/ServerManagementPage'
 import ModulesPage from './pages/ModulesPage'
 import DeveloperPage from './pages/DeveloperPage'
 import SettingsPage from './pages/SettingsPage'
+import ConsultationPage from './pages/ConsultationPage'
+import TrainingPage from './pages/TrainingPage'
+import ReportsPage from './pages/ReportsPage'
+import SuperAdminPage from './pages/SuperAdminPage'
+import LetterPage from './pages/LetterPage'
+import UtilitiesPage from './pages/UtilitiesPage'
 
 // Protected Route Guard
 function ProtectedRoute({ children }) {
@@ -140,14 +146,29 @@ export default function App() {
           <Route path="complaints" element={<ComplaintsPage />} />
           <Route path="kb" element={<KnowledgebasePage />} />
           <Route path="meetings" element={<MeetingsPage />} />
+          <Route path="jitsi" element={<MeetingsPage />} />
+          <Route path="zoom" element={<MeetingsPage />} />
           <Route path="filemanager" element={<FileManagerPage />} />
+          <Route path="consultation" element={<ConsultationPage />} />
+          <Route path="training" element={<TrainingPage />} />
+          <Route path="reports/*" element={<ReportsPage />} />
+          <Route path="utilities/*" element={<UtilitiesPage />} />
+          <Route path="letter/*" element={<LetterPage />} />
+
+          {/* Lifecycle Aliases from Old Sidebar */}
+          <Route path="warning" element={<LifecyclePage />} />
+          <Route path="promotion" element={<LifecyclePage />} />
+          <Route path="resignation" element={<LifecyclePage />} />
+          <Route path="termination" element={<LifecyclePage />} />
 
           {/* System & Settings */}
           <Route path="users" element={<UsersPage />} />
+          <Route path="super_admin/*" element={<SuperAdminPage />} />
           <Route path="servers/*" element={<ServerManagementPage />} />
           <Route path="modules" element={<ModulesPage />} />
           <Route path="developer" element={<DeveloperPage />} />
           <Route path="settings" element={<SettingsPage />} />
+          <Route path="database_backup" element={<SettingsPage />} />
 
           {/* Catch-all */}
           <Route path="*" element={<Navigate to="/" replace />} />
