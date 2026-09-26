@@ -1,23 +1,23 @@
 # Progress Tracker
 
 **Last updated:** 2026-09-26
-**Overall:** Part A **3 / 34** · Part B **0 / 74** · **Total 3 / 108**
+**Overall:** Part A **4 / 34** · Part B **0 / 74** · **Total 4 / 108**
 
 Legend: `[ ]` not started · `[~]` in progress · `[x]` complete
 
 ---
 
-## Part A — CSS Reskin · 3/34
+## Part A — CSS Reskin · 4/34
 
 Branch: `sakib` · Detail: [`part-a-css-reskin/README.md`](part-a-css-reskin/README.md)
 
-### A0 — Safety Net · 3/4
+### A0 — Safety Net · 4/4 ✅ complete
 File: [`00-safety-net.md`](part-a-css-reskin/00-safety-net.md)
 
 - [x] `A0-1` Create branch, commit plan + pre-existing fixes
-- [ ] `A0-2` Capture 20 baseline screenshots
+- [x] `A0-2` Capture 21 baseline screenshots (20 routes + invoice detail id 9) + `NOTES.md`
 - [x] `A0-3` Colour/metric inventory of `app.css`
-- [x] `A0-4` `composer smoke` script, 20/20 pass
+- [x] `A0-4` `composer smoke` script, 22/22 pass
 
 ### A1 — Design Tokens · 0/4
 File: [`01-tokens.md`](part-a-css-reskin/01-tokens.md)
@@ -127,7 +127,7 @@ Recorded in `SN-3` for Part B. None are regressions.
 | Issue | Location |
 |---|---|
 | Demo auto-login HTTP 500 — demo users missing from dump | `application/controllers/Login.php:352` |
-| `#trackerDownloadModal` blocks first click; dismiss flag not persisted on × | modal shell |
+| `#trackerDownloadModal` blocks first click; dismiss flag not persisted on × | **Fixed 2026-09-26** — promo is now an in-flow banner in `login.php`, no modal, both dismiss paths persist. Guarded by `composer test:login` (7 assertions) |
 | Malformed tooltip attribute `data-toggle="tooltip data-placement="top"` | `admin_helper.php` |
 | `<input id="" type="radio">` — empty/duplicate IDs, labels unattached | `admin_helper.php:1070` |
 | Duplicate `'data-toggle'` key — PHP keeps only the last | `btn_edit_modal`, `btn_banned_modal` |
@@ -136,6 +136,7 @@ Recorded in `SN-3` for Part B. None are regressions.
 | Pusher WebSocket warning when offline | realtime notifications |
 | `last_login` written to session, never persisted to `tbl_users` | login flow |
 | `$.fn.modal.Constructor` does not exist in BS5 → dead Select2 focus guard | `add_domain.php:960` |
+| `GET http://localhost/assets/img/dragger.png` → 404 — missing `/complete_crm` base path | invoice detail page (seen in A0-2 capture) |
 
 ---
 

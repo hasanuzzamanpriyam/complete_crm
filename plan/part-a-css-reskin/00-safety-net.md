@@ -123,27 +123,32 @@ zoom** and a **cold cache**.
 `/admin/estimates` · `/admin/timesync` · `/admin/consultation` ·
 `/admin/job_circular/jobs_posted` · `/admin/mark_attendance` · `/client/dashboard`
 
-**Detail pages** (`/admin/invoice/view/{id}`, `/admin/client/view/{id}`,
-`/admin/projects/view/{id}`) — resolve a real ID from each list page at capture time and record
-it in `NOTES.md`. They carry the most distinct components, so include at least the invoice
-detail.
+**Detail pages** — resolve a real ID from each list page at capture time and record it in
+`NOTES.md`. They carry the most distinct components, so include at least the invoice detail.
+Verified routes (the `view/{id}` form below was a guess and does not exist — see
+`plan/_baseline/part-a/NOTES.md`):
+
+- Invoice detail: `/admin/invoice/manage_invoice/invoice_details/{id}` (redirects to
+  `/admin/invoice/invoice_details/{id}`) — **captured with id `9`**
+- Client detail: `/admin/client/...` (resolve from the list page)
+- Project detail: `/admin/projects/...` (resolve from the list page)
 
 Log in as `forid` / `Admin@123` for rows 6–19. Record which `{id}` values you used in
 `plan/_baseline/part-a/NOTES.md` so the same records are captured later.
 
-- [ ] **Step 1: Create the directories**
+- [x] **Step 1: Create the directories**
 
 ```powershell
 New-Item -ItemType Directory -Force -Path plan\_baseline\part-a | Out-Null
 ```
 
-- [ ] **Step 2: Capture all 20 screenshots**
-- [ ] **Step 3: Write `plan/_baseline/part-a/NOTES.md`** listing each page, the exact URL, the
+- [x] **Step 2: Capture all 20 screenshots** (+ `21-invoice-detail.png`, record id `9`)
+- [x] **Step 3: Write `plan/_baseline/part-a/NOTES.md`** listing each page, the exact URL, the
       record IDs used, viewport size, and the date captured.
-- [ ] **Step 4: Verify no screenshot shows a PHP error overlay.** If one does, that is a
-      pre-existing bug — record it in `NOTES.md` under "Pre-existing issues" and move on.
+- [x] **Step 4: Verify no screenshot shows a PHP error overlay.** If one does, that is a
+      pre-existing bug - record it in `NOTES.md` under "Pre-existing issues" and move on.
 
-**Verify:** 20 PNGs + `NOTES.md` exist.
+**Verify:** 21 PNGs + `NOTES.md` exist — all 21 distinct hashes, 0 error overlays.
 **Effort:** M
 
 ---
@@ -237,10 +242,10 @@ git commit -m "A0: baseline screenshots, CSS inventory, and smoke check"
 
 ## Exit gate
 
-- [ ] Branch `sakib` created and pushed
-- [ ] 20 baseline screenshots + `NOTES.md` captured
+- [x] Branch `sakib` created and pushed
+- [x] 21 baseline screenshots + `NOTES.md` captured
 - [x] `plan/_data/part-a-css-inventory.md` written with the 31 section line ranges
-- [ ] `composer smoke` passes 20/20
+- [x] `composer smoke` passes 22/22
 - [ ] Pre-existing issues documented, not silently ignored
 
 ## Tasks: 4 · Completed: 0 · Remaining: 4
