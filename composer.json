@@ -13,6 +13,7 @@
     "scripts": {
         "smoke": "php plan/_tools/smoke.php",
         "smoke:demo": "php plan/_tools/smoke.php --db=demo",
-        "test:login": "php plan/_tools/login-test.php"
+        "test:login": "php plan/_tools/login-test.php",
+        "test:theme": "php plan/_tools/bg-custom-test.php normal && php plan/_tools/bg-custom-test.php theme"
     }
 }

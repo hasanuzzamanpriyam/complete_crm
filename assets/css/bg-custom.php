@@ -5,18 +5,43 @@ if ($uri == 'theme') {
 } else {
     $im = '!important';
 }
+
+/*
+ * Emit every configurable colour as a custom property ONCE, in :root, instead of
+ * repeating the value in a dozen separate rules. Rules then consume var(--...).
+ * This is what makes live theming work: one assignment restyles the whole app.
+ */
+$vars = [
+    '--c-bg'                  => 'body_background',
+    '--th-navbar-logo-bg'     => 'navbar_logo_background',
+    '--c-topbar-bg'           => 'top_bar_background',
+    '--c-topbar-fg'           => 'top_bar_color',
+    '--c-sidebar-bg'          => 'sidebar_background',
+    '--c-sidebar-text'        => 'sidebar_color',
+    '--c-sidebar-active'      => 'sidebar_active_background',
+    '--th-sidebar-active-txt' => 'sidebar_active_color',
+    '--th-submenu-open-bg'    => 'submenu_open_background',
+    '--th-active-bg'          => 'active_background',
+    '--th-active-fg'          => 'active_color',
+];
+$css = ":root {\n";
+foreach ($vars as $name => $key) {
+    $css .= "        $name: " . config_item($key) . ";\n";
+}
+$css .= "    }\n";
 ?>
 <style type="text/css">
+    <?= $css ?>
     /* ========================================================================
        Component: layout
      ========================================================================== */
     body,
     .wrapper > section {
-        background-color: <?= config_item('body_background').$im?>;;
+        background-color: var(--c-bg)<?= $im ?>;
     }
 
     #loader-wrapper {
-        background-color: <?= config_item('body_background').$im?>;;
+        background-color: var(--c-bg)<?= $im ?>;
     }
 
     .wrapper > .aside {
@@ -31,7 +56,7 @@ if ($uri == 'theme') {
     }
 
     .topnavbar .navbar-header {
-        background: <?= config_item('navbar_logo_background').$im?>;
+        background: var(--th-navbar-logo-bg)<?= $im ?>;
     }
 
     @media only screen and (min-width: 768px) {
@@ -42,14 +67,14 @@ if ($uri == 'theme') {
 
     .topnavbar .navbar-nav > li > a,
     .topnavbar .navbar-nav > .open > a {
-        color: <?= config_item('top_bar_color').$im?>;
+        color: var(--c-topbar-fg)<?= $im ?>;
     }
 
     .topnavbar .navbar-nav > li > a:hover,
     .topnavbar .navbar-nav > .open > a:hover,
     .topnavbar .navbar-nav > li > a:focus,
     .topnavbar .navbar-nav > .open > a:focus {
-        color: <?= config_item('top_bar_color').$im?>;
+        color: var(--c-topbar-fg)<?= $im ?>;
     }
 
     .topnavbar .navbar-nav > .active > a,
@@ -66,12 +91,12 @@ if ($uri == 'theme') {
     }
 
     .topnavbar .nav-wrapper {
-        background: <?= config_item('top_bar_background').$im?>;
+        background: var(--c-topbar-bg)<?= $im ?>;
     }
 
     @media only screen and (min-width: 768px) {
         .topnavbar {
-            background: <?= config_item('top_bar_background').$im?>;
+            background: var(--c-topbar-bg)<?= $im ?>;
         }
 
         .topnavbar .navbar-nav > .open > a,
@@ -82,14 +107,14 @@ if ($uri == 'theme') {
 
         .topnavbar .navbar-nav > li > a,
         .topnavbar .navbar-nav > .open > a {
-            color: <?= config_item('top_bar_color').$im?>;
+            color: var(--c-topbar-fg)<?= $im ?>;
         }
 
         .topnavbar .navbar-nav > li > a:hover,
         .topnavbar .navbar-nav > .open > a:hover,
         .topnavbar .navbar-nav > li > a:focus,
         .topnavbar .navbar-nav > .open > a:focus {
-            color: <?= config_item('top_bar_color').$im?>;
+            color: var(--c-topbar-fg)<?= $im ?>;
         }
     }
 
@@ -97,28 +122,28 @@ if ($uri == 'theme') {
        Component: sidebar
      ========================================================================== */
     .sidebar {
-        background: <?= config_item('sidebar_background').$im?>;
+        background: var(--c-sidebar-bg)<?= $im ?>;
     }
 
     .sidebar .nav-heading {
-        color: <?= config_item('sidebar_color')?> !important;;
+        color: var(--c-sidebar-text) !important;
     }
 
     .sidebar .nav > li > a,
     .sidebar .nav > li > .nav-item, .user-block .user-block-info .user-block-name, .user-block .user-block-info .user-block-role {
-        color: <?= config_item('sidebar_color').$im?>;
+        color: var(--c-sidebar-text)<?= $im ?>;
     }
 
     .sidebar .nav > li > a:focus,
     .sidebar .nav > li > .nav-item:focus,
     .sidebar .nav > li > a:hover,
     .sidebar .nav > li > .nav-item:hover {
-        color: <?= config_item('sidebar_active_background').$im?>;
+        color: var(--c-sidebar-active)<?= $im ?>;
     }
 
     .sidebar .nav > li > a > em,
     .sidebar .nav > li > .nav-item > em {
-        color: inherits;
+        color: inherit;
     }
 
     .sidebar .nav > li.active,
@@ -127,21 +152,21 @@ if ($uri == 'theme') {
     .sidebar .nav > li.open > a,
     .sidebar .nav > li.active .nav,
     .sidebar .nav > li.open .nav {
-        background-color: <?= config_item('sidebar_active_background').$im?>;
-        color: <?= config_item('sidebar_active_color').$im?>;
+        background-color: var(--c-sidebar-active)<?= $im ?>;
+        color: var(--th-sidebar-active-txt)<?= $im ?>;
     }
 
     .sidebar .nav > li.active > a > em,
     .sidebar .nav > li.open > a > em {
-        color: <?= config_item('sidebar_active_color').$im?>;
+        color: var(--th-sidebar-active-txt)<?= $im ?>;
     }
 
     .sidebar .nav > li.active {
-        border-left-color: <?= config_item('sidebar_active_color').$im?>;
+        border-left-color: var(--th-sidebar-active-txt)<?= $im ?>;
     }
 
     .sidebar-subnav {
-        background-color: <?= config_item('submenu_open_background').$im?>;
+        background-color: var(--th-submenu-open-bg)<?= $im ?>;
     }
 
     .sidebar-subnav > .sidebar-subnav-header {
@@ -157,17 +182,17 @@ if ($uri == 'theme') {
     .sidebar-subnav > li > .nav-item:focus,
     .sidebar-subnav > li > a:hover,
     .sidebar-subnav > li > .nav-item:hover {
-        color: <?= config_item('sidebar_active_color').$im?>;
+        color: var(--th-sidebar-active-txt)<?= $im ?>;
     }
 
     .sidebar-subnav > li.active > a,
     .sidebar-subnav > li.active > .nav-item {
-        color: <?= config_item('sidebar_active_color').$im?>;
+        color: var(--th-sidebar-active-txt)<?= $im ?>;
     }
 
     .sidebar-subnav > li.active > a:after,
     .sidebar-subnav > li.active > .nav-item:after {
-        border-color: <?= config_item('sidebar_active_color').$im?>;
+        border-color: var(--th-sidebar-active-txt)<?= $im ?>;
         /*background-color: #2b957a;*/
     }
 
@@ -183,8 +208,8 @@ if ($uri == 'theme') {
     .nav-pills > li.active > a,
     .nav-pills > li.active > a:hover,
     .nav-pills > li.active > a:focus, li.user-header {
-        background-color: <?= config_item('active_background').$im?>;
-        color: <?= config_item('active_color').$im?>;
+        background-color: var(--th-active-bg)<?= $im ?>;
+        color: var(--th-active-fg)<?= $im ?>;
     }
 
     .pinned li.nav-heading .badge {
@@ -192,38 +217,42 @@ if ($uri == 'theme') {
         padding: 3px 6px;
         margin-top: 2px;
         border-radius: 10px;
-        background-color: <?= config_item('active_background').$im?>;
+        background-color: var(--th-active-bg)<?= $im ?>;
     }
 
     .panel-custom .panel-heading {
-        border-bottom: 2px solid<?= config_item('top_bar_background')?>;
+        border-bottom: 2px solid var(--c-topbar-bg);
     }
 
     .custom-bg, .fc-state-default {
-        background: <?= config_item('top_bar_background')?>;
-        color: <?= config_item('top_bar_color').$im?>;
+        background: var(--c-topbar-bg);
+        color: var(--c-topbar-fg)<?= $im ?>;
     }
 
     .nav-tabs > li.active > a {
-        border-top: 2px solid<?= config_item('top_bar_background')?>;;
+        border-top: 2px solid var(--c-topbar-bg);
     }
 
     .timeline-2, .timeline-2 .time-item:after, .time-item, .time-item:after {
-        border-color: <?= config_item('top_bar_background')?>;;
+        border-color: var(--c-topbar-bg);
     }
 
     .sub-active {
-        border-left-color: <?= config_item('top_bar_background')?>;
+        border-left-color: var(--c-topbar-bg);
     }
-    
+
     <?php
     if (!empty(config_item('sidebar_font_size'))){
         ?>
+    :root {
+        --th-sidebar-font-size: <?= config_item('sidebar_font_size') ?>px;
+    }
+
     .sidebar .nav > li > a,
     .sidebar .nav > li > .nav-item {
-        font-size: <?= config_item('sidebar_font_size').'px !important'?>;
+        font-size: var(--th-sidebar-font-size) !important;
     }
-    
+
     <?php
 }
 ?>
