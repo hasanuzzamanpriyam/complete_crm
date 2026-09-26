@@ -124,7 +124,8 @@ git add assets/css/tokens.css
 git commit -m "A1-1: add design token file (Refined dense direction)"
 ```
 
-**Verify:** `tokens.css` is valid CSS and contains the 14 token groups above.
+**Verify:** `tokens.css` is valid CSS and byte-identical to the block above — **11 comment
+groups, 65 variable declarations** (the earlier "14 token groups" count was wrong).
 **Effort:** S
 
 ---

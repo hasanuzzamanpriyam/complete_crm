@@ -1,0 +1,94 @@
+/* =============================================================
+   TIC CRM — Design Tokens
+   Direction: Refined dense (Linear/Vercel-inspired)
+   Single source of truth. Do not hardcode these values elsewhere.
+   ============================================================= */
+
+:root {
+  /* ---------- brand / accent (teal, modernised) ---------- */
+  --c-accent:          #0d9488;
+  --c-accent-hover:    #0f766e;
+  --c-accent-active:   #115e59;
+  --c-accent-subtle:   #ecfdf9;
+  --c-accent-border:   #99f6e4;
+  --c-on-accent:       #ffffff;
+
+  /* ---------- status ---------- */
+  --c-success:         #0f9b6c;
+  --c-success-subtle:  #ecfdf5;
+  --c-success-border:  #a7f3d0;
+  --c-warning:         #d97706;
+  --c-warning-subtle:  #fffbeb;
+  --c-warning-border:  #fde68a;
+  --c-danger:          #dc2626;
+  --c-danger-hover:    #b91c1c;
+  --c-danger-subtle:   #fef2f2;
+  --c-danger-border:   #fecaca;
+  --c-info:            #2563eb;
+  --c-info-subtle:     #eff6ff;
+  --c-info-border:     #bfdbfe;
+
+  /* ---------- surfaces ---------- */
+  --c-bg:              #f7f8fa;
+  --c-surface:         #ffffff;
+  --c-surface-2:       #f1f3f5;
+  --c-surface-3:       #e9ecef;
+  --c-border:          #e3e6ea;
+  --c-border-strong:   #d0d5dd;
+  --c-overlay:         rgb(16 24 40 / 55%);
+
+  /* ---------- text ---------- */
+  --c-text:            #1a1d21;
+  --c-text-2:          #4a5058;
+  --c-text-3:          #7a828c;
+  --c-text-inverse:    #ffffff;
+
+  /* ---------- sidebar (dark, refined) ---------- */
+  --c-sidebar-bg:      #14181c;
+  --c-sidebar-bg-2:    #1c2126;
+  --c-sidebar-text:    #b6bdc6;
+  --c-sidebar-text-hi: #ffffff;
+  --c-sidebar-active:  #0d9488;
+  --c-sidebar-border:  #262c33;
+
+  /* ---------- spacing scale ---------- */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+  --sp-8: 64px;
+
+  /* ---------- radius ---------- */
+  --r-sm: 4px;
+  --r-md: 6px;
+  --r-lg: 10px;
+  --r-full: 999px;
+
+  /* ---------- elevation (subtle; dense UI needs almost none) ---------- */
+  --sh-1: 0 1px 2px rgb(16 24 40 / 5%);
+  --sh-2: 0 2px 6px rgb(16 24 40 / 7%);
+  --sh-3: 0 8px 24px rgb(16 24 40 / 10%);
+
+  /* ---------- typography ---------- */
+  --fs-xs: 11px;
+  --fs-sm: 12px;
+  --fs-base: 14px;
+  --fs-lg: 16px;
+  --fs-xl: 20px;
+  --fs-2xl: 26px;
+  --lh-tight: 1.25;
+  --lh-normal: 1.5;
+
+  /* ---------- density (Refined dense: compact controls) ---------- */
+  --h-control:    34px;
+  --h-control-sm: 28px;
+  --row-h:        40px;
+
+  /* ---------- motion ---------- */
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --ease: cubic-bezier(.4, 0, .2, 1);
+}
