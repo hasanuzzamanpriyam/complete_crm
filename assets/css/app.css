@@ -59,12 +59,24 @@
   content: "\f07c";
 }
 
-*:focus {
-  outline: 0 !important;
+/* Focus ring: the legacy rules here removed all focus indication
+   (`*:focus { outline: 0 !important }` / `a { outline: none !important }`).
+   Keyboard users now get a visible ring on every interactive element. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible,
+.btn:focus-visible,
+.form-control:focus-visible {
+  outline: 2px solid var(--c-accent) !important;
+  outline-offset: 2px;
 }
 
-a {
-  outline: none !important;
+a:focus:not(:focus-visible),
+button:focus:not(:focus-visible) {
+  outline: none;
 }
 
 a.text-muted:hover,
@@ -594,14 +606,49 @@ fieldset .form-group {
  ========================================================================== */
 body {
   font-family: "Source Sans Pro", sans-serif;
-  color: #656565;
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-size: var(--fs-base);
+  line-height: var(--lh-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 h1,
 h2,
 h3,
-h4 {
-  font-weight: bold;
+h4,
+h5,
+h6 {
+  font-weight: 600;
+  letter-spacing: -.01em;
+  line-height: var(--lh-tight);
+  color: var(--c-text);
+}
+
+h1 { font-size: var(--fs-2xl); }
+h2 { font-size: var(--fs-xl); }
+h3 { font-size: var(--fs-lg); }
+h4,
+h5,
+h6 { font-size: var(--fs-base); }
+
+/* Muted text: Bootstrap's .text-muted and the legacy default both land here. */
+.text-muted,
+.text-fade {
+  color: var(--c-text-3) !important;
+}
+
+a {
+  color: var(--c-accent);
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease);
+}
+
+a:hover,
+a:focus {
+  color: var(--c-accent-hover);
+  text-decoration: underline;
 }
 
 /* ========================================================================
@@ -683,7 +730,7 @@ body {
   height: 100%;
   margin-left: 0;
   /*z-index: 111;*/
-  background-color: #f5f7fa;
+  background-color: var(--c-bg);
   margin-bottom: 60px !important;
 }
 
