@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/plugins/fontawesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/toastr.min.css">
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/bootstrap.min.css" id="bscss">
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/tokens.css">
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/app.min.css?v=2" id="maincss">
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/booking.css?v=<?php echo filemtime(FCPATH . 'assets/css/booking.css'); ?>">
 

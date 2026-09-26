@@ -19,6 +19,7 @@
     <!-- =============== BOOTSTRAP STYLES ===============-->
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/bootstrap.min.css" id="bscss">
     <!-- =============== APP STYLES ===============-->
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/tokens.css">
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/app.min.css?v=2" id="maincss">
 
     <!-- JQUERY-->

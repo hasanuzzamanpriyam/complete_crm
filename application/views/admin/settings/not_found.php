@@ -7,7 +7,8 @@
 <!-- =============== BOOTSTRAP STYLES ===============-->
 <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/bootstrap.css" id="bscss">
 <!-- =============== APP STYLES ===============-->
-<link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/app.css" id="maincss">
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/tokens.css">
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/app.css" id="maincss">
 <div class="row">
     <div class="col-lg-12">
         <div class="wrapper">

@@ -33,6 +33,8 @@
     }
     
     ?>
+    <!-- =============== DESIGN TOKENS (must precede app.css) ===============-->
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/tokens.css">
     <?php
     if (!empty($RTL)) {
         ?>

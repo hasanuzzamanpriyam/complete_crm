@@ -1,4 +1,4 @@
-# Part A · A1 — Design Tokens
+﻿# Part A · A1 — Design Tokens
 
 > **For agentic workers:** REQUIRED SUB-SKILL: use superpowers:subagent-driven-development
 > (recommended) or superpowers:executing-plans. Steps use checkbox (`- [ ]`) syntax.
@@ -114,10 +114,10 @@ values approved in the Part A README — do not substitute.
 }
 ```
 
-- [ ] **Step 1: Create the file with the content above**
-- [ ] **Step 2: Verify it parses** — open it in a browser via the app, or run a CSS linter.
+- [x] **Step 1: Create the file with the content above**
+- [x] **Step 2: Verify it parses** — open it in a browser via the app, or run a CSS linter.
       There must be no unclosed brace.
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```powershell
 git add assets/css/tokens.css
@@ -134,7 +134,7 @@ groups, 65 variable declarations** (the earlier "14 token groups" count was wron
 
 The token file must load **before** `app.css` so `app.css` can consume the variables.
 
-- [ ] **Step 1: Insert the link in the admin shell**
+- [x] **Step 1: Insert the link in the admin shell**
 
 In `application/views/admin/components/htmlheader.php`, immediately **before** line 45
 (`app.css?v=2`), insert:
@@ -143,16 +143,28 @@ In `application/views/admin/components/htmlheader.php`, immediately **before** l
 <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/tokens.css">
 ```
 
-- [ ] **Step 2: Insert the same link in the 3 remaining shells**
+- [x] **Step 2: Insert the same link in the remaining shells**
 
-| Shell | File | Insert before |
+> **Plan corrected 2026-09-26.** The original table listed four files
+> (`client/components/htmlheader.php`, `frontend/components/htmlheader.php`) that **do not
+> exist**. The client and frontend layouts both start with
+> `$this->load->view('admin/components/htmlheader')`, so they inherit one insertion. The real
+> set is **6 files / 6 one-line insertions** — all before their `app.css` link:
+
+| Shell | File | Notes |
 |---|---|---|
-| Admin RTL | `application/views/admin/components/htmlheader.php` | the `app-rtl.min.css` link (line 40) |
-| Client | `application/views/client/components/htmlheader.php` | its `app.css` link |
-| Frontend | `application/views/frontend/components/htmlheader.php` | its `app.css` link |
-| Booking | `application/views/booking/_layout_main.php` | its `app.css` link |
+| Admin + RTL + Client + Frontend | `application/views/admin/components/htmlheader.php` | inserted before the `if (!empty($RTL))` branch, so it precedes **both** `app-rtl.min.css` and `app.css` |
+| Booking | `application/views/booking/_layout_main.php` | before `app.min.css` |
+| Login | `application/views/login.php` | standalone head, before `app.min.css` |
+| Lock screen | `application/views/login/lock_screen.php` | before `app.css` |
+| Lead form | `application/views/forms/lead_form.php` | before `app.min.css` |
+| 404 page | `application/views/admin/settings/not_found.php` | before `app.css` |
 
-- [ ] **Step 3: Verify load order in the rendered HTML**
+The last four were **not in the original plan** but are required: each links `app.css` without
+including `htmlheader.php`, so once A2 makes `app.css` consume `var(...)`, those pages would
+render unstyled declarations without the token link.
+
+- [x] **Step 3: Verify load order in the rendered HTML**
 
 ```powershell
 composer smoke
@@ -160,7 +172,7 @@ composer smoke
 
 Then open any admin page, view source, and confirm `tokens.css` appears **before** `app.css`.
 
-- [ ] **Step 4: Confirm the tokens are live** — open the browser console on any admin page:
+- [x] **Step 4: Confirm the tokens are live** — open the browser console on any admin page:
 
 ```js
 getComputedStyle(document.documentElement).getPropertyValue('--c-accent').trim()
@@ -180,7 +192,7 @@ git commit -m "A1-2: load tokens.css in all 4 layout shells"
 
 > This is the **only** PHP touched in Part A. Every other Part A task is CSS-only.
 
-**Verify:** console returns `#0d9488`; `composer smoke` still 20/20; no 404 for `tokens.css`.
+**Verify:** console returns `#0d9488`; `composer smoke` still 22/22; no 404 for `tokens.css`.
 **Effort:** S
 
 ---
