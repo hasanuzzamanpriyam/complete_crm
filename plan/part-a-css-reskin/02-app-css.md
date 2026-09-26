@@ -1,0 +1,682 @@
+# Part A · A2 — Restyle `app.css`
+
+> **For agentic workers:** REQUIRED SUB-SKILL: use superpowers:subagent-driven-development
+> (recommended) or superpowers:executing-plans. Steps use checkbox (`- [ ]`) syntax.
+
+**Goal:** restyle the 155 KB theme file section by section to the Refined dense direction.
+
+**Why split into 12:** `app.css` is 6,600+ lines in 32 sections. One commit for the whole file
+would be unreviewable and unrevertable. Each task below is one section group, one commit.
+
+**Universal rules for every task in this file:**
+- Only edit `assets/css/app.css`. No other file.
+- Every new value must come from a `var(--…)` token. No new hardcoded hex.
+- Do not rename any class — markup in 885 views depends on the current names.
+- After each task: `composer smoke`, then re-screenshot the affected baseline pages, then commit.
+
+---
+
+## A2-1 — Base and typography
+
+**Sections:** the first block (lines ~1–590) — reset, body, headings, links, fonts, helpers.
+
+- [ ] **Step 1: Set the page background and base type**
+
+```css
+body {
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-size: var(--fs-base);
+  line-height: var(--lh-normal);
+  -webkit-font-smoothing: antialiased;
+}
+```
+
+- [ ] **Step 2: Tighten the heading scale**
+
+`h1`–`h6` currently use the default Bootstrap scale, which is too large for a dense UI:
+
+```css
+h1 { font-size: var(--fs-2xl); font-weight: 600; letter-spacing: -.01em; }
+h2 { font-size: var(--fs-xl);  font-weight: 600; letter-spacing: -.01em; }
+h3 { font-size: var(--fs-lg);  font-weight: 600; }
+h4, h5, h6 { font-size: var(--fs-base); font-weight: 600; }
+```
+
+- [ ] **Step 3: Modernise link colour**
+
+```css
+a { color: var(--c-accent); text-decoration: none; transition: color var(--dur-fast) var(--ease); }
+a:hover, a:focus { color: var(--c-accent-hover); text-decoration: underline; }
+```
+
+- [ ] **Step 4: Add a visible focus ring globally**
+
+This is the single biggest accessibility improvement available without touching markup:
+
+```css
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+```
+
+- [ ] **Step 5: Replace `.text-muted` and muted text defaults with `--c-text-3`**
+- [ ] **Step 6: Verify + commit**
+
+```powershell
+composer smoke
+git add assets/css/app.css
+git commit -m "A2-1: base and typography to Refined dense"
+```
+
+**Verify:** body background is `#f7f8fa`; headings visibly smaller; tabbing shows a focus ring.
+**Effort:** M
+
+---
+
+## A2-2 — Panels to cards (visual only)
+
+**Important:** Bootstrap 3 **class names stay**. `panel` is still `panel` in all 885 views. You
+are changing only the visual treatment.
+
+- [ ] **Step 1: Restyle the panel shell**
+
+```css
+.panel {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-1);
+  margin-bottom: var(--sp-5);
+}
+
+.panel-heading {
+  padding: var(--sp-3) var(--sp-4);
+  border-bottom: 1px solid var(--c-border);
+  background: transparent;          /* was a grey gradient */
+  border-top-left-radius: var(--r-lg);
+  border-top-right-radius: var(--r-lg);
+  font-weight: 600;
+  font-size: var(--fs-base);
+}
+
+.panel-body { padding: var(--sp-4); }
+
+.panel-footer {
+  padding: var(--sp-3) var(--sp-4);
+  border-top: 1px solid var(--c-border);
+  background: var(--c-surface-2);
+  border-bottom-left-radius: var(--r-lg);
+  border-bottom-right-radius: var(--r-lg);
+}
+```
+
+- [ ] **Step 2: Remove the gradient and heavy border from `.panel-default`**
+
+- [ ] **Step 3: Restyle `.panel-custom`** (the first-party variant, 780 uses)
+
+Give it the same shell but keep it visually distinct with a left accent edge:
+
+```css
+.panel-custom { border-left: 3px solid var(--c-accent); }
+```
+
+- [ ] **Step 4: Handle nested panels** — a `.panel` inside `.panel-body` should have
+      `--r-md`, no outer shadow, and a lighter border so nesting reads clearly
+- [ ] **Step 5: Verify + commit**
+
+```powershell
+composer smoke
+git commit -m "A2-2: panels to card-style surfaces"
+```
+
+**Verify:** dashboard and invoice detail show rounded, bordered, shadowed cards — no gradients,
+no doubled radii on nested panels.
+**Effort:** M
+
+---
+
+## A2-3 — Buttons ⭐ highest visual impact
+
+This single task does the most for "modern and attractive". Do it carefully.
+
+- [ ] **Step 1: Base button**
+
+```css
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-1);
+  height: var(--h-control);
+  padding: 0 var(--sp-3);
+  font-size: var(--fs-base);
+  font-weight: 500;
+  line-height: 1;
+  border-radius: var(--r-md);
+  border: 1px solid transparent;
+  transition: background-color var(--dur-fast) var(--ease),
+              border-color var(--dur-fast) var(--ease),
+              box-shadow var(--dur-fast) var(--ease);
+  box-shadow: none;
+}
+```
+
+- [ ] **Step 2: Sizes**
+
+```css
+.btn-lg    { height: 40px; padding: 0 var(--sp-4); font-size: var(--fs-lg); }
+.btn-sm, .btn-xs { height: var(--h-control-sm); padding: 0 var(--sp-2); font-size: var(--fs-sm); }
+```
+
+> `btn-xs` still exists in the markup — restyle it, do not remove it. Part B renames it.
+
+- [ ] **Step 3: Primary, default and the status variants**
+
+```css
+.btn-primary {
+  background: var(--c-accent); border-color: var(--c-accent); color: var(--c-on-accent);
+}
+.btn-primary:hover, .btn-primary:focus {
+  background: var(--c-accent-hover); border-color: var(--c-accent-hover);
+}
+
+.btn-default {
+  background: var(--c-surface); border-color: var(--c-border-strong); color: var(--c-text);
+}
+.btn-default:hover { background: var(--c-surface-2); border-color: var(--c-text-3); }
+
+.btn-success { background: var(--c-success); border-color: var(--c-success); color: var(--c-on-accent); }
+.btn-danger  { background: var(--c-danger);  border-color: var(--c-danger);  color: var(--c-on-accent); }
+.btn-warning { background: var(--c-warning); border-color: var(--c-warning); color: var(--c-on-accent); }
+.btn-info    { background: var(--c-info);    border-color: var(--c-info);    color: var(--c-on-accent); }
+```
+
+- [ ] **Step 4: Outlines and subtle variants** — `.btn-default` as a subtle fill, plus an
+      outline style for secondary actions:
+
+```css
+.btn-outline { background: transparent; border-color: var(--c-border-strong); color: var(--c-text-2); }
+.btn-outline:hover { background: var(--c-surface-2); color: var(--c-text); }
+```
+
+- [ ] **Step 5: Icon buttons and the `.close` control**
+
+```css
+.btn .fa, .btn .fas { font-size: .9em; }
+.close {
+  opacity: .5; font-weight: 400; text-shadow: none;
+  transition: opacity var(--dur-fast) var(--ease);
+}
+.close:hover { opacity: 1; }
+```
+
+- [ ] **Step 6: Verify + commit**
+
+```powershell
+composer smoke
+git commit -m "A2-3: restyle button family to dense system"
+```
+
+**Verify:** all button states look correct on login, dashboard, and an invoice list.
+**Effort:** M
+
+---
+
+## A2-4 — Forms and inputs
+
+- [ ] **Step 1: Input, select, textarea base**
+
+```css
+.input-group-addon,
+.form-control,
+.form-control-static {
+  height: var(--h-control);
+  font-size: var(--fs-base);
+  color: var(--c-text);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border-strong);
+  border-radius: var(--r-md);
+  box-shadow: none;
+  transition: border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+}
+
+.form-control:focus, .input-group-addon:focus {
+  border-color: var(--c-accent);
+  box-shadow: 0 0 0 3px var(--c-accent-subtle);
+  outline: none;
+}
+```
+
+- [ ] **Step 2: Placeholder and disabled states**
+
+```css
+.form-control::placeholder { color: var(--c-text-3); }
+.form-control[disabled], .form-control[readonly] {
+  background: var(--c-surface-2); color: var(--c-text-3); cursor: not-allowed;
+}
+```
+
+- [ ] **Step 3: Validation states** — map the existing `.has-error` / `.has-success` wrappers
+      (BS3 style) to the token colours:
+
+```css
+.has-error .form-control     { border-color: var(--c-danger); }
+.has-error .help-block        { color: var(--c-danger); }
+.has-success .form-control    { border-color: var(--c-success); }
+.has-success .help-block      { color: var(--c-success); }
+```
+
+- [ ] **Step 4: Labels and help text**
+
+```css
+label { font-weight: 500; color: var(--c-text-2); margin-bottom: var(--sp-1); }
+.help-block { color: var(--c-text-3); font-size: var(--fs-sm); margin-top: var(--sp-1); }
+```
+
+- [ ] **Step 5: Checkboxes and radios** — restyle `.checkbox` / `.radio` / `.c-radio` only.
+      **Do not restructure the markup** — Part B does that (see `SF-2`).
+
+```css
+.checkbox, .radio { margin: 0 var(--sp-4) var(--sp-2) 0; }
+.checkbox label, .radio label { font-weight: 400; color: var(--c-text); }
+input[type="checkbox"], input[type="radio"] { accent-color: var(--c-accent); }
+```
+
+- [ ] **Step 6: Select2 and datepicker** — restyle via their containers so the third-party
+      widgets inherit the token look:
+
+```css
+.select2-container .select2-selection--single { height: var(--h-control); border-color: var(--c-border-strong); border-radius: var(--r-md); }
+.select2-container--default .select2-selection--single .select2-selection__rendered { line-height: calc(var(--h-control) - 2px); color: var(--c-text); }
+```
+
+- [ ] **Step 7: Verify + commit**
+
+```powershell
+composer smoke
+git commit -m "A2-4: restyle form controls"
+```
+
+**Verify:** open a settings form and a create-invoice form. Fields align, focus ring is visible,
+Select2 and datepicker match.
+**Effort:** M
+
+---
+
+## A2-5 — Badges and labels
+
+BS3 `.label-*` is used as a status badge in 476 places. Restyle in place.
+
+```css
+.label {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px var(--sp-2);
+  font-size: var(--fs-sm); font-weight: 500; line-height: 1.5;
+  border-radius: var(--r-full);
+}
+
+.label-primary   { background: var(--c-accent-subtle);   color: var(--c-accent-hover); }
+.label-success   { background: var(--c-success-subtle);  color: var(--c-success); }
+.label-info      { background: var(--c-info-subtle);     color: var(--c-info); }
+.label-warning   { background: var(--c-warning-subtle);  color: var(--c-warning); }
+.label-danger    { background: var(--c-danger-subtle);   color: var(--c-danger); }
+.label-default, .label-inverse { background: var(--c-surface-3); color: var(--c-text-2); }
+```
+
+Soft backgrounds with strong text — the current solid saturated chips are the loudest dated
+element in the app.
+
+- [ ] **Step 1: Apply the block above**
+- [ ] **Step 2: Verify + commit**
+
+```powershell
+composer smoke
+git commit -m "A2-5: restyle status badges to soft chips"
+```
+
+**Verify:** invoice statuses and project states read as subtle chips, not saturated blocks.
+**Effort:** S
+
+---
+
+## A2-6 — Tables and DataTables chrome
+
+- [ ] **Step 1: Table base**
+
+```css
+.table { border-color: var(--c-border); }
+.table > thead > tr > th {
+  background: var(--c-surface-2);
+  border-bottom: 1px solid var(--c-border);
+  color: var(--c-text-2);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  padding: var(--sp-2) var(--sp-3);
+  white-space: nowrap;
+}
+.table > tbody > tr > td { padding: var(--sp-2) var(--sp-3); border-color: var(--c-border); }
+.table-hover > tbody > tr:hover > td { background: var(--c-surface-2); }
+.table-striped > tbody > tr:nth-of-type(odd) > td { background: var(--c-surface-2); }
+```
+
+- [ ] **Step 2: Row height** — set a consistent dense row height on `td`:
+
+```css
+.table > tbody > tr > td { height: var(--row-h); }
+```
+
+- [ ] **Step 3: DataTables controls** — the BS3 integration renders `col-xs-6` cells; keep the
+      layout but restyle the chrome:
+
+```css
+.dataTables_wrapper .row { margin-bottom: var(--sp-3); }
+.dataTables_wrapper .dataTables_filter input,
+.dataTables_wrapper .dataTables_length select {
+  height: var(--h-control); border-color: var(--c-border-strong);
+  border-radius: var(--r-md); font-size: var(--fs-base);
+}
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_length label,
+.dataTables_wrapper .dataTables_filter label { color: var(--c-text-3); font-size: var(--fs-sm); }
+```
+
+> Do **not** change the `col-xs-*` classes — that is `CM-3` in Part B.
+
+- [ ] **Step 4: Verify + commit**
+
+```powershell
+composer smoke
+git commit -m "A2-6: restyle tables and DataTables chrome"
+```
+
+**Verify:** clients list, invoices list, and reports all show the dense table style; search,
+length selector and pagination still work.
+**Effort:** M
+
+---
+
+## A2-7 — Sidebar
+
+- [ ] **Step 1: Sidebar shell**
+
+```css
+.sidebar,
+.left_side_bar { background: var(--c-sidebar-bg); border-right: 1px solid var(--c-sidebar-border); }
+
+.sidebar .nav > li > a {
+  color: var(--c-sidebar-text);
+  padding: var(--sp-2) var(--sp-4);
+  font-size: var(--fs-base);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.sidebar .nav > li > a:hover { background: var(--c-sidebar-bg-2); color: var(--c-sidebar-text-hi); }
+.sidebar .nav > li.active > a,
+.sidebar .nav > li > a.active {
+  background: var(--c-sidebar-active);
+  color: var(--c-sidebar-text-hi);
+  font-weight: 500;
+}
+```
+
+- [ ] **Step 2: Section headers** — `.nav-header` / `.sidebar-group` get uppercase micro-labels:
+
+```css
+.sidebar .nav-header {
+  padding: var(--sp-4) var(--sp-4) var(--sp-1);
+  font-size: var(--fs-xs); font-weight: 600; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--c-text-3);
+}
+```
+
+- [ ] **Step 3: Icon alignment** — give nav icons a fixed width so labels line up:
+
+```css
+.sidebar .nav > li > a > .fa,
+.sidebar .nav > li > a > .fas { width: 20px; text-align: center; margin-right: var(--sp-2); }
+```
+
+- [ ] **Step 4: Verify + commit**
+
+```powershell
+composer smoke
+git commit -m "A2-7: restyle sidebar to dense dark system"
+```
+
+**Verify:** sidebar is dark, the active item is a clear teal pill, group headers read as
+micro-labels, icons align in a column.
+**Effort:** M
+
+---
+
+## A2-8 — Top bar
+
+```css
+.navbar-default { background: var(--c-surface); border-bottom: 1px solid var(--c-border); min-height: var(--h-control); }
+.navbar-default .navbar-nav > li > a { color: var(--c-text-2); transition: color var(--dur-fast) var(--ease); }
+.navbar-default .navbar-nav > li > a:hover { color: var(--c-text); background: transparent; }
+.navbar-default .navbar-brand { font-weight: 600; color: var(--c-text); height: auto; padding: var(--sp-3) var(--sp-4); }
+.navbar-default .navbar-toggle { border-color: var(--c-border); border-radius: var(--r-md); }
+```
+
+- [ ] **Step 1: Apply the block above**
+- [ ] **Step 2: Restyle the topbar's own background rules** — the current topbar is
+      `rgba(2,53,60,.95)`; keep it dark or switch to white per the A2-1 direction. **Decision:**
+      keep it dark (`--c-sidebar-bg`) so the sidebar and topbar read as one frame.
+- [ ] **Step 3: Notification badge** — restyle `.label` inside the topbar to `--c-danger`
+- [ ] **Step 4: Verify + commit**
+
+```powershell
+composer smoke
+git commit -m "A2-8: restyle top bar"
+```
+
+**Verify:** topbar and sidebar form one continuous dark frame; navbar collapses correctly below
+the Bootstrap 3 breakpoint.
+**Effort:** S
+
+---
+
+## A2-9 — Modals
+
+**Critical:** Bootstrap 3 modal **markup and JS stay exactly as they are**. Only the visuals change.
+
+```css
+.modal-content {
+  border: none;
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-3);
+  background: var(--c-surface);
+}
+.modal-header {
+  padding: var(--sp-4);
+  border-bottom: 1px solid var(--c-border);
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+}
+.modal-title { font-size: var(--fs-lg); font-weight: 600; }
+.modal-body { padding: var(--sp-4); }
+.modal-footer {
+  padding: var(--sp-3) var(--sp-4);
+  border-top: 1px solid var(--c-border);
+  background: var(--c-surface-2);
+  border-radius: 0 0 var(--r-lg) var(--r-lg);
+}
+.modal-backdrop { background: var(--c-overlay); }
+```
+
+- [ ] **Step 1: Apply the block above**
+- [ ] **Step 2: Verify modals still open and close** — this is the task most likely to break
+      something, because `.modal` positioning comes from Bootstrap 3's own CSS, not `app.css`.
+      If modals fail to open, **revert this task immediately**; it means a rule in `app.css`
+      is overriding `.modal`'s `display` or `position`.
+- [ ] **Step 3: Verify + commit**
+
+```powershell
+composer smoke
+git commit -m "A2-9: restyle modals"
+```
+
+**Verify:** open 5 different modals (add client, add invoice payment, edit item, confirm delete,
+a `_modal_` partial). Each opens centred, scrolls internally, and closes via ×, Cancel and
+backdrop.
+**Effort:** M
+
+---
+
+## A2-10 — Tabs, nav, pagination, breadcrumbs
+
+- [ ] **Step 1: Tabs**
+
+```css
+.nav-tabs { border-bottom-color: var(--c-border); }
+.nav-tabs > li > a {
+  color: var(--c-text-2); border: none; border-bottom: 2px solid transparent;
+  padding: var(--sp-3) var(--sp-4); font-weight: 500;
+  transition: color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+}
+.nav-tabs > li.active > a,
+.nav-tabs > li:hover > a { color: var(--c-accent); border-bottom-color: var(--c-accent); background: transparent; }
+.tab-content { padding: var(--sp-4) 0; }
+```
+
+- [ ] **Step 2: Sidebar-style vertical nav** (`.nav-stacked`, used by `tabs.php`)
+
+```css
+.nav-stacked > li > a { border-radius: var(--r-md); padding: var(--sp-2) var(--sp-3); color: var(--c-text-2); }
+.nav-stacked > li.active > a { background: var(--c-accent-subtle); color: var(--c-accent-hover); font-weight: 500; }
+```
+
+- [ ] **Step 3: Pagination**
+
+```css
+.pagination > li > a, .pagination > li > span {
+  color: var(--c-text-2); border-color: var(--c-border);
+  padding: var(--sp-2) var(--sp-3); border-radius: var(--r-md); margin: 0 2px;
+}
+.pagination > .active > a { background: var(--c-accent); border-color: var(--c-accent); color: var(--c-on-accent); }
+.pagination > li > a:hover { background: var(--c-surface-2); color: var(--c-text); }
+```
+
+- [ ] **Step 4: Breadcrumbs** (from `application/libraries/Breadcrumbs.php`)
+
+```css
+.breadcrumb { background: transparent; padding: 0; margin-bottom: var(--sp-2); font-size: var(--fs-sm); }
+.breadcrumb > li > a { color: var(--c-text-3); }
+.breadcrumb > li.active { color: var(--c-text-2); }
+.breadcrumb li + li::before { content: "/"; color: var(--c-text-3); padding: 0 var(--sp-2); }
+```
+
+- [ ] **Step 5: Verify + commit**
+
+```powershell
+composer smoke
+git commit -m "A2-10: restyle tabs, nav, pagination, breadcrumbs"
+```
+
+**Verify:** open a client detail page (tabs), a project detail (vertical nav), any list with
+pagination, and any page with breadcrumbs.
+**Effort:** M
+
+---
+
+## A2-11 — Alerts and toasts
+
+- [ ] **Step 1: Alerts**
+
+```css
+.alert { border-radius: var(--r-md); border: 1px solid; padding: var(--sp-3) var(--sp-4); font-size: var(--fs-base); }
+.alert-success { background: var(--c-success-subtle); border-color: var(--c-success-border); color: var(--c-success); }
+.alert-info    { background: var(--c-info-subtle);    border-color: var(--c-info-border);    color: var(--c-info); }
+.alert-warning { background: var(--c-warning-subtle); border-color: var(--c-warning-border); color: var(--c-warning); }
+.alert-danger  { background: var(--c-danger-subtle);  border-color: var(--c-danger-border);  color: var(--c-danger); }
+```
+
+- [ ] **Step 2: Toastr** — restyle via its own CSS variables, **not** by editing
+      `toastr.min.css`:
+
+```css
+.toast { border-radius: var(--r-md); box-shadow: var(--sh-2); font-size: var(--fs-base); }
+.toast-success { background: var(--c-success); }
+.toast-error   { background: var(--c-danger); }
+.toast-warning { background: var(--c-warning); }
+.toast-info    { background: var(--c-info); }
+```
+
+- [ ] **Step 3: Verify + commit**
+
+```powershell
+composer smoke
+git commit -m "A2-11: restyle alerts and toasts"
+```
+
+**Verify:** trigger a Toastr message (save a setting) and a BS `.alert` (a form validation error).
+**Effort:** S
+
+---
+
+## A2-12 — Print stylesheet
+
+**Load-bearing:** 63 `window.print()` call sites depend on this.
+
+- [ ] **Step 1: Create `assets/css/print.css`**
+
+```css
+/* TIC CRM — print styles. Used by 63 window.print() call sites. */
+@media print {
+  .sidebar, .left_side_bar, .navbar-default, .topbar,
+  .footer, .hide-print, [class*="hidden-print"] { display: none !important; }
+
+  body { background: #fff !important; color: #000 !important; font-size: 12pt; }
+  .panel { border: 1px solid #999 !important; box-shadow: none !important; page-break-inside: avoid; }
+  .panel-heading { background: #f0f0f0 !important; color: #000 !important; }
+  .panel-body { padding: 8pt !important; }
+
+  table { page-break-inside: auto; width: 100% !important; }
+  tr    { page-break-inside: avoid; page-break-after: auto; }
+  thead { display: table-header-group; }   /* repeat headers on every page */
+  tfoot { display: table-footer-group; }
+
+  a[href]::after { content: " (" attr(href) ")"; font-size: 9pt; color: #555; }
+  .no-print-url a[href]::after { content: ""; }
+}
+```
+
+- [ ] **Step 2: Link it in all 4 shells** — after `tokens.css`:
+
+```html
+<link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/print.css" media="print">
+```
+
+- [ ] **Step 3: Verify + commit**
+
+```powershell
+composer smoke
+git commit -m "A2-12: add print stylesheet"
+```
+
+**Verify:** print-preview 5 of the 63 print pages — an invoice, a payslip, a report, a project
+statement, a client list. Sidebar and topbar must be absent.
+**Effort:** M
+
+---
+
+## Exit gate
+
+- [ ] All 12 tasks committed individually
+- [ ] `composer smoke` 20/20 after every task
+- [ ] Zero hardcoded hex values added to `app.css` — all from tokens
+- [ ] No class renamed
+- [ ] Only `app.css` and `print.css` modified in this phase (plus the 4 shell `<link>` tags)
+- [ ] Baseline screenshots re-captured for all 20 pages
+
+## Tasks: 12 · Completed: 0 · Remaining: 12

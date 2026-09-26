@@ -9,3 +9,6 @@ downloads/*.msi
 downloads/*.zip
 downloads/*.sig
 .freebuff/
+
+# Database dumps - contain live PII, SMTP passwords and gateway API keys
+databases/

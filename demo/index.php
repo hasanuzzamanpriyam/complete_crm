@@ -6,9 +6,11 @@ define('ENVIRONMENT', 'development');
 
 switch (ENVIRONMENT) {
     case 'development':
-        error_reporting(E_ALL);
-        error_reporting(-1);
-        ini_set('error_reporting', E_ALL);
+        // See note in ../index.php - suppress PHP 8.2+ dynamic-property
+        // deprecations raised by the CodeIgniter 3.1.x core.
+        error_reporting(E_ALL & ~E_DEPRECATED);
+        ini_set('error_reporting', E_ALL & ~E_DEPRECATED);
+        ini_set('display_errors', '1');
         break;
     case 'testing':
     case 'production':

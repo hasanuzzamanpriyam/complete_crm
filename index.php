@@ -66,9 +66,13 @@ define('ENVIRONMENT', 'development');
  */
 switch (ENVIRONMENT) {
     case 'development':
-        error_reporting(E_ALL);
-        error_reporting(-1);
-        ini_set('error_reporting', E_ALL);
+        // CodeIgniter 3.1.x predates PHP 8.2, so it assigns undeclared
+        // properties on core classes and every controller. Those raise
+        // E_DEPRECATED on every request, which floods the page with error
+        // boxes. Keep every other diagnostic level enabled.
+        error_reporting(E_ALL & ~E_DEPRECATED);
+        ini_set('error_reporting', E_ALL & ~E_DEPRECATED);
+        ini_set('display_errors', '1');
         break;
     case 'testing':
     case 'production':
