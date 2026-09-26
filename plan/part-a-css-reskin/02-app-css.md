@@ -21,7 +21,7 @@ Verified by extracting the selectors actually present in each section, not by na
 | **A2-3** buttons | 1 *(`.btn` only)*, **29** | `.btn` L159, `.btn-inverse` | 159–~230, 5780–6270 |
 | **A2-4** forms/inputs | 20, 21, 22, 23, 24 | `.c-radio`, `.parsley-*`, `.tagator-*`, `.tabcontrol` | 3849–4817 |
 | **A2-5** badges/labels | 1 *(`.label-*`)*, 11 *(labels/alerts)*, **14** | `.label-inverse` L3066, `.label-green`, `.circle-*` | 3066–3130, 3401–3497 |
-| **A2-6** tables/charts | 25, 26, **27**, **28**, **30** | `.dataTables_*`, `.table`, `.ui-jqgrid`, `.easypiechart`, `.flot-chart` | 4818–5779, 6271–6630 |
+| **A2-6** tables/charts | 25, 26, **27**, **28**, **30**, 1 *(`.progress` only)* | `.dataTables_*`, `.table`, `.ui-jqgrid`, `.easypiechart`, `.flot-chart`, `.progress` L251 | 4818–5779, 6271–6630 |
 | **A2-7** sidebar | 5, 7, 8, 13 | `.sidebar`, `.offsidebar`, `.user-block` | 1301–1372, 1700–2081, 3313–3400 |
 | **A2-8** top bar | 6 | `.topnavbar` | 1373–1699 |
 | **A2-9** modals | 1 *(`.modal-backdrop`)*, 3 *(`.modal-open`)* | `.modal-backdrop` L581, `.modal-open` L705 | 581, 705 |
@@ -29,7 +29,7 @@ Verified by extracting the selectors actually present in each section, not by na
 | **A2-11** alerts/toasts | 11 *(`.alert-*` region)* | `.alert-css` L3111, `.alert-purple` L3117 | 3111–3130 |
 | **A2-12** print | 12 | `@media print` | 3281–3312 |
 
-> **Section 1 is shared by five tasks** (A2-1, A2-3, A2-5, A2-9, A2-10). They do not overlap
+> **Section 1 is shared by six tasks** (A2-1, A2-3, A2-5, A2-6, A2-9, A2-10). They do not overlap
 > *within* it — each owns a different selector — but they do overlap *in line number*. Because
 > tasks run in order and each edit shifts later lines **every task must locate its target by
 > selector, never by the line number in this table.** Treat the numbers as "it was around here"
@@ -402,6 +402,16 @@ git commit -m "A2-5: restyle status badges to soft chips"
 ---
 
 ## A2-6 — Tables and DataTables chrome
+
+- [ ] **Step 0: Kill the progress-bar stripes (strict flat 2D)**
+
+      Bootstrap's `.progress-striped` / `.progress-bar-striped` and this file's own
+      `.progress-striped .progress-bar-*` blocks (section 1, ~5 gradient blocks incl. the
+      vendor-prefixed variants) paint diagonal stripes — 138 of them on the dashboard alone.
+      Set `background-image: none` on `.progress-striped .progress-bar` /
+      `.progress-bar-striped` and drop the `background-size`/`animation` that only exist to
+      move them. Also flatten Bootstrap's `.progress` well: `box-shadow: none` (it carries an
+      inset shadow) and use `background: var(--c-surface-3)`.
 
 - [ ] **Step 1: Table base**
 

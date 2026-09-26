@@ -113,7 +113,7 @@ hr {
 }
 
 .panel .panel-heading {
-  border-bottom: 0;
+  border-bottom: 1px solid var(--c-border);
   font-size: 14px;
 }
 
@@ -122,7 +122,7 @@ hr {
 }
 
 .panel.panel-default {
-  border-top-width: 3px;
+  border-top-width: 1px;
 }
 
 .well {
@@ -3685,6 +3685,45 @@ h3 > .breadcrumb.pull-right,
 /* ========================================================================
    Component: panels.less
  ========================================================================== */
+/* Flat 2D card shell — overrides Bootstrap's .panel (border + no elevation). */
+.panel {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  box-shadow: none;
+  margin-bottom: var(--sp-5);
+}
+
+.panel > .panel-heading {
+  padding: var(--sp-3) var(--sp-4);
+  border-bottom: 1px solid var(--c-border);
+  background: transparent;
+  border-top-left-radius: var(--r-lg);
+  border-top-right-radius: var(--r-lg);
+  font-weight: 600;
+  font-size: var(--fs-base);
+  color: var(--c-text);
+}
+
+.panel > .panel-body {
+  padding: var(--sp-4);
+}
+
+.panel > .panel-footer {
+  padding: var(--sp-3) var(--sp-4);
+  border-top: 1px solid var(--c-border);
+  background: var(--c-surface-2);
+  border-bottom-left-radius: var(--r-lg);
+  border-bottom-right-radius: var(--r-lg);
+}
+
+/* Nested panels read as inset, not as a second floating card. */
+.panel .panel {
+  border-radius: var(--r-md);
+  box-shadow: none;
+  border-color: var(--c-border);
+}
+
 .panel .table {
   margin-bottom: 0;
   border: 0;
@@ -5254,11 +5293,13 @@ tr.ui-widget-content {
 }
 
 .panel-custom {
-  box-shadow: 0 3px 12px 0 rgba(0, 0, 0, 0.15);
+  box-shadow: none;
+  border-left: 3px solid var(--c-accent);
 }
 
 .panel-custom .panel-heading {
   margin-bottom: 10px;
+  background: transparent;
 }
 
 .nav > li.active {
@@ -6685,8 +6726,9 @@ Component: chart-flot.less
   padding: 0;
   /*max-width: 600px;*/
   list-style: none;
-  font-size: 13px;
+  font-size: var(--fs-sm);
   line-height: 20px;
+  color: var(--c-text);
 }
 
 .dd-list {
@@ -6719,17 +6761,18 @@ Component: chart-flot.less
 
 .dd-handle {
   display: block;
-  margin: 5px 0;
-  padding: 10px 10px;
+  margin: var(--sp-1) 0;
+  padding: var(--sp-2) var(--sp-3);
   text-decoration: none;
-  border: 1px solid #ebebeb;
-  background: #fff;
-  -webkit-border-radius: 3px;
-  border-radius: 3px;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface-2);
+  color: var(--c-text);
+  border-radius: var(--r-sm);
 }
 
 .dd-handle:hover {
-  background: #fff;
+  background: var(--c-surface-3);
+  border-color: var(--c-border-strong);
 }
 
 .dd-item > button {
@@ -6769,19 +6812,19 @@ Component: chart-flot.less
 
 .dd-placeholder,
 .dd-empty {
-  margin: 5px 0;
+  margin: var(--sp-1) 0;
   padding: 0;
   min-height: 30px;
-  background: #f2fbff;
-  border: 1px dashed #b6bcbf;
+  background: var(--c-accent-subtle);
+  border: 1px dashed var(--c-border-strong);
   box-sizing: border-box;
   -moz-box-sizing: border-box;
 }
 
 .dd-empty {
-  border: 1px dashed #bbb;
+  border: 1px dashed var(--c-border-strong);
   min-height: 100px;
-  background-color: #e5e5e5;
+  background-color: var(--c-surface-2);
   background-size: 60px 60px;
   background-position: 0 0, 30px 30px;
 }
@@ -6821,7 +6864,9 @@ Component: chart-flot.less
 }
 
 .dd-hover > .dd-handle {
-  background: #2ea8e5 !important;
+  background: var(--c-accent) !important;
+  border-color: var(--c-accent);
+  color: var(--c-on-accent);
 }
 
 /**
