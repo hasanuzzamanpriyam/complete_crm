@@ -12,3 +12,6 @@ downloads/*.sig
 
 # Database dumps - contain live PII, SMTP passwords and gateway API keys
 databases/
+
+# Browser automation artifacts (session snapshots, not deliverables)
+.playwright-mcp/

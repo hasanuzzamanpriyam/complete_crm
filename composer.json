@@ -12,6 +12,7 @@
     },
     "scripts": {
         "smoke": "php plan/_tools/smoke.php",
-        "smoke:demo": "php plan/_tools/smoke.php --db=demo"
+        "smoke:demo": "php plan/_tools/smoke.php --db=demo",
+        "test:login": "php plan/_tools/login-test.php"
     }
 }

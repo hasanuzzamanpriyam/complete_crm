@@ -156,6 +156,99 @@ if (!empty($login_background[0]) && $login_background[0] == 'image') {
         box-shadow: 0px 0px 28px -9px rgba(0, 0, 0, 0.74);
     }
 
+    /* TimeSync promo — an in-flow card, deliberately NOT a Bootstrap modal.
+       A .modal adds body.modal-open (overflow:hidden, page stops scrolling) and
+       stacks a position:fixed z-index:1050 container over the whole viewport, so
+       clicks aimed at the Sign in button were swallowed by the modal layer. */
+    .tracker-banner {
+        margin: 0 0 20px;
+        padding: 14px 16px;
+        background: #fff;
+        border: 1px solid #e4eaec;
+        border-left: 3px solid #5d9cec;
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
+        text-align: center;
+        color: #515253;
+    }
+
+    .tracker-banner[hidden] {
+        display: none;
+    }
+
+    .tracker-banner-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 6px;
+    }
+
+    .tracker-banner-head strong {
+        font-size: 14px;
+        color: #1e1e2d;
+    }
+
+    .tracker-banner-close {
+        border: 0;
+        background: none;
+        font-size: 20px;
+        line-height: 1;
+        color: #a6a7a9;
+        cursor: pointer;
+        padding: 0 2px;
+    }
+
+    .tracker-banner-close:hover,
+    .tracker-banner-close:focus {
+        color: #515253;
+        outline: none;
+    }
+
+    .tracker-banner p {
+        margin: 0 0 10px;
+        font-size: 13px;
+        color: #777;
+    }
+
+    .tracker-banner-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+
+    .tracker-banner-actions a {
+        flex: 1 1 0;
+        min-width: 0;
+        padding: 8px 4px;
+        border-radius: 3px;
+        font-size: 13px;
+        font-weight: 600;
+        text-align: center;
+        text-decoration: none;
+        color: #fff;
+    }
+
+    .tracker-banner-actions a:hover {
+        opacity: .88;
+    }
+
+    #dl-win   { background: #27c24c; }
+    #dl-mac   { background: #23b7e5; }
+    #dl-linux { background: #ff902b; }
+
+    .tracker-banner .dismiss {
+        margin: 0;
+        font-size: 12px;
+        color: #777;
+    }
+
+    .tracker-banner .dismiss a {
+        color: #5d9cec;
+    }
+
     .apply_jobs {
         position: absolute;
         z-index: 1;
@@ -292,6 +385,32 @@ $type = $this->session->userdata('c_message');
             </div>
         <?php } ?>
             <!-- END panel-->
+            <!-- TimeSync promo. Rendered in normal document flow so it can never
+                 cover or intercept the sign-in form. Hidden until JS confirms the
+                 user has not dismissed it. -->
+            <div id="tracker-download-banner" class="tracker-banner" hidden>
+                <div class="tracker-banner-head">
+                    <strong>Download TimeSync Desktop Tracker</strong>
+                    <button type="button" class="tracker-banner-close"
+                            id="tracker-download-close"
+                            aria-label="Close">&times;</button>
+                </div>
+                <p>Track your time effortlessly with the TimeSync desktop app.</p>
+                <div id="tracker-download-buttons" class="tracker-banner-actions">
+                    <a id="dl-win" href="<?= base_url() ?>api/updates/timesync/download?platform=windows">
+                        Windows<br><small>.exe installer</small>
+                    </a>
+                    <a id="dl-mac" href="<?= base_url() ?>api/updates/timesync/download?platform=macos">
+                        macOS<br><small>.dmg</small>
+                    </a>
+                    <a id="dl-linux" href="<?= base_url() ?>api/updates/timesync/download?platform=linux">
+                        Linux<br><small>.AppImage</small>
+                    </a>
+                </div>
+                <p class="dismiss">
+                    <a href="#" id="tracker-download-dismiss">I already have it &mdash; don't show again</a>
+                </p>
+            </div>
             <div class="p-lg text-center">
                 <span>&copy;</span>
                 <span><a href="<?= config_item('copyright_url') ?>"> <?= config_item('copyright_name') ?></a></span>
@@ -346,51 +465,6 @@ if (!empty($login_position) && $login_position == 'left') {
     <?php } ?>
 </div>
 
-<!-- Tracker Download Modal -->
-<div class="modal fade" id="trackerDownloadModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-                <h4 class="modal-title">Download TimeSync Desktop Tracker</h4>
-            </div>
-            <div class="modal-body text-center">
-                <p class="lead mb-lg">
-                    Track your time effortlessly with the TimeSync desktop app.
-                </p>
-                <div id="tracker-download-buttons" class="row">
-                    <div class="col-sm-4">
-                        <a id="dl-win" class="btn btn-success btn-lg btn-block" href="<?= base_url() ?>api/updates/timesync/download?platform=windows">
-                            <i class="fa fa-windows fa-2x"></i><br>
-                            <span class="h4">Windows</span><br>
-                            <small>.exe installer</small>
-                        </a>
-                    </div>
-                    <div class="col-sm-4">
-                        <a id="dl-mac" class="btn btn-info btn-lg btn-block" href="<?= base_url() ?>api/updates/timesync/download?platform=macos">
-                            <i class="fa fa-apple fa-2x"></i><br>
-                            <span class="h4">macOS</span><br>
-                            <small>.dmg</small>
-                        </a>
-                    </div>
-                    <div class="col-sm-4">
-                        <a id="dl-linux" class="btn btn-warning btn-lg btn-block" href="<?= base_url() ?>api/updates/timesync/download?platform=linux">
-                            <i class="fa fa-linux fa-2x"></i><br>
-                            <span class="h4">Linux</span><br>
-                            <small>.AppImage</small>
-                        </a>
-                    </div>
-                </div>
-                <p class="mt-lg text-muted">
-                    <a href="#" id="tracker-download-dismiss">I already have it &mdash; don't show again</a>
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- =============== VENDOR SCRIPTS ===============-->
 
 <!-- =============== Toastr ===============-->
@@ -403,17 +477,34 @@ if (!empty($login_position) && $login_position == 'left') {
 
 <script>
 $(function () {
-    // Show modal unless dismissed via localStorage
-    if (localStorage.getItem('tracker_download_dismissed') !== 'true') {
-        $('#trackerDownloadModal').modal('show');
+    var KEY = 'tracker_download_dismissed';
+    var $banner = $('#tracker-download-banner');
+
+    // localStorage throws in some privacy modes; never let that break the page.
+    function alreadyDismissed() {
+        try { return localStorage.getItem(KEY) === 'true'; } catch (e) { return false; }
+    }
+    function remember() {
+        try { localStorage.setItem(KEY, 'true'); } catch (e) {}
     }
 
-    // Dismiss and set localStorage
-    $('#tracker-download-dismiss').on('click', function (e) {
-        e.preventDefault();
-        localStorage.setItem('tracker_download_dismissed', 'true');
-        $('#trackerDownloadModal').modal('hide');
-    });
+    // Reveal the promo unless dismissed. It is an ordinary in-flow card, so no
+    // Bootstrap modal is opened: body never gains modal-open (overflow:hidden)
+    // and no fixed z-index layer is stacked over the sign-in form.
+    if (!alreadyDismissed()) {
+        $banner.prop('hidden', false);
+    }
+
+    // BOTH dismiss paths persist. Previously only the "don't show again" link
+    // wrote the flag, so closing with x brought the promo straight back.
+    function dismiss(e) {
+        if (e) { e.preventDefault(); }
+        remember();
+        $banner.prop('hidden', true);
+    }
+
+    $('#tracker-download-close').on('click', dismiss);
+    $('#tracker-download-dismiss').on('click', dismiss);
 });
 </script>
 
