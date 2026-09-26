@@ -1,23 +1,23 @@
 # Progress Tracker
 
 **Last updated:** 2026-09-26
-**Overall:** Part A **0 / 34** · Part B **0 / 74** · **Total 0 / 108**
+**Overall:** Part A **3 / 34** · Part B **0 / 74** · **Total 3 / 108**
 
 Legend: `[ ]` not started · `[~]` in progress · `[x]` complete
 
 ---
 
-## Part A — CSS Reskin · 0/34
+## Part A — CSS Reskin · 3/34
 
 Branch: `sakib` · Detail: [`part-a-css-reskin/README.md`](part-a-css-reskin/README.md)
 
-### A0 — Safety Net · 0/4
+### A0 — Safety Net · 3/4
 File: [`00-safety-net.md`](part-a-css-reskin/00-safety-net.md)
 
-- [ ] `A0-1` Create branch, commit plan + pre-existing fixes
+- [x] `A0-1` Create branch, commit plan + pre-existing fixes
 - [ ] `A0-2` Capture 20 baseline screenshots
-- [ ] `A0-3` Colour/metric inventory of `app.css`
-- [ ] `A0-4` `composer smoke` script, 20/20 pass
+- [x] `A0-3` Colour/metric inventory of `app.css`
+- [x] `A0-4` `composer smoke` script, 20/20 pass
 
 ### A1 — Design Tokens · 0/4
 File: [`01-tokens.md`](part-a-css-reskin/01-tokens.md)
@@ -35,7 +35,7 @@ File: [`02-app-css.md`](part-a-css-reskin/02-app-css.md)
 - [ ] `A2-3` **Button family** ⭐ highest visual impact
 - [ ] `A2-4` Forms and inputs
 - [ ] `A2-5` Status badges to soft chips
-- [ ] `A2-6` Tables and DataTables chrome
+- [ ] `A2-6` Tables, DataTables and chart chrome
 - [ ] `A2-7` Sidebar
 - [ ] `A2-8` Top bar
 - [ ] `A2-9` Modals ⚠ most likely to break — revert if modals fail to open
@@ -113,6 +113,8 @@ satisfied by Part A's locked decisions, so skip it and start at `SN-1`.
 | Framework target | **Resolved** | Bootstrap 3 now → 5.3.3 in Part B |
 | Dark mode | **Deferred** | Part B |
 | Icon set | **Deferred** | Part B `SH-7` — swapping needs markup |
+| `tbl_config` schema | **Corrected 2026-09-26** | Table is `(config_key PRIMARY, value TEXT)` — there is **no `config_value` column**. Six SQL statements in A1-3, A3-3, A3-4, A4-2 used it and now write `value`. A `SELECT config_value` returns no rows, so the error was silent. |
+| `sidebar_theme` live value | **Corrected 2026-09-26** | Both DBs store `bg-purple-dark`, not `bg-dark`. A3-3 migrates it to `theme-purple-dark` to preserve the current appearance rather than to a fixed default. |
 | Arabic / Hebrew (i18n) | **Open** | `A4-2` drops RTL CSS. Language packs kept. If i18n is a future requirement, the RTL work returns — restore from git history using the hashes recorded in `A4-2` |
 | Print page coverage | **Limitation** | `A6-3` checks 10 of 63. The other 53 share the same `print.css` but are not individually verified |
 

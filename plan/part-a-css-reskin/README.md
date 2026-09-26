@@ -6,9 +6,9 @@
 **Goal:** make the entire CRM look modern and attractive **without changing any markup,
 JavaScript, PHP, or database code.**
 
-**Architecture:** Restyle the existing theme layer only. `assets/css/app.css` (155 KB, 32
-sections) and the `bg-*.css` sidebar themes are rewritten to a token-driven design. The
-Bootstrap 3 framework CSS, all plugin CSS, and all PHP/JavaScript stay untouched.
+**Architecture:** Restyle the existing theme layer only. `assets/css/app.css` (155 KB, 8,193
+lines in **31 sections**) and the `bg-*.css` sidebar themes are rewritten to a token-driven
+design. The Bootstrap 3 framework CSS, all plugin CSS, and all PHP/JavaScript stay untouched.
 
 **Tech stack:** CSS custom properties · Bootstrap 3.3.5 (unchanged) · Font Awesome 4.7
 (unchanged) · existing PHP/JS stack (unchanged)

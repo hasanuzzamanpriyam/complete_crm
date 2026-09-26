@@ -153,29 +153,42 @@ New-Item -ItemType Directory -Force -Path plan\_baseline\part-a | Out-Null
 Before overwriting `app.css`, record what is currently there so regressions are detectable and
 so Part B can reuse the findings.
 
-Create `plan/_data/part-a-css-inventory.md` containing:
-
-1. **Every unique hex colour** in `app.css`, with occurrence count and the section it appears in
-2. **Every unique hex colour** across the 10 `bg-*.css` files
-3. **Every font-size** used, with count
-4. **Every `!important`** with line number and reason
-5. The 32 section headings in `app.css` with their line ranges
-
-- [ ] **Step 1: Extract unique colours from `app.css`**
+**Done via `plan/_tools/css-inventory.php`** (reproducible — regenerate after each A2 task to
+confirm no colour was lost):
 
 ```powershell
-$r = Get-Content assets\css\app.css -Raw
-[regex]::Matches($r,'#[0-9a-fA-F]{3,8}\b') | ForEach-Object { $_.Value.ToLower() } |
-  Group-Object | Sort-Object Count -Descending | Select-Object Count,Name
+php plan/_tools/css-inventory.php > plan/_data/part-a-css-inventory.md
 ```
 
-- [ ] **Step 2: Same for the 10 `bg-*.css` files**
-- [ ] **Step 3: Extract font sizes and `!important` counts**
-- [ ] **Step 4: Record the 32 section headings with line ranges**
-- [ ] **Step 5: Write the results to `plan/_data/part-a-css-inventory.md`**
+The output contains:
+
+1. **Every section heading in `app.css` with its line range** — these become the A2 task map
+2. **Every unique hex colour** in `app.css`, with occurrence count
+3. **Every unique hex colour** across the `bg-*.css` theme files, per file
+4. **Every `font-size`** used, with count
+5. **Every `!important`** with line number
+6. The SHA-256 of each `*rtl*.css` file, recorded before `A4-2` deletes them
+7. Live theming values from `tbl_config` in both databases
+8. Account `direction` distribution (the RTL-removal evidence)
+
+**Verified baseline (from the generated file):**
+
+| Metric | Value |
+|---|---|
+| `app.css` | 8,193 lines / 155,229 bytes |
+| Sections | **31** |
+| Unique hex in `app.css` | 180 |
+| Unique hex in theme files | 83 (892 occurrences) |
+| Distinct font sizes | 30 |
+| `!important` in `app.css` | **272** |
+| RTL CSS removable | 744,829 bytes |
 
 **Verify:** the file exists and lists the section line ranges — these become the A2 task map.
 **Effort:** S
+
+**Schema gotcha found here:** `tbl_config` is `(config_key PRIMARY, value TEXT)`. There is **no
+`config_value` column** — six SQL statements elsewhere in this plan used it and have been
+corrected to `value`.
 
 ---
 
@@ -226,7 +239,7 @@ git commit -m "A0: baseline screenshots, CSS inventory, and smoke check"
 
 - [ ] Branch `sakib` created and pushed
 - [ ] 20 baseline screenshots + `NOTES.md` captured
-- [ ] `plan/_data/part-a-css-inventory.md` written with the 32 section line ranges
+- [x] `plan/_data/part-a-css-inventory.md` written with the 31 section line ranges
 - [ ] `composer smoke` passes 20/20
 - [ ] Pre-existing issues documented, not silently ignored
 

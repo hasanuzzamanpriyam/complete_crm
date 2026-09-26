@@ -187,16 +187,26 @@ Select-String -Path application\views\admin\settings\appearance.php -Pattern 'bg
 
 - [ ] **Step 3: Migrate the stored value in both databases**
 
+> **Column name:** `tbl_config` is `(config_key PRIMARY, value TEXT)` — there is **no**
+> `config_value` column, so the `UPDATE`s below must write `value`.
+>
+> **Migrate to the equivalent, not to a fixed default.** Both databases currently store
+> `sidebar_theme = bg-purple-dark` (verified — `plan/_data/part-a-css-inventory.md` §7), and
+> the mapping table above translates that to `theme-purple-dark`. Writing `theme-dark` here
+> would silently change the user's chosen sidebar colour during a refactor.
+
 ```sql
-UPDATE tic_crm.tbl_config     SET config_value = 'theme-dark'  WHERE config_key = 'sidebar_theme';
-UPDATE tic_crm_demo.tbl_config SET config_value = 'theme-dark'  WHERE config_key = 'sidebar_theme';
+UPDATE tic_crm.tbl_config     SET value = 'theme-purple-dark' WHERE config_key = 'sidebar_theme';
+UPDATE tic_crm_demo.tbl_config SET value = 'theme-purple-dark' WHERE config_key = 'sidebar_theme';
 ```
 
 Confirm:
 
 ```sql
-SELECT config_key, config_value FROM tic_crm.tbl_config WHERE config_key = 'sidebar_theme';
+SELECT config_key, value FROM tic_crm.tbl_config WHERE config_key = 'sidebar_theme';
 ```
+
+Expected: `sidebar_theme` → `theme-purple-dark`.
 
 - [ ] **Step 4: Update the 3 new CSS files in `htmlheader.php:53`**
 
@@ -227,8 +237,11 @@ missing-CSS 404.
 - [ ] **Step 1: For each of the 10 theme values, set it via SQL, reload, and screenshot**
 
 ```sql
-UPDATE tic_crm.tbl_config SET config_value = '<value>' WHERE config_key = 'sidebar_theme';
+UPDATE tic_crm.tbl_config SET value = '<value>' WHERE config_key = 'sidebar_theme';
 ```
+
+(`value`, not `config_value` — see the schema note in A3-3 Step 3.) Remember to restore
+`theme-purple-dark` afterwards so the app is left on the theme it was shipped with.
 
 Save the 10 screenshots to `plan/_baseline/part-a/themes/`.
 

@@ -5,8 +5,39 @@
 
 **Goal:** restyle the 155 KB theme file section by section to the Refined dense direction.
 
-**Why split into 12:** `app.css` is 6,600+ lines in 32 sections. One commit for the whole file
+**Why split into 12:** `app.css` is 8,193 lines in 31 sections. One commit for the whole file
 would be unreviewable and unrevertable. Each task below is one section group, one commit.
+Section line ranges are in `plan/_data/part-a-css-inventory.md` §1 (regenerate with
+`php plan/_tools/css-inventory.php` after each task).
+
+### Section → task map
+
+Verified by extracting the selectors actually present in each section, not by name.
+
+| Task | Sections (inventory §1) | Anchor selectors | Last-known lines |
+|---|---|---|---|
+| **A2-1** base/typography | 1 *(reset portion only)*, 2, 3, 4, 10, 11 *(spacing portion)*, 16, 17, 18 | `body`, `h1–h6`, `.wrapper`, `.m0/.mt0…`, `.box-placeholder` | 13–1372, 2285–3280, 3551–3637 |
+| **A2-2** panels → cards | 19, **31** | `.panel`, `.panel-flat`, `.dd` | 3638–3848, 6631–8193 |
+| **A2-3** buttons | 1 *(`.btn` only)*, **29** | `.btn` L159, `.btn-inverse` | 159–~230, 5780–6270 |
+| **A2-4** forms/inputs | 20, 21, 22, 23, 24 | `.c-radio`, `.parsley-*`, `.tagator-*`, `.tabcontrol` | 3849–4817 |
+| **A2-5** badges/labels | 1 *(`.label-*`)*, 11 *(labels/alerts)*, **14** | `.label-inverse` L3066, `.label-green`, `.circle-*` | 3066–3130, 3401–3497 |
+| **A2-6** tables/charts | 25, 26, **27**, **28**, **30** | `.dataTables_*`, `.table`, `.ui-jqgrid`, `.easypiechart`, `.flot-chart` | 4818–5779, 6271–6630 |
+| **A2-7** sidebar | 5, 7, 8, 13 | `.sidebar`, `.offsidebar`, `.user-block` | 1301–1372, 1700–2081, 3313–3400 |
+| **A2-8** top bar | 6 | `.topnavbar` | 1373–1699 |
+| **A2-9** modals | 1 *(`.modal-backdrop`)*, 3 *(`.modal-open`)* | `.modal-backdrop` L581, `.modal-open` L705 | 581, 705 |
+| **A2-10** tabs/nav/pagination | 1 *(`.nav-tabs`/`.nav-pills`)*, 9, 15 | `.nav-tabs` L130, `.breadcrumb`, `.dropdown-*` | 130–158, 2082–2113, 3498–3550 |
+| **A2-11** alerts/toasts | 11 *(`.alert-*` region)* | `.alert-css` L3111, `.alert-purple` L3117 | 3111–3130 |
+| **A2-12** print | 12 | `@media print` | 3281–3312 |
+
+> **Section 1 is shared by five tasks** (A2-1, A2-3, A2-5, A2-9, A2-10). They do not overlap
+> *within* it — each owns a different selector — but they do overlap *in line number*. Because
+> tasks run in order and each edit shifts later lines **every task must locate its target by
+> selector, never by the line number in this table.** Treat the numbers as "it was around here"
+> navigation hints only.
+
+> **All 31 sections are assigned.** The three that were originally unmapped
+> (`chart-easypie`, `chart-flot`, `nestable`) are folded into A2-6 and A2-2 so nothing is
+> silently skipped.
 
 **Universal rules for every task in this file:**
 - Only edit `assets/css/app.css`. No other file.
@@ -130,15 +161,23 @@ Give it the same shell but keep it visually distinct with a left accent edge:
 
 - [ ] **Step 4: Handle nested panels** — a `.panel` inside `.panel-body` should have
       `--r-md`, no outer shadow, and a lighter border so nesting reads clearly
-- [ ] **Step 5: Verify + commit**
+- [ ] **Step 5: Nestable lists (`Component: nestable.less`, L6631–8193)**
+
+      The largest single section in the file and the last thing assigned to this task. `.dd`
+      trees render inside panels, so they take the card treatment: `.dd-handle` gets
+      `--c-surface-2` + `--r-sm` + `--c-border`; `.dd-placeholder` dashed; `.dd-item`/
+      `.dd-list` spacing from `--sp-*`. No drag behaviour changes — the plugin JS is untouched.
+
+- [ ] **Step 6: Verify + commit**
 
 ```powershell
 composer smoke
-git commit -m "A2-2: panels to card-style surfaces"
+git commit -m "A2-2: panels to card-style surfaces; nestable lists tokenised"
 ```
 
 **Verify:** dashboard and invoice detail show rounded, bordered, shadowed cards — no gradients,
-no doubled radii on nested panels.
+no doubled radii on nested panels. Any page using a nestable list (settings, projects) keeps its
+drag-and-drop working with the new surface.
 **Effort:** M
 
 ---
@@ -392,15 +431,24 @@ git commit -m "A2-5: restyle status badges to soft chips"
 
 > Do **not** change the `col-xs-*` classes — that is `CM-3` in Part B.
 
-- [ ] **Step 4: Verify + commit**
+- [ ] **Step 4: Chart chrome** (`Component: chart-easypie.less` L5722–5779,
+      `Component: chart-flot.less` L6271–6630)
+
+      Sections 28 and 30 have no other owner, so they land here. Only the *chrome* changes:
+      `.easypiechart span` label colour/size → `var(--fs-sm)` + `var(--c-text-2)`,
+      `.flot-chart .legend > table tr td` swatch spacing → `var(--sp-*)`. Do **not** restyle
+      the plotted series colours — those are set per-chart in JS and are a Part B concern.
+
+- [ ] **Step 5: Verify + commit**
 
 ```powershell
 composer smoke
-git commit -m "A2-6: restyle tables and DataTables chrome"
+git commit -m "A2-6: restyle tables, DataTables and chart chrome"
 ```
 
 **Verify:** clients list, invoices list, and reports all show the dense table style; search,
-length selector and pagination still work.
+length selector and pagination still work. Dashboard charts render with correct legends and no
+label clipping.
 **Effort:** M
 
 ---

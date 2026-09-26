@@ -267,19 +267,26 @@ Confirm only that the variable sets without error.
 
 In phpMyAdmin (or your SQL client), run:
 
+> **Column name:** `tbl_config` is `(config_key PRIMARY, value TEXT)`. There is no
+> `config_value` column — an `UPDATE ... SET config_value = ...` fails as an error, and a
+> `SELECT config_value` returns nothing. Both databases currently hold `active_custom_color = 0`
+> (verified, see `plan/_data/part-a-css-inventory.md` §7).
+
 ```sql
 UPDATE tic_crm.tbl_config
-SET config_value = '1'
+SET value = '1'
 WHERE config_key = 'active_custom_color';
 ```
 
 Verify:
 
 ```sql
-SELECT config_key, config_value
+SELECT config_key, value
 FROM tic_crm.tbl_config
 WHERE config_key IN ('active_custom_color', 'sidebar_theme', 'RTL');
 ```
+
+Expected: `active_custom_color = 1`, `sidebar_theme = bg-purple-dark`, `RTL = 0`.
 
 - [ ] **Step 3: Confirm the sidebar still renders with correct colours**
 

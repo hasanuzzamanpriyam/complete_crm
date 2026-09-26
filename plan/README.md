@@ -36,13 +36,29 @@ system Part B consumes.
 | | |
 |---|---|
 | Remote | `https://github.com/hasanuzzamanpriyam/complete_crm.git` |
-| Current branch | `main` @ `19858cbc` |
+| Current branch | `sakib` · `main` stays at `19858cbc` and is never pushed to |
 | Remote branches | `main`, `sakib` |
 | Live URL | `http://localhost/complete_crm/` |
 | Demo URL | `http://localhost/complete_crm/demo/` |
 | Local login | `forid` / `Admin@123` (local only) |
+| Smoke check | `cmd /c "composer smoke"` — 22 routes, exit 0 |
 
 See [`BRANCHES.md`](BRANCHES.md) for the full branch strategy.
+
+---
+
+## Tooling gotchas
+
+Things that cost time during A0. Check here before debugging a phantom failure.
+
+| Gotcha | Consequence | Fix |
+|---|---|---|
+| PowerShell 5.1 `Get-Content` defaults to **ANSI**, not UTF-8 | Renders `—` as `â€"`; a byte dump looks corrupted when the file is fine | `Get-Content -Encoding UTF8`, or read via PHP `file_get_contents` |
+| `tbl_config` has **no `config_value` column** | `SELECT config_value` returns no rows; `UPDATE ... SET config_value` fails | Column is `value` — see STATUS "Blocked / decisions" |
+| curl drops the session cookie across redirects | Protected routes silently test the **login page** and pass anyway | Use `CURLOPT_COOKIEJAR` + `CURLOPT_COOKIEFILE` (real file), not just `CURLOPT_COOKIE` |
+| Login requires `lat` and `long` POST fields | Validation fails and the form is re-rendered with no error shown | Supply both; they are normally injected by `navigator.geolocation` in `login_form.php` |
+| Shell links **`app.min.css`**, not `app.css` | A check for `app.css` in the HTML reports a false failure | Match `app(\.min)?\.css`; bump `?v=2` → `?v=3` in `A6-4` |
+| `composer.bat` is not a native executable | PowerShell cannot invoke it directly | `cmd /c "composer smoke"` |
 
 ---
 
@@ -130,7 +146,7 @@ That is why inline styles do not block Part A.
 | `strftime()` calls (PHP 8.1 deprecated) | 392 across 223 files |
 | Dead CSS removable in Part A | ~772 KB |
 | First-party tests | **0** |
-| RTL usage | 0 of 113 accounts |
+| RTL usage | **0 of 113** accounts set `direction = rtl` (106 `ltr`, 7 NULL) |
 
 ---
 

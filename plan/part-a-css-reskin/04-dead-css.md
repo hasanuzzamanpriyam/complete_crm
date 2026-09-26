@@ -102,10 +102,10 @@ exact state to restore from git history.
 - [ ] **Step 3: Confirm the live condition is LTR**
 
 ```sql
-SELECT config_key, config_value FROM tic_crm.tbl_config WHERE config_key = 'RTL';
+SELECT config_key, value FROM tic_crm.tbl_config WHERE config_key = 'RTL';
 ```
 
-Expected: `RTL = 0`.
+Expected: `RTL = 0` (verified in both databases — `plan/_data/part-a-css-inventory.md` §7).
 
 - [ ] **Step 4: Delete**
 
