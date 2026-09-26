@@ -9,5 +9,9 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^12.5"
+    },
+    "scripts": {
+        "smoke": "php plan/_tools/smoke.php",
+        "smoke:demo": "php plan/_tools/smoke.php --db=demo"
     }
 }

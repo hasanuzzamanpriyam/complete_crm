@@ -86,32 +86,47 @@ Expected: `origin/sakib` shows the new commit. `origin/main` still shows `19858c
 Capture the "before" state. Without this you cannot prove the redesign improved anything.
 
 Create `plan/_baseline/part-a/` and capture these **20 pages** at **1440×900** with a **100%
-zoom** and a **cold cache**:
+zoom** and a **cold cache**.
 
-| # | Surface | Page | Route |
-|---|---|---|---|
-| 1 | Public | Login | `/login` |
-| 2 | Public | Register | `/login/register` |
-| 3 | Public | Forgot password | `/login/forgot_password` |
-| 4 | Public | Career / job board | `/career` |
-| 5 | Public | Book a consultation | `/book-free-consultation` |
-| 6 | Admin | Login (portal) | `/admin/login` |
-| 7 | Admin | **Dashboard** | `/admin/dashboard` |
-| 8 | Admin | **Super-admin dashboard** | `/admin/dashboard_admin` |
-| 9 | Admin | Clients list | `/admin/client` |
-| 10 | Admin | Client detail | `/admin/client/view/{id}` |
-| 11 | Admin | **Invoices list** | `/admin/invoice` |
-| 12 | Admin | **Invoice detail** | `/admin/invoice/view/{id}` |
-| 13 | Admin | Projects list | `/admin/projects` |
-| 14 | Admin | Project detail | `/admin/projects/view/{id}` |
-| 15 | Admin | Tasks | `/admin/tasks` |
-| 16 | Admin | Employees list | `/admin/user/user_list` |
-| 17 | Admin | Accounting / ledger | `/admin/accounting` |
-| 18 | Admin | Reports | `/admin/report/sales_report` |
-| 19 | Admin | **Settings → appearance** | `/admin/settings/appearance` |
-| 20 | Client | Client portal dashboard | `/client/dashboard` |
+> **All routes below were verified on 2026-09-26** by requesting each one. Guessed paths are
+> wrong far more often than expected here — `admin/client`, `admin/invoice` and
+> `admin/accounting` all 404; the real paths include the method name. Use this table, not a
+> guess. A `307` is the correct unauthenticated response (auth redirect) and means the route
+> exists.
 
-Bolded pages are the highest-value comparisons — they contain the most distinct components.
+| # | Surface | Page | Route | Unauth |
+|---|---|---|---|---|
+| 1 | Public | Login | `/login` | 200 |
+| 2 | Public | Register | `/login/register` | 200 |
+| 3 | Public | Forgot password | `/login/forgot_password` | 200 |
+| 4 | Public | Career / job board | `/career` | 200 |
+| 5 | Public | Book a consultation | `/book-free-consultation` | 200 |
+| 6 | Admin | **Dashboard** | `/admin/dashboard` | 307 |
+| 7 | Admin | Super-admin | `/admin/superadmin` | 307 |
+| 8 | Admin | Clients list | `/admin/client/manage_client` | 307 |
+| 9 | Admin | Invoices list | `/admin/invoice/manage_invoice` | 307 |
+| 10 | Admin | Quotations | `/admin/quotations` | 307 |
+| 11 | Admin | Proposals | `/admin/proposals` | 307 |
+| 12 | Admin | Projects | `/admin/projects` | 307 |
+| 13 | Admin | Tasks | `/admin/tasks/all_task` | 307 |
+| 14 | Admin | Employees | `/admin/user/user_list` | 307 |
+| 15 | Admin | Chart of accounts | `/admin/accounting/chart_of_accounts` | 307 |
+| 16 | Admin | Transactions report | `/admin/transactions/transactions_report` | 307 |
+| 17 | Admin | Attendance | `/admin/attendance/daily_attendance` | 307 |
+| 18 | Admin | Payroll summary | `/admin/payroll/payroll_summary` | 307 |
+| 19 | Admin | Sales report | `/admin/report/sales_report` | 307 |
+| 20 | Admin | **Settings** | `/admin/settings` | 307 |
+
+**Additional verified routes** — useful for `A6-1` spot checks (all `307` unauthenticated):
+`/admin/leads` · `/admin/calendar` · `/admin/mailbox` · `/admin/knowledgebase` · `/admin/bugs` ·
+`/admin/items/items_list` · `/admin/filemanager` · `/admin/departments` · `/admin/credit_note` ·
+`/admin/estimates` · `/admin/timesync` · `/admin/consultation` ·
+`/admin/job_circular/jobs_posted` · `/admin/mark_attendance` · `/client/dashboard`
+
+**Detail pages** (`/admin/invoice/view/{id}`, `/admin/client/view/{id}`,
+`/admin/projects/view/{id}`) — resolve a real ID from each list page at capture time and record
+it in `NOTES.md`. They carry the most distinct components, so include at least the invoice
+detail.
 
 Log in as `forid` / `Admin@123` for rows 6–19. Record which `{id}` values you used in
 `plan/_baseline/part-a/NOTES.md` so the same records are captured later.
