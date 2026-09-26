@@ -110,6 +110,7 @@ satisfied by Part A's locked decisions, so skip it and start at `SN-1`.
 | Item | Status | Note |
 |---|---|---|
 | Visual direction | **Resolved** | Refined dense, approved 2026-09-26 |
+| Depth / effects | **Resolved 2026-09-26** | **Strict flat 2D** (modern ERP look): **zero gradients, zero surface shadows.** Separation is 1px borders + solid fills only. Shadow permitted *only* on floating overlays (dropdowns, modals, popovers) so they read as above the page. Applies to all A2 tasks — A2-2's `--sh-1` on `.panel`, A2-3's button gradients/inset shadows, A2-6's striped gradients. |
 | Framework target | **Resolved** | Bootstrap 3 now → 5.3.3 in Part B |
 | Dark mode | **Deferred** | Part B |
 | Icon set | **Deferred** | Part B `SH-7` — swapping needs markup |

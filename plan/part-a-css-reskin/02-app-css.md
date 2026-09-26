@@ -43,6 +43,11 @@ Verified by extracting the selectors actually present in each section, not by na
 - Only edit `assets/css/app.css`. No other file.
 - Every new value must come from a `var(--…)` token. No new hardcoded hex.
 - Do not rename any class — markup in 885 views depends on the current names.
+- **Strict flat 2D (locked 2026-09-26):** strip every `linear-gradient`/`radial-gradient`
+  background and every surface `box-shadow` you touch. Use 1px `--c-border` + solid
+  `--c-surface*` fills for separation. Shadow is allowed **only** on floating overlays —
+  dropdown menus, modals, popovers, tooltips — so they read as above the page. No inset/embossed
+  effects anywhere (buttons, inputs, wells).
 - After each task: `composer smoke`, then re-screenshot the affected baseline pages, then commit.
 
 ---
@@ -124,7 +129,7 @@ are changing only the visual treatment.
   background: var(--c-surface);
   border: 1px solid var(--c-border);
   border-radius: var(--r-lg);
-  box-shadow: var(--sh-1);
+  box-shadow: none;              /* strict flat 2D: borders, not elevation */
   margin-bottom: var(--sp-5);
 }
 
@@ -175,9 +180,10 @@ composer smoke
 git commit -m "A2-2: panels to card-style surfaces; nestable lists tokenised"
 ```
 
-**Verify:** dashboard and invoice detail show rounded, bordered, shadowed cards — no gradients,
-no doubled radii on nested panels. Any page using a nestable list (settings, projects) keeps its
-drag-and-drop working with the new surface.
+**Verify:** dashboard and invoice detail show rounded, **border-only** cards — no gradients,
+no shadows on surfaces (`box-shadow: none` on `.panel`), no doubled radii on nested panels. Any
+page using a nestable list (settings, projects) keeps its drag-and-drop working with the new
+surface.
 **Effort:** M
 
 ---
@@ -185,6 +191,15 @@ drag-and-drop working with the new surface.
 ## A2-3 — Buttons ⭐ highest visual impact
 
 This single task does the most for "modern and attractive". Do it carefully.
+
+- [ ] **Step 0: Kill the button gradients and embossing (strict flat 2D)**
+
+      The current button rules carry `background-image: linear-gradient(...)` on every variant
+      (`Component: bootstrap-reset` region, ~5 gradient blocks) plus an inset shelf —
+      `box-shadow: 0 -3px 0 #19a5d1 inset` on `.btn-inverse` and `box-shadow: 0 0 0 #000 inset`
+      elsewhere. Delete the `background-image`/`filter: …gradient…` declarations outright (a
+      `background:` shorthand in Steps 1/3 replaces them) and set `box-shadow: none` on every
+      `.btn*` variant. `.btn-inverse` becomes a flat dark fill, not a bevel.
 
 - [ ] **Step 1: Base button**
 
