@@ -233,7 +233,7 @@ function cfgValue(string $mysql, string $db, string $key): string {
 $keys = [
     'RTL'                       => '0 = LTR only → A4-2 removes RTL CSS',
     'sidebar_theme'             => 'filename of the live bg-*.css (A3-3 remaps)',
-    'active_custom_color'       => '0 = bg-custom.php path currently OFF; A1-4 turns it on',
+    'active_custom_color'       => 'toggle for the bg-custom.php theming path; A1-4 set it to 1 (was 0)',
     'sidebar_background'        => '→ --c-sidebar-bg',
     'sidebar_color'             => '→ --c-sidebar-text',
     'sidebar_active_background' => '→ --c-sidebar-active',
@@ -310,6 +310,33 @@ if ($mysql) {
 } else {
     $add('_mysql binary not found._');
 }
+$add();
+
+// ------------------------------------------------- 7b. A1-4 change record ----
+// Kept here (not hand-appended) so it survives regeneration of this file.
+
+$add('### A1-4 change record (2026-09-26)');
+$add();
+$add('`active_custom_color` was flipped `0` -> `1` in **both** databases so the');
+$add('`bg-custom.php` theming path is live. Reproduce on any environment with:');
+$add();
+$add('```sql');
+$add("UPDATE tic_crm.tbl_config      SET value = '1' WHERE config_key = 'active_custom_color';");
+$add("UPDATE tic_crm_demo.tbl_config SET value = '1' WHERE config_key = 'active_custom_color';");
+$add('```');
+$add();
+$add('Verify:');
+$add();
+$add('```sql');
+$add('SELECT config_key, value FROM tic_crm.tbl_config');
+$add("WHERE config_key IN ('active_custom_color', 'sidebar_theme', 'RTL');");
+$add('```');
+$add();
+$add('Expected: `active_custom_color = 1`, `sidebar_theme = bg-purple-dark`, `RTL = 0`.');
+$add();
+$add('> These tables are **not in the repo** (the `databases/` directory is gitignored for PII),');
+$add('> so this block is the only durable record of the change. It lives here rather than in a');
+$add('> commit because `git commit` of a config change would be empty.');
 $add();
 
 // ------------------------------------------------------- 8. totals ----

@@ -1,4 +1,4 @@
-﻿# Part A · A1 — Design Tokens
+# Part A · A1 — Design Tokens
 
 > **For agentic workers:** REQUIRED SUB-SKILL: use superpowers:subagent-driven-development
 > (recommended) or superpowers:executing-plans. Steps use checkbox (`- [ ]`) syntax.

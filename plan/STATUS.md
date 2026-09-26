@@ -1,13 +1,13 @@
 # Progress Tracker
 
 **Last updated:** 2026-09-26
-**Overall:** Part A **4 / 34** · Part B **0 / 74** · **Total 4 / 108**
+**Overall:** Part A **8 / 34** · Part B **0 / 74** · **Total 8 / 108**
 
 Legend: `[ ]` not started · `[~]` in progress · `[x]` complete
 
 ---
 
-## Part A — CSS Reskin · 4/34
+## Part A — CSS Reskin · 8/34
 
 Branch: `sakib` · Detail: [`part-a-css-reskin/README.md`](part-a-css-reskin/README.md)
 
@@ -19,13 +19,13 @@ File: [`00-safety-net.md`](part-a-css-reskin/00-safety-net.md)
 - [x] `A0-3` Colour/metric inventory of `app.css`
 - [x] `A0-4` `composer smoke` script, 22/22 pass
 
-### A1 — Design Tokens · 0/4
+### A1 — Design Tokens · 4/4 ✅ complete
 File: [`01-tokens.md`](part-a-css-reskin/01-tokens.md)
 
-- [ ] `A1-1` Create `assets/css/tokens.css` (14 token groups)
-- [ ] `A1-2` Load `tokens.css` in all 4 shells
-- [ ] `A1-3` Fix `bg-custom.php` — 2 syntax bugs, emit variables
-- [ ] `A1-4` Enable `active_custom_color`, verify live theming
+- [x] `A1-1` Create `assets/css/tokens.css` (11 groups / 65 declarations)
+- [x] `A1-2` Load `tokens.css` in all 6 shells (plan table corrected)
+- [x] `A1-3` Fix `bg-custom.php` — 3 bugs, emit `:root` variables
+- [x] `A1-4` Enable `active_custom_color` in both DBs, verify live theming
 
 ### A2 — Restyle `app.css` · 0/12
 File: [`02-app-css.md`](part-a-css-reskin/02-app-css.md)
