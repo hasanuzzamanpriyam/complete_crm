@@ -698,6 +698,13 @@ In `application/libraries/Menu.php`, add this method after `dynamicMenu()`:
      */
     public function groupMap()
     {
+        // CI3's Config::load() loads ONE named file per call, and
+        // config/autoload.php does not list this one, so config_item() would
+        // return NULL and the sidebar would silently render no headers.
+        // $fail_gracefully keeps a missing file non-fatal.
+        $CI = &get_instance();
+        $CI->load->config('menu_groups', false, true);
+
         $map = config_item('menu_groups');
         return is_array($map) ? $map : array();
     }
@@ -910,7 +917,16 @@ immediately after the `Parent` form-group closing `</div>` at line 52, before th
 
 - [ ] **Step 3: Whitelist and validate in the controller**
 
-In `application/controllers/admin/Navigation.php`, replace `save_navigation()`'s
+In `application/controllers/admin/Navigation.php`, add the config load to the
+constructor, right after `$this->load->model('navigation_model');`:
+
+```php
+        // Not autoloaded by config/autoload.php; without this both the form
+        // view and the whitelist below would see an empty group map.
+        $this->load->config('menu_groups', false, true);
+```
+
+Then replace `save_navigation()`'s
 first statement:
 
 ```php
@@ -931,6 +947,11 @@ with:
         $group = (string) $this->input->post('menu_group', true);
         $data['menu_group'] = isset($groups[$group]) ? $group : 'tools';
 ```
+
+Note `menu_group` is meaningful only for a top-level menu; sub-menus inherit
+their parent's group at render time. Writing `'tools'` onto a child row is
+harmless because the renderer never reads a child's group, and it keeps the
+column `NOT NULL`.
 
 - [ ] **Step 4: Add the Group column**
 
@@ -1617,8 +1638,33 @@ Defects found and fixed during self-review, so the implementer does not hit them
     through `cmd /c`, which is byte-exact, and assert the first two bytes are not
     `FF FE` before the change is staged.
 
-Defects 8–11 were found while preparing and executing the plan; the first seven
+12. **The gate's own helpers could not see the fixture arrays.** `$ROOT`,
+    `$EXPECTED_ORDER`, `$EXPECTED_LABEL` and `$EXPECTED_BACKFILL` are declared at
+    file scope, but `testConfig()`, `testDb()`, `testRender()` and `testAdmin()`
+    read them without `global`. In PHP a function body does not inherit file-scope
+    variables, so the order check compared against `null`, the six label checks
+    iterated `null` and were **silently skipped**, and `$ROOT` was empty so even
+    the file-existence check could never pass. The gate would have been
+    permanently red for a correct implementation — and because the label checks
+    were skipped, it would have been **permanently green for a wrong one**.
+    Each test function now declares the globals it uses.
+13. **`config_item('menu_groups')` returns NULL without an explicit load.**
+    CI3's `Config::load()` loads a single named file per call and
+    `config/autoload.php` does not list this one, so reading the map without
+    loading it first yields `NULL` — the sidebar would have rendered zero
+    headers with no error. This is the same pattern `ai_registry.php` and
+    `piprapay.php` already use. `Menu::groupMap()` and the
+    `Navigation` controller now both call
+    `$this->load->config('menu_groups', false, true)`, with
+    `$fail_gracefully = true` so a missing file is non-fatal.
+
+Defects 8–13 were found while preparing and executing the plan; the first seven
 were caught during the plan's own self-review.
+
+**Note on `getopt`:** PHP stops option parsing at the first non-option argument,
+so flags must come *before* the subcommand —
+`php plan/_tools/menu-group-test.php --db-name=tic_crm_demo db`, not
+`... db --db-name=tic_crm_demo`. Every command in this plan already does this.
 
 Coverage and consistency:
 
