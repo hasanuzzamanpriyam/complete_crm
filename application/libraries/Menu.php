@@ -133,8 +133,44 @@ class Menu
             $menu['parents'][$v_menu->parent][] = $v_menu->menu_id;
         }
 
-        // Builds the array lists with data from the menu table
-        return $output = $this->buildMenu(0, $menu);
+        // Builds the array lists with data from the menu table.
+        // Grouping is admin-sidebar only: clientMenu() and the horizontal layout
+        // call buildMenu() without the flag and are unchanged.
+        $group = $this->hasMenuGroupColumn();
+        return $output = $this->buildMenu(0, $menu, null, $group);
+    }
+
+    /**
+     * The canonical, ordered group map from application/config/menu_groups.php.
+     * An empty array means grouping is unavailable and the caller must render
+     * the flat menu.
+     */
+    public function groupMap()
+    {
+        // CI3's Config::load() loads ONE named file per call, and
+        // config/autoload.php does not list this one, so config_item() would
+        // return NULL and the sidebar would silently render no headers.
+        // $fail_gracefully keeps a missing file non-fatal.
+        $CI = &get_instance();
+        $CI->load->config('menu_groups', false, true);
+
+        $map = config_item('menu_groups');
+        return is_array($map) ? $map : array();
+    }
+
+    /**
+     * True when tbl_menu actually has the menu_group column. Checked once per
+     * request by dynamicMenu() so an unmigrated database degrades to the flat
+     * menu instead of fataling.
+     */
+    public function hasMenuGroupColumn()
+    {
+        static $has = null;
+        if ($has === null) {
+            $CI = &get_instance();
+            $has = (bool) $CI->db->field_exists('menu_group', 'tbl_menu');
+        }
+        return $has;
     }
 
     public function clientMenu()
@@ -162,7 +198,7 @@ class Menu
         return $output = $this->buildMenu(0, $menu);
     }
 
-    public function buildMenu($parent, $menu, $sub = NULL)
+    public function buildMenu($parent, $menu, $sub = NULL, $group = false)
     {
         $html = "";
         $ul_class = "";
@@ -176,7 +212,53 @@ class Menu
                 $html .= "<ul class='nav s-menu $ul_class'>\n";
             }
 
-            foreach ($menu['parents'][$parent] as $itemId) {
+            // Grouping is top-level only; submenus stay flat because the
+            // recursive call does not pass $group.
+            $lastGroup = null;
+            $groupMap  = ($group && (int) $parent === 0) ? $this->groupMap() : array();
+            $itemIds   = $menu['parents'][$parent];
+
+            // tbl_menu.sort interleaves the groups badly — in the live data the
+            // top level runs crm, tools, projects, tools, finance, projects, hr,
+            // projects, hr, finance ... Emitting a header on every change would
+            // produce ~25 headers. So bucket the ids into the canonical group
+            // order first, keeping the existing sort order inside each bucket,
+            // then emit one header per bucket.
+            if (!empty($groupMap)) {
+                $buckets = array();
+                foreach (array_keys($groupMap) as $key) {
+                    $buckets[$key] = array();
+                }
+                foreach ($itemIds as $itemId) {
+                    // Unknown or empty menu_group falls back to 'tools' so a
+                    // section is never unlabelled. This is also what places the
+                    // synthetic modules / server_management items, which have
+                    // no menu_group column value, into Tools & Admin.
+                    $g = isset($menu['items'][$itemId]->menu_group)
+                        ? (string) $menu['items'][$itemId]->menu_group : '';
+                    $g = ($g !== '' && isset($buckets[$g])) ? $g : 'tools';
+                    $buckets[$g][] = $itemId;
+                }
+                $itemIds = array();
+                foreach ($buckets as $ids) {
+                    foreach ($ids as $id) {
+                        $itemIds[] = $id;
+                    }
+                }
+            }
+
+            foreach ($itemIds as $itemId) {
+                if (!empty($groupMap)) {
+                    $g = isset($menu['items'][$itemId]->menu_group)
+                        ? (string) $menu['items'][$itemId]->menu_group : '';
+                    $g = ($g !== '' && isset($groupMap[$g])) ? $g : 'tools';
+                    if ($g !== $lastGroup) {
+                        $html .= '<li class="sidebar-group-header">'
+                            . htmlspecialchars($groupMap[$g], ENT_QUOTES, 'UTF-8')
+                            . "</li>\n";
+                        $lastGroup = $g;
+                    }
+                }
 
                 $result = $this->active_menu_id($menu['items'][$itemId]->menu_id);
                 if ($result) {
