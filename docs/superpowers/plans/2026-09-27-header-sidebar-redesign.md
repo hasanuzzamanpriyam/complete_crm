@@ -202,6 +202,11 @@ function testConfig(): void
     ok('application/config/menu_groups.php exists');
 
     $config = [];
+    // Every config file in this project opens with
+    // `defined('BASEPATH') OR exit(...)`. Under CLI that guard would exit(0)
+    // and the gate would report success without testing anything, so satisfy it
+    // before the require. The value is never read.
+    if (!defined('BASEPATH')) { define('BASEPATH', $ROOT . '/system/'); }
     require $file;
 
     $map = $config['menu_groups'] ?? null;
@@ -389,10 +394,15 @@ function testAdmin(string $base): void
     $list = httpGet($base . '/admin/navigation', $jar);
     check(str_contains($list, '<th>Group</th>'), 'manage_navigation has a Group column');
 
-    // Round-trip: save a group, confirm the DB, restore the original value.
+    // Round-trip: save a group, confirm the DB, restore the ORIGINAL value.
+    //
+    // save_navigation() rewrites every column the form posts, and the form does
+    // post `link`. Posting only menu_group would blank menu_id=1's link and
+    // leave the dashboard menu pointing nowhere, so post the real current values
+    // and verify nothing but menu_group actually changed.
     $pdo = dbPdo('tic_crm');
-    $before = $pdo->query('SELECT menu_group FROM tbl_menu WHERE menu_id = 1')->fetchColumn();
-    $target = ($before === 'finance') ? 'tools' : 'finance';
+    $before = $pdo->query('SELECT * FROM tbl_menu WHERE menu_id = 1')->fetch(PDO::FETCH_ASSOC);
+    $target = ($before['menu_group'] === 'finance') ? 'tools' : 'finance';
 
     $ch = curl_init($base . '/admin/navigation/save_navigation/1');
     curl_setopt_array($ch, [
@@ -400,10 +410,11 @@ function testAdmin(string $base): void
         CURLOPT_FOLLOWLOCATION => false,
         CURLOPT_POST           => true,
         CURLOPT_POSTFIELDS     => http_build_query([
-            'label'      => 'dashboard',
-            'icon'       => 'fa fa-dashboard',
-            'sort'       => '0',
-            'parent'     => '0',
+            'label'      => $before['label'],
+            'link'       => $before['link'],
+            'icon'       => $before['icon'],
+            'sort'       => $before['sort'],
+            'parent'     => $before['parent'],
             'menu_group' => $target,
         ]),
         CURLOPT_COOKIEJAR      => $jar,
@@ -413,13 +424,17 @@ function testAdmin(string $base): void
     curl_exec($ch);
     curl_close($ch);
 
-    $after = $pdo->query('SELECT menu_group FROM tbl_menu WHERE menu_id = 1')->fetchColumn();
-    check($after === $target, "save_navigation persists menu_group='{$target}'", 'got ' . var_export($after, true));
+    $saved = $pdo->query('SELECT * FROM tbl_menu WHERE menu_id = 1')->fetch(PDO::FETCH_ASSOC);
+    check(($saved['menu_group'] ?? null) === $target, "save_navigation persists menu_group='{$target}'", 'got ' . var_export($saved['menu_group'] ?? null, true));
+
+    // The save must not have damaged any other column.
+    $drift = array_diff_assoc($saved, array_merge($before, ['menu_group' => $target]));
+    check(count($drift) === 0, 'no collateral column changes', json_encode($drift));
 
     $stmt = $pdo->prepare('UPDATE tbl_menu SET menu_group = ? WHERE menu_id = 1');
-    $stmt->execute([$before]);
+    $stmt->execute([$before['menu_group']]);
     $restored = $pdo->query('SELECT menu_group FROM tbl_menu WHERE menu_id = 1')->fetchColumn();
-    check($restored === $before, 'original menu_group restored', 'got ' . var_export($restored, true));
+    check($restored === $before['menu_group'], 'original menu_group restored', 'got ' . var_export($restored, true));
 }
 
 // ------------------------------------------------------------------- main ----
@@ -721,39 +736,73 @@ top level emits group headers and submenus stay flat.
 
 - [ ] **Step 4: Emit the header before each group's items**
 
-In `buildMenu()`, change the loop head from:
+In `buildMenu()`, insert immediately after the opening `if (isset($menu['parents'][$parent])) {`
+block and before the `foreach` — i.e. replace the loop head
+`foreach ($menu['parents'][$parent] as $itemId) {` with the bucket + loop below:
 
 ```php
-            foreach ($menu['parents'][$parent] as $itemId) {
-```
-
-to:
-
-```php
+            // Grouping is top-level only; submenus stay flat because the
+            // recursive call does not pass $group.
             $lastGroup = null;
-            $groupMap  = $group ? $this->groupMap() : array();
+            $groupMap  = ($group && (int) $parent === 0) ? $this->groupMap() : array();
+            $itemIds   = $menu['parents'][$parent];
 
-            foreach ($menu['parents'][$parent] as $itemId) {
-                // Only top level groups. Falls back to 'tools' for an unknown or
-                // empty value so a section is never unlabelled.
-                if ($group && $parent === 0) {
-                    $g = isset($menu['items'][$itemId]->menu_group) ? (string) $menu['items'][$itemId]->menu_group : '';
+            // tbl_menu.sort interleaves the groups badly — in the live data the
+            // top level runs crm, tools, projects, tools, finance, projects, hr,
+            // projects, hr, finance ... Emitting a header on every change would
+            // produce ~25 headers. So bucket the ids into the canonical group
+            // order first, keeping the existing sort order inside each bucket,
+            // then emit one header per bucket.
+            if (!empty($groupMap)) {
+                $buckets = array();
+                foreach (array_keys($groupMap) as $key) {
+                    $buckets[$key] = array();
+                }
+                foreach ($itemIds as $itemId) {
+                    // Unknown or empty menu_group falls back to 'tools' so a
+                    // section is never unlabelled. This is also what places the
+                    // synthetic modules / server_management items, which have
+                    // no menu_group column value, into Tools & Admin.
+                    $g = isset($menu['items'][$itemId]->menu_group)
+                        ? (string) $menu['items'][$itemId]->menu_group : '';
+                    $g = ($g !== '' && isset($buckets[$g])) ? $g : 'tools';
+                    $buckets[$g][] = $itemId;
+                }
+                $itemIds = array();
+                foreach ($buckets as $ids) {
+                    foreach ($ids as $id) {
+                        $itemIds[] = $id;
+                    }
+                }
+            }
+
+            foreach ($itemIds as $itemId) {
+                if (!empty($groupMap)) {
+                    $g = isset($menu['items'][$itemId]->menu_group)
+                        ? (string) $menu['items'][$itemId]->menu_group : '';
                     $g = ($g !== '' && isset($groupMap[$g])) ? $g : 'tools';
                     if ($g !== $lastGroup) {
-                        if (isset($groupMap[$g])) {
-                            $html .= '<li class="sidebar-group-header">'
-                                . htmlspecialchars($groupMap[$g], ENT_QUOTES, 'UTF-8')
-                                . "</li>\n";
-                        }
+                        $html .= '<li class="sidebar-group-header">'
+                            . htmlspecialchars($groupMap[$g], ENT_QUOTES, 'UTF-8')
+                            . "</li>\n";
                         $lastGroup = $g;
                     }
                 }
 ```
 
-Note: this only emits a header when the current group is a **new** run. If a
-group's items are not contiguous, the header appears again — which is
-correct, because the alternative is a header followed by items from a different
-section.
+Two things to be careful about:
+
+- **Do not reorder inside a bucket.** `$itemIds` is already in the user's sort
+  order; bucketing must preserve that so a custom `sort` still works inside a
+  section.
+- **The rest of the loop body is unchanged.** The header is additive markup
+  before the existing `<li>`; the item rendering, the sub-menu branch and the
+  recursive `self::buildMenu($itemId, $menu, $menu['items'][$itemId]->label)`
+  call all stay as they are.
+
+The `menu_group` lookup uses `isset()` on the row object, so a database without
+the column is already safe here — `isset()` is false, every item lands in
+`tools`, and the flat menu still renders.
 
 - [ ] **Step 5: Turn grouping on for the admin sidebar only**
 
@@ -1517,6 +1566,28 @@ Defects found and fixed during self-review, so the implementer does not hit them
    now has an explicit `.user-menu > a` override.
 7. **`$php` / `$mysql` do not survive between shell invocations.** The
    Environment section says so, and every block that uses them re-declares them.
+
+8. **The config test would have reported a false pass.** Every config file opens
+   with `defined('BASEPATH') OR exit(...)`. A bare `require` from the CLI gate
+   hits that guard, which prints a message and exits **0** — so the gate would
+   have reported success while testing nothing. The test now defines `BASEPATH`
+   before the require.
+9. **The round-trip test corrupted live data.** `save_navigation()` rewrites
+   every posted column and the form posts `link`, so the original test — which
+   posted only `menu_group` — blanked `menu_id=1`'s link and then restored only
+   `menu_group`, leaving the dashboard menu permanently broken. The test now
+   posts the row's real current values, asserts **no** other column drifted, and
+   restores the original group.
+10. **Grouping by "emit a header when the group changes" could not work.**
+    Verified against the live `tbl_menu`: `sort` interleaves the groups heavily
+    (crm, tools, projects, tools, finance, projects, hr, projects, hr, finance,
+    projects, crm …). Run-detection would have emitted roughly 25 headers against
+    a test asserting 6. Task 4 Step 4 now **buckets** ids into the canonical
+    group order first, preserving sort order within each bucket, and then emits
+    one header per bucket.
+
+Defects 8–10 were found while preparing execution, after the plan was written;
+the first seven were caught during the plan's own self-review.
 
 Coverage and consistency:
 
