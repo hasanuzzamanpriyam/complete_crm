@@ -176,6 +176,27 @@ class Menu
         return $has;
     }
 
+    /**
+     * The group key for one menu row, resolved against a set of known keys.
+     *
+     * Unknown, empty or absent menu_group falls back to 'tools' so a section is
+     * never unlabelled. isset() is false for a row whose property does not
+     * exist, which is what places the synthetic modules / server_management
+     * items — arrays with no menu_group value — into Tools & Admin, and what
+     * makes an unmigrated database degrade to the flat menu.
+     *
+     * @param  array  $menu    the menu array buildMenu() is rendering
+     * @param  int    $itemId  the row to resolve
+     * @param  array  $known   valid group keys (the map, or the buckets)
+     * @return string
+     */
+    private function groupKeyOf($menu, $itemId, $known)
+    {
+        $g = isset($menu['items'][$itemId]->menu_group)
+            ? (string) $menu['items'][$itemId]->menu_group : '';
+        return ($g !== '' && isset($known[$g])) ? $g : 'tools';
+    }
+
     public function clientMenu()
     {
         $CI = &get_instance();
@@ -233,13 +254,7 @@ class Menu
                     $buckets[$key] = array();
                 }
                 foreach ($itemIds as $itemId) {
-                    // Unknown or empty menu_group falls back to 'tools' so a
-                    // section is never unlabelled. This is also what places the
-                    // synthetic modules / server_management items, which have
-                    // no menu_group column value, into Tools & Admin.
-                    $g = isset($menu['items'][$itemId]->menu_group)
-                        ? (string) $menu['items'][$itemId]->menu_group : '';
-                    $g = ($g !== '' && isset($buckets[$g])) ? $g : 'tools';
+                    $g = $this->groupKeyOf($menu, $itemId, $buckets);
                     $buckets[$g][] = $itemId;
                 }
                 $itemIds = array();
@@ -252,12 +267,13 @@ class Menu
 
             foreach ($itemIds as $itemId) {
                 if (!empty($groupMap)) {
-                    $g = isset($menu['items'][$itemId]->menu_group)
-                        ? (string) $menu['items'][$itemId]->menu_group : '';
-                    $g = ($g !== '' && isset($groupMap[$g])) ? $g : 'tools';
+                    $g = $this->groupKeyOf($menu, $itemId, $groupMap);
                     if ($g !== $lastGroup) {
+                        $label = isset($groupMap[$g])
+                            ? $groupMap[$g]
+                            : (isset($groupMap['tools']) ? $groupMap['tools'] : $g);
                         $html .= '<li class="sidebar-group-header">'
-                            . htmlspecialchars($groupMap[$g], ENT_QUOTES, 'UTF-8')
+                            . htmlspecialchars($label, ENT_QUOTES, 'UTF-8')
                             . "</li>\n";
                         $lastGroup = $g;
                     }
