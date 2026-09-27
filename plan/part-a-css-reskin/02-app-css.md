@@ -547,6 +547,45 @@ git commit -m "A2-7: restyle sidebar to dense dark system"
 micro-labels, icons align in a column.
 **Effort:** M
 
+#### Database
+
+Additive, applied by hand to `tic_crm` and `tic_crm_demo`. See
+`application/migrations/1003_version_1003.php` for the canonical form. The CI
+migrator is not a usable path here: `application/config/migration.php` pins
+`migration_version = 643` while `tbl_migrations` already records 643 **and** 644
+(one row each), and the library is only ever loaded by
+`Admin_model::upgrade_database_silent()`. Applying 1003 through it would mean a
+359-version jump, so the SQL below is applied manually per database instead.
+
+```sql
+ALTER TABLE `tbl_menu`
+  ADD COLUMN `menu_group` VARCHAR(32) NOT NULL DEFAULT 'tools' AFTER `parent`;
+
+UPDATE `tbl_menu` SET `menu_group` = 'crm'      WHERE `menu_id` IN (1,2,4,5,227,228,139,141);
+UPDATE `tbl_menu` SET `menu_group` = 'projects' WHERE `menu_id` IN (6,54,55,56,57,58,233,234,269);
+UPDATE `tbl_menu` SET `menu_group` = 'hr'       WHERE `menu_id` IN (70,72,73,85,100,101,102,105,209,210,211,212);
+UPDATE `tbl_menu` SET `menu_group` = 'finance'  WHERE `menu_id` IN (12,29,75,89,150,213);
+UPDATE `tbl_menu` SET `menu_group` = 'tools'    WHERE `menu_id` IN (24,25,26,42,110,235,236,248,263);
+UPDATE `tbl_menu` SET `menu_group` = 'admin'    WHERE `menu_id` IN (243);
+```
+
+45 top-level rows; children inherit their parent's group at render time. Group
+labels and order live in `application/config/menu_groups.php`.
+
+Two side effects worth knowing when re-running this:
+
+- The `tools` UPDATEs are no-ops on a database that has just had the column
+  added, because the column `DEFAULT 'tools'` already gave every row that
+  value. `ROW_COUNT()` will report 0 for that statement. Verify with a
+  `SELECT`, not with affected-row counts.
+- `tbl_menu.time` is `ON UPDATE CURRENT_TIMESTAMP`, so the 36 rows whose
+  `menu_group` genuinely changes get their `time` refreshed as a side effect.
+  The other 7 pre-existing columns are untouched.
+
+Pre-change snapshots of the affected rows are in `tbl_menu_bak_a27` in both
+`tic_crm` and `tic_crm_demo` (192 rows each, taken before the `ALTER`). Drop
+them once this change is accepted.
+
 ---
 
 ## A2-8 — Top bar
