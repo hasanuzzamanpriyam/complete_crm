@@ -1629,6 +1629,77 @@ folded into the grouping work.
 
 ---
 
+## Task 6 findings
+
+Verified independently with computed styles and geometry, not screenshots.
+
+### The feature was invisible until the cache-buster was bumped
+
+`htmlheader.php` referenced `assets/css/app.css?v=2` with a hardcoded literal
+that no task bumps. A browser that had already fetched that URL keeps serving
+the old stylesheet, so the whole sidebar redesign would not have reached any
+existing user. Bumped to `v=3` in `htmlheader.php` and `login/lock_screen.php`.
+**Any future change to `app.css` must bump this too** — it is the only cache
+invalidation the app has.
+
+### Four deviations from the plan's CSS, all necessary
+
+1. **Selectors scoped to `.sidebar > .nav > li > a`**, not the descendant form
+   `.sidebar .nav > li > a`. `buildMenu()` emits
+   `class="nav s-menu sidebar-subnav collapse"`, so the descendant selector also
+   matched every submenu link and replaced its `padding-left: 53px` and auto
+   height with the 40px top-level row. After scoping, a submenu link keeps
+   `padding: 2px 20px 2px 53px` and `height: auto`.
+2. **Top-level hover uses `var(--c-sidebar-bg-2)`** rather than
+   `rgba(26, 29, 33, .06)`, which is invisible on a dark sidebar.
+3. **The collapsed-rail `::after` tooltip was removed.** `.aside-inner` clips
+   overflow and a tooltip is a descendant of that clip, so nothing painted
+   inside the rail can escape it. `overflow-clip-margin` does not help — a probe
+   element still computes `overflow-x: hidden` in Chrome 153. Shipping it would
+   have painted a 3px sliver. Collapsed rows rely on the `title` attribute
+   `buildMenu()` already emits.
+4. **The flyout is retargeted to `.sidebar-subnav.nav-floating`**, the clone
+   `app.js` appends to `.aside` — a sibling of `.aside-inner`, outside every
+   clip. Styling the in-place submenu would paint into the 70px rail.
+
+Also added `text-indent: 0` to the collapsed anchor, because a pre-existing
+`-3px` shifted the icon off centre; the measured centre delta is now 0.00px.
+
+### The active pill is owned by the theme layer, not by these rules
+
+`bg-custom.php` sets the active row's background with `!important` from
+`tbl_config`, so the plan's `rgba(13, 148, 136, .16)` never applies. Measured on
+`/admin/tasks/all_task`: `background-color: rgb(15, 119, 142)`, and the
+`inset 3px 0 0` shadow computes in that same colour, so it is invisible. The
+rules were deliberately **not** given `!important` to fight the theme layer —
+the active state is the app's existing custom-colour system doing its job, and
+the geometry the plan cared about (40px height, 8px radius) does apply.
+
+### The plan's theme premise was wrong
+
+Step 8 asked to confirm `--c-sidebar-bg` and `--c-sidebar-active` "differ per
+theme" across 14 themes. Neither holds: the settings page has **10**
+`sidebar_theme` options, and those two variables are global `tbl_config` values,
+not per-theme. The real intent — that nothing is hardcoded — was verified instead
+by overriding each token at runtime and confirming every value tracks it.
+
+One genuine contrast issue remains: on the legacy path
+(`active_custom_color = 0`) the group header is the only element in this block
+that no theme file styles, so it falls back to the `tokens.css` default
+`#b6bdc6`, which is roughly 2.4:1 on the four white `bg-*.css` themes. It cannot
+inherit, because `app.css` paints `.sidebar` `#001737` in every theme. A fix
+needs either `--c-sidebar-*` in each `bg-*.css` or a body class in the view —
+both outside a CSS-only change. Row labels, the active pill and the search field
+are readable in all 10 legacy themes because the theme files win at equal
+specificity.
+
+### Also needed for a real collapsed tooltip
+
+Either extend the flyout clone to leaf rows in `app.js`, or give `.aside-inner`
+`overflow: visible` while the rail is collapsed.
+
+---
+
 ## Self-review notes
 
 Defects found and fixed during self-review, so the implementer does not hit them:
