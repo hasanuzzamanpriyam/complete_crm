@@ -1,13 +1,13 @@
 # Progress Tracker
 
 **Last updated:** 2026-09-27
-**Overall:** Part A **11 / 35** · Part B **0 / 74** · **Total 11 / 109**
+**Overall:** Part A **12 / 36** · Part B **0 / 74** · **Total 12 / 110**
 
 Legend: `[ ]` not started · `[~]` in progress · `[x]` complete
 
 ---
 
-## Part A — CSS Reskin · 11/35
+## Part A — CSS Reskin · 12/36
 
 Branch: `sakib` · Detail: [`part-a-css-reskin/README.md`](part-a-css-reskin/README.md)
 
@@ -27,12 +27,13 @@ File: [`01-tokens.md`](part-a-css-reskin/01-tokens.md)
 - [x] `A1-3` Fix `bg-custom.php` — 3 bugs, emit `:root` variables
 - [x] `A1-4` Enable `active_custom_color` in both DBs, verify live theming
 
-### A2 — Restyle `app.css` · 3/13
+### A2 — Restyle `app.css` · 5/14
 File: [`02-app-css.md`](part-a-css-reskin/02-app-css.md)
 
 - [x] `A2-1` Base and typography
 - [x] `A2-2` Panels to card surfaces
 - [x] `A2-13` **Soft UI depth and shape** — shadow scale, radii, `#f4f4f5` page ⭐ do before A2-3
+- [x] `A2-14` **KPI stat cards** — 4-in-a-row, 5px gutters, first instance of the frontend redesign
 - [ ] `A2-3` **Button family** ⭐ highest visual impact
 - [ ] `A2-4` Forms and inputs
 - [ ] `A2-5` Status badges to soft chips
@@ -117,6 +118,7 @@ satisfied by Part A's locked decisions, so skip it and start at `SN-1`.
 | Depth / effects | **Resolved 2026-09-27 — reversed** | **Soft shadows**, not strict flat. Three-step scale: `--sh-1` cards/controls, `--sh-2` raised (hover, icon chips, active sidebar pill), `--sh-3` overlays. **Selective** — tables, table rows, list-group items, badges, pagination, nav-tabs, alerts and calendar cells stay flat; nested panels take no shadow so a card never stacks two elevations. Gradients and inset/embossed effects still banned everywhere. *Supersedes the strict-flat rule of 2026-09-26, which A2-13 reversed in one commit.* |
 | Font | **Resolved 2026-09-27** | Keep **Source Sans Pro**. Soft UI uses Inter; adding it would need a `<link>` in 6 shells (breaking Part A's CSS-only rule) or ~100 KB of self-hosted woff2. Not worth it — this is the one place the result will read differently from the reference. |
 | Theme count | **Resolved 2026-09-27** | **14** themes, up from 10. Existing `bg-*` names preserved so stored `sidebar_theme` values keep working; added `bg-teal`, `bg-teal-dark`, `bg-amber`, `bg-amber-dark`. Slate was considered and dropped as indistinguishable from `bg-dark`. |
+| Redesign scope | **Resolved 2026-09-27** | **Entire frontend**, confirmed by the user. Part A (this reskin) + Part B (BS5) already cover it end to end; the work is unchanged in scope, only in emphasis. **Part A's CSS-only rule is relaxed for the dashboard KPI block** — dividers cannot become gutters in CSS alone, so A2-14 edits `main_content.php` and sets `tbl_dashboard.col`. Layout is now expected to change, not just colour. `.kpi-grid`/`.kpi-card` is the reusable pattern to apply to the other legacy `.row-table` small-box rows. |
 | Framework target | **Resolved** | Bootstrap 3 now → 5.3.3 in Part B |
 | Dark mode | **Deferred** | Part B |
 | Icon set | **Deferred** | Part B `SH-7` — swapping needs markup |

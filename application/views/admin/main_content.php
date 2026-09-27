@@ -54,76 +54,58 @@ $all_order_data = $this->db->where($where)->order_by('order_no', 'ASC')->get('tb
                     if ($v_report->name == 'income_expenses_report' && $v_report->status == 1) { ?>
                         <div class="<?= $v_report->col ?> report" id="<?= $v_report->id ?>">
                             <?php echo ajax_anchor(base_url("admin/settings/save_dashboard/$v_report->id" . '/0'), "<i class='fa fa-times-circle'></i>", array("class" => "close-btn", "title" => lang('inactive'), "data-fade-out-on-success" => "#" . $v_report->id)); ?>
-                            <div class="panel report_menu">
-                                <div class="row row-table row-flush">
-                                    <div class="col-xs-6 bb br">
-                                        <div class="row row-table row-flush">
-                                            <div class="col-xs-2 text-center text-info">
-                                                <em class="fa fa-plus fa-2x"></em>
+                            <div class="panel panel-kpi report_menu">
+                                <div class="panel-body">
+                                    <div class="kpi-grid">
+                                        <div class="kpi-card">
+                                            <div class="kpi-card__icon kpi-card__icon--success">
+                                                <i class="fa fa-plus"></i>
                                             </div>
-                                            <div class="col-xs-10">
-                                                <div class="text-center">
-                                                    <h4 class="mt-sm mb0" id="today_income">
+                                            <div class="kpi-card__body">
+                                                <h4 class="kpi-card__value" id="today_income"></h4>
+                                                <p class="kpi-card__label"><?= lang('income_today') ?></p>
+                                                <a href="<?= base_url() ?>admin/transactions/deposit"
+                                                   class="kpi-card__link"><?= lang('more_info') ?> <i
+                                                        class="fa fa-arrow-circle-right"></i></a>
+                                            </div>
+                                        </div>
 
-                                                    </h4>
-                                                    <p class="mb0 text-muted"><?= lang('income_today') ?></p>
-                                                    <small><a href="<?= base_url() ?>admin/transactions/deposit"
-                                                              class="mt0 mb0"><?= lang('more_info') ?> <i
-                                                                    class="fa fa-arrow-circle-right"></i></a></small>
-                                                </div>
+                                        <div class="kpi-card">
+                                            <div class="kpi-card__icon kpi-card__icon--danger">
+                                                <i class="fa fa-minus"></i>
+                                            </div>
+                                            <div class="kpi-card__body">
+                                                <h4 class="kpi-card__value" id="today_expense"></h4>
+                                                <p class="kpi-card__label"><?= lang('expense_today') ?></p>
+                                                <a href="<?= base_url() ?>admin/transactions/expense"
+                                                   class="kpi-card__link"><?= lang('more_info') ?> <i
+                                                        class="fa fa-arrow-circle-right"></i></a>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <div class="col-xs-6 bb">
-                                        <div class="row row-table row-flush">
-                                            <div class="col-xs-2 text-center text-danger">
-                                                <em class="fa fa-minus fa-2x"></em>
+                                        <div class="kpi-card">
+                                            <div class="kpi-card__icon kpi-card__icon--success">
+                                                <i class="fa fa-plus"></i>
                                             </div>
-                                            <div class="col-xs-10">
-                                                <div class="text-center">
-                                                    <h4 class="mt-sm mb0" id="today_expense"></h4>
-                                                    <p class="mb0 text-muted"><?= lang('expense_today') ?></p>
-                                                    <small><a href="<?= base_url() ?>admin/transactions/expense"
-                                                              class=" small-box-footer"><?= lang('more_info') ?>
-                                                            <i
-                                                                    class="fa fa-arrow-circle-right"></i></a></small>
-                                                </div>
+                                            <div class="kpi-card__body">
+                                                <h4 class="kpi-card__value" id="total_income"></h4>
+                                                <p class="kpi-card__label"><?= lang('total_income') ?></p>
+                                                <a href="<?= base_url() ?>admin/transactions/deposit"
+                                                   class="kpi-card__link"><?= lang('more_info') ?> <i
+                                                        class="fa fa-arrow-circle-right"></i></a>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-                                <div class="row row-table row-flush">
-                                    <div class="col-xs-6 br">
-                                        <div class="row row-table row-flush">
-                                            <div class="col-xs-2 text-center text-info">
-                                                <em class="fa fa-plus fa-2x"></em>
+
+                                        <div class="kpi-card">
+                                            <div class="kpi-card__icon kpi-card__icon--danger">
+                                                <i class="fa fa-minus"></i>
                                             </div>
-                                            <div class="col-xs-10">
-                                                <div class="text-center">
-                                                    <h4 class="mt-sm mb0" id="total_income"></h4>
-                                                    <p class="mb0 text-muted"><?= lang('total_income') ?></p>
-                                                    <small><a href="<?= base_url() ?>admin/transactions/deposit"
-                                                              class="mt0 mb0"><?= lang('more_info') ?> <i
-                                                                    class="fa fa-arrow-circle-right"></i></a></small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-xs-6">
-                                        <div class="row row-table row-flush">
-                                            <div class="col-xs-2 text-center text-danger">
-                                                <em class="fa fa-minus fa-2x"></em>
-                                            </div>
-                                            <div class="col-xs-10">
-                                                <div class="text-center">
-                                                    <h4 class="mt-sm mb0" id="total_expense"></h4>
-                                                    <p class="mb0 text-muted"><?= lang('total_expense') ?></p>
-                                                    <small><a href="<?= base_url() ?>admin/transactions/expense"
-                                                              class="small-box-footer"><?= lang('more_info') ?>
-                                                            <i
-                                                                    class="fa fa-arrow-circle-right"></i></a></small>
-                                                </div>
+                                            <div class="kpi-card__body">
+                                                <h4 class="kpi-card__value" id="total_expense"></h4>
+                                                <p class="kpi-card__label"><?= lang('total_expense') ?></p>
+                                                <a href="<?= base_url() ?>admin/transactions/expense"
+                                                   class="kpi-card__link"><?= lang('more_info') ?> <i
+                                                        class="fa fa-arrow-circle-right"></i></a>
                                             </div>
                                         </div>
                                     </div>

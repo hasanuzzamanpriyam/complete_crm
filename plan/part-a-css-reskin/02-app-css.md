@@ -28,6 +28,7 @@ Verified by extracting the selectors actually present in each section, not by na
 | **A2-10** tabs/nav/pagination | 1 *(`.nav-tabs`/`.nav-pills`)*, 9, 15 | `.nav-tabs` L130, `.breadcrumb`, `.dropdown-*` | 130–158, 2082–2113, 3498–3550 |
 | **A2-11** alerts/toasts | 11 *(`.alert-*` region)* | `.alert-css` L3111, `.alert-purple` L3117 | 3111–3130 |
 | **A2-12** print | 12 | `@media print` | 3281–3312 |
+| **A2-14** KPI stat cards | new (20b) | `.kpi-grid`, `.kpi-card`, `.panel-kpi` | new section, 3936–4068 |
 
 > **Section 1 is shared by six tasks** (A2-1, A2-3, A2-5, A2-6, A2-9, A2-10). They do not overlap
 > *within* it — each owns a different selector — but they do overlap *in line number*. Because
@@ -820,13 +821,69 @@ reports `box-shadow: none`; `getComputedStyle(body).backgroundColor` = `rgb(244,
 
 ---
 
+## A2-14 — KPI stat cards (dashboard income/expense row)
+
+**This is the seed of the frontend-wide redesign.** The legacy dashboard small-box pattern was a
+single `.panel.report_menu` containing a `display: table` 2×2 grid split by 1px `.bb`/`.br`
+dividers. Dividers are not a gutter: the four KPIs read as one slab, and at `col-sm-4` they were
+squeezed into a third of the page. Replaces it with standalone Soft UI stat tiles.
+
+- [x] **Step 1: New component in `app.css`** — section `Component: kpi-stat.less`
+
+  ```css
+  .kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; padding:5px; }
+  ```
+
+  5px between cards **and** 5px on the grid's outer edge. Card internal padding is deliberately
+  roomier (`14px 16px`) so the value and label stay readable. Tile: `--sh-1`, `--r-lg` 12px,
+  `border: 0`, `display:flex`, icon + body. Icon is a 32px `--r-md` chip with a soft tint
+  (`--c-*-subtle` bg, `--c-*` glyph) instead of a bare `fa-2x` glyph. Value `--fs-2xl` /
+  `--c-text` / tabular numerals; label `--fs-sm` / `--c-text-3`; link `--c-accent` with a
+  2px hover nudge. `.panel-kpi` makes the wrapper transparent so a card never stacks inside a card.
+
+  Breakpoints: `≤991px` → 2 columns, `≤575px` → 1 column.
+
+- [x] **Step 2: Markup in `main_content.php`**
+
+  The `income_expenses_report` block only. The four AJAX target IDs are injected by
+  `application/controllers/admin/Dashboard.php:223-226` and **must not be renamed**:
+  `today_income`, `today_expense`, `total_income`, `total_expense`. The `.bb`/`.br` dividers
+  and the nested `.row-table` wrappers are deleted.
+
+- [x] **Step 3: Rebalance the `report=1` row**
+
+  The four tiles need full width, and the `report=1` group was `col-sm-4 ×3` — an exact 12
+  columns. Widening one member alone left a 456px hole beside the other two, so all three move:
+
+  ```sql
+  UPDATE tic_crm.tbl_dashboard     SET col = 'col-sm-12' WHERE name = 'income_expenses_report';
+  UPDATE tic_crm.tbl_dashboard     SET col = 'col-sm-6'  WHERE name IN ('invoice_payment_report','ticket_tasks_report');
+  -- same two statements against tic_crm_demo
+  ```
+
+  Result is 12 + 6 + 6 — KPIs get a full-width row, the other two reports share the row below.
+  Note `order_no` is duplicated across `report` groups, so filter by `report=1`, not `order_no=1`.
+
+- [x] **Step 4: Verify + commit**
+
+**Verify (computed styles):** `grid` reports `display: grid`,
+`grid-template-columns` 4 equal tracks, `gap: 5px`, `padding: 5px`; all four cards share one
+`top` (single row) with a card-width + 5px pitch; card reports `--sh-1`, `12px`, `border 0px`,
+`padding 14px 16px`; `.panel-kpi` reports transparent bg, `box-shadow: none`, `border 0px`;
+all four IDs present and populated. `#report_menu` reports 12/6/6 at 1366/683/683px with no
+horizontal overflow. Breakpoints confirmed 4-across / 2×2 / stacked at 1440 / 889 / 444px.
+Console: 0 errors.
+**Effort:** S
+
+---
+
 ## Exit gate
 
-- [ ] All 13 tasks committed individually
+- [ ] All 14 tasks committed individually
 - [ ] `composer smoke` 20/20 after every task
 - [ ] Zero hardcoded hex values added to `app.css` — all from tokens
 - [ ] No class renamed
 - [ ] Only `app.css` and `print.css` modified in this phase (plus the 4 shell `<link>` tags)
 - [ ] Baseline screenshots re-captured for all 20 pages
 
-## Tasks: 13 - Completed: 3 - Remaining: 10
+## Tasks: 14 - Completed: 5 - Remaining: 9

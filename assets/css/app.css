@@ -3934,8 +3934,141 @@ h3 > .breadcrumb.pull-right,
 }
 
 /* ========================================================================
+   Component: kpi-stat.less
+   ========================================================================== */
+/**
+ * KPI stat cards: standalone Soft UI stat tiles laid out on a responsive
+ * grid. Replaces the legacy `.row-table` 2x2 small-box pattern, which used
+ * 1px `.bb`/`.br` dividers instead of real gutters.
+ *
+ * Gap is 5px on every side -- between cards and around the grid edge.
+ * Card *internal* padding is intentionally roomier (14px/16px) so the
+ * value and label stay readable.
+ */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+  padding: 5px;
+  margin: 0;
+}
+
+.kpi-card {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: 14px 16px;
+  background-color: var(--c-surface);
+  border: 0;
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-1);
+  min-width: 0;
+}
+
+.kpi-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-md);
+  font-size: 15px;
+  line-height: 1;
+}
+
+.kpi-card__body {
+  min-width: 0;
+}
+
+.kpi-card__value {
+  margin: 0;
+  font-size: var(--fs-2xl);
+  font-weight: 600;
+  line-height: var(--lh-tight);
+  color: var(--c-text);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kpi-card__label {
+  margin: 2px 0 0;
+  font-size: var(--fs-sm);
+  line-height: var(--lh-normal);
+  color: var(--c-text-3);
+}
+
+.kpi-card__link {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: var(--fs-xs);
+  color: var(--c-accent);
+}
+
+.kpi-card__link:hover,
+.kpi-card__link:focus {
+  color: var(--c-accent-hover);
+}
+
+.kpi-card__link i {
+  margin-left: 2px;
+  transition: transform var(--dur-fast) var(--ease);
+}
+
+.kpi-card__link:hover i {
+  transform: translateX(2px);
+}
+
+/* Icon tint variants */
+.kpi-card__icon--success {
+  color: var(--c-success);
+  background-color: var(--c-success-subtle);
+}
+
+.kpi-card__icon--danger {
+  color: var(--c-danger);
+  background-color: var(--c-danger-subtle);
+}
+
+.kpi-card__icon--accent {
+  color: var(--c-accent);
+  background-color: var(--c-accent-subtle);
+}
+
+.kpi-card__icon--info {
+  color: var(--c-info);
+  background-color: var(--c-info-subtle);
+}
+
+/* Transparent wrapper so a kpi-grid is not nested inside a visible panel */
+.panel-kpi {
+  background-color: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.panel-kpi > .panel-body {
+  padding: 0;
+  border: 0;
+}
+
+@media (max-width: 991px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 575px) {
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ========================================================================
    Component: form-elements.less
- ========================================================================== */
+   ========================================================================== */
 /**
  * Custom form elements
  *    - Checkbox
