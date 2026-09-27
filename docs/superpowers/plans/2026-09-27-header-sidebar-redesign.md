@@ -90,7 +90,15 @@ Expected: smoke 22/22, login 7/7, theme passes in both modes.
 - [ ] **Step 5: Regenerate the CSS inventory**
 
 ```powershell
-cmd /c "$php plan\_tools\css-inventory.php > plan\_data\part-a-css-inventory.md"
+$php = "C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe"
+# Write the generator's stdout through cmd's redirection, which is byte-exact.
+# PowerShell 5.1's own `>` would transcode to UTF-16LE and git would then treat
+# the inventory as binary, permanently breaking diffs on it.
+cmd /c "`"$php`" plan\_tools\css-inventory.php > plan\_data\part-a-css-inventory.md"
+# Confirm it is text, not UTF-16: first two bytes must NOT be FF FE.
+$head = [System.IO.File]::ReadAllBytes("plan\_data\part-a-css-inventory.md")[0..1]
+if ($head[0] -eq 0xFF -and $head[1] -eq 0xFE) { throw "inventory is UTF-16 - fix the redirection" }
+git diff --numstat plan/_data/part-a-css-inventory.md
 ```
 
 - [ ] **Step 6: Commit**
@@ -1230,7 +1238,15 @@ per theme.
 cmd /c composer smoke
 cmd /c composer test:login
 cmd /c composer test:theme
-cmd /c "$php plan\_tools\css-inventory.php > plan\_data\part-a-css-inventory.md"
+$php = "C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe"
+# Write the generator's stdout through cmd's redirection, which is byte-exact.
+# PowerShell 5.1's own `>` would transcode to UTF-16LE and git would then treat
+# the inventory as binary, permanently breaking diffs on it.
+cmd /c "`"$php`" plan\_tools\css-inventory.php > plan\_data\part-a-css-inventory.md"
+# Confirm it is text, not UTF-16: first two bytes must NOT be FF FE.
+$head = [System.IO.File]::ReadAllBytes("plan\_data\part-a-css-inventory.md")[0..1]
+if ($head[0] -eq 0xFF -and $head[1] -eq 0xFE) { throw "inventory is UTF-16 - fix the redirection" }
+git diff --numstat plan/_data/part-a-css-inventory.md
 ```
 
 - [ ] **Step 10: Commit**
@@ -1483,7 +1499,15 @@ and invoice pages.
 cmd /c composer smoke
 cmd /c composer test:login
 cmd /c composer test:theme
-cmd /c "$php plan\_tools\css-inventory.php > plan\_data\part-a-css-inventory.md"
+$php = "C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe"
+# Write the generator's stdout through cmd's redirection, which is byte-exact.
+# PowerShell 5.1's own `>` would transcode to UTF-16LE and git would then treat
+# the inventory as binary, permanently breaking diffs on it.
+cmd /c "`"$php`" plan\_tools\css-inventory.php > plan\_data\part-a-css-inventory.md"
+# Confirm it is text, not UTF-16: first two bytes must NOT be FF FE.
+$head = [System.IO.File]::ReadAllBytes("plan\_data\part-a-css-inventory.md")[0..1]
+if ($head[0] -eq 0xFF -and $head[1] -eq 0xFE) { throw "inventory is UTF-16 - fix the redirection" }
+git diff --numstat plan/_data/part-a-css-inventory.md
 ```
 
 - [ ] **Step 10: Commit**
@@ -1586,8 +1610,15 @@ Defects found and fixed during self-review, so the implementer does not hit them
     group order first, preserving sort order within each bucket, and then emits
     one header per bucket.
 
-Defects 8–10 were found while preparing execution, after the plan was written;
-the first seven were caught during the plan's own self-review.
+11. **PowerShell 5.1's `>` corrupts the inventory.** `Out-File`-style redirection
+    transcodes stdout to UTF-16LE, so the inventory landed as a 48KB file
+    starting `FF FE` and git classified it as **binary** — which silently breaks
+    every future diff on that file. All three inventory steps now redirect
+    through `cmd /c`, which is byte-exact, and assert the first two bytes are not
+    `FF FE` before the change is staged.
+
+Defects 8–11 were found while preparing and executing the plan; the first seven
+were caught during the plan's own self-review.
 
 Coverage and consistency:
 
