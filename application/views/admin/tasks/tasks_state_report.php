@@ -189,11 +189,11 @@ if ($this->session->userdata('user_type') == 1) {
     endforeach;
     endif;
     if (!empty($all_task_info)) {
-        $not_started_width = ($not_started / count(array($all_task_info))) * 100;
-        $deferred_width = ($deferred / count(array($all_task_info))) * 100;
-        $in_progress_width = ($in_progress / count(array($all_task_info))) * 100;
-        $waiting_for_someone_width = ($waiting_for_someone / count(array($all_task_info))) * 100;
-        $complete_width = ($complete / count(array($all_task_info))) * 100;
+        $not_started_width = ($not_started / count($all_task_info)) * 100;
+        $deferred_width = ($deferred / count($all_task_info)) * 100;
+        $in_progress_width = ($in_progress / count($all_task_info)) * 100;
+        $waiting_for_someone_width = ($waiting_for_someone / count($all_task_info)) * 100;
+        $complete_width = ($complete / count($all_task_info)) * 100;
     } else {
         $not_started_width = 0;
         $deferred_width = 0;

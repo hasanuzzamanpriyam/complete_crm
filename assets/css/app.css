@@ -4067,6 +4067,101 @@ h3 > .breadcrumb.pull-right,
 }
 
 /* ========================================================================
+   Component: responsive-safety.less
+   ========================================================================== */
+/**
+ * `.wrapper` sets `overflow-x: hidden` so the off-canvas sidebar can park
+ * off-screen. That is deliberate, but it also means ANY horizontal overflow
+ * is clipped with no way to scroll to it. These rules remove the three
+ * known producers of that overflow so the layout fits at any width.
+ */
+
+/* 1. `.table-responsive` never received an x-axis. bootstrap.min.css gives
+      it `overflow-y: hidden` and `width: 100%` but no `overflow-x`, so all
+      245 wrappers in the views rendered as plain blocks: wide tables pushed
+      past the clipped edge of `.wrapper` and became unreachable. */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* A scroll container needs a definite width, otherwise `width: 100%` on the
+   table resolves against the widest row and the wrapper never scrolls. */
+.table-responsive > .table,
+.table-responsive > .dataTables_wrapper,
+.table-responsive .dataTables_wrapper {
+  width: 100%;
+}
+
+/* 1b. Not every data table is wrapped in `.table-responsive`. The list pages
+       (e.g. `/admin/tasks/all_task`) emit a bare
+       `.box > .box-body > .dataTables_wrapper > table`, so every ancestor was
+       `overflow-x: visible` up to `.wrapper`'s `hidden` clip: the table
+       overflowed by ~72px at 850 wide and the extra columns were unreachable.
+       DataTables does not add its own x-axis unless `scrollX` is set, which
+       this app never does, so the wrapper itself must scroll. */
+.dataTables_wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 2. flot sizes each canvas in JS with fixed pixel values and never
+      re-measures, so charts overflowed their panel as the viewport
+      narrowed - 5px at 1514 wide, 264px at 996. */
+.panel canvas,
+.flot-chart,
+.flot-chart canvas {
+  max-width: 100%;
+}
+
+.flot-chart {
+  overflow: hidden;
+}
+
+/* 3. The closed off-canvas panel is parked by translate3d(235px,0,0) at
+      `right: 0`, so it sits wholly outside `.wrapper` yet still paints if
+      anything overlaps the clip. Hidden while closed so it can never be
+      half-visible, and never focusable, off-screen. Mirrors the existing
+      closed/open selector pair exactly, so the JS toggle is unaffected. */
+.csstransforms3d .offsidebar {
+  visibility: hidden;
+}
+
+.csstransforms3d .offsidebar-open .offsidebar,
+.no-csstransforms3d .offsidebar-open .offsidebar {
+  visibility: visible;
+}
+
+/* 4. Grid and flex children default to min-width:auto, which lets a wide
+      child (a table, a long unbroken string) push its column past the
+      viewport. This is the standard fix and the reason the dashboard could
+      not shrink below its content. */
+.row > [class*="col-"],
+.dashboard > [class*="col-"],
+.panel,
+.panel-body {
+  min-width: 0;
+}
+
+/* 5. Long unbroken tokens (URLs, invoice numbers, emails) must wrap rather
+      than force the page wider. */
+.table td,
+.table th,
+.panel-body {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+/* 6. Defensive containment for progress bars. The project/task state reports
+      compute bar widths as a percentage, but a bad or missing denominator
+      yields widths of tens of thousands of percent. A progress bar should
+      never be able to widen its own container, so clip it regardless. */
+.progress {
+  overflow: hidden;
+}
+
+/* ========================================================================
    Component: form-elements.less
    ========================================================================== */
 /**

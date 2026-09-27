@@ -199,12 +199,12 @@ if (!empty(admin())) {
     endforeach;
     endif;
     if (!empty($all_project)) {
-        $overdue_width = ($overdue / count(array($all_project))) * 100;
-        $started_width = ($started / count(array($all_project))) * 100;
-        $on_hold_width = ($on_hold / count(array($all_project))) * 100;
-        $in_progress_width = ($in_progress / count(array($all_project))) * 100;
-        $cancel_width = ($cancel / count(array($all_project))) * 100;
-        $complete_width = ($complete / count(array($all_project))) * 100;
+        $overdue_width = ($overdue / count($all_project)) * 100;
+        $started_width = ($started / count($all_project)) * 100;
+        $on_hold_width = ($on_hold / count($all_project)) * 100;
+        $in_progress_width = ($in_progress / count($all_project)) * 100;
+        $cancel_width = ($cancel / count($all_project)) * 100;
+        $complete_width = ($complete / count($all_project)) * 100;
     } else {
         $overdue_width = 0;
         $started_width = 0;
@@ -222,7 +222,7 @@ if (!empty(admin())) {
                     <strong><a style="font-size: 15px" class="p_status" search-type="<?= ('overdue') ?>" id="overdue"
                                href="#"><?= lang('overdue') ?></a>
                         <small class="pull-right " style="padding-top: 2px"> <?= $overdue ?>
-                            / <?= count(array($all_project)) ?></small>
+                            / <?= count($all_project) ?></small>
                     </strong>
                     <div class="progress progress-striped progress-xs mb-sm">
                         <div class="progress-bar progress-bar-danger " data-toggle="tooltip"
@@ -241,7 +241,7 @@ if (!empty(admin())) {
                     <strong><a style="font-size: 15px" class="p_status" search-type="<?= ('started') ?>" id="started"
                                href="#"><?= lang('started') ?></a>
                         <small class="pull-right " style="padding-top: 2px"> <?= $started ?>
-                            / <?= count(array($all_project)) ?></small>
+                            / <?= count($all_project) ?></small>
                     </strong>
                     <div class="progress progress-striped progress-xs mb-sm">
                         <div class="progress-bar progress-bar-primary " data-toggle="tooltip"
@@ -259,7 +259,7 @@ if (!empty(admin())) {
                     <strong><a style="font-size: 15px" class="p_status" search-type="<?= ('on_hold') ?>" id="on_hold"
                                href="#"><?= lang('on_hold') ?></a>
                         <small class="pull-right " style="padding-top: 2px"> <?= $on_hold ?>
-                            / <?= count(array($all_project)) ?></small>
+                            / <?= count($all_project) ?></small>
                     </strong>
                     <div class="progress progress-striped progress-xs mb-sm">
                         <div class="progress-bar progress-bar-warning " data-toggle="tooltip"
@@ -278,7 +278,7 @@ if (!empty(admin())) {
                                id="in_progress"
                                href="#"><?= lang('in_progress') ?></a>
                         <small class="pull-right " style="padding-top: 2px"> <?= $in_progress ?>
-                            / <?= count(array($all_project)) ?></small>
+                            / <?= count($all_project) ?></small>
                     </strong>
                     <div class="progress progress-striped progress-xs mb-sm">
                         <div class="progress-bar progress-bar-info " data-toggle="tooltip"
@@ -296,7 +296,7 @@ if (!empty(admin())) {
                     <strong><a style="font-size: 15px" class="p_status" search-type="<?= ('cancel') ?>" id="cancel"
                                href="#"><?= lang('cancel') ?></a>
                         <small class="pull-right " style="padding-top: 2px"> <?= $cancel ?>
-                            / <?= count(array($all_project)) ?></small>
+                            / <?= count($all_project) ?></small>
                     </strong>
                     <div class="progress progress-striped progress-xs mb-sm">
                         <div class="progress-bar progress-bar-danger " data-toggle="tooltip"
@@ -314,7 +314,7 @@ if (!empty(admin())) {
                     <strong><a style="font-size: 15px" class="p_status" search-type="<?= ('complete') ?>" id="completed"
                                href="#"><?= lang('complete') ?></a>
                         <small class="pull-right " style="padding-top: 2px"> <?= $complete ?>
-                            / <?= count(array($all_project)) ?></small>
+                            / <?= count($all_project) ?></small>
                     </strong>
                     <div class="progress progress-striped progress-xs mb-sm">
                         <div class="progress-bar progress-bar-success " data-toggle="tooltip"
