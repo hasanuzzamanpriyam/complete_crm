@@ -106,6 +106,12 @@ class Navigation extends MY_Controller
         // the bug behind plausible data. An absent menu_group (an old form, a
         // bookmarked POST) leaves the stored value alone, and an unavailable map
         // skips the column so an unmigrated deployment still saves.
+        //
+        // Note the coupling: a submitted EMPTY string is present, not absent, so
+        // it takes the reject branch. The select therefore has no blank
+        // placeholder option and preselects 'tools' for a new menu. If one is
+        // ever added, this guard must also allow '' or every untouched add-form
+        // save will be refused.
         $groups = $this->_group_map();
         $menu_group = $this->input->post('menu_group', true);
         if (count($groups) > 0 && $menu_group !== NULL) {
