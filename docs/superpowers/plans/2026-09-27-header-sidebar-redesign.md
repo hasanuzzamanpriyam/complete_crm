@@ -1658,13 +1658,39 @@ Defects found and fixed during self-review, so the implementer does not hit them
     `$this->load->config('menu_groups', false, true)`, with
     `$fail_gracefully = true` so a missing file is non-fatal.
 
-Defects 8–13 were found while preparing and executing the plan; the first seven
+14. **The gate could never log in on this machine.** The PHP build at
+    `C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe` has **no curl
+    cookie-jar support**: `CURLOPT_COOKIEJAR` and `CURLOPT_COOKIEFILE` are silent
+    no-ops, so no jar file is ever written — with or without
+    `CURLOPT_COOKIESESSION`, with or without following redirects, on any path.
+    The credentials are correct and login returns `303` to
+    `/admin/dashboard` with a valid `Set-Cookie`, but the gate's
+    `is_file($jar)` check could never pass, so `render` and `admin` would have
+    failed for the wrong reason and masked the real assertions. The gate now
+    reads `Set-Cookie` from the response and replays it via the `Cookie`
+    header, and `login()` additionally proves the session works by fetching the
+    dashboard and asserting the sign-in form is absent.
+15. **The gate looked for double quotes where the app emits single ones.**
+    `buildMenu()` writes `class='nav s-menu ...'`, so the gate's
+    `str_contains($html, 'class="nav s-menu')` never matched and
+    `sidebar nav rendered` failed even with a working login. Both occurrences
+    now match the real markup.
+16. **`getopt` and `$argv[1]` cannot both be satisfied.** PHP stops option
+    parsing at the first non-option argument, so `db --db-name=X` parses the
+    flag as empty and silently re-tests the default database, while
+    `--db-name=X db` leaves `$argv[1]` holding the flag so `$mode` fell through
+    to `default` and ran **`all`** — including the `admin` round-trip that
+    writes to `tbl_menu`. The gate now scans for the first non-option argument,
+    so the documented flag-first form works and no longer escalates to `all`.
+
+Defects 8–16 were found while preparing and executing the plan; the first seven
 were caught during the plan's own self-review.
 
 **Note on `getopt`:** PHP stops option parsing at the first non-option argument,
 so flags must come *before* the subcommand —
-`php plan/_tools/menu-group-test.php --db-name=tic_crm_demo db`, not
-`... db --db-name=tic_crm_demo`. Every command in this plan already does this.
+`php plan/_tools/menu-group-test.php --db-name=tic_crm_demo db`. The gate now
+scans for the first non-option argument itself, so this form works correctly and
+cannot silently escalate to running every subcommand.
 
 Coverage and consistency:
 
