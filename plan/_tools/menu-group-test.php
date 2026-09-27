@@ -484,9 +484,19 @@ function testAdmin(string $base): void
 
     $form = httpGet($base . '/admin/navigation/add_navigation', $jar);
     check(str_contains($form, 'name="menu_group"'), 'add_navigation has a menu_group select');
+
+    // Scope the option check to the menu_group <select> itself. A whole-page
+    // substring search for value="projects" passed even before the select
+    // existed, because that string occurs elsewhere in the page — a false pass
+    // that hid four real failures.
+    $selectHtml = '';
+    if (preg_match('/<select\b[^>]*\bname="menu_group".*?<\/select>/is', $form, $sm)) {
+        $selectHtml = $sm[0];
+    }
+    check($selectHtml !== '', 'menu_group select element is locatable');
     foreach ($EXPECTED_LABEL as $key => $label) {
         check(
-            str_contains($form, 'value="' . $key . '"'),
+            $selectHtml !== '' && str_contains($selectHtml, 'value="' . $key . '"'),
             "select offers '{$key}'",
             "missing option for {$key}"
         );
@@ -528,8 +538,28 @@ function testAdmin(string $base): void
     check(($saved['menu_group'] ?? null) === $target, "save_navigation persists menu_group='{$target}'", 'got ' . var_export($saved['menu_group'] ?? null, true));
 
     // The save must not have damaged any other column.
-    $drift = array_diff_assoc($saved, array_merge($before, ['menu_group' => $target]));
+    //
+    // tbl_menu.time is `timestamp ... on update current_timestamp()`, so MySQL
+    // refreshes it on any write that actually changes a value. Persisting
+    // menu_group IS such a write, so comparing `time` against the pre-save
+    // snapshot made this assertion unsatisfiable: it could only pass when the
+    // save silently did nothing. It is a database-managed column, not a
+    // form-owned one, so it is excluded from the drift check and asserted
+    // separately below.
+    $driftSaved = $saved;
+    $driftWant  = array_merge($before, ['menu_group' => $target]);
+    $timeBefore = $driftSaved['time'] ?? null;
+    unset($driftSaved['time'], $driftWant['time']);
+    $drift = array_diff_assoc($driftSaved, $driftWant);
     check(count($drift) === 0, 'no collateral column changes', json_encode($drift));
+
+    // The auto-managed timestamp must still behave sanely: it may advance, but
+    // it must never go backwards or go missing.
+    check(
+        !empty($timeBefore) && !empty($saved['time']) && strtotime((string) $saved['time']) >= strtotime((string) $timeBefore),
+        'auto-managed `time` did not go backwards',
+        "before '{$timeBefore}' after '" . ($saved['time'] ?? 'NULL') . "'"
+    );
 
     $stmt = $pdo->prepare('UPDATE tbl_menu SET menu_group = ? WHERE menu_id = 1');
     $stmt->execute([$before['menu_group']]);
