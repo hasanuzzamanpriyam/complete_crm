@@ -1710,7 +1710,24 @@ Defects found and fixed during self-review, so the implementer does not hit them
     `clientMenu()`, forwarding it through the recursion, and dropping the opt-in
     in `dynamicMenu()` each make the relevant check fail.
 
-Defects 8–18 were found while preparing and executing the plan; the first seven
+19. **The admin round-trip contained two unsatisfiable or false-passing checks.**
+    `tbl_menu.time` is `timestamp NOT NULL DEFAULT current_timestamp() ON
+    UPDATE current_timestamp()`, so MySQL refreshes it on any write that
+    actually changes a value. Because persisting `menu_group` *is* such a
+    write, `no collateral column changes` could never pass alongside
+    `save_navigation persists menu_group='finance'` — it only ever passed while
+    the save silently did nothing. `time` is database-managed rather than
+    form-owned, so it is now excluded from the drift comparison and asserted
+    separately: it may advance, but must never go backwards or go missing.
+    Separately, `select offers '<key>'` searched the whole page for
+    `value="<key>"`, which occurs elsewhere on the page, so `select offers
+    'projects'` passed *before the select existed at all* — a false pass hiding
+    four real failures. The option check is now scoped to the
+    `<select name="menu_group">` element. Both were mutation-tested by editing
+    the view and the controller: removing the select, dropping one option, and
+    reintroducing the `time` drift each produce the expected failure.
+
+Defects 8–19 were found while preparing and executing the plan; the first seven
 were caught during the plan's own self-review.
 
 **Note on `getopt`:** PHP stops option parsing at the first non-option argument,
