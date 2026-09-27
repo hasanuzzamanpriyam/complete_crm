@@ -432,6 +432,18 @@ function testClientMenuUngrouped(string $base, string $jar): void
         'buildMenu() $group parameter defaults to false'
     );
 
+    // Grouping is the VERTICAL admin sidebar only. The horizontal layout also
+    // renders dynamicMenu() (views/admin/components/horizontal_sidebar.php), so
+    // opting in unconditionally would drop group headers into a horizontal menu
+    // where the section labels mean nothing. layout-h is not set anywhere today,
+    // so this is currently dormant — assert the guard exists rather than rely on
+    // that accident.
+    check(
+        (bool) preg_match('/\$group\s*=\s*\$this->hasMenuGroupColumn\(\)\s*&&\s*!\s*config_item\(\s*[\'"]layout-h[\'"]\s*\)/', $src),
+        'dynamicMenu() opts out of grouping for the horizontal layout',
+        'no `!config_item(\'layout-h\')` guard on the $group assignment'
+    );
+
     // If a genuine client page is ever reachable, assert on it too.
     $ch = curl_init($base . '/client/dashboard');
     curl_setopt_array($ch, [

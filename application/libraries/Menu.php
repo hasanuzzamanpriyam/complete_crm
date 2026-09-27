@@ -134,9 +134,12 @@ class Menu
         }
 
         // Builds the array lists with data from the menu table.
-        // Grouping is admin-sidebar only: clientMenu() and the horizontal layout
-        // call buildMenu() without the flag and are unchanged.
-        $group = $this->hasMenuGroupColumn();
+        // Grouping is the vertical admin sidebar only. clientMenu() calls
+        // buildMenu() with 3 arguments and never groups. The horizontal layout
+        // also goes through dynamicMenu(), so it has to be excluded explicitly
+        // here — otherwise enabling layout-h would put group headers in a
+        // horizontal menu, where the section labels have no meaning.
+        $group = $this->hasMenuGroupColumn() && !config_item('layout-h');
         return $output = $this->buildMenu(0, $menu, null, $group);
     }
 
