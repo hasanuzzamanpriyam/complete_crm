@@ -1683,7 +1683,34 @@ Defects found and fixed during self-review, so the implementer does not hit them
     writes to `tbl_menu`. The gate now scans for the first non-option argument,
     so the documented flag-first form works and no longer escalates to `all`.
 
-Defects 8–16 were found while preparing and executing the plan; the first seven
+17. **The render assertions were unreachable.** `testRender()` decoded the
+    captured group labels with
+    `array_map('html_entity_decode', $m[1] ?? [], ENT_QUOTES, 'UTF-8')`, but
+    `array_map`'s third and later parameters are additional *arrays*, so the
+    integer `ENT_QUOTES` raised `TypeError: Argument #3 must be of type array,
+    int given`. This was unconditional, so `render` and `all` died with exit 255
+    before reaching a single header assertion. Now a closure does the decoding.
+18. **The client-menu check could never pass.** It fetched `/client/dashboard`
+    with the *admin* session, but that URL answers `307` pointing at
+    `/admin/dashboard`, so the gate was inspecting the grouped admin page and
+    asserting it contained no group headers. Client passwords in `tbl_client`
+    are hashed and there is no client `auto_login()` (`Login::auto_login()`
+    only maps admin/manager/employee), so no client session is obtainable.
+    Rather than delete the check or weaken it to a redirect-tolerant no-op, the
+    invariant is now verified where it is actually decided: `token_get_all()`
+    parses `Menu.php` and asserts `clientMenu()` calls `buildMenu()` with at
+    most three arguments, that `buildMenu()`'s own recursion does not forward
+    `$group` (which is what keeps submenus flat), that `dynamicMenu()` is the
+    one caller opting in with a fourth argument, and that the parameter defaults
+    to `false`. If a real client page ever becomes reachable the live assertion
+    runs too. The argument counter counts separators at depth 0 and skips the
+    `function buildMenu(...)` declaration, which has the same token shape as a
+    call; without that it reported every call as zero arguments and the checks
+    passed vacuously. All four were mutation-tested: passing the flag from
+    `clientMenu()`, forwarding it through the recursion, and dropping the opt-in
+    in `dynamicMenu()` each make the relevant check fail.
+
+Defects 8–18 were found while preparing and executing the plan; the first seven
 were caught during the plan's own self-review.
 
 **Note on `getopt`:** PHP stops option parsing at the first non-option argument,
