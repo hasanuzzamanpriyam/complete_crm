@@ -1588,6 +1588,47 @@ during the responsive sweep and never attributed.
 
 ---
 
+## Follow-ups found during Task 5 review
+
+### Menus created through the UI still get an empty `link`
+
+Not a regression from this work, and deliberately left out of it, but it should
+be fixed.
+
+`add_navigation.php` renders inputs for `label`, `icon`, `parent`, `sort` and
+now `menu_group` — but there is no `link` input, while `tbl_menu.link` is
+`varchar(100) NOT NULL`. On **update** the controller now skips fields the form
+did not post, so an existing menu keeps its link. On **insert** there is no
+stored value to preserve, so the INSERT omits the column and MySQL fills it with
+the implicit `''`. This fails silently because CI3's mysqli driver strips
+`STRICT_TRANS_TABLES` and `STRICT_ALL_TABLES` from every session
+(`system/database/drivers/mysqli/mysqli_driver.php:155-157`), so the app runs
+non-strict and the omitted `NOT NULL` column takes `''` instead of raising an
+error. The controller then reports "Save Navigation Successfully!" and the new
+sidebar item points at `base_url()`, the site root.
+
+Confirmed over HTTP against a throwaway row: the generated SQL is
+`INSERT INTO tbl_menu (label, icon, sort, parent, menu_group) VALUES (...)` and
+the resulting row has `link = ''`.
+
+The honest fix is to add a `link` input to `add_navigation.php` and drop `link`
+from the controller's special case, so the form matches the columns it writes.
+That is a visible change to an admin form, so it is recorded here rather than
+folded into the grouping work.
+
+### Two smaller pre-existing items
+
+- `manage_navigation.php` renders its empty state as `<td colspan="3">`, which
+  was already wrong for six columns and is now wrong for seven. It is dead code
+  today, because the guard is `count(array($nav))` and `array($nav)` always has
+  exactly one element, so the branch cannot render.
+- `manage_navigation.php` echoes the group label without `htmlspecialchars`,
+  while `Menu::buildMenu()` escapes the same labels. Not an XSS risk — the value
+  is either a developer-controlled config label or a whitelisted DB value — but
+  the asymmetry is worth tidying in a separate pass over that file.
+
+---
+
 ## Self-review notes
 
 Defects found and fixed during self-review, so the implementer does not hit them:
