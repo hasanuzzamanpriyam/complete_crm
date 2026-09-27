@@ -98,8 +98,10 @@ lists — form a **Pinned** group at the top. Then labelled groups from the new
 | `tools` | Tools & Admin |
 | `admin` | Super Admin |
 
-Group **order is a hardcoded array in `Menu.php`**, not a column, so no admin UI
-is needed to reorder. Unknown or empty values fall through to `tools`.
+Group **order lives in `application/config/menu_groups.php`**, not a column, so
+no admin UI is needed to reorder. It is a single source of truth read by
+`Menu.php`, `add_navigation.php` and `Navigation.php` via `config_item()`, and
+by the verification test. Unknown or empty values fall through to `tools`.
 
 ### Item rows
 
@@ -208,6 +210,28 @@ Set on the 45 top-level rows only — 45 ids, no duplicates, every live top-leve
 `client` (menu_id 4) sits at `sort` 13, between `tickets` and `departments`, and
 belongs in `crm`.
 
+### `application/config/menu_groups.php` — new
+
+The canonical, ordered group map. CodeIgniter auto-loads
+`application/config/*.php`, so it is available everywhere as
+`config_item('menu_groups')` with no wiring — the same mechanism the app already
+uses for `config_item('logo_or_icon')`, `config_item('layout-h')` and
+`config_item('sidebar_theme')`.
+
+```php
+$config['menu_groups'] = [
+    'crm'      => 'CRM & Clients',
+    'projects' => 'Projects & Tasks',
+    'hr'       => 'HR & Payroll',
+    'finance'  => 'Finance & Billing',
+    'tools'    => 'Tools & Admin',
+    'admin'    => 'Super Admin',
+];
+```
+
+Array order is the display order. The `tools` key is the documented fallback
+for unknown values.
+
 ### `application/libraries/Menu.php`
 
 `buildMenu()` gains an opt-in `$group` flag.
@@ -219,13 +243,17 @@ belongs in `crm`.
   when collapsed.
 - Nothing else in the `<li>`/`<a>` markup changes, so `active_menu_id()`
   highlighting and the existing `title` attributes are untouched.
+- `dynamicMenu()` checks for the `menu_group` column once per request. If it is
+  absent, grouping is skipped and the flat menu renders.
 
 ### Admin UI
 
 - `application/views/admin/menu/add_navigation.php` — add a "Group"
-  `<select name="menu_group">` beside Parent, populated from the same array.
+  `<select name="menu_group">` beside Parent, populated from
+  `config_item('menu_groups')`.
 - `application/controllers/admin/Navigation.php` — `save_navigation()` adds
-  `'menu_group'` to its `array_from_post` list.
+  `'menu_group'` to its `array_from_post` list and rejects values not in the
+  configured set.
 - `application/views/admin/menu/manage_navigation.php` — add a "Group" column.
 
 ## Files
@@ -233,13 +261,15 @@ belongs in `crm`.
 - `assets/css/app.css` — sidebar section, topnavbar section, group-header
   rules, collapsed-rail tooltip
 - `assets/css/tokens.css` — only if a token is missing
-- `application/libraries/Menu.php` — `$group` flag, group order array
+- `application/config/menu_groups.php` — new, canonical ordered group map
+- `application/libraries/Menu.php` — `$group` flag
 - `application/migrations/1003_version_1003.php` — new
 - `application/controllers/admin/Navigation.php` — whitelist `menu_group`
 - `application/views/admin/menu/add_navigation.php` — Group select
 - `application/views/admin/menu/manage_navigation.php` — Group column
 - `application/views/admin/components/header.php` — title markup, `New` label
   only; no ID, href or handler changes
+- `plan/_tools/menu-group-test.php` — new verification gate
 - `plan/part-a-css-reskin/02-app-css.md`, `plan/STATUS.md`,
   `plan/_data/part-a-css-inventory.md` — progress and inventory
 
@@ -260,6 +290,7 @@ Each is a separate commit pushed to `origin sakib`.
 - `composer test:login` — 7/7
 - `composer test:theme` — both modes
 - `php -l` on every touched PHP file
+- `php plan/_tools/menu-group-test.php` — new gate, Task 1 onward
 - Regenerate `plan/_data/part-a-css-inventory.md`
 
 ### Browser checks
