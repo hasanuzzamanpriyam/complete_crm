@@ -34,12 +34,16 @@ $EXPECTED_LABEL = [
 ];
 
 // The 45 live top-level menu_ids, with the group each must carry.
+// 73 (utilities) is the HR module container — it parents 71 holiday and
+// 69 goal_tracking — and 209 warning / 210 promotion are employee records whose
+// siblings 211 termination / 212 resignation are already in hr. All three were
+// moved to hr after review of the live DB and the app's own language files.
 $EXPECTED_BACKFILL = [
     'crm'      => [1, 2, 4, 5, 227, 228, 139, 141],
     'projects' => [6, 54, 55, 56, 57, 58, 233, 234, 269],
-    'hr'       => [70, 72, 85, 100, 101, 102, 105, 211, 212],
-    'finance'  => [12, 29, 75, 89, 150, 210, 213],
-    'tools'    => [24, 25, 26, 42, 73, 110, 209, 235, 236, 248, 263],
+    'hr'       => [70, 72, 73, 85, 100, 101, 102, 105, 209, 210, 211, 212],
+    'finance'  => [12, 29, 75, 89, 150, 213],
+    'tools'    => [24, 25, 26, 42, 110, 235, 236, 248, 263],
     'admin'    => [243],
 ];
 

@@ -163,9 +163,9 @@ $EXPECTED_LABEL = [
 $EXPECTED_BACKFILL = [
     'crm'      => [1, 2, 4, 5, 227, 228, 139, 141],
     'projects' => [6, 54, 55, 56, 57, 58, 233, 234, 269],
-    'hr'       => [70, 72, 85, 100, 101, 102, 105, 211, 212],
-    'finance'  => [12, 29, 75, 89, 150, 210, 213],
-    'tools'    => [24, 25, 26, 42, 73, 110, 209, 235, 236, 248, 263],
+    'hr'       => [70, 72, 73, 85, 100, 101, 102, 105, 209, 210, 211, 212],
+    'finance'  => [12, 29, 75, 89, 150, 213],
+    'tools'    => [24, 25, 26, 42, 110, 235, 236, 248, 263],
     'admin'    => [243],
 ];
 
@@ -571,9 +571,9 @@ class Migration_Version_1003 extends CI_Migration
         $map = [
             'crm'      => [1, 2, 4, 5, 227, 228, 139, 141],
             'projects' => [6, 54, 55, 56, 57, 58, 233, 234, 269],
-            'hr'       => [70, 72, 85, 100, 101, 102, 105, 211, 212],
-            'finance'  => [12, 29, 75, 89, 150, 210, 213],
-            'tools'    => [24, 25, 26, 42, 73, 110, 209, 235, 236, 248, 263],
+            'hr'       => [70, 72, 73, 85, 100, 101, 102, 105, 209, 210, 211, 212],
+            'finance'  => [12, 29, 75, 89, 150, 213],
+            'tools'    => [24, 25, 26, 42, 110, 235, 236, 248, 263],
             'admin'    => [243],
         ];
 
@@ -609,9 +609,9 @@ $mysql = "C:\laragon\bin\mysql\mariadb-12.2.2-winx64\bin\mysql.exe"
 $map = [ordered]@{
   crm      = 1,2,4,5,227,228,139,141
   projects = 6,54,55,56,57,58,233,234,269
-  hr       = 70,72,85,100,101,102,105,211,212
-  finance  = 12,29,75,89,150,210,213
-  tools    = 24,25,26,42,73,110,209,235,236,248,263
+  hr       = 70,72,73,85,100,101,102,105,209,210,211,212
+  finance  = 12,29,75,89,150,213
+  tools    = 24,25,26,42,110,235,236,248,263
   admin    = 243
 }
 foreach ($g in $map.Keys) {
@@ -655,9 +655,9 @@ ALTER TABLE `tbl_menu`
 
 UPDATE `tbl_menu` SET `menu_group` = 'crm'      WHERE `menu_id` IN (1,2,4,5,227,228,139,141);
 UPDATE `tbl_menu` SET `menu_group` = 'projects' WHERE `menu_id` IN (6,54,55,56,57,58,233,234,269);
-UPDATE `tbl_menu` SET `menu_group` = 'hr'       WHERE `menu_id` IN (70,72,85,100,101,102,105,211,212);
-UPDATE `tbl_menu` SET `menu_group` = 'finance'  WHERE `menu_id` IN (12,29,75,89,150,210,213);
-UPDATE `tbl_menu` SET `menu_group` = 'tools'    WHERE `menu_id` IN (24,25,26,42,73,110,209,235,236,248,263);
+UPDATE `tbl_menu` SET `menu_group` = 'hr'       WHERE `menu_id` IN (70,72,73,85,100,101,102,105,209,210,211,212);
+UPDATE `tbl_menu` SET `menu_group` = 'finance'  WHERE `menu_id` IN (12,29,75,89,150,213);
+UPDATE `tbl_menu` SET `menu_group` = 'tools'    WHERE `menu_id` IN (24,25,26,42,110,235,236,248,263);
 UPDATE `tbl_menu` SET `menu_group` = 'admin'    WHERE `menu_id` IN (243);
 ```
 
