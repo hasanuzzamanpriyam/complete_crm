@@ -55,9 +55,17 @@
                 <label for="field-1" class="col-sm-3 control-label">Group</label>
                 <div class="col-sm-5">
                     <select name="menu_group" class="form-control select_box">
+                        <?php
+                        // Preselect the documented fallback, not the first option.
+                        // get_new_menuInfo() has no menu_group property, so without
+                        // this the browser would silently default to the first
+                        // option (crm) and every new menu would be filed under
+                        // CRM & Clients instead of Tools & Admin.
+                        $selected_group = isset($menu_info->menu_group) ? $menu_info->menu_group : 'tools';
+                        ?>
                         <?php if (count($menu_groups)): foreach ($menu_groups as $group_key => $group_label) : ?>
                             <option value="<?php echo $group_key ?>"
-                                <?php echo (isset($menu_info->menu_group) && $menu_info->menu_group == $group_key) ? 'selected' : '' ?>>
+                                <?php echo ($selected_group == $group_key) ? 'selected' : '' ?>>
                                 <?php echo $group_label ?></option>
                         <?php endforeach; ?>
                         <?php endif; ?>

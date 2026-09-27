@@ -505,6 +505,23 @@ function testAdmin(string $base): void
     $list = httpGet($base . '/admin/navigation', $jar);
     check(str_contains($list, '<th>Group</th>'), 'manage_navigation has a Group column');
 
+    // The add form must preselect the documented fallback ('tools'), not simply
+    // let the browser pick the first option. Otherwise every new menu created
+    // from the UI is silently filed under CRM & Clients.
+    $createForm = httpGet($base . '/admin/navigation/add_navigation', $jar);
+    $createSelect = '';
+    if (preg_match('/<select\b[^>]*\bname="menu_group".*?<\/select>/is', $createForm, $cm)) {
+        $createSelect = $cm[0];
+    }
+    preg_match_all('/<option\b[^>]*\bselected\b/i', $createSelect, $selM);
+    $selectedCount = count($selM[0]);
+    $toolsSelected = (bool) preg_match('/<option\b[^>]*value="tools"[^>]*\bselected\b/i', $createSelect);
+    check(
+        $selectedCount === 1 && $toolsSelected,
+        'the add form preselects the documented fallback group (tools)',
+        "selected options: {$selectedCount}, tools selected: " . ($toolsSelected ? 'yes' : 'no')
+    );
+
     // Round-trip: save a group, confirm the DB, restore the ORIGINAL value.
     //
     // save_navigation() rewrites every column the form posts, and the form does
@@ -572,69 +589,137 @@ function testAdmin(string $base): void
     // This used to destroy admin/dashboard's link while reporting success, and
     // the new Group control gives admins a fresh reason to press Save on rows
     // they previously had no reason to touch.
-    formShapedSavePreservesLink($base, $jar, $pdo, $before);
+    formShapedSavePreservesLink($base, $jar, $pdo);
+    unknownGroupIsRefused($base, $jar, $pdo);
 }
 
 /**
  * POST exactly the fields add_navigation.php renders (label, icon, parent, sort,
- * menu_group — no `link`) and confirm the stored link survives, then confirm a
- * POST that DOES carry a link still updates it. Both are restored afterwards.
+ * menu_group — no `link`) to a throwaway row this function owns, and confirm the
+ * stored link survives, then confirm a POST that DOES carry a link still updates
+ * it.
+ *
+ * Scope: this covers the UPDATE path only. Creating a menu through the UI still
+ * writes an empty link, because the form has no `link` input and CI3's mysqli
+ * driver strips STRICT_TRANS_TABLES, so the omitted NOT NULL column takes an
+ * implicit '' instead of raising an error. That predates this feature and is
+ * recorded as a follow-up; the fix here is about the destructive UPDATE.
+ *
+ * A dedicated fixture row is used rather than menu_id=1 so that a fatal error or
+ * a Ctrl-C can never leave the Dashboard menu pointing at a probe value.
  */
-function formShapedSavePreservesLink(string $base, string $jar, PDO $pdo, array $before): void
+function formShapedSavePreservesLink(string $base, string $jar, PDO $pdo): void
 {
-    $snapshot = $pdo->query('SELECT * FROM tbl_menu WHERE menu_id = 1')->fetch(PDO::FETCH_ASSOC);
-    $origLink = (string) $snapshot['link'];
+    $fixtureId = insertFixtureMenu($pdo);
+    // Belt and braces: if the process dies before the finally below, drop the
+    // row on the way out rather than leaving it in the sidebar.
+    register_shutdown_function(function () use ($pdo, $fixtureId) {
+        try {
+            $pdo->prepare('DELETE FROM tbl_menu WHERE menu_id = ?')->execute([$fixtureId]);
+        } catch (\Throwable $e) {
+            // Nothing useful to do at shutdown; the finally block is the real net.
+        }
+    });
 
-    $postNoLink = [
-        'label'      => $snapshot['label'],
-        'icon'       => $snapshot['icon'],
-        'sort'       => $snapshot['sort'],
-        'parent'     => $snapshot['parent'],
-        'menu_group' => $snapshot['menu_group'],
-    ];
-
-    postTo($base . '/admin/navigation/save_navigation/1', $postNoLink, $jar);
-    $afterNoLink = (string) $pdo->query('SELECT link FROM tbl_menu WHERE menu_id = 1')->fetchColumn();
-    check(
-        $afterNoLink === $origLink,
-        'form-shaped save (no link input) preserves the stored link',
-        "'{$origLink}' -> '{$afterNoLink}'"
-    );
-
-    // Guard against "passes because nothing was saved at all".
-    $afterLabel = $pdo->query('SELECT label FROM tbl_menu WHERE menu_id = 1')->fetchColumn();
-    check(
-        $afterLabel === $snapshot['label'],
-        'form-shaped save did still persist the other fields',
-        'label is ' . var_export($afterLabel, true)
-    );
-
-    // And a POST that does carry a link must still be able to set it.
-    $probe = $origLink === 'admin/zz_probe' ? 'admin/zz_probe2' : 'admin/zz_probe';
-    postTo($base . '/admin/navigation/save_navigation/1', $postNoLink + ['link' => $probe], $jar);
-    $afterLink = (string) $pdo->query('SELECT link FROM tbl_menu WHERE menu_id = 1')->fetchColumn();
-    check(
-        $afterLink === $probe,
-        'a posted link is still applied',
-        "'{$probe}' -> '{$afterLink}'"
-    );
-
-    // Restore the whole row exactly, including the auto-managed time, via
-    // try/finally so a failed assertion above can never leave the probe link
-    // behind in the live database.
     try {
-        $cols     = array_keys($snapshot);
-        $setPairs = implode(', ', array_map(fn($c) => "`{$c}` = ?", $cols));
-        $pdo->prepare("UPDATE tbl_menu SET {$setPairs} WHERE menu_id = 1")
-            ->execute(array_values($snapshot));
-        $restoredRow = $pdo->query('SELECT * FROM tbl_menu WHERE menu_id = 1')->fetch(PDO::FETCH_ASSOC);
+        $origLink = 'admin/zz_orig';
+
+        $postNoLink = [
+            'label'      => 'zz_fixture',
+            'icon'       => 'fa fa-folder',
+            'sort'       => '99',
+            'parent'     => '0',
+            'menu_group' => 'crm',
+        ];
+
+        postTo($base . '/admin/navigation/save_navigation/' . $fixtureId, $postNoLink, $jar);
+        $afterNoLink = (string) $pdo->query("SELECT link FROM tbl_menu WHERE menu_id = {$fixtureId}")->fetchColumn();
         check(
-            $restoredRow === array_map('strval', $snapshot) || $restoredRow === $snapshot,
-            'menu_id=1 restored byte-for-byte'
+            $afterNoLink === $origLink,
+            'form-shaped save (no link input) preserves the stored link',
+            "'{$origLink}' -> '{$afterNoLink}'"
+        );
+
+        // Guard against "passes because nothing was saved at all".
+        $afterLabel = $pdo->query("SELECT label FROM tbl_menu WHERE menu_id = {$fixtureId}")->fetchColumn();
+        check(
+            $afterLabel === 'zz_fixture',
+            'form-shaped save did still persist the other fields',
+            'label is ' . var_export($afterLabel, true)
+        );
+
+        // And a POST that does carry a link must still be able to set it.
+        $probe = 'admin/zz_probe';
+        postTo($base . '/admin/navigation/save_navigation/' . $fixtureId, array_merge($postNoLink, ['link' => $probe]), $jar);
+        $afterLink = (string) $pdo->query("SELECT link FROM tbl_menu WHERE menu_id = {$fixtureId}")->fetchColumn();
+        check(
+            $afterLink === $probe,
+            'a posted link is still applied',
+            "'{$probe}' -> '{$afterLink}'"
         );
     } finally {
-        $pdo->prepare('UPDATE tbl_menu SET link = ? WHERE menu_id = 1')->execute([$origLink]);
+        $pdo->prepare('DELETE FROM tbl_menu WHERE menu_id = ?')->execute([$fixtureId]);
     }
+}
+
+/**
+ * The whitelist is the whole point of the feature, so assert it: a menu_group
+ * outside the map must be refused, nothing may be written, and an absent
+ * menu_group must leave the stored value alone.
+ */
+function unknownGroupIsRefused(string $base, string $jar, PDO $pdo): void
+{
+    $fixtureId = insertFixtureMenu($pdo);
+    try {
+        $post = [
+            'label'      => 'zz_should_not_persist',
+            'icon'       => 'fa fa-folder',
+            'sort'       => '98',
+            'parent'     => '0',
+            'menu_group' => 'not_a_group',
+        ];
+
+        postTo($base . '/admin/navigation/save_navigation/' . $fixtureId, $post, $jar);
+        $row = $pdo->query("SELECT label, menu_group FROM tbl_menu WHERE menu_id = {$fixtureId}")->fetch(PDO::FETCH_ASSOC);
+
+        check(
+            $row['menu_group'] === 'crm',
+            'an unknown menu_group is refused and never reaches the database',
+            'stored menu_group is ' . var_export($row['menu_group'], true)
+        );
+        check(
+            $row['label'] === 'zz_fixture',
+            'an unknown menu_group refuses the whole save, not just the column',
+            'label is ' . var_export($row['label'], true)
+        );
+
+        // An absent menu_group (an old form, a bookmarked POST) must leave the
+        // stored value alone rather than clearing it.
+        $absent = ['label' => 'zz_absent_ok', 'icon' => 'fa fa-folder', 'sort' => '97', 'parent' => '0'];
+        postTo($base . '/admin/navigation/save_navigation/' . $fixtureId, $absent, $jar);
+        $after = $pdo->query("SELECT label, menu_group FROM tbl_menu WHERE menu_id = {$fixtureId}")->fetch(PDO::FETCH_ASSOC);
+        check(
+            $after['label'] === 'zz_absent_ok' && $after['menu_group'] === 'crm',
+            'an absent menu_group saves the row but leaves the stored group alone',
+            json_encode($after)
+        );
+    } finally {
+        $pdo->prepare('DELETE FROM tbl_menu WHERE menu_id = ?')->execute([$fixtureId]);
+    }
+}
+
+/**
+ * Create a throwaway top-level menu row owned by the calling test and return its
+ * id. It carries a real link so a destructive save is detectable, and a
+ * recognisable label so a leaked row is obvious.
+ */
+function insertFixtureMenu(PDO $pdo): int
+{
+    $pdo->exec(
+        "INSERT INTO tbl_menu (label, link, icon, sort, parent, status, menu_group)
+         VALUES ('zz_fixture', 'admin/zz_orig', 'fa fa-folder', 99, 0, 1, 'crm')"
+    );
+    return (int) $pdo->lastInsertId();
 }
 
 /** POST a form and ignore the response body. */
