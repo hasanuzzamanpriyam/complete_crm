@@ -43,11 +43,23 @@ Verified by extracting the selectors actually present in each section, not by na
 - Only edit `assets/css/app.css`. No other file.
 - Every new value must come from a `var(--…)` token. No new hardcoded hex.
 - Do not rename any class — markup in 885 views depends on the current names.
-- **Strict flat 2D (locked 2026-09-26):** strip every `linear-gradient`/`radial-gradient`
-  background and every surface `box-shadow` you touch. Use 1px `--c-border` + solid
-  `--c-surface*` fills for separation. Shadow is allowed **only** on floating overlays —
-  dropdown menus, modals, popovers, tooltips — so they read as above the page. No inset/embossed
-  effects anywhere (buttons, inputs, wells).
+- **Soft UI depth and shape (locked 2026-09-27, supersedes the strict-flat rule of
+  2026-09-26):** surfaces *do* cast a soft shadow, and radii are generous. Use the
+  three-step scale, matched to how far a surface floats:
+  - `--sh-1` — cards and controls resting on the page (`.panel`, buttons, inputs)
+  - `--sh-2` — raised: hovered cards, icon chips, the active sidebar pill
+  - `--sh-3` — overlays: dropdowns, modals, popovers, tooltips
+
+  **Selective, not blanket.** Shadows on cards, controls and overlays only. Tables, table
+  rows, list-group items, badges, pagination, nav-tabs, alerts and calendar cells stay
+  flat — a dense data grid with a shadow per row is unreadable. Nested panels take **no**
+  shadow (a 1px `--c-border` marks them as inset instead) so a card never stacks two
+  elevations.
+
+  Gradients and inset/embossed effects are still banned everywhere. The `bg-*.css` theme
+  files carry 12 gradients each; those are A3's job to strip, not A2's.
+- Radii: `--r-sm` 4px, `--r-md` 8px (buttons, inputs), `--r-lg` 12px (cards),
+  `--r-xl` 16px (modals, large panels). Do not hardcode a `border-radius` in px.
 - After each task: `composer smoke`, then re-screenshot the affected baseline pages, then commit.
 
 ---
@@ -129,7 +141,7 @@ are changing only the visual treatment.
   background: var(--c-surface);
   border: 1px solid var(--c-border);
   border-radius: var(--r-lg);
-  box-shadow: none;              /* strict flat 2D: borders, not elevation */
+  box-shadow: none;              /* superseded by A2-13 → box-shadow: var(--sh-1) */
   margin-bottom: var(--sp-5);
 }
 
@@ -192,7 +204,7 @@ surface.
 
 This single task does the most for "modern and attractive". Do it carefully.
 
-- [ ] **Step 0: Kill the button gradients and embossing (strict flat 2D)**
+- [ ] **Step 0: Kill the button gradients and embossing**
 
       The current button rules carry `background-image: linear-gradient(...)` on every variant
       (`Component: bootstrap-reset` region, ~5 gradient blocks) plus an inset shelf —
@@ -200,6 +212,10 @@ This single task does the most for "modern and attractive". Do it carefully.
       elsewhere. Delete the `background-image`/`filter: …gradient…` declarations outright (a
       `background:` shorthand in Steps 1/3 replaces them) and set `box-shadow: none` on every
       `.btn*` variant. `.btn-inverse` becomes a flat dark fill, not a bevel.
+
+      **Then add the Soft UI shadow back** (A2-13 rule): `.btn` gets `box-shadow: var(--sh-1)`
+      and `box-shadow: var(--sh-2)` on `:hover`/`:focus`. Do **not** leave buttons flat —
+      buttons are the one control class where Soft UI's elevation is most visible.
 
 - [ ] **Step 1: Base button**
 
@@ -743,13 +759,74 @@ statement, a client list. Sidebar and topbar must be absent.
 
 ---
 
+## A2-13 — Soft UI depth and shape (foundation)
+
+**Do this before A2-3.** It rewrites the token scale that every later A2 task reads, and it
+reverses the strict-flat rule of 2026-09-26. A2-2's panel shell is re-applied here rather
+than edited in place, so this is the single commit that flips the whole surface treatment.
+
+- [ ] **Step 1: Replace the shadow scale in `tokens.css`**
+
+  Soft UI's measured values, not invented ones:
+
+  ```css
+  --sh-1: 0 1px 3px rgb(0 0 0 / 10%), 0 1px 2px -1px rgb(0 0 0 / 10%);  /* cards, controls */
+  --sh-2: 0 4px 6px -1px rgb(0 0 0 / 10%), 0 2px 4px -2px rgb(0 0 0 / 10%);  /* raised */
+  --sh-3: 0 10px 20px -3px rgb(0 0 0 / 10%), 0 4px 8px -4px rgb(0 0 0 / 10%);  /* overlays */
+  ```
+
+  The old `--sh-*` values were deliberately near-invisible (5–7% alpha) and must not survive.
+
+- [ ] **Step 2: Soften the radii**
+
+  `--r-md` 6px → **8px**, `--r-lg` 10px → **12px**, add `--r-xl: 16px`. Soft UI's card radius
+  is 12px and its controls are 8px. Anything still hardcoding a `border-radius` in px in a
+  rule this file owns should move to a token.
+
+- [ ] **Step 3: Page background → `#f4f4f5`**
+
+  Not just `tokens.css`. `bg-custom.php` is linked at `htmlheader.php:51`, *after*
+  `tokens.css` at L37, so it wins — `--c-bg` is driven by the DB value `body_background`:
+
+  ```sql
+  UPDATE tic_crm.tbl_config     SET value = '#f4f4f5' WHERE config_key = 'body_background';
+  UPDATE tic_crm_demo.tbl_config SET value = '#f4f4f5' WHERE config_key = 'body_background';
+  ```
+
+  (`value`, not `config_value` — see the schema note in `STATUS.md`.)
+
+- [ ] **Step 4: Re-apply the panel shell as a Soft UI card**
+
+  Re-run A2-2's Step 1 selectors with `border: 0` and `box-shadow: var(--sh-1)`. Nested
+  panels keep **no** shadow and gain an explicit `1px solid var(--c-border)` so a card never
+  stacks two elevations. `.panel-custom` and the `.panel-group .panel-flat` rules get the
+  same treatment; the `box-shadow: 0 0 0 #000` no-shadow hacks become `box-shadow: none`.
+
+- [ ] **Step 5: Verify + commit**
+
+```powershell
+composer smoke
+composer test:login
+composer test:theme
+php -l assets/css/bg-custom.php
+php plan/_tools/css-inventory.php > plan/_data/part-a-css-inventory.md
+git commit -m "A2-13: Soft UI depth and shape — soft shadows, softer radii, #f4f4f5 page"
+```
+
+**Verify (computed styles, not eyeballing):** on `/admin/dashboard`, every `.panel` reports
+`box-shadow` = the `--sh-1` pair and `border-top-width` = `0px`; nested `.panel .panel`
+reports `box-shadow: none`; `getComputedStyle(body).backgroundColor` = `rgb(244, 244, 245)`.
+**Effort:** S
+
+---
+
 ## Exit gate
 
-- [ ] All 12 tasks committed individually
+- [ ] All 13 tasks committed individually
 - [ ] `composer smoke` 20/20 after every task
 - [ ] Zero hardcoded hex values added to `app.css` — all from tokens
 - [ ] No class renamed
 - [ ] Only `app.css` and `print.css` modified in this phase (plus the 4 shell `<link>` tags)
 - [ ] Baseline screenshots re-captured for all 20 pages
 
-## Tasks: 12 · Completed: 0 · Remaining: 12
+## Tasks: 13 - Completed: 3 - Remaining: 10

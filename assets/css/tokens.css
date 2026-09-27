@@ -1,6 +1,7 @@
 /* =============================================================
    TIC CRM — Design Tokens
-   Direction: Refined dense (Linear/Vercel-inspired)
+   Direction: Soft UI (Creative Tim) — soft shadows on cards and
+   controls, generous radii, muted accent colours.
    Single source of truth. Do not hardcode these values elsewhere.
    ============================================================= */
 
@@ -29,7 +30,7 @@
   --c-info-border:     #bfdbfe;
 
   /* ---------- surfaces ---------- */
-  --c-bg:              #f7f8fa;
+  --c-bg:              #f4f4f5;
   --c-surface:         #ffffff;
   --c-surface-2:       #f1f3f5;
   --c-surface-3:       #e9ecef;
@@ -63,14 +64,21 @@
 
   /* ---------- radius ---------- */
   --r-sm: 4px;
-  --r-md: 6px;
-  --r-lg: 10px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-xl: 16px;
   --r-full: 999px;
 
-  /* ---------- elevation (subtle; dense UI needs almost none) ---------- */
-  --sh-1: 0 1px 2px rgb(16 24 40 / 5%);
-  --sh-2: 0 2px 6px rgb(16 24 40 / 7%);
-  --sh-3: 0 8px 24px rgb(16 24 40 / 10%);
+  /* ---------- elevation ----------
+     Soft UI scale. Three levels, mapped to how far a surface floats:
+       1 — cards and controls resting on the page
+       2 — raised: hovered cards, icon chips, the active sidebar pill
+       3 — overlays: dropdowns, modals, popovers, tooltips
+     Nested panels deliberately take NO shadow (see app.css); they read as
+     inset via a 1px border instead, so a card never stacks shadows. */
+  --sh-1: 0 1px 3px rgb(0 0 0 / 10%), 0 1px 2px -1px rgb(0 0 0 / 10%);
+  --sh-2: 0 4px 6px -1px rgb(0 0 0 / 10%), 0 2px 4px -2px rgb(0 0 0 / 10%);
+  --sh-3: 0 10px 20px -3px rgb(0 0 0 / 10%), 0 4px 8px -4px rgb(0 0 0 / 10%);
 
   /* ---------- typography ---------- */
   --fs-xs: 11px;

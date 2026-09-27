@@ -3685,12 +3685,12 @@ h3 > .breadcrumb.pull-right,
 /* ========================================================================
    Component: panels.less
  ========================================================================== */
-/* Flat 2D card shell — overrides Bootstrap's .panel (border + no elevation). */
+/* Soft UI card shell — overrides Bootstrap's .panel (no border, soft elevation). */
 .panel {
   background: var(--c-surface);
-  border: 1px solid var(--c-border);
+  border: 0;
   border-radius: var(--r-lg);
-  box-shadow: none;
+  box-shadow: var(--sh-1);
   margin-bottom: var(--sp-5);
 }
 
@@ -3717,11 +3717,12 @@ h3 > .breadcrumb.pull-right,
   border-bottom-right-radius: var(--r-lg);
 }
 
-/* Nested panels read as inset, not as a second floating card. */
+/* Nested panels read as inset, not as a second floating card. A card must
+   never stack two shadows, so nesting trades elevation for a 1px border. */
 .panel .panel {
   border-radius: var(--r-md);
   box-shadow: none;
-  border-color: var(--c-border);
+  border: 1px solid var(--c-border);
 }
 
 .panel .table {
@@ -3732,7 +3733,7 @@ h3 > .breadcrumb.pull-right,
 .panel.panel-transparent {
   border: 0;
   background-color: transparent;
-  box-shadow: 0 0 0 #000;
+  box-shadow: none;
 }
 
 .panel.panel-transparent .panel-heading,
@@ -3748,15 +3749,15 @@ h3 > .breadcrumb.pull-right,
 }
 
 .panel-group .panel-flat {
-  box-shadow: 0 0 0 #000;
+  box-shadow: none;
 }
 
 .panel-group .panel-flat:first-child {
-  border-radius: 4px 4px 0 0;
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
 }
 
 .panel-group .panel-flat:last-child {
-  border-radius: 0 0 4px 4px;
+  border-radius: 0 0 var(--r-lg) var(--r-lg);
 }
 
 .panel-heading > a[data-tool] {
@@ -5293,7 +5294,7 @@ tr.ui-widget-content {
 }
 
 .panel-custom {
-  box-shadow: none;
+  box-shadow: var(--sh-1);
   border-left: 3px solid var(--c-accent);
 }
 

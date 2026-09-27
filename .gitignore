@@ -15,3 +15,6 @@ databases/
 
 # Browser automation artifacts (session snapshots, not deliverables)
 .playwright-mcp/
+
+# Brainstorming visual-companion sessions
+.superpowers/

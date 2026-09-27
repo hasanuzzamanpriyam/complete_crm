@@ -3,8 +3,15 @@
 > **For agentic workers:** REQUIRED SUB-SKILL: use superpowers:subagent-driven-development
 > (recommended) or superpowers:executing-plans. Steps use checkbox (`- [ ]`) syntax.
 
-**Goal:** replace 8 near-duplicate colour files with one token-driven stylesheet, and refresh
-the 2 that also carry layout.
+**Goal:** replace 10 near-duplicate colour files with one token-driven stylesheet covering
+**14 themes**, and refresh the 2 that also carry layout.
+
+> **Revised 2026-09-27.** Three corrections to the original plan, all found by inspection:
+> - The theme chooser is `application/views/admin/settings/theme.php`. There is **no**
+>   `settings/appearance.php`; the original A3-3 pointed at it.
+> - Only **1** shell links `sidebar_theme` (`admin/components/htmlheader.php:55`), not 4.
+> - The count is **14** themes, not 10 — four new files, and the Soft UI white-pill sidebar
+>   needs 7 tokens per theme, not the 6 the old `bg-*.css` files carried.
 
 ## Current state
 
@@ -30,88 +37,136 @@ CSS.**
 
 ---
 
-## A3-1 — Replace the 8 colour-only themes with one file
+## A3-1 — One token file, 14 themes
+
+> **Depends on A2-7.** The sidebar must already *consume* `--c-sidebar-*` before this task can
+> give it 14 different values. Running A3-1 before A2-7 produces themes that do nothing.
 
 - [ ] **Step 1: Create `assets/css/themes.css`**
 
-```css
-/* =============================================================
-   TIC CRM — Sidebar theme variants
-   Replaces 8 near-duplicate bg-*.css files (~48 KB).
-   Each theme is a token override; the layout lives in app.css.
-   ============================================================= */
+  Seven tokens per theme. The two new ones — `--c-sidebar-pill` and `--c-sidebar-pill-shadow`
+  — exist because Soft UI's active sidebar item is a **white floating pill** with a soft
+  shadow, not a filled bar. The old `bg-*.css` files expressed active state as a flat
+  `background-color`, which cannot do this.
 
-/* dark (default) */
-.theme-dark {
-  --c-sidebar-bg:        #14181c;
-  --c-sidebar-bg-2:      #1c2126;
-  --c-sidebar-text:      #b6bdc6;
-  --c-sidebar-text-hi:   #ffffff;
-  --c-sidebar-active:    #0d9488;
-  --c-sidebar-border:    #262c33;
-}
+  ```css
+  /* =============================================================
+     TIC CRM — Sidebar theme variants (Soft UI)
+     Each theme is a token override; all layout lives in app.css.
+     14 themes: 2 neutral + 6 hue pairs.
+     ============================================================= */
 
-/* light */
-.theme-light {
-  --c-sidebar-bg:        #ffffff;
-  --c-sidebar-bg-2:      #f1f3f5;
-  --c-sidebar-text:      #4a5058;
-  --c-sidebar-text-hi:   #1a1d21;
-  --c-sidebar-active:    #0d9488;
-  --c-sidebar-border:    #e3e6ea;
-}
+  /* ---------- neutral ---------- */
+  .theme-white  { --c-sidebar-bg:#f4f4f5; --c-sidebar-bg-2:#e9eaec; --c-sidebar-text:#515253;
+                  --c-sidebar-text-hi:#27272a; --c-sidebar-accent:#5e72e4;
+                  --c-sidebar-pill:#ffffff; --c-sidebar-pill-shadow:var(--sh-1); }
+  .theme-dark   { --c-sidebar-bg:#1a1d2b; --c-sidebar-bg-2:#252a3a; --c-sidebar-text:#9aa3bd;
+                  --c-sidebar-text-hi:#7b8ff7; --c-sidebar-accent:#7b8ff7;
+                  --c-sidebar-pill:#252a3a; --c-sidebar-pill-shadow:var(--sh-2); }
 
-/* accent variants — same structure, different active colour */
-.theme-green      { --c-sidebar-active: #0f9b6c; --c-sidebar-border: #262c33; }
-.theme-info       { --c-sidebar-active: #2563eb; --c-sidebar-border: #262c33; }
-.theme-purple     { --c-sidebar-active: #7c3aed; --c-sidebar-border: #262c33; }
-.theme-danger     { --c-sidebar-active: #dc2626; --c-sidebar-border: #262c33; }
-.theme-green-dark  { --c-sidebar-active: #0f9b6c; --c-sidebar-bg: #101413; --c-sidebar-bg-2: #171c1b; }
-.theme-info-dark   { --c-sidebar-active: #2563eb; --c-sidebar-bg: #0f1319; --c-sidebar-bg-2: #161b23; }
-.theme-purple-dark { --c-sidebar-active: #7c3aed; --c-sidebar-bg: #131017; --c-sidebar-bg-2: #1b1723; }
-.theme-danger-dark { --c-sidebar-active: #dc2626; --c-sidebar-bg: #180f0f; --c-sidebar-bg-2: #221616; }
-```
+  /* ---------- teal ---------- */
+  .theme-teal      { --c-sidebar-bg:#f2f7f6; --c-sidebar-bg-2:#e3efec; --c-sidebar-text:#4a5a58;
+                     --c-sidebar-text-hi:#0f766e; --c-sidebar-accent:#0d9488;
+                     --c-sidebar-pill:#ffffff; --c-sidebar-pill-shadow:var(--sh-1); }
+  .theme-teal-dark { --c-sidebar-bg:#0f1a19; --c-sidebar-bg-2:#172524; --c-sidebar-text:#8fa8a5;
+                     --c-sidebar-text-hi:#2dd4bf; --c-sidebar-accent:#2dd4bf;
+                     --c-sidebar-pill:#172524; --c-sidebar-pill-shadow:var(--sh-2); }
 
-- [ ] **Step 2: Confirm `app.css` reads the tokens, not fixed colours**
+  /* ---------- cyan ---------- */
+  .theme-info      { --c-sidebar-bg:#f1f7fb; --c-sidebar-bg-2:#e2f0f8; --c-sidebar-text:#43536b;
+                     --c-sidebar-text-hi:#0369a1; --c-sidebar-accent:#0ea5e9;
+                     --c-sidebar-pill:#ffffff; --c-sidebar-pill-shadow:var(--sh-1); }
+  .theme-info-dark { --c-sidebar-bg:#0d1a24; --c-sidebar-bg-2:#132634; --c-sidebar-text:#8aa6bb;
+                     --c-sidebar-text-hi:#38bdf8; --c-sidebar-accent:#38bdf8;
+                     --c-sidebar-pill:#132634; --c-sidebar-pill-shadow:var(--sh-2); }
 
-Every sidebar rule must use `var(--c-sidebar-*)`. A2-7 established this. Verify:
+  /* ---------- green ---------- */
+  .theme-green      { --c-sidebar-bg:#f1f8f5; --c-sidebar-bg-2:#e2f2ea; --c-sidebar-text:#456055;
+                      --c-sidebar-text-hi:#047857; --c-sidebar-accent:#10b981;
+                      --c-sidebar-pill:#ffffff; --c-sidebar-pill-shadow:var(--sh-1); }
+  .theme-green-dark { --c-sidebar-bg:#0c1a14; --c-sidebar-bg-2:#132a20; --c-sidebar-text:#87a698;
+                      --c-sidebar-text-hi:#34d399; --c-sidebar-accent:#34d399;
+                      --c-sidebar-pill:#132a20; --c-sidebar-pill-shadow:var(--sh-2); }
 
-```powershell
-Select-String -Path assets\css\app.css -Pattern '#(fff|14181c|1c2126)' -Context 1,1 |
-  Where-Object { $_.Context.PreContext -match 'sidebar' -or $_.Context.PostContext -match 'sidebar' }
-```
+  /* ---------- violet ---------- */
+  .theme-purple      { --c-sidebar-bg:#f5f3fc; --c-sidebar-bg-2:#eae5f9; --c-sidebar-text:#544e73;
+                       --c-sidebar-text-hi:#6d28d9; --c-sidebar-accent:#8b5cf6;
+                       --c-sidebar-pill:#ffffff; --c-sidebar-pill-shadow:var(--sh-1); }
+  .theme-purple-dark { --c-sidebar-bg:#16121f; --c-sidebar-bg-2:#221b32; --c-sidebar-text:#a396c2;
+                       --c-sidebar-text-hi:#a78bfa; --c-sidebar-accent:#a78bfa;
+                       --c-sidebar-pill:#221b32; --c-sidebar-pill-shadow:var(--sh-2); }
 
-Expected: **no matches** inside sidebar rules. Fix any that appear.
+  /* ---------- red ---------- */
+  .theme-danger      { --c-sidebar-bg:#fdf4f4; --c-sidebar-bg-2:#f9e6e6; --c-sidebar-text:#6b4a4a;
+                       --c-sidebar-text-hi:#b91c1c; --c-sidebar-accent:#ef4444;
+                       --c-sidebar-pill:#ffffff; --c-sidebar-pill-shadow:var(--sh-1); }
+  .theme-danger-dark { --c-sidebar-bg:#1c1010; --c-sidebar-bg-2:#2d1818; --c-sidebar-text:#bb8f8f;
+                       --c-sidebar-text-hi:#f87171; --c-sidebar-accent:#f87171;
+                       --c-sidebar-pill:#2d1818; --c-sidebar-pill-shadow:var(--sh-2); }
 
-- [ ] **Step 3: Link `themes.css` after `app.css` in all 4 shells**
+  /* ---------- amber ---------- */
+  .theme-amber      { --c-sidebar-bg:#fdf8ef; --c-sidebar-bg-2:#f8eed9; --c-sidebar-text:#6b5a3d;
+                      --c-sidebar-text-hi:#b45309; --c-sidebar-accent:#f59e0b;
+                      --c-sidebar-pill:#ffffff; --c-sidebar-pill-shadow:var(--sh-1); }
+  .theme-amber-dark { --c-sidebar-bg:#1c160a; --c-sidebar-bg-2:#2b2110; --c-sidebar-text:#bda877;
+                      --c-sidebar-text-hi:#fbbf24; --c-sidebar-accent:#fbbf24;
+                      --c-sidebar-pill:#2b2110; --c-sidebar-pill-shadow:var(--sh-2); }
+  ```
 
-```html
-<link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/themes.css">
-```
+  Every hex above is deliberate. `--c-sidebar-text-hi` is the *active item's text and icon* and
+  must clear **4.5:1** against `--c-sidebar-pill`; `--c-sidebar-text` must clear 4.5:1 against
+  `--c-sidebar-bg`. A2-13's verify step should measure both with a contrast check, not by eye.
 
-- [ ] **Step 4: Verify the class is applied.** Confirm the theme wrapper element receives the
-      class. Open `/admin/dashboard`, view source, and locate the element wrapping the sidebar.
-      In the browser console:
+- [ ] **Step 2: Add a default `theme-dark` to `tokens.css`** so a missing or stale
+      `sidebar_theme` value still renders a sane sidebar instead of an unstyled one.
 
-```js
-document.querySelector('.sidebar').closest('[class*="theme-"]')?.className
-```
+- [ ] **Step 3: Confirm `app.css` reads the tokens, not fixed colours**
 
-If this returns `null`, the theme class is applied to a different element — find it and note the
-selector. **If the class is applied to `<body>`**, no change is needed; `.theme-*` on `body` works
-because `:root` variables cascade to all descendants.
+      Every sidebar rule must use `var(--c-sidebar-*)` and `var(--c-sidebar-pill*)`. A2-7
+      established this. Verify:
 
-- [ ] **Step 5: Do NOT delete the 8 old files yet.** They are still referenced by
-      `config_item('sidebar_theme')` in the settings dropdown. A3-3 fixes that first.
+      ```powershell
+      Select-String -Path assets\css\app.css -Pattern '#(fff|ffffff|14181c|1c2126|1e1e2d)' -Context 1,1 |
+        Where-Object { $_.Context.PreContext -match 'sidebar' -or $_.Context.PostContext -match 'sidebar' }
+      ```
 
-- [ ] **Step 6: Commit**
+      Expected: **no matches** inside sidebar rules. Fix any that appear.
 
-```powershell
-git add assets/css/themes.css assets/css/app.css application/views/*/components/htmlheader.php
-git commit -m "A3-1: replace 8 duplicate sidebar themes with token file"
-```
+- [ ] **Step 4: Link `themes.css` in the one shell that themes the sidebar**
 
-**Verify:** `themes.css` loads with no 404; sidebar colours still come from the current setting.
+      `application/views/admin/components/htmlheader.php`, **after `app.css` but BEFORE
+      `bg-custom.php` at L51.** Order matters: `bg-custom.php` is the user's custom colour
+      override, so it must win. The current file has the same bug in reverse —
+      `sidebar_theme.css` is linked at L55, *after* `bg-custom.php` at L51, so the theme
+      always beats the custom picker. Confirm the bug in the browser before "fixing" it, then:
+
+      ```html
+      <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/themes.css">
+      ```
+
+      and delete the L55 per-file `<link>`.
+
+- [ ] **Step 5: Apply the theme class.** Confirm which element carries it:
+
+      ```js
+      document.querySelector('.sidebar').closest('[class*="theme-"]')?.className
+      ```
+
+      If this returns `null`, find the element that does. If the class lands on `<body>`,
+      no change is needed — `:root` variables cascade to all descendants.
+
+- [ ] **Step 6: Do NOT delete the old files yet.** They are still referenced by
+      `config_item('sidebar_theme')` in the settings page. A3-3 fixes that first.
+
+- [ ] **Step 7: Commit**
+
+      ```powershell
+      git add assets/css/themes.css assets/css/tokens.css assets/css/app.css application/views/admin/components/htmlheader.php
+      git commit -m "A3-1: 14 token-driven sidebar themes"
+      ```
+
+**Verify:** `themes.css` loads with no 404; all 14 classes render a distinct sidebar;
+`composer test:theme` still exits 0.
 **Effort:** M
 
 ---
@@ -137,15 +192,18 @@ Compare-Object (Get-Content assets\css\bg-dark.css) (Get-Content assets\css\bg-w
 
 Add to `themes.css` so existing `sidebar_theme` values keep working during transition:
 
-```css
-/* legacy sidebar_theme values → new theme classes */
-.bg-white  { --c-sidebar-bg: #ffffff; --c-sidebar-bg-2: #f1f3f5; --c-sidebar-text: #4a5058; --c-sidebar-text-hi: #1a1d21; --c-sidebar-border: #e3e6ea; }
-.bg-dark   { --c-sidebar-bg: #14181c; --c-sidebar-bg-2: #1c2126; --c-sidebar-text: #b6bdc6; --c-sidebar-text-hi: #ffffff; --c-sidebar-border: #262c33; }
-.bg-green  { --c-sidebar-active: #0f9b6c; }
-.bg-info   { --c-sidebar-active: #2563eb; }
-.bg-purple { --c-sidebar-active: #7c3aed; }
-.bg-danger { --c-sidebar-active: #dc2626; }
-```
+  ```css
+  /* legacy sidebar_theme values → new theme classes */
+  .bg-white  { --c-sidebar-bg:#f4f4f5; --c-sidebar-bg-2:#e9eaec; --c-sidebar-text:#515253; --c-sidebar-text-hi:#27272a; --c-sidebar-accent:#5e72e4; --c-sidebar-pill:#ffffff; }
+  .bg-dark   { --c-sidebar-bg:#1a1d2b; --c-sidebar-bg-2:#252a3a; --c-sidebar-text:#9aa3bd; --c-sidebar-text-hi:#7b8ff7; --c-sidebar-accent:#7b8ff7; --c-sidebar-pill:#252a3a; }
+  .bg-teal   { --c-sidebar-bg:#f2f7f6; --c-sidebar-bg-2:#e3efec; --c-sidebar-text:#4a5a58; --c-sidebar-text-hi:#0f766e; --c-sidebar-accent:#0d9488; --c-sidebar-pill:#ffffff; }
+  .bg-info   { --c-sidebar-bg:#f1f7fb; --c-sidebar-bg-2:#e2f0f8; --c-sidebar-text:#43536b; --c-sidebar-text-hi:#0369a1; --c-sidebar-accent:#0ea5e9; --c-sidebar-pill:#ffffff; }
+  .bg-green  { --c-sidebar-bg:#f1f8f5; --c-sidebar-bg-2:#e2f2ea; --c-sidebar-text:#456055; --c-sidebar-text-hi:#047857; --c-sidebar-accent:#10b981; --c-sidebar-pill:#ffffff; }
+  .bg-purple { --c-sidebar-bg:#f5f3fc; --c-sidebar-bg-2:#eae5f9; --c-sidebar-text:#544e73; --c-sidebar-text-hi:#6d28d9; --c-sidebar-accent:#8b5cf6; --c-sidebar-pill:#ffffff; }
+  .bg-danger { --c-sidebar-bg:#fdf4f4; --c-sidebar-bg-2:#f9e6e6; --c-sidebar-text:#6b4a4a; --c-sidebar-text-hi:#b91c1c; --c-sidebar-accent:#ef4444; --c-sidebar-pill:#ffffff; }
+  .bg-amber  { --c-sidebar-bg:#fdf8ef; --c-sidebar-bg-2:#f8eed9; --c-sidebar-text:#6b5a3d; --c-sidebar-text-hi:#b45309; --c-sidebar-accent:#f59e0b; --c-sidebar-pill:#ffffff; }
+  /* the four *-dark values map 1:1 onto .theme-*-dark */
+  ```
 
 - [ ] **Step 5: Commit**
 
@@ -159,117 +217,148 @@ git commit -m "A3-2: consolidate sidebar layout into app.css"
 
 ---
 
-## A3-3 — Update the settings dropdown
+## A3-3 — Update the theme chooser
 
-The Appearance settings page lists theme options by filename. Point it at the new names.
+The chooser is `application/views/admin/settings/theme.php` — the `sidebar_theme` radio
+block is at **L315-466**, ten hardcoded swatches, each with a `data-load-css` preview
+attribute pointing at its `bg-*.css`.
 
-- [ ] **Step 1: Find the options source**
+- [ ] **Step 1: Confirm the options source**
 
-```powershell
-Select-String -Path application\views\admin\settings\appearance.php -Pattern 'bg-|sidebar_theme' -Context 2,2
-```
+  ```powershell
+  Select-String -Path application\views\admin\settings\theme.php -Pattern 'bg-|sidebar_theme' -Context 2,2
+  ```
 
-- [ ] **Step 2: Map old values to new ones.** The dropdown options become:
+- [ ] **Step 2: Map old values to new ones.** The 10 existing radios get the 4 new ones
+      added beside them — 14 total. The `data-load-css` preview attribute is a live-preview
+      nicety; once `themes.css` is unconditional the attribute can go, but keeping it costs
+      nothing and preserves the hover-preview behaviour.
 
-| Old `sidebar_theme` value | New class |
-|---|---|
-| `bg-dark` | `theme-dark` |
-| `bg-white` | `theme-light` |
-| `bg-green` | `theme-green` |
-| `bg-info` | `theme-info` |
-| `bg-purple` | `theme-purple` |
-| `bg-danger` | `theme-danger` |
-| `bg-green-dark` | `theme-green-dark` |
-| `bg-info-dark` | `theme-info-dark` |
-| `bg-purple-dark` | `theme-purple-dark` |
-| `bg-danger-dark` | `theme-danger-dark` |
-| *(custom)* | `bg-custom` → driven by `bg-custom.php` |
+  | Old `sidebar_theme` value | New class |
+  |---|---|
+  | `bg-white` | `theme-white` |
+  | `bg-dark` | `theme-dark` |
+  | `bg-teal` *(new)* | `theme-teal` |
+  | `bg-teal-dark` *(new)* | `theme-teal-dark` |
+  | `bg-info` | `theme-info` |
+  | `bg-info-dark` | `theme-info-dark` |
+  | `bg-green` | `theme-green` |
+  | `bg-green-dark` | `theme-green-dark` |
+  | `bg-purple` | `theme-purple` |
+  | `bg-purple-dark` | `theme-purple-dark` |
+  | `bg-danger` | `theme-danger` |
+  | `bg-danger-dark` | `theme-danger-dark` |
+  | `bg-amber` *(new)* | `theme-amber` |
+  | `bg-amber-dark` *(new)* | `theme-amber-dark` |
+  | *(custom)* | `bg-custom` → driven by `bg-custom.php` |
 
-- [ ] **Step 3: Migrate the stored value in both databases**
+- [ ] **Step 3: Add 4 new CSS preview classes**
 
-> **Column name:** `tbl_config` is `(config_key PRIMARY, value TEXT)` — there is **no**
-> `config_value` column, so the `UPDATE`s below must write `value`.
->
-> **Migrate to the equivalent, not to a fixed default.** Both databases currently store
-> `sidebar_theme = bg-purple-dark` (verified — `plan/_data/part-a-css-inventory.md` §7), and
-> the mapping table above translates that to `theme-purple-dark`. Writing `theme-dark` here
-> would silently change the user's chosen sidebar colour during a refactor.
+  The swatch previews are `.color.bg-*` utility classes in `app.css` (the block around
+  **L2940-3097** holds `bg-info-light`, `bg-danger-light`, `bg-green-light`,
+  `bg-purple-light`, `bg-gray-darker`, `bg-gray-dark`). The 4 new themes need
+  `bg-teal`, `bg-teal-dark`, `bg-amber`, `bg-amber-dark` in that same shape. While there,
+  round `.setting-color > label` from its hardcoded `border-radius: 3px` (app.css ~L5734)
+  to `var(--r-md)` so the swatches match the new card radius.
 
-```sql
-UPDATE tic_crm.tbl_config     SET value = 'theme-purple-dark' WHERE config_key = 'sidebar_theme';
-UPDATE tic_crm_demo.tbl_config SET value = 'theme-purple-dark' WHERE config_key = 'sidebar_theme';
-```
+- [ ] **Step 4: Migrate the stored value in both databases**
 
-Confirm:
+  > **Column name:** `tbl_config` is `(config_key PRIMARY, value TEXT)` — there is **no**
+  > `config_value` column, so the `UPDATE`s below must write `value`.
+  >
+  > **Migrate to the equivalent, not to a fixed default.** Both databases currently store
+  > `sidebar_theme = bg-purple-dark` (verified — `plan/_data/part-a-css-inventory.md` §7), and
+  > the mapping table above translates that to `theme-purple-dark`. Writing `theme-dark` here
+  > would silently change the user's chosen sidebar colour during a refactor.
 
-```sql
-SELECT config_key, value FROM tic_crm.tbl_config WHERE config_key = 'sidebar_theme';
-```
+  ```sql
+  UPDATE tic_crm.tbl_config     SET value = 'theme-purple-dark' WHERE config_key = 'sidebar_theme';
+  UPDATE tic_crm_demo.tbl_config SET value = 'theme-purple-dark' WHERE config_key = 'sidebar_theme';
+  ```
 
-Expected: `sidebar_theme` → `theme-purple-dark`.
+  Confirm:
 
-- [ ] **Step 4: Update the 3 new CSS files in `htmlheader.php:53`**
+  ```sql
+  SELECT config_key, value FROM tic_crm.tbl_config WHERE config_key = 'sidebar_theme';
+  ```
 
-Current:
+  Expected: `sidebar_theme` → `theme-purple-dark`.
 
-```php
-<link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/<?= config_item('sidebar_theme') ?>.css">
-```
+- [ ] **Step 5: Update the link in `htmlheader.php:55`**
 
-Replace with a single unconditional include of `themes.css` (already added in A3-1), plus the
-theme class on the wrapper element. The per-file `<link>` is no longer needed.
+  Current:
 
-- [ ] **Step 5: Commit**
+  ```php
+  <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/<?= config_item('sidebar_theme') ?>.css">
+  ```
 
-```powershell
-git add application/views/admin/settings/appearance.php application/views/admin/components/htmlheader.php
-git commit -m "A3-3: point theme setting at token themes"
-```
+  Replace with the single unconditional include of `themes.css` (already added in A3-1 Step 4,
+  positioned *before* `bg-custom.php`), plus the theme class on the wrapper element. The
+  per-file `<link>` is no longer needed — and leaving it in place is what causes the
+  custom-colour precedence bug recorded in `STATUS.md`.
 
-**Verify:** changing the theme in Appearance settings restyles the sidebar immediately, with no
-missing-CSS 404.
+- [ ] **Step 6: Commit**
+
+  ```powershell
+  git add application/views/admin/settings/theme.php assets/css/app.css application/views/admin/components/htmlheader.php
+  git commit -m "A3-3: 14 theme swatches, point chooser at token themes"
+  ```
+
+**Verify:** changing the theme in settings restyles the sidebar immediately, with no
+missing-CSS 404; a custom colour set with `active_custom_color` on now actually overrides
+the theme.
 **Effort:** M
 
 ---
 
-## A3-4 — Verify all 10 themes
+## A3-4 — Verify all 14 themes
 
-- [ ] **Step 1: For each of the 10 theme values, set it via SQL, reload, and screenshot**
+- [ ] **Step 1: For each of the 14 theme values, set it via SQL, reload, and screenshot**
 
-```sql
-UPDATE tic_crm.tbl_config SET value = '<value>' WHERE config_key = 'sidebar_theme';
-```
+  ```sql
+  UPDATE tic_crm.tbl_config SET value = '<value>' WHERE config_key = 'sidebar_theme';
+  ```
 
-(`value`, not `config_value` — see the schema note in A3-3 Step 3.) Remember to restore
-`theme-purple-dark` afterwards so the app is left on the theme it was shipped with.
+  (`value`, not `config_value` — see the schema note in A3-3 Step 4.) Remember to restore
+  `theme-purple-dark` afterwards so the app is left on the theme it was shipped with.
 
-Save the 10 screenshots to `plan/_baseline/part-a/themes/`.
+  Save the 14 screenshots to `plan/_baseline/part-a/themes/`.
 
-- [ ] **Step 2: For each, confirm:** sidebar renders, active item is visible against its
-      background (check contrast on `theme-green-dark` and `theme-danger-dark` — the lightest
-      active colour on the darkest background is the risky combination), text is readable.
-- [ ] **Step 3: Test the custom theme** — set a custom colour in Appearance settings and
-      confirm `bg-custom.php` applies it.
-- [ ] **Step 4: Reset to `theme-dark` and commit**
+- [ ] **Step 2: For each, confirm three things — measured, not eyeballed:**
 
-```powershell
-git commit -m "A3-4: verify all 10 sidebar themes"
-```
+  1. `--c-sidebar-text` clears **4.5:1** against `--c-sidebar-bg` (body nav items readable)
+  2. `--c-sidebar-text-hi` clears **4.5:1** against `--c-sidebar-pill` (active item readable)
+  3. The active pill's `--c-sidebar-pill-shadow` is actually rendering — a white pill on a
+     white sidebar with no shadow is invisible, which is the specific failure mode of the
+     light themes
 
-**Verify:** 10 theme screenshots captured; every theme has readable text and a visible active state.
+  The risky pairs are `theme-amber` (low-chroma yellow on a light pill) and
+  `theme-teal-dark` (light accent on a near-black sidebar).
+
+- [ ] **Step 3: Test the custom theme** — set a custom colour in the settings page with
+  `active_custom_color` on and confirm `bg-custom.php` wins over `themes.css`.
+
+- [ ] **Step 4: Reset to `theme-purple-dark` and commit**
+
+  ```powershell
+  git commit -m "A3-4: verify all 14 sidebar themes"
+  ```
+
+**Verify:** 14 theme screenshots captured; every theme passes both contrast checks and the
+active state is visible.
 **Effort:** M
 
 ---
 
 ## Exit gate
 
-- [ ] `themes.css` exists and is loaded in all 4 shells
-- [ ] 8 colour-only `bg-*.css` reduced to token overrides, then deleted (A4-1)
+- [ ] `themes.css` exists and is loaded in the admin shell, before `bg-custom.php`
+- [ ] 12 colour-only `bg-*.css` reduced to token overrides, then deleted (A4-1)
 - [ ] `bg-white.css` and `bg-dark.css` each under 1 KB
 - [ ] Sidebar layout rules live in `app.css`
-- [ ] Settings dropdown maps to the new theme names
+- [ ] Settings chooser offers 14 swatches
 - [ ] `sidebar_theme` migrated in **both** databases
-- [ ] 10 theme screenshots captured, all readable
-- [ ] Custom theme via `bg-custom.php` still works
+- [ ] 14 theme screenshots captured, all passing 4.5:1
+- [ ] Custom theme via `bg-custom.php` overrides the chosen theme
 
 ## Tasks: 4 · Completed: 0 · Remaining: 4
