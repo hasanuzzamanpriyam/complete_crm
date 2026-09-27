@@ -52,6 +52,20 @@
             </div>
 
             <div class="form-group">
+                <label for="field-1" class="col-sm-3 control-label">Group</label>
+                <div class="col-sm-5">
+                    <select name="menu_group" class="form-control select_box">
+                        <?php if (count($menu_groups)): foreach ($menu_groups as $group_key => $group_label) : ?>
+                            <option value="<?php echo $group_key ?>"
+                                <?php echo (isset($menu_info->menu_group) && $menu_info->menu_group == $group_key) ? 'selected' : '' ?>>
+                                <?php echo $group_label ?></option>
+                        <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
                 <label for="field-1" class="col-sm-3 control-label">Sort<span
                         class="required"> *</span></label>
                 <div class="col-sm-5">

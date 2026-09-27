@@ -21,6 +21,7 @@
                         <th>Label</th>
                         <th>Icon</th>
                         <th>Parent</th>                                             
+                        <th>Group</th>
                         <th>Sort</th>
                         <th class="">Action</th>
                     </tr>
@@ -34,6 +35,7 @@
                                 <td><?php echo $v_nav->label ?></td>
                                 <td><i class="<?php echo $v_nav->icon ?>"></i></td>
                                 <td><?php echo $v_nav->parent ?></td>   
+                                <td><?php $group = isset($v_nav->menu_group) ? $v_nav->menu_group : ''; echo isset($menu_groups[$group]) ? $menu_groups[$group] : $group ?></td>
                                 <td><?php echo $v_nav->sort ?></td> 
                                 <td>
                                     <div class="btn-group" role="group" aria-label="...">
