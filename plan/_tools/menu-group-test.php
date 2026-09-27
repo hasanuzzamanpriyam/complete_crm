@@ -282,7 +282,10 @@ function testRender(string $base): void
     preg_match_all('/<li class="sidebar-group-header">([^<]+)<\/li>/', $html, $m);
     // buildMenu() htmlspecialchars()es the label, so "CRM & Clients" arrives as
     // "CRM &amp; Clients". Decode before comparing.
-    $found = array_map('trim', array_map('html_entity_decode', $m[1] ?? [], ENT_QUOTES, 'UTF-8'));
+    $found = array_map(
+        fn($s) => trim(html_entity_decode($s, ENT_QUOTES, 'UTF-8')),
+        $m[1] ?? []
+    );
     $nonEmpty = 0;
     foreach ($EXPECTED_ORDER as $g) {
         if (count($EXPECTED_BACKFILL[$g]) > 0) { $nonEmpty++; }
@@ -298,15 +301,158 @@ function testRender(string $base): void
     $links = preg_match_all('/<li[^>]*>\s*<a[^>]*href=/', $html);
     check($links > 0, 'sidebar still renders links', "{$links} anchors");
 
-    // The client menu must NOT be grouped.
-    $client = httpGet($base . '/client/dashboard', $jar);
-    if (str_contains($client, "class='nav s-menu")) {
+    testClientMenuUngrouped($base, $jar);
+}
+
+/**
+ * The client menu must never be grouped.
+ *
+ * This cannot be checked over HTTP: /client/dashboard 307-redirects an admin
+ * session straight back to /admin/dashboard, so the only response available is
+ * the grouped admin page and the assertion can never pass. Client passwords in
+ * tbl_client are hashed and there is no client auto_login(), so no client
+ * session is obtainable here.
+ *
+ * So the invariant is checked where it is actually decided — at the call sites
+ * inside Menu.php. $group is opt-in and defaults to false, so the client menu
+ * is ungrouped if and only if clientMenu() calls buildMenu() without the flag,
+ * and buildMenu() does not forward the flag into its own recursion (which is
+ * what keeps submenus flat).
+ */
+function testClientMenuUngrouped(string $base, string $jar): void
+{
+    global $ROOT;
+
+    // This gate is a standalone CLI script, so the CI constant FCPATH does not
+    // exist here; $ROOT is derived from __DIR__ instead.
+    $path = $ROOT . '/application/libraries/Menu.php';
+    $src  = (string) @file_get_contents($path);
+    if ($src === '') {
+        bad('client menu is not grouped', 'cannot read ' . $path);
+        return;
+    }
+
+    // Parse rather than regex, so a nested comma (e.g. a multi-line argument or
+    // a call inside an array) cannot be miscounted as a separator.
+    $tokens = token_get_all($src);
+    $fn     = '(file scope)';
+    $calls  = [];
+    $depth  = 0;
+    for ($i = 0, $n = count($tokens); $i < $n; $i++) {
+        $t = $tokens[$i];
+        if (is_array($t)) {
+            if ($t[0] === T_FUNCTION) {
+                for ($j = $i + 1; $j < $n; $j++) {
+                    if (is_array($tokens[$j]) && $tokens[$j][0] === T_STRING) {
+                        $fn = $tokens[$j][1];
+                        break;
+                    }
+                    if ($tokens[$j] === '(') { break; }
+                }
+            }
+            if ($t[0] === T_STRING && strtolower($t[1]) === 'buildmenu' && $tokens[$i + 1] === '(') {
+                // Skip the declaration itself: `function buildMenu($parent,
+                // $menu, $sub = NULL, $group = false)` has the same shape as a
+                // call and would otherwise be counted as a 4-argument call.
+                $isDecl = false;
+                for ($k = $i - 1; $k >= 0; $k--) {
+                    $p = $tokens[$k];
+                    if (is_array($p) && in_array($p[0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT], true)) { continue; }
+                    $isDecl = (is_array($p) && $p[0] === T_FUNCTION);
+                    break;
+                }
+                if ($isDecl) { continue; }
+
+                $args  = 0;
+                $inner = 0;
+                $seen  = false;
+                // Start past the '(' itself and count separators at depth 0. An
+                // empty call buildMenu() has no content token, so $seen stays
+                // false and reports 0 args rather than 1.
+                for ($j = $i + 2; $j < $n; $j++) {
+                    $u = $tokens[$j];
+                    if ($u === '(' || $u === '[') { $inner++; continue; }
+                    if ($u === ')' || $u === ']') {
+                        if ($inner === 0) { break; }
+                        $inner--;
+                        continue;
+                    }
+                    if ($u === ',') {
+                        if ($inner === 0) { $args++; }
+                        continue;
+                    }
+                    if (is_array($u)) {
+                        if (in_array($u[0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT], true)) { continue; }
+                        $seen = true;
+                        continue;
+                    }
+                    $seen = true;
+                }
+                $calls[] = ['fn' => $fn, 'args' => ($seen ? $args + 1 : 0)];
+            }
+            continue;
+        }
+        $depth += ($t === '{' || $t === '}') ? 1 : 0;
+    }
+
+    $byFn = [];
+    foreach ($calls as $c) {
+        $byFn[$c['fn']][] = $c['args'];
+    }
+
+    check(
+        isset($byFn['clientMenu']) && count($byFn['clientMenu']) === 1,
+        'clientMenu() calls buildMenu() exactly once',
+        'found ' . count($byFn['clientMenu'] ?? []) . ' call(s)'
+    );
+    check(
+        isset($byFn['clientMenu']) && $byFn['clientMenu'][0] <= 3,
+        'clientMenu() does not pass the $group flag',
+        'buildMenu() called with ' . ($byFn['clientMenu'][0] ?? '?') . ' args'
+    );
+
+    // The recursion inside buildMenu() must not forward the flag either, which
+    // is what keeps every submenu flat.
+    check(
+        !isset($byFn['buildMenu']) || max($byFn['buildMenu']) <= 3,
+        'buildMenu() recursion does not forward $group (submenus stay flat)',
+        'max ' . (isset($byFn['buildMenu']) ? max($byFn['buildMenu']) : '?') . ' args'
+    );
+
+    // And the admin sidebar must be the one caller that opts in.
+    check(
+        isset($byFn['dynamicMenu']) && $byFn['dynamicMenu'][0] === 4,
+        'dynamicMenu() opts in with the 4th argument',
+        'buildMenu() called with ' . ($byFn['dynamicMenu'][0] ?? '?') . ' args'
+    );
+
+    // $group must default to false, so any other caller stays ungrouped.
+    check(
+        (bool) preg_match('/function\s+buildMenu\s*\([^)]*\$group\s*=\s*false/i', $src),
+        'buildMenu() $group parameter defaults to false'
+    );
+
+    // If a genuine client page is ever reachable, assert on it too.
+    $ch = curl_init($base . '/client/dashboard');
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_FOLLOWLOCATION => false,
+        CURLOPT_TIMEOUT        => 30,
+        CURLOPT_HTTPHEADER     => ['Cookie: ' . $jar],
+    ]);
+    $client = (string) curl_exec($ch);
+    $code   = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $redir  = (string) curl_getinfo($ch, CURLINFO_REDIRECT_URL);
+    curl_close($ch);
+
+    if (in_array($code, [301, 302, 303, 307, 308], true) && str_contains($redir, '/admin/')) {
+        ok('client page not asserted over HTTP (admin session is redirected to the admin dashboard)');
+    } else {
         check(
             !str_contains($client, 'sidebar-group-header'),
-            'client menu is not grouped'
+            'client menu is not grouped (live page)',
+            'found ' . substr_count($client, 'sidebar-group-header') . ' group headers at http ' . $code
         );
-    } else {
-        ok('client menu is not grouped (no client nav rendered for this role)');
     }
 }
 
