@@ -2032,8 +2032,9 @@ _:-ms-lang(x),
    A2-7 - sidebar Soft UI: group headers, 40px rows, active pill,
    collapsed rail with icon-only rows and a hover flyout.
    ------------------------------------------------------------------------
-   Four cascade facts drive the deviations from the original draft. All four
-   were measured in the browser, not assumed.
+   Every deviation from the original draft below was measured with
+   getComputedStyle, not assumed. What follows is why the draft could not ship
+   as written.
 
    1. Row rules are scoped `.sidebar > .nav > li > a`, not
       `.sidebar .nav > li > a`. The submenu UL carries `.nav` too
@@ -2041,40 +2042,71 @@ _:-ms-lang(x),
       descendant form also matched every submenu link and replaced its 53px
       indent and auto height with the top-level 40px row.
 
-   2. Sidebar colours are owned by a layer app.css cannot outrank.
-      assets/css/bg-custom.php sets them with !important and is included
-      after app.css whenever tbl_config.active_custom_color = 1; otherwise
-      assets/css/bg-<theme>.css is linked after app.css at equal
-      specificity. Only bg-custom.php reads tbl_config; the bg-<theme>.css
-      files are static and set the same properties from literal colours. So
-      every colour below is a token, and where a token would lose, the
-      declaration is kept as the statement of intent and reported rather
-      than forced with !important.
+   2. Sidebar colours are owned by a later layer, so the colour half of this
+      block is mostly inert. assets/css/bg-custom.php is included after app.css
+      whenever tbl_config.active_custom_color = 1 and forces the active row,
+      the row text and the submenu surface with the high-priority keyword.
+      Otherwise assets/css/bg-<theme>.css is linked after app.css at equal
+      specificity. The child combinator adds no specificity, so on the legacy
+      path the whole colour half loses - not just the group header. Only
+      bg-custom.php reads tbl_config; the bg-<theme>.css files are static and
+      set the same properties from literal colours. Where a token cannot win,
+      the declaration is dropped and the conflict recorded rather than escalated
+      with the high-priority keyword, which is what the theme layer itself uses
+      and which Part A is trying to drive to zero.
 
-   2a. Consequence of 2, measured: the group header is the one element in
-      this block that no theme file styles, so on the legacy path
-      (active_custom_color = 0) it falls back to the tokens.css default
-      #b6bdc6, which is unreadable on the four white bg-*.css themes. It
-      cannot inherit either - app.css paints .sidebar #001737 in every theme,
-      which is invisible on the dark ones. One colour cannot serve both
-      families, and the theme families expose no hook to CSS. Fixing it
-      properly means defining --c-sidebar-* in each bg-*.css file or adding a
-      body class when active_custom_color = 0; both are outside this
-      CSS-only change. On the Customiser path, which is the live one, the
-      header tracks --c-sidebar-text and is readable light and dark.
+   2a. The group header is the one element in this block that no theme file
+      styles, so on the legacy path (active_custom_color = 0) it falls back to
+      the tokens.css default, which is unreadable on the seven white
+      bg-*.css themes (bg-danger, bg-dark, bg-green, bg-info, bg-new copy,
+      bg-purple, bg-white). It cannot inherit instead, because app.css paints
+      .sidebar dark in every theme, which is invisible on the dark ones. One
+      colour cannot serve both families and the legacy families expose no hook
+      to CSS. The cheapest fix is not a theme-file edit: all eleven theme files
+      already publish a colour for the template's pre-existing .nav-heading
+      class, and bg-custom.php keeps that class correct on the Customiser path,
+      so emitting `class="nav-heading sidebar-group-header"` would resolve both
+      families with one class - but that needs a specificity bump here and a
+      change in buildMenu(), so it is a follow-up, not this commit. On the
+      Customiser path, which is the live one, the header tracks
+      --c-sidebar-text and is readable light and dark.
+
+   2b. The flyout surface and its text are theme-owned on both paths, and the
+      earlier draft fought that and lost. All eleven bg-*.css files and
+      bg-custom.php set .sidebar-subnav's background at a specificity this
+      block cannot beat, so the draft's white panel never painted; the
+      submenu header was recoloured to a light grey that measured 1.22:1
+      against the real teal panel, and the hover row was given both a tint
+      that app.css's own submenu link rule suppresses and a text colour that
+      the theme's forced hover overrides. Worse, forcing those colours correct
+      on the Customiser path would make them invisible on the white legacy
+      themes, because they win here. So the panel surface, the hover and the
+      submenu header colour are all left to the theme; only the flyout's
+      geometry - width, padding, radius, shadow, line height - comes from this
+      block, which is the part the theme never set. The remaining low contrast
+      on the live theme is the theme's own submenu palette, pre-existing and
+      out of a CSS-only sidebar change.
+
+   2c. The active row's left bar is not suppressed by the theme layer - an
+      inset shadow paints above a forced background. It is invisible here for
+      a different reason: --c-sidebar-active resolves to the same value the
+      theme forces as the active background, so the shadow is the same colour
+      as what is behind it. The li already carries the pre-existing 3px
+      border-left that the theme recolours, so this declaration is redundant on
+      the Customiser path and only paints on the legacy path, where the theme
+      sets a different active background. It is kept for that path.
 
    3. Nothing painted inside the rail can escape it. The rail is 70px wide and
       .aside-inner clips overflow, and a tooltip is a box-tree descendant of
       that clip, so it cannot paint outside it. Chrome also computes
       overflow-x: clip as hidden whenever the other axis is scrollable, so
       overflow-clip-margin cannot widen the clip region here either (measured:
-      a bare probe element with overflow-x: clip !important and
-      overflow-y: scroll !important still computes overflow-x: hidden). Giving
-      up the custom tooltip beats shipping a 3px sliver of one, so collapsed
-      rows rely on the title attribute buildMenu() already emits. Submenus
-      still fly out: assets/js/app.js clones the open .sidebar-subnav into
-      .aside on hover and tags the copy .nav-floating, which sits outside every
-      clipping ancestor.
+      a bare probe element with overflow-x: clip and overflow-y: scroll, both
+      forced, still computes overflow-x: hidden). Giving up the custom tooltip
+      beats shipping a 3px sliver of one, so collapsed rows rely on the title
+      attribute buildMenu() already emits. Submenus still fly out:
+      assets/js/app.js clones the open .sidebar-subnav into .aside on hover and
+      tags the copy .nav-floating, which sits outside every clipping ancestor.
    ========================================================================== */
 
 /* -------------------------------------------- sidebar group headers */
@@ -2091,7 +2123,10 @@ _:-ms-lang(x),
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  border-bottom: 1px solid var(--c-sidebar-border);
+  /* Derived from a mapped token rather than --c-sidebar-border: bg-custom.php
+     maps bg, text and active but not border, so a border token would pin the
+     divider to the tokens.css default - measured near-invisible on teal. */
+  border-bottom: 1px solid color-mix(in srgb, var(--c-sidebar-text) 18%, transparent);
 }
 
 .sidebar > .nav > li > a {
@@ -2107,7 +2142,6 @@ _:-ms-lang(x),
 
 .sidebar > .nav > li > a > em {
   width: 20px;
-  flex: 0 0 20px;
   text-align: center;
   font-size: 16px;
 }
@@ -2118,7 +2152,6 @@ _:-ms-lang(x),
 }
 
 .sidebar > .nav > li.active > a {
-  background-color: rgba(13, 148, 136, .16);
   color: var(--c-sidebar-text-hi);
   box-shadow: inset 3px 0 0 var(--c-sidebar-active);
 }
@@ -2152,11 +2185,12 @@ _:-ms-lang(x),
    .sidebar-subnav into .aside on hover and tags the copy .nav-floating; the
    copy is a sibling of .aside-inner, which is the only way out of the rail's
    clipping. Styling the in-place submenu instead would paint into a box that
-   is 70px wide with overflow-x hidden, i.e. nowhere. */
+   is 70px wide with overflow-x hidden, i.e. nowhere. The li needs no
+   positioning context: the clone is placed by app.css's existing
+   .nav-floating margin-left, not by an offset parent here. */
 .aside-collapsed .sidebar-subnav.nav-floating {
   min-width: 200px;
   padding: var(--sp-2);
-  background: var(--c-surface);
   border: 1px solid var(--c-border);
   border-radius: var(--r-md);
   box-shadow: var(--sh-3);
@@ -2175,13 +2209,12 @@ _:-ms-lang(x),
   white-space: nowrap;
 }
 
-.aside-collapsed .sidebar-subnav.nav-floating > li > a:hover {
-  background-color: rgba(26, 29, 33, .06);
-  color: var(--c-sidebar-text);
-}
+/* No hover rule: the submenu link background is suppressed further up this
+   file by a forced transparent value, and the hover text colour is forced by
+   the theme layer on both paths. Neither can be set here without escalating to
+   the same high-priority keyword this block exists to reduce. */
 
 .aside-collapsed .sidebar-subnav .sidebar-subnav-header {
-  color: var(--c-text-3);
   font-size: var(--fs-xs);
   text-transform: uppercase;
   letter-spacing: .04em;
@@ -2191,7 +2224,10 @@ _:-ms-lang(x),
 .sidebar .menu-border-transparent {
   height: var(--h-control-sm);
   border-radius: var(--r-md);
-  background-color: var(--c-sidebar-bg-2);
+  /* Derived from the two tokens bg-custom.php actually maps: --c-sidebar-bg-2
+     is not in the map, so a background token would pin this field to the
+     tokens.css default - measured as an unthemed near-black box on teal. */
+  background-color: color-mix(in srgb, var(--c-sidebar-text) 8%, var(--c-sidebar-bg));
   color: var(--c-sidebar-text);
   border: 0;
 }
@@ -2199,7 +2235,9 @@ _:-ms-lang(x),
 .sidebar .left-addon .fa {
   color: var(--c-sidebar-text);
   font-size: 13px;
-  padding: 9px;
+  /* 7.5px centres a 13px glyph in the 28px field; the view's 13px padding was
+     tuned for the old 40px field and left the icon 1.5px low. */
+  padding: 7.5px 9px;
 }
 
 /* ========================================================================
