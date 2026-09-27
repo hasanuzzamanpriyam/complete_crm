@@ -1588,6 +1588,120 @@ during the responsive sweep and never attributed.
 
 ---
 
+## Follow-ups found during Task 6 review
+
+Task 6 was reviewed and came back CHANGES_REQUIRED. The three blocking items
+were contrast failures caused by fighting the theme layer, and all three are
+fixed in `030cad6a`; the remaining items are recorded here because each needs a
+file this CSS-only task was not allowed to touch.
+
+### 1. RTL gets none of this — the largest gap
+
+`htmlheader.php:39-48` links `app-rtl.min.css?v=2` **instead of** `app.css?v=3`
+whenever `$RTL` is set, and `RTL` is a real admin setting
+(`Settings.php:377`, with `rtl` labels in the hebrew, german and portuguese
+language files). `app-rtl.min.css` contains **zero** occurrences of
+`sidebar-group-header`, `--row-h` or `--c-sidebar-*`.
+
+So with RTL enabled the six group labels render as unstyled `<li>`s and the
+40px rows, the active pill, the collapsed rail and the flyout simply do not
+exist. The plan never mentions RTL, so this is inherited scope rather than an
+implementer error, but the feature now ships asymmetrically and the six-width
+sweep in Task 6 step 8 did not cover it. Decide explicitly: port the block to
+`app-rtl.min.css`, or record RTL as unsupported for the Soft UI sidebar.
+
+### 2. The group header is a `<li>`, not a heading
+
+`Menu.php:275` emits `<li class="sidebar-group-header">LABEL</li>` straight
+into `<ul class="nav s-menu">`, so a screen reader exposes it as a list item
+containing a bare text node. It never appears in the **headings rotor**, and it
+inflates the list count with a non-actionable item in a list where every other
+`li` is a link. CSS cannot fix this. The fix is in `buildMenu()`:
+`<li role="presentation"><h3 class="sidebar-group-header">` keeps the existing
+class hook so this commit's CSS is unaffected, and `aria-hidden="true"` on the
+`li` is the alternative if the grouping is deemed presentational.
+
+### 3. The legacy-theme group header needs a class, not a colour
+
+`app.css` paints `.sidebar` dark in every theme, so the header cannot inherit,
+and `--c-sidebar-text` stays at its `tokens.css` default on the legacy path
+(`active_custom_color = 0`), which is unreadable on the **seven** white
+`bg-*.css` themes — `bg-danger`, `bg-dark`, `bg-green`, `bg-info`,
+`bg-new copy`, `bg-purple`, `bg-white`. The other four are the `-dark` files.
+
+The cheapest fix is not eleven theme-file edits. All eleven already publish a
+colour for the template's pre-existing `.nav-heading` class, and
+`bg-custom.php:128-130` keeps that class correct on the Customiser path, so
+emitting `class="nav-heading sidebar-group-header"` resolves both families with
+one class. Two caveats: `app.css:1782-1789` sets `padding: 12px 15px` and
+`pointer-events: none` on `.nav-heading` at specificity `(0,2,0)`, which beats
+the new header rule's `(0,1,0)`, so the header selector needs a bump; and
+`pointer-events: none` should be kept anyway.
+
+### 4. The flyout header is unreadable, and it is the theme's fault
+
+After `030cad6a` the flyout's submenu header renders in the theme's own
+`#888ea8` against `--th-submenu-open-bg`, measured **1.46:1** on the live teal
+theme. That is pre-existing: before this task `app.css` had no rule for
+`.sidebar-subnav-header`, so the theme's value applied then too. The first
+draft made it worse by overriding it with `--c-text-3` at 1.22:1, and that
+override is now gone.
+
+Fixing it properly means editing `bg-custom.php:172-174`, which hardcodes
+`#888ea8` instead of using one of the `--th-*` tokens. Out of scope here.
+
+### 5. The collapsed rail hides the only cue that a flyout exists
+
+`app.css:955-957` sets `.aside-collapsed .sidebar li.sub-menu
+[data-toggle="collapse"]:after { content: "" }` at specificity `(0,4,1)`,
+beating `app.css:1858`'s `\e606`. Measured computed `content` is the empty
+string. So in the 70px rail a submenu row is a bare 44px icon with no
+indication it opens anything, even though this task ships the flyout. The plan
+said not to touch the caret, so this was not changed unilaterally — but it is
+the difference between a discoverable and an undiscoverable flyout, and it is a
+one-line change (`content: "\f105"`, a FontAwesome angle-right already loaded).
+**Needs a decision.**
+
+### 6. Two latent items, invisible today
+
+- **Pinned rows will misalign.** `app.css:7692-7694` pins
+  `padding: 0 24px 0 13px !important` at specificity `(0,4,2)`, which this
+  block cannot and should not fight. Nothing is pinned today (`.pinned_list`
+  count is 0 on both `<ul class="nav pinned">` elements), so the first pinned
+  row will sit 7px left of every normal row.
+- **The icon no longer follows `sidebar_font_size`.** `bg-custom.php:251-253`
+  forces that value on the anchor, but the icon is pinned at `16px`. The
+  setting is unset today, so the anchor computes 13px and the icon 16px.
+  `font-size: 1.2em` would follow the admin's choice, at the cost of the
+  plan's literal 16px.
+
+### 7. Two nits left alone on purpose
+
+- The group-header text sits 4px left of the row icons, because the header `li`
+  inherits `border-left: 3px solid transparent` from `app.css:1799` and its
+  16px padding is measured from inside that 3px. Measured: header text 18.96px,
+  row icon 22.95px, row label 42.94px — it aligns with neither. Correcting it
+  means overriding an explicit plan value (`--sp-4`) for a 4px gain, so it was
+  left for a design call.
+- The collapsed icon is 1.48px right of the rail centre for the same inherited
+  border: `margin: 0 auto` centres within the 65px content box, not the 68px
+  border box. Sub-pixel; ignore.
+
+### 8. A cache-buster that has to be remembered by hand
+
+`app.css?v=N` is a hardcoded literal in two views and nothing bumps it, which
+is why this entire task was invisible in a browser that had already fetched
+`?v=2`. It is now at `?v=4`. The durable fix is
+`?v=<?= filemtime(FCPATH . 'assets/css/app.css') ?>` in both views, which
+self-invalidates forever. Recorded rather than done, because it touches every
+page's stylesheet URL.
+
+`application/views/admin/_layout_main.php:17` still references
+`app.min.css?v=2`. If that layout is reachable, it needs the same treatment;
+if it is a dormant template, it should be deleted.
+
+---
+
 ## Follow-ups found during Task 5 review
 
 ### Menus created through the UI still get an empty `link`
