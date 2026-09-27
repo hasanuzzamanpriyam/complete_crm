@@ -565,6 +565,92 @@ function testAdmin(string $base): void
     $stmt->execute([$before['menu_group']]);
     $restored = $pdo->query('SELECT menu_group FROM tbl_menu WHERE menu_id = 1')->fetchColumn();
     check($restored === $before['menu_group'], 'original menu_group restored', 'got ' . var_export($restored, true));
+
+    // A save shaped like the real form — which has no `link` input — must not
+    // blank the stored link. MY_Model::array_from_post() assigns every listed key
+    // unconditionally, so naming a field the form does not post overwrites it.
+    // This used to destroy admin/dashboard's link while reporting success, and
+    // the new Group control gives admins a fresh reason to press Save on rows
+    // they previously had no reason to touch.
+    formShapedSavePreservesLink($base, $jar, $pdo, $before);
+}
+
+/**
+ * POST exactly the fields add_navigation.php renders (label, icon, parent, sort,
+ * menu_group — no `link`) and confirm the stored link survives, then confirm a
+ * POST that DOES carry a link still updates it. Both are restored afterwards.
+ */
+function formShapedSavePreservesLink(string $base, string $jar, PDO $pdo, array $before): void
+{
+    $snapshot = $pdo->query('SELECT * FROM tbl_menu WHERE menu_id = 1')->fetch(PDO::FETCH_ASSOC);
+    $origLink = (string) $snapshot['link'];
+
+    $postNoLink = [
+        'label'      => $snapshot['label'],
+        'icon'       => $snapshot['icon'],
+        'sort'       => $snapshot['sort'],
+        'parent'     => $snapshot['parent'],
+        'menu_group' => $snapshot['menu_group'],
+    ];
+
+    postTo($base . '/admin/navigation/save_navigation/1', $postNoLink, $jar);
+    $afterNoLink = (string) $pdo->query('SELECT link FROM tbl_menu WHERE menu_id = 1')->fetchColumn();
+    check(
+        $afterNoLink === $origLink,
+        'form-shaped save (no link input) preserves the stored link',
+        "'{$origLink}' -> '{$afterNoLink}'"
+    );
+
+    // Guard against "passes because nothing was saved at all".
+    $afterLabel = $pdo->query('SELECT label FROM tbl_menu WHERE menu_id = 1')->fetchColumn();
+    check(
+        $afterLabel === $snapshot['label'],
+        'form-shaped save did still persist the other fields',
+        'label is ' . var_export($afterLabel, true)
+    );
+
+    // And a POST that does carry a link must still be able to set it.
+    $probe = $origLink === 'admin/zz_probe' ? 'admin/zz_probe2' : 'admin/zz_probe';
+    postTo($base . '/admin/navigation/save_navigation/1', $postNoLink + ['link' => $probe], $jar);
+    $afterLink = (string) $pdo->query('SELECT link FROM tbl_menu WHERE menu_id = 1')->fetchColumn();
+    check(
+        $afterLink === $probe,
+        'a posted link is still applied',
+        "'{$probe}' -> '{$afterLink}'"
+    );
+
+    // Restore the whole row exactly, including the auto-managed time, via
+    // try/finally so a failed assertion above can never leave the probe link
+    // behind in the live database.
+    try {
+        $cols     = array_keys($snapshot);
+        $setPairs = implode(', ', array_map(fn($c) => "`{$c}` = ?", $cols));
+        $pdo->prepare("UPDATE tbl_menu SET {$setPairs} WHERE menu_id = 1")
+            ->execute(array_values($snapshot));
+        $restoredRow = $pdo->query('SELECT * FROM tbl_menu WHERE menu_id = 1')->fetch(PDO::FETCH_ASSOC);
+        check(
+            $restoredRow === array_map('strval', $snapshot) || $restoredRow === $snapshot,
+            'menu_id=1 restored byte-for-byte'
+        );
+    } finally {
+        $pdo->prepare('UPDATE tbl_menu SET link = ? WHERE menu_id = 1')->execute([$origLink]);
+    }
+}
+
+/** POST a form and ignore the response body. */
+function postTo(string $url, array $post, string $jar): void
+{
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_FOLLOWLOCATION => false,
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => http_build_query($post),
+        CURLOPT_HTTPHEADER     => ['Cookie: ' . $jar],
+        CURLOPT_TIMEOUT        => 30,
+    ]);
+    curl_exec($ch);
+    curl_close($ch);
 }
 
 // ------------------------------------------------------------------- main ----

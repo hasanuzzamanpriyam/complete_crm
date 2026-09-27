@@ -83,7 +83,19 @@ class Navigation extends MY_Controller
      */
     public function save_navigation($id = NULL)
     {
-        $data = $this->navigation_model->array_from_post(array('label', 'link', 'icon', 'sort'));
+        // Only write the fields the form actually submitted. MY_Model's
+        // array_from_post() assigns every listed key unconditionally, so naming a
+        // field the form does not post overwrites the stored value with NULL. The
+        // form has no `link` input, so saving any menu from the UI silently
+        // blanked its link and still reported success.
+        $fields = array('label', 'link', 'icon', 'sort');
+        $posted = array();
+        foreach ($fields as $field) {
+            if ($this->input->post($field, true) !== NULL) {
+                $posted[] = $field;
+            }
+        }
+        $data = $this->navigation_model->array_from_post($posted);
         $data['parent'] = $this->input->post('parent',true);
         if (empty($data['parent'])) {
             $data['parent'] = 0;
