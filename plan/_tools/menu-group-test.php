@@ -16,7 +16,17 @@ ini_set('display_errors', '1');
 
 $ROOT = dirname(__DIR__, 2);
 $opts = getopt('', ['db-name::', 'base::', 'help']);
-$mode = $argv[1] ?? 'all';
+// getopt() stops parsing at the first non-option argument, so flags must come
+// BEFORE the subcommand (--db-name=tic_crm_demo db). That leaves $argv[1] holding
+// the flag rather than the subcommand, so take the first argument that is not
+// an option instead of assuming position 1.
+$mode = 'all';
+foreach (array_slice($argv, 1) as $arg) {
+    if ($arg !== '' && $arg[0] !== '-') {
+        $mode = $arg;
+        break;
+    }
+}
 
 if (isset($opts['help'])) {
     echo "Usage: php plan/_tools/menu-group-test.php [config|db|render|admin|all]\n";
