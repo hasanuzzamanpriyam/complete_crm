@@ -2029,6 +2029,180 @@ _:-ms-lang(x),
 }
 
 /* ========================================================================
+   A2-7 - sidebar Soft UI: group headers, 40px rows, active pill,
+   collapsed rail with icon-only rows and a hover flyout.
+   ------------------------------------------------------------------------
+   Four cascade facts drive the deviations from the original draft. All four
+   were measured in the browser, not assumed.
+
+   1. Row rules are scoped `.sidebar > .nav > li > a`, not
+      `.sidebar .nav > li > a`. The submenu UL carries `.nav` too
+      (buildMenu() emits class="nav s-menu sidebar-subnav collapse"), so the
+      descendant form also matched every submenu link and replaced its 53px
+      indent and auto height with the top-level 40px row.
+
+   2. Sidebar colours are owned by a layer app.css cannot outrank.
+      assets/css/bg-custom.php sets them with !important and is included
+      after app.css whenever tbl_config.active_custom_color = 1; otherwise
+      assets/css/bg-<theme>.css is linked after app.css at equal
+      specificity. Only bg-custom.php reads tbl_config; the bg-<theme>.css
+      files are static and set the same properties from literal colours. So
+      every colour below is a token, and where a token would lose, the
+      declaration is kept as the statement of intent and reported rather
+      than forced with !important.
+
+   2a. Consequence of 2, measured: the group header is the one element in
+      this block that no theme file styles, so on the legacy path
+      (active_custom_color = 0) it falls back to the tokens.css default
+      #b6bdc6, which is unreadable on the four white bg-*.css themes. It
+      cannot inherit either - app.css paints .sidebar #001737 in every theme,
+      which is invisible on the dark ones. One colour cannot serve both
+      families, and the theme families expose no hook to CSS. Fixing it
+      properly means defining --c-sidebar-* in each bg-*.css file or adding a
+      body class when active_custom_color = 0; both are outside this
+      CSS-only change. On the Customiser path, which is the live one, the
+      header tracks --c-sidebar-text and is readable light and dark.
+
+   3. Nothing painted inside the rail can escape it. The rail is 70px wide and
+      .aside-inner clips overflow, and a tooltip is a box-tree descendant of
+      that clip, so it cannot paint outside it. Chrome also computes
+      overflow-x: clip as hidden whenever the other axis is scrollable, so
+      overflow-clip-margin cannot widen the clip region here either (measured:
+      a bare probe element with overflow-x: clip !important and
+      overflow-y: scroll !important still computes overflow-x: hidden). Giving
+      up the custom tooltip beats shipping a 3px sliver of one, so collapsed
+      rows rely on the title attribute buildMenu() already emits. Submenus
+      still fly out: assets/js/app.js clones the open .sidebar-subnav into
+      .aside on hover and tags the copy .nav-floating, which sits outside every
+      clipping ancestor.
+   ========================================================================== */
+
+/* -------------------------------------------- sidebar group headers */
+.sidebar-group-header {
+  padding: var(--sp-4) var(--sp-4) var(--sp-2);
+  margin: 0;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--c-sidebar-text);
+  opacity: .65;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-bottom: 1px solid var(--c-sidebar-border);
+}
+
+.sidebar > .nav > li > a {
+  height: var(--row-h);
+  line-height: var(--row-h);
+  padding: 0 var(--sp-3);
+  margin: 0 var(--sp-2) 2px;
+  border-radius: var(--r-md);
+  color: var(--c-sidebar-text);
+  transition: background-color var(--dur-fast) var(--ease),
+              color var(--dur-fast) var(--ease);
+}
+
+.sidebar > .nav > li > a > em {
+  width: 20px;
+  flex: 0 0 20px;
+  text-align: center;
+  font-size: 16px;
+}
+
+.sidebar > .nav > li > a:hover {
+  background-color: var(--c-sidebar-bg-2);
+  color: var(--c-sidebar-text-hi);
+}
+
+.sidebar > .nav > li.active > a {
+  background-color: rgba(13, 148, 136, .16);
+  color: var(--c-sidebar-text-hi);
+  box-shadow: inset 3px 0 0 var(--c-sidebar-active);
+}
+
+.sidebar > .nav > li.active > a > em {
+  color: var(--c-sidebar-active);
+}
+
+/* ------------------------------ collapsed rail: icons only, hover flyout ---- */
+.aside-collapsed .sidebar-group-header {
+  display: none;
+}
+
+.aside-collapsed .sidebar > .nav > li {
+  position: relative;
+}
+
+.aside-collapsed .sidebar > .nav > li > a {
+  width: 44px;
+  margin: 0 auto;
+  padding: 0;
+  text-align: center;
+  text-indent: 0;
+}
+
+.aside-collapsed .sidebar > .nav > li > a > span {
+  display: none;
+}
+
+/* Submenus fly out to the right of the rail. assets/js/app.js clones the open
+   .sidebar-subnav into .aside on hover and tags the copy .nav-floating; the
+   copy is a sibling of .aside-inner, which is the only way out of the rail's
+   clipping. Styling the in-place submenu instead would paint into a box that
+   is 70px wide with overflow-x hidden, i.e. nowhere. */
+.aside-collapsed .sidebar-subnav.nav-floating {
+  min-width: 200px;
+  padding: var(--sp-2);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-3);
+}
+
+.aside-collapsed .sidebar-subnav.nav-floating > li > a {
+  display: block;
+  height: auto;
+  line-height: 1.6;
+  width: auto;
+  margin: 0;
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--r-sm);
+  color: var(--c-sidebar-text-hi);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.aside-collapsed .sidebar-subnav.nav-floating > li > a:hover {
+  background-color: rgba(26, 29, 33, .06);
+  color: var(--c-sidebar-text);
+}
+
+.aside-collapsed .sidebar-subnav .sidebar-subnav-header {
+  color: var(--c-text-3);
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+/* Menu search */
+.sidebar .menu-border-transparent {
+  height: var(--h-control-sm);
+  border-radius: var(--r-md);
+  background-color: var(--c-sidebar-bg-2);
+  color: var(--c-sidebar-text);
+  border: 0;
+}
+
+.sidebar .left-addon .fa {
+  color: var(--c-sidebar-text);
+  font-size: 13px;
+  padding: 9px;
+}
+
+/* ========================================================================
    Component: offsidebar.less
  ========================================================================== */
 .offsidebar {
