@@ -185,25 +185,38 @@ function testDb(string $dbName): void
 function httpGet(string $url, string $jar): string
 {
     $ch = curl_init($url);
-    curl_setopt_array($ch, [
+    $opts = [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_MAXREDIRS      => 8,
         CURLOPT_TIMEOUT        => 30,
-        CURLOPT_COOKIEJAR      => $jar,
-        CURLOPT_COOKIEFILE     => $jar,
-    ]);
+    ];
+    if (is_string($jar) && $jar !== '') {
+        $opts[CURLOPT_HTTPHEADER] = ['Cookie: ' . $jar];
+    }
+    curl_setopt_array($ch, $opts);
     $body = curl_exec($ch);
     curl_close($ch);
     return $body === false ? '' : $body;
 }
 
-function login(string $base, string $jar): bool
+/**
+ * Authenticate and return the session cookie as a string, or '' on failure.
+ *
+ * This PHP's curl reports no cookie-jar support: CURLOPT_COOKIEJAR and
+ * CURLOPT_COOKIEFILE are silent no-ops and no file is ever written, even though
+ * Set-Cookie arrives normally. So capture the cookie from the response header
+ * and replay it on every later request via the Cookie header.
+ *
+ * $jar is therefore a cookie STRING here, not a path. The parameter name is
+ * kept so existing call sites do not change.
+ */
+function login(string $base, &$jar): bool
 {
     $ch = curl_init($base . '/login');
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_FOLLOWLOCATION => false,
         CURLOPT_POST           => true,
         CURLOPT_POSTFIELDS     => http_build_query([
             'user_name' => 'forid',
@@ -211,13 +224,38 @@ function login(string $base, string $jar): bool
             'lat'       => '0.000000',
             'long'      => '0.000000',
         ]),
-        CURLOPT_COOKIEJAR      => $jar,
-        CURLOPT_COOKIEFILE     => $jar,
         CURLOPT_TIMEOUT        => 30,
+        CURLOPT_HEADER         => true,
     ]);
-    curl_exec($ch);
+    $raw    = (string) curl_exec($ch);
+    $hsize  = (int) curl_getinfo($ch, CURLINFO_HEADER_SIZE);
     curl_close($ch);
-    return is_file($jar) && str_contains((string) @file_get_contents($jar), 'uniquecoder');
+
+    $cookie = '';
+    foreach (preg_split('/\r?\n/', substr($raw, 0, $hsize)) as $line) {
+        if (stripos($line, 'Set-Cookie:') === 0) {
+            $cookie = trim(substr($line, strlen('Set-Cookie:')));
+            $semi = strpos($cookie, ';');
+            if ($semi !== false) {
+                $cookie = substr($cookie, 0, $semi);
+            }
+            break;
+        }
+    }
+
+    if (!str_contains($cookie, 'uniquecoder')) {
+        return false;
+    }
+
+    // Prove the cookie really authenticates: the dashboard must come back
+    // without the sign-in form.
+    $page = httpGet($base . '/admin/dashboard', $cookie);
+    if ($page === '' || str_contains($page, 'name="user_name"')) {
+        return false;
+    }
+
+    $jar = $cookie;
+    return true;
 }
 
 function testRender(string $base): void
@@ -226,7 +264,7 @@ function testRender(string $base): void
 
     heading('render — sidebar group headers');
 
-    $jar = (getenv('TEMP') ?: sys_get_temp_dir()) . '/tic_crm_menu_' . getmypid() . '.jar';
+    $jar = '';   // becomes the session cookie string after login()
     if (!login($base, $jar)) {
         bad('login as forid', 'no session cookie');
         return;
@@ -234,7 +272,8 @@ function testRender(string $base): void
     ok('login as forid');
 
     $html = httpGet($base . '/admin/dashboard', $jar);
-    if (!str_contains($html, 'class="nav s-menu')) {
+    // buildMenu() emits single-quoted attributes: class='nav s-menu ...'
+    if (!str_contains($html, "class='nav s-menu")) {
         bad('sidebar nav rendered', 'no s-menu nav in the response');
         return;
     }
@@ -261,7 +300,7 @@ function testRender(string $base): void
 
     // The client menu must NOT be grouped.
     $client = httpGet($base . '/client/dashboard', $jar);
-    if (str_contains($client, 'class="nav s-menu')) {
+    if (str_contains($client, "class='nav s-menu")) {
         check(
             !str_contains($client, 'sidebar-group-header'),
             'client menu is not grouped'
@@ -279,7 +318,7 @@ function testAdmin(string $base): void
 
     heading('admin — navigation manager UI');
 
-    $jar = (getenv('TEMP') ?: sys_get_temp_dir()) . '/tic_crm_menu_' . getmypid() . '.jar';
+    $jar = '';   // becomes the session cookie string after login()
     if (!login($base, $jar)) {
         bad('login as forid', 'no session cookie');
         return;
@@ -321,8 +360,7 @@ function testAdmin(string $base): void
             'parent'     => $before['parent'],
             'menu_group' => $target,
         ]),
-        CURLOPT_COOKIEJAR      => $jar,
-        CURLOPT_COOKIEFILE     => $jar,
+        CURLOPT_HTTPHEADER     => ['Cookie: ' . $jar],
         CURLOPT_TIMEOUT        => 30,
     ]);
     curl_exec($ch);
