@@ -8,9 +8,9 @@ $expense_report_order = get_row('tbl_dashboard', array('name' => 'expense_report
 
 ?>
 
-<div class="panel panel-custom menu" style="height: 437px;">
+<div class="panel panel-custom menu">
     <header class="panel-heading">
-        <h3 class="panel-title"><?= lang('expense_report') ?></h3>
+        <h3 class="panel-title"><?= lang('expense_report') ?><span class="sub">12-month trend</span></h3>
     </header>
     <div class="panel-body">
         <form role="form" id="form" action="<?php echo base_url(); ?>admin/dashboard" method="post" class="form-horizontal form-groups-bordered hidden-xs">
@@ -30,7 +30,27 @@ $expense_report_order = get_row('tbl_dashboard', array('name' => 'expense_report
             </div>
         </form>
         <!--End select input year -->
-        <canvas id="buyers" style="height:35vh; width: 100%;"></canvas>
+        <div class="bars">
+            <?php
+            if (!empty($all_expense) && !empty($expense_report_order)) {
+                $exp_max = 0;
+                foreach ($all_expense as $v_exp) {
+                    $exp_max = max($exp_max, (float) $v_exp);
+                }
+                foreach ($all_expense as $v_exp) {
+                    $exp_h = $exp_max > 0 ? max(6, round(((float) $v_exp / $exp_max) * 100)) : 6;
+                    ?><i class="red" style="height:<?= $exp_h ?>%"></i><?php
+                }
+            }
+            ?>
+        </div>
+        <div class="xaxis">
+            <?php if (!empty($all_expense)) {
+                foreach ($all_expense as $name => $v_exp) {
+                    ?><span><?= date('M', strtotime($year . '-' . $name)) ?></span><?php
+                }
+            } ?>
+        </div>
     </div><!-- ./box-body -->
 
 </div>
@@ -39,41 +59,3 @@ $expense_report_order = get_row('tbl_dashboard', array('name' => 'expense_report
         initdatepicker();
     });
 </script>
-<?php if (!empty($all_expense) && !empty($expense_report_order)) { ?>
-    <script>
-        var buyerData = {
-            labels: [
-                <?php
-                foreach ($all_expense as $name => $v_expense) :
-                    $month_name = date('F', strtotime($year . '-' . $name));
-                ?> "<?php echo $month_name; ?>",
-                <?php endforeach; ?>
-            ],
-            datasets: [{
-                fillColor: "rgba(172,194,132,0.4)",
-                strokeColor: "#ACC26D",
-                pointColor: "#fff",
-                pointStrokeColor: "#9DB86D",
-                data: [
-                    <?php
-                    foreach ($all_expense as $v_expense) :
-                    ?> "<?php
-                        /*if (!empty($v_expense)) {
-                            $total_expense = 0;
-                            foreach ($v_expense as $exoense) {
-                            $total_expense += $exoense->amount;
-                            }
-                            echo $total_expense;
-                            }*/
-                        echo $v_expense;
-                        ?>",
-                    <?php
-                    endforeach;
-                    ?>
-                ]
-            }]
-        }
-        var buyers = document.getElementById('buyers').getContext('2d');
-        new Chart(buyers).Line(buyerData);
-    </script>
-<?php } ?>
