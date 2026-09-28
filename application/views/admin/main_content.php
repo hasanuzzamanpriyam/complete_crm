@@ -120,75 +120,28 @@ $all_order_data = $this->db->where($where)->order_by('order_no', 'ASC')->get('tb
                         <!--        ******** Sales ************** -->
                         <div class="<?= $v_report->col ?> report" id="<?= $v_report->id ?>">
                             <?php echo ajax_anchor(base_url("admin/settings/save_dashboard/$v_report->id" . '/0'), "<i class='fa fa-times-circle'></i>", array("class" => "close-btn", "title" => lang('inactive'), "data-fade-out-on-success" => "#" . $v_report->id)); ?>
-                            <div class="panel report_menu">
-                                <div class="row row-table row-flush">
-                                    <div class="col-xs-6 bb br">
-                                        <div class="row row-table row-flush">
-                                            <div class="col-xs-2 text-center ">
-                                                <em class="fa fa-shopping-cart fa-2x"></em>
-                                            </div>
-                                            <div class="col-xs-10">
-                                                <div class="text-center">
-                                                    <h4 class="mt-sm mb0" id="today_invo_amount"></h4>
-                                                    <p class="mb0 text-muted"><?= lang('invoice_today') ?></p>
-                                                    <small><a href="<?= base_url() ?>admin/invoice/manage_invoice"
-                                                              class="mt0 mb0"><?= lang('more_info') ?> <i
-                                                                    class="fa fa-arrow-circle-right"></i></a></small>
-                                                </div>
-                                            </div>
-                                        </div>
+                            <div class="hero g2 report_menu">
+                                <div class="h-title"><?= lang('invoice') ?> &amp; <?= lang('payments') ?></div>
+                                <div class="h-grid">
+                                    <div>
+                                        <div class="lbl"><?= lang('invoice_today') ?></div>
+                                        <div class="val" id="today_invo_amount"></div>
+                                        <a class="more" href="<?= base_url() ?>admin/invoice/manage_invoice"><?= lang('more_info') ?> <i class="fa fa-arrow-circle-right"></i></a>
                                     </div>
-
-                                    <div class="col-xs-6 bb">
-                                        <div class="row row-table row-flush">
-                                            <div class="col-xs-2 text-center text-purple">
-                                                <em class="fa fa-money fa-2x"></em>
-                                            </div>
-                                            <div class="col-xs-10">
-                                                <div class="text-center">
-                                                    <h4 class="mt-sm mb0" id="payment_today"></h4>
-                                                    <p class="mb0 text-muted"><?= lang('payment_today') ?></p>
-                                                    <small><a href="<?= base_url() ?>admin/invoice/all_payments"
-                                                              class=" small-box-footer"><?= lang('more_info') ?>
-                                                            <i
-                                                                    class="fa fa-arrow-circle-right"></i></a></small>
-                                                </div>
-                                            </div>
-                                        </div>
+                                    <div>
+                                        <div class="lbl"><?= lang('payment_today') ?></div>
+                                        <div class="val" id="payment_today"></div>
+                                        <a class="more" href="<?= base_url() ?>admin/invoice/all_payments"><?= lang('more_info') ?> <i class="fa fa-arrow-circle-right"></i></a>
                                     </div>
-                                </div>
-                                <div class="row row-table row-flush">
-                                    <div class="col-xs-6 br">
-                                        <div class="row row-table row-flush">
-                                            <div class="col-xs-2 text-center text-purple">
-                                                <em class="fa fa-money fa-2x"></em>
-                                            </div>
-                                            <div class="col-xs-10">
-                                                <div class="text-center">
-                                                    <h4 class="mt-sm mb0" id="paid_invo_amount"></h4>
-                                                    <p class="mb0 text-muted"><?= lang('paid_amount') ?></p>
-                                                    <small><a href="<?= base_url() ?>admin/invoice/all_payments"
-                                                              class="mt0 mb0"><?= lang('more_info') ?> <i
-                                                                    class="fa fa-arrow-circle-right"></i></a></small>
-                                                </div>
-                                            </div>
-                                        </div>
+                                    <div class="h-div" style="grid-column:1">
+                                        <div class="lbl"><?= lang('paid_amount') ?></div>
+                                        <div class="val" id="paid_invo_amount"></div>
+                                        <a class="more" href="<?= base_url() ?>admin/invoice/all_payments"><?= lang('more_info') ?> <i class="fa fa-arrow-circle-right"></i></a>
                                     </div>
-                                    <div class="col-xs-6">
-                                        <div class="row row-table row-flush">
-                                            <div class="col-xs-2 text-center text-danger">
-                                                <em class="fa fa-usd fa-2x"></em>
-                                            </div>
-                                            <div class="col-xs-10">
-                                                <div class="text-center">
-                                                    <h4 class="mt-sm mb0" id="client_outstanding"></h4>
-                                                    <p class="mb0 text-muted"><?= lang('due_amount') ?></p>
-                                                    <small><a href="<?= base_url() ?>admin/invoice/manage_invoice"
-                                                              class="small-box-footer"><?= lang('more_info') ?>
-                                                            <i class="fa fa-arrow-circle-right"></i></a></small>
-                                                </div>
-                                            </div>
-                                        </div>
+                                    <div class="h-div" style="grid-column:2">
+                                        <div class="lbl"><?= lang('due_amount') ?></div>
+                                        <div class="val" id="client_outstanding" style="color:#fbbf24"></div>
+                                        <a class="more" href="<?= base_url() ?>admin/invoice/manage_invoice"><?= lang('more_info') ?> <i class="fa fa-arrow-circle-right"></i></a>
                                     </div>
                                 </div>
                             </div>
@@ -198,85 +151,28 @@ $all_order_data = $this->db->where($where)->order_by('order_no', 'ASC')->get('tb
                         <!--        ******** Ticket ************** -->
                         <div class="<?= $v_report->col ?> report" id="<?= $v_report->id ?>">
                             <?php echo ajax_anchor(base_url("admin/settings/save_dashboard/$v_report->id" . '/0'), "<i class='fa fa-times-circle'></i>", array("class" => "close-btn", "title" => lang('inactive'), "data-fade-out-on-success" => "#" . $v_report->id)); ?>
-                            <div class="panel report_menu">
-                                <div class="row row-table row-flush">
-                                    <div class="col-xs-6 bb br">
-                                        <div class="row row-table row-flush">
-                                            <div class="col-xs-2 text-center text-danger">
-                                                <em class="fa fa-tasks fa-2x"></em>
-                                            </div>
-
-                                            <div class="col-xs-10">
-                                                <div class="text-center">
-                                                    <h4 class="mt-sm mb0" id="tasks_in_progress"><?php
-
-                                                        //echo count($this->db->where('task_status', 'in_progress')->get('tbl_task')->result());
-                                                        ?></h4>
-                                                    <p class="mb0 text-muted"><?= lang('in_progress') . ' ' . lang('task') ?></p>
-                                                    <small><a href="<?= base_url() ?>admin/tasks/all_task"
-                                                              class="mt0 mb0"><?= lang('more_info') ?> <i
-                                                                    class="fa fa-arrow-circle-right"></i></a></small>
-                                                </div>
-                                            </div>
-                                        </div>
+                            <div class="hero g3 report_menu">
+                                <div class="h-title"><?= lang('task') ?> &amp; <?= lang('tickets') ?></div>
+                                <div class="h-grid">
+                                    <div>
+                                        <div class="lbl"><?= lang('in_progress') ?> <?= lang('task') ?></div>
+                                        <div class="val" id="tasks_in_progress"></div>
+                                        <a class="more" href="<?= base_url() ?>admin/tasks/all_task"><?= lang('more_info') ?> <i class="fa fa-arrow-circle-right"></i></a>
                                     </div>
-
-                                    <div class="col-xs-6 bb">
-                                        <div class="row row-table row-flush">
-                                            <div class="col-xs-2 text-center text-danger">
-                                                <em class="fa fa-ticket fa-2x"></em>
-                                            </div>
-                                            <div class="col-xs-10">
-                                                <div class="text-center">
-                                                    <h4 class="mt-sm mb0"
-                                                        id="tickets_open"> <?php //echo count($this->db->where('status', 'open')->get('tbl_tickets')->result()); ?></h4>
-                                                    <p class="mb0 text-muted"><?= lang('open') . ' ' . lang('tickets') ?></p>
-                                                    <small><a href="<?= base_url() ?>admin/tickets"
-                                                              class=" small-box-footer"><?= lang('more_info') ?>
-                                                            <i
-                                                                    class="fa fa-arrow-circle-right"></i></a></small>
-                                                </div>
-                                            </div>
-                                        </div>
+                                    <div>
+                                        <div class="lbl"><?= lang('open') ?> <?= lang('tickets') ?></div>
+                                        <div class="val" id="tickets_open"></div>
+                                        <a class="more" href="<?= base_url() ?>admin/tickets"><?= lang('more_info') ?> <i class="fa fa-arrow-circle-right"></i></a>
                                     </div>
-                                </div>
-                                <div class="row row-table row-flush">
-                                    <div class="col-xs-6 br">
-                                        <div class="row row-table row-flush">
-                                            <div class="col-xs-2 text-center text-danger">
-                                                <em class="fa fa-bug fa-2x"></em>
-                                            </div>
-                                            <div class="col-xs-10">
-                                                <div class="text-center">
-                                                    <h4 class="mt-sm mb0" id="bugs_in_progress"><?php
-                                                        //echo count($this->db->where('bug_status', 'in_progress')->get('tbl_bug')->result());
-                                                        ?></h4>
-                                                    <p class="mb0 text-muted"><?= lang('in_progress') . ' ' . lang('bugs') ?></p>
-                                                    <small><a href="<?= base_url() ?>admin/bugs"
-                                                              class="mt0 mb0"><?= lang('more_info') ?> <i
-                                                                    class="fa fa-arrow-circle-right"></i></a></small>
-                                                </div>
-                                            </div>
-                                        </div>
+                                    <div class="h-div" style="grid-column:1">
+                                        <div class="lbl"><?= lang('in_progress') ?> <?= lang('bugs') ?></div>
+                                        <div class="val" id="bugs_in_progress"></div>
+                                        <a class="more" href="<?= base_url() ?>admin/bugs"><?= lang('more_info') ?> <i class="fa fa-arrow-circle-right"></i></a>
                                     </div>
-                                    <div class="col-xs-6">
-                                        <div class="row row-table row-flush">
-                                            <div class="col-xs-2 text-center text-danger">
-                                                <em class="fa fa-folder-open-o fa-2x"></em>
-                                            </div>
-                                            <div class="col-xs-10">
-                                                <div class="text-center">
-                                                    <h4 class="mt-sm mb0" id="project_in_progress"><?php
-                                                        //echo count($this->db->where('project_status', 'in_progress')->get('tbl_project')->result());
-                                                        ?></h4>
-                                                    <p class="mb0 text-muted"><?= lang('in_progress') . ' ' . lang('project') ?></p>
-                                                    <small><a href="<?= base_url() ?>admin/projects"
-                                                              class="small-box-footer"><?= lang('more_info') ?>
-                                                            <i
-                                                                    class="fa fa-arrow-circle-right"></i></a></small>
-                                                </div>
-                                            </div>
-                                        </div>
+                                    <div class="h-div" style="grid-column:2">
+                                        <div class="lbl"><?= lang('in_progress') ?> <?= lang('project') ?></div>
+                                        <div class="val" id="project_in_progress"></div>
+                                        <a class="more" href="<?= base_url() ?>admin/projects"><?= lang('more_info') ?> <i class="fa fa-arrow-circle-right"></i></a>
                                     </div>
                                 </div>
                             </div>
