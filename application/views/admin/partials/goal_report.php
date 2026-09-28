@@ -24,7 +24,7 @@ if (!empty($goal_report_order)) {
     ?>
     <div class="panel panel-custom menu">
         <header class="panel-heading">
-            <h3 class="panel-title"><?= lang('goal') . ' ' . lang('report') ?></h3>
+            <h3 class="panel-title"><?= lang('goal') . ' ' . lang('report') ?><span class="sub">Achievement vs target</span></h3>
         </header>
         <div class="panel-body">
             <p class="text-center ">
@@ -54,7 +54,25 @@ if (!empty($goal_report_order)) {
             </p>
             <!--End select input year -->
             <!--Sales Chart Canvas -->
-            <div id="goal_report"></div>
+            <div class="goal-list">
+                <?php if (!empty($goal_report)) {
+                    foreach ($goal_report as $v_goal_report) {
+                        $g_pct = ($v_goal_report->target > 0) ? min(100, round(((float) $v_goal_report->amount_or_count / (float) $v_goal_report->target) * 100)) : 0;
+                        ?>
+                        <div class="goal">
+                            <div class="gr">
+                                <span><?= lang($v_goal_report->type_name) ?></span>
+                                <b style="color:#6d28d9"><?= $g_pct ?>%</b>
+                            </div>
+                            <div class="track"><span style="width:<?= $g_pct ?>%;background:#8b5cf6"></span></div>
+                        </div>
+                        <?php
+                    }
+                } else {
+                    ?>
+                    <p class="text-muted text-center"><?= lang('no_result_found') ?></p>
+                <?php } ?>
+            </div>
         </div><!-- ./box-body -->
     
     </div>
@@ -63,46 +81,5 @@ if (!empty($goal_report_order)) {
             initdatepicker();
         });
     </script>
-    
-    <?php if (!empty($goal_report)) { ?>
-        <script type="text/javascript">
-            (function (window, document, $, undefined) {
-                $(function () {
-                    if (typeof Morris === 'undefined') return;
-                    var chartdata = [
-                        <?php
-                        if (!empty($goal_report)) {
-                        foreach ($goal_report as  $v_goal_report) {
-                        if ($v_goal_report->target == 0) {
-                            $v_goal_report->amount_or_count = 0;
-                        }
-                        $total_target = 0;
-                        $total_achievement = 0;?>
-
-                        {
-                            y: "<?= lang($v_goal_report->type_name)?>",
-                            a: <?= $v_goal_report->target ?>,
-                            b: <?= $v_goal_report->amount_or_count; ?>
-                        },
-                        <?php }
-                        }?>
-                    ];
-                    new Morris.Bar({
-                        element: 'goal_report',
-                        data: chartdata,
-                        xkey: 'y',
-                        ykeys: ["a", "b"],
-                        labels: ["<?php echo lang('achievement')?>", "<?php echo lang('achievements')?>"],
-                        xLabelMargin: 2,
-                        barColors: ['#23b7e5', '#f05050'],
-                        resize: true,
-                        xLabelAngle: 60,
-                        hideHover: 'auto'
-                    });
-                });
-            })(window, document, window.jQuery);
-        </script>
-    <?php }
-    
-}
+<?php }
 ?>
