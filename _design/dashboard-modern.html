@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard redesign demo - TIC CRM</title>
+<style>
+/* Mirrors assets/css/tokens.css + assets/css/tokens.css A2-9 card system.
+   Static demo: fake numbers, no scripts. Structure mirrors the live
+   admin/dashboard (tbl_dashboard order, report row on top). */
+:root{
+  --c-bg:#f4f6f8; --c-surface:#fff; --c-border-2:#e3e6ea; --c-border:#d5dae0;
+  --c-text:#1a1d21; --c-text-2:#475569; --c-text-3:#7a828c; --c-slate:#94a3b8;
+  --c-accent:#0d9488; --c-mint:#10b981; --c-cyan:#06b6d4; --c-amber:#f59e0b;
+  --c-purple:#8b5cf6; --c-danger:#dc2626; --c-ice:#34d399;
+  --r-xl:16px; --r-lg:14px; --r-md:10px; --r-full:999px;
+  --sh-1:0 1px 2px rgba(15,23,42,.06);
+  --fs-2xl:24px; --fs-lg:16px; --fs-sm:13px; --fs-xs:12px;
+  --hero-1:linear-gradient(135deg,#0f172a,#134e4a);
+  --hero-2:linear-gradient(135deg,#111827,#164e63);
+  --hero-3:linear-gradient(135deg,#1c1917,#3b2f52);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--c-bg);color:var(--c-text);font-size:14px}
+a{color:var(--c-accent);text-decoration:none}
+.note{display:block;text-align:center;color:var(--c-text-3);font-size:13px;margin:14px 0 0}
+
+/* ---------------- shell (matches the live app) ---------------- */
+.shell{display:flex;min-height:100vh}
+.sidebar{width:220px;flex:0 0 220px;background:#14181c;color:#b6bdc6;padding-bottom:24px}
+.brand{display:flex;align-items:center;gap:8px;padding:24px 12px 16px 24px}
+.brand .tile{width:30px;height:30px;border-radius:var(--r-md);background:linear-gradient(135deg,var(--c-accent),var(--c-cyan));color:#fff;font-weight:800;font-size:13px;display:grid;place-items:center;flex:0 0 30px}
+.brand .name{color:#fff;font-size:16px;font-weight:700;letter-spacing:-.01em}
+.side-search{margin:0 12px 8px;position:relative}
+.side-search input{width:100%;height:34px;border-radius:var(--r-md);border:1px solid #262c33;background:#1b2026;color:#d6dbe1;padding:0 10px 0 30px;font-size:12.5px}
+.side-search::before{content:"\2315";position:absolute;left:9px;top:7px;color:#64748b;font-size:14px}
+.grp{padding:12px 16px 4px 16px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#64748b}
+.nav a{display:flex;align-items:center;gap:10px;height:40px;margin:0 12px 4px;padding:0 12px;border-radius:8px;color:#b6bdc6;font-size:14px;font-weight:500}
+.nav a:hover{background:#1c2126;color:#fff}
+.nav a.on{background:var(--c-accent);color:#fff;font-weight:600}
+.nav .dot{width:6px;height:6px;border-radius:99px;background:currentColor;opacity:.55;flex:0 0 6px}
+
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{height:67px;background:#fff;border-bottom:1px solid var(--c-border-2);display:flex;align-items:center;gap:12px;padding:12px 24px;position:sticky;top:0;z-index:5}
+.burger{width:34px;height:34px;border-radius:8px;background:#f1f3f5;display:grid;place-items:center;color:var(--c-text-2);font-size:15px}
+.crumb{font-size:12px;color:var(--c-slate);white-space:nowrap}
+.crumb b{display:block;font-size:16px;font-weight:700;letter-spacing:-.01em;color:#0f172a}
+.pill{flex:1 1 240px;max-width:430px;margin-left:12px;height:34px;background:#f1f3f5;border-radius:var(--r-full);display:flex;align-items:center;padding:0 14px;color:var(--c-slate);font-size:13px;gap:8px}
+.spacer{margin-left:auto}
+.chip-btn{width:34px;height:34px;border-radius:8px;background:#f1f3f5;display:grid;place-items:center;color:var(--c-text-2);font-size:14px;position:relative}
+.chip-btn .badge{position:absolute;top:-4px;right:-4px;background:var(--c-danger);color:#fff;font-size:9px;font-weight:700;border-radius:99px;padding:1px 5px}
+.avatar{width:34px;height:34px;border-radius:99px;background:linear-gradient(135deg,#0d9488,#06b6d4);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:700}
+.btn-new{height:34px;border-radius:8px;background:var(--c-accent);color:#fff;font-size:12px;font-weight:600;padding:0 16px;display:flex;align-items:center;gap:6px;box-shadow:0 1px 2px rgba(13,148,136,.35)}
+
+.page{padding:20px 24px 40px;max-width:1600px}
+h1.page-t{font-size:18px;font-weight:700;margin:0 0 14px;letter-spacing:-.01em}
+
+/* ---------------- grid ---------------- */
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+.c3{grid-column:span 3}.c4{grid-column:span 4}.c6{grid-column:span 6}.c12{grid-column:span 12}
+.row-gap{margin-top:16px}
+
+/* ---------------- shared card ---------------- */
+.card{background:var(--c-surface);border:1px solid var(--c-border-2);border-radius:var(--r-xl);box-shadow:var(--sh-1);position:relative;min-width:0}
+.card-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 16px 0}
+.card-h h3{margin:0;font-size:15px;font-weight:700;letter-spacing:-.01em}
+.card-h .sub{font-size:11px;color:var(--c-slate);margin-top:1px}
+.card-b{padding:14px 16px 16px}
+.x-btn{position:absolute;top:10px;right:10px;width:24px;height:24px;border-radius:99px;display:grid;place-items:center;color:#c3c9d0;font-size:13px;opacity:0;transition:.15s}
+.card:hover .x-btn,.hero:hover .x-btn{opacity:1}
+.drag{position:absolute;top:14px;right:44px;color:#d5dae0;font-size:13px;opacity:0;transition:.15s;cursor:grab;letter-spacing:-2px}
+.card:hover .drag,.hero:hover .drag{opacity:1}
+
+.tag{font-size:10px;font-weight:700;border-radius:var(--r-full);padding:3px 8px;white-space:nowrap}
+.tag-teal{background:#ecfdf5;color:#0d9488}
+.tag-mint{background:#ecfdf5;color:#047857}
+.tag-cyan{background:#ecfeff;color:#0e7490}
+.tag-amber{background:#fffbeb;color:#b45309}
+.tag-purple{background:#f5f3ff;color:#6d28d9}
+.tag-slate{background:#f1f3f5;color:#475569}
+.tag-red{background:#fef2f2;color:#b91c1c}
+.tag-solid-amber{background:#fef3c7;color:#b45309}
+
+/* list rows */
+.lrow{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f1f3f5;font-size:13px}
+.lrow:last-child{border-bottom:0}
+.lrow .t{color:var(--c-text);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lrow .m{margin-left:auto;color:var(--c-slate);font-size:12px;white-space:nowrap}
+.ic{width:28px;height:28px;flex:0 0 28px;border-radius:8px;display:grid;place-items:center;font-size:12px;font-weight:700}
+.ic-teal{background:#ecfdf5;color:#0d9488}.ic-amber{background:#fffbeb;color:#b45309}
+.ic-purple{background:#f5f3ff;color:#6d28d9}
+.ic-slate{background:#f1f3f5;color:#475569}.ic-mint{background:#ecfdf5;color:#047857}
+.ic-cyan{background:#ecfeff;color:#0e7490}
+.prio{width:8px;height:8px;border-radius:99px;flex:0 0 8px}
+.track{height:8px;border-radius:99px;background:#eef1f4;overflow:hidden}
+.track>span{display:block;height:100%;border-radius:99px}
+
+/* ---------------- Block A: KPI row (kept exactly as shipped) ---------------- */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;padding:5px}
+.kpi-card{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--c-surface);border-radius:var(--r-lg);box-shadow:var(--sh-1);min-width:0}
+.kpi-card .k-i{width:32px;height:32px;flex:0 0 32px;border-radius:var(--r-md);display:grid;place-items:center;font-size:15px;font-weight:700}
+.k-i.ok{background:#ecfdf5;color:#10b981}.k-i.no{background:#fef2f2;color:#dc2626}
+.kpi-card .v{font-size:var(--fs-2xl);font-weight:600;line-height:1.25;font-variant-numeric:tabular-nums;white-space:nowrap}
+.kpi-card .l{font-size:var(--fs-sm);color:var(--c-text-3);margin-top:2px}
+.kpi-card .lk{font-size:var(--fs-xs);color:var(--c-accent);margin-top:4px;display:inline-block}
+
+/* ---------------- heroes ---------------- */
+.hero{border-radius:var(--r-xl);color:#fff;padding:18px;position:relative;min-width:0;overflow:hidden}
+.hero.g1{background:var(--hero-1)}
+.hero.g2{background:var(--hero-2)}
+.hero.g3{background:var(--hero-3)}
+.hero .lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.03em;opacity:.7}
+.hero .val{font-size:26px;font-weight:800;letter-spacing:-.02em;margin-top:3px;font-variant-numeric:tabular-nums}
+.hero .h-sub{font-size:11px;opacity:.72;margin-top:6px}
+.hero .more{font-size:11px;color:#fff;opacity:.75;margin-top:8px;display:inline-block}
+.hero .more:hover{opacity:1}
+.hero .h-title{font-size:15px;font-weight:700;margin-bottom:2px}
+.h-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px}
+.h-div{border-top:1px solid rgba(255,255,255,.14);margin-top:14px;padding-top:12px}
+.h-bars{display:flex;align-items:flex-end;gap:5px;height:44px;margin-top:12px}
+.h-bars i{flex:1;background:rgba(255,255,255,.18);border-radius:3px}
+.h-bars i.hi{background:#2dd4bf}
+.h-chip{display:inline-block;font-size:11px;font-weight:700;border-radius:99px;padding:3px 9px;background:rgba(255,255,255,.14);margin-right:6px;margin-top:10px}
+.h-chip.warn{background:rgba(245,158,11,.22);color:#fbbf24}
+.h-chip.violet{background:rgba(139,92,246,.22);color:#c4b5fd}
+.h-chip.mint{background:rgba(52,211,153,.18);color:#34d399}
+.hero-dark-stat{background:rgba(255,255,255,.1);border-radius:10px;padding:10px 12px}
+
+/* tabs (overdue) */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;padding:14px 16px 0}
+.tab{font-size:12px;font-weight:700;border-radius:99px;padding:6px 12px;background:#f1f3f5;color:var(--c-text-2);display:flex;gap:7px;align-items:center}
+.tab b{font-weight:800}
+.tab.on{background:var(--c-accent);color:#fff}
+.tab.on b{color:#fff}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--c-slate);font-weight:700;text-align:left;padding:10px 16px;background:#fafbfc;border-top:1px solid #f1f3f5;border-bottom:1px solid #f1f3f5}
+.tbl td{padding:10px 16px;border-bottom:1px solid #f1f3f5;color:var(--c-text)}
+.tbl tr:last-child td{border-bottom:0}
+.tbl .num{font-variant-numeric:tabular-nums;font-weight:700;color:var(--c-danger)}
+.foot-totals{display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px 16px;border-top:1px solid #f1f3f5;margin-top:4px}
+.ft{background:#f8fafb;border:1px solid var(--c-border-2);border-radius:10px;padding:7px 11px;font-size:12px;color:var(--c-text-2)}
+.ft b{color:var(--c-text);font-size:13px}
+
+/* charts (pure divs) */
+.bars{display:flex;align-items:flex-end;gap:6px;height:120px;padding-top:6px}
+.bars i{flex:1;border-radius:4px 4px 0 0;background:var(--c-accent);min-height:6px}
+.bars i.red{background:var(--c-danger);opacity:.85}
+.bars i.mut{background:#e2e8f0}
+.xaxis{display:flex;gap:6px;margin-top:6px}
+.xaxis span{flex:1;text-align:center;font-size:9px;color:var(--c-slate)}
+.legend{display:flex;gap:14px;font-size:11px;color:var(--c-text-3);margin-top:8px}
+.legend i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px}
+
+/* misc widgets */
+.pillrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.select{height:28px;border-radius:8px;border:1px solid var(--c-border-2);background:#fff;color:var(--c-text-2);font-size:12px;padding:0 8px}
+.ann{padding:10px 0;border-bottom:1px solid #f1f3f5}
+.ann:last-child{border-bottom:0}
+.ann .at{font-size:13px;font-weight:600}
+.ann .ad{font-size:11px;color:var(--c-slate);margin-top:2px}
+.ann .ab{font-size:12.5px;color:var(--c-text-2);margin-top:4px}
+.todo{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid #f1f3f5;font-size:13px}
+.todo:last-child{border-bottom:0}
+.todo .cb{width:16px;height:16px;border-radius:5px;border:1.5px solid #cbd5e1;flex:0 0 16px;display:grid;place-items:center;font-size:10px;color:#fff}
+.todo.done .cb{background:var(--c-cyan);border-color:var(--c-cyan)}
+.todo.done .tt{color:var(--c-slate);text-decoration:line-through}
+.timer{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f1f3f5}
+.timer:last-child{border-bottom:0}
+.timer .el{margin-left:auto;font-variant-numeric:tabular-nums;font-size:13px;font-weight:700;color:var(--c-text-2)}
+.mini-btn{font-size:11px;font-weight:700;border-radius:7px;padding:4px 9px;background:#f1f3f5;color:var(--c-text-2)}
+.mini-btn.stop{background:#fef2f2;color:#b91c1c}
+.feed{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid #f1f3f5}
+.feed:last-child{border-bottom:0}
+.feed .txt{font-size:13px;line-height:1.45}
+.feed .when{font-size:11px;color:var(--c-slate);margin-top:2px}
+.goal{padding:10px 0;border-bottom:1px solid #f1f3f5}
+.goal:last-child{border-bottom:0}
+.goal .gr{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
+.goal .gr b{font-variant-numeric:tabular-nums}
+.two{display:flex;gap:16px}
+.two>div{flex:1;min-width:0}
+.stat-big{font-size:24px;font-weight:800;letter-spacing:-.02em}
+.stat-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.03em;color:var(--c-slate);margin-bottom:3px}
+
+@media (max-width:1100px){
+  .c3,.c4,.c6{grid-column:span 12}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .sidebar{display:none}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ============ sidebar (live shell) ============ -->
+  <aside class="sidebar">
+    <div class="brand"><span class="tile">T</span><span class="name">TIC Limited</span></div>
+    <div class="side-search"><input placeholder="Search menu"></div>
+    <div class="grp">CRM &amp; Clients</div>
+    <nav class="nav">
+      <a class="on" href="#"><span class="dot"></span>Dashboard</a>
+      <a href="#"><span class="dot"></span>Clients</a>
+      <a href="#"><span class="dot"></span>Leads &amp; Opportunities</a>
+    </nav>
+    <div class="grp">Projects &amp; Tasks</div>
+    <nav class="nav">
+      <a href="#"><span class="dot"></span>Projects</a>
+      <a href="#"><span class="dot"></span>Tasks</a>
+      <a href="#"><span class="dot"></span>Bugs</a>
+    </nav>
+    <div class="grp">Finance &amp; Billing</div>
+    <nav class="nav">
+      <a href="#"><span class="dot"></span>Invoices</a>
+      <a href="#"><span class="dot"></span>Payments</a>
+      <a href="#"><span class="dot"></span>Accounting</a>
+    </nav>
+    <div class="grp">Tools &amp; Admin</div>
+    <nav class="nav">
+      <a href="#"><span class="dot"></span>Reports</a>
+      <a href="#"><span class="dot"></span>Settings</a>
+    </nav>
+  </aside>
+
+  <!-- ============ main ============ -->
+  <div class="main">
+    <header class="topbar">
+      <div class="burger">&#9776;</div>
+      <div class="crumb">Dashboard<b>Overview</b></div>
+      <div class="pill">&#9906;&nbsp; Search clients, projects, invoices...</div>
+      <div class="spacer"></div>
+      <div class="chip-btn">&#9673;<span class="badge">3</span></div>
+      <div class="chip-btn">&#9873;</div>
+      <div class="avatar">FR</div>
+      <div class="btn-new">+ New</div>
+    </header>
+
+    <main class="page">
+      <h1 class="page-t">Dashboard</h1>
+
+      <!-- ===== report row (tbl_dashboard report=1, order_no ASC) ===== -->
+      <div class="grid">
+        <!-- invoice_payment_report - hero -->
+        <section class="c6 hero g2">
+          <span class="drag">&#8942;&#8942;</span><span class="x-btn">&#10005;</span>
+          <div class="h-title">Invoices &amp; payments</div>
+          <div class="h-grid" style="margin-top:12px">
+            <div>
+              <div class="lbl">Invoice today</div>
+              <div class="val">&#8358;85,000</div>
+              <a class="more" href="#">More info &#8594;</a>
+            </div>
+            <div>
+              <div class="lbl">Payment today</div>
+              <div class="val" style="color:#34d399">&#8358;1,20,000</div>
+              <a class="more" href="#">More info &#8594;</a>
+            </div>
+            <div class="h-div" style="grid-column:1">
+              <div class="lbl">Paid amount</div>
+              <div class="val">&#8358;6,12,000</div>
+              <a class="more" href="#">More info &#8594;</a>
+            </div>
+            <div class="h-div" style="grid-column:2">
+              <div class="lbl">Due amount</div>
+              <div class="val" style="color:#fbbf24">&#8358;2,34,500</div>
+              <a class="more" href="#">More info &#8594;</a>
+            </div>
+          </div>
+        </section>
+
+        <!-- ticket_tasks_report - hero -->
+        <section class="c6 hero g3">
+          <span class="drag">&#8942;&#8942;</span><span class="x-btn">&#10005;</span>
+          <div class="h-title">Tasks &amp; tickets</div>
+          <div class="h-grid" style="margin-top:12px">
+            <div>
+              <div class="lbl">In progress tasks</div>
+              <div class="val">12</div>
+              <a class="more" href="#">More info &#8594;</a>
+            </div>
+            <div>
+              <div class="lbl">Open tickets</div>
+              <div class="val">14</div>
+              <a class="more" href="#">More info &#8594;</a>
+            </div>
+            <div class="h-div" style="grid-column:1">
+              <div class="lbl">In progress bugs</div>
+              <div class="val">6</div>
+              <a class="more" href="#">More info &#8594;</a>
+            </div>
+            <div class="h-div" style="grid-column:2">
+              <div class="lbl">In progress projects</div>
+              <div class="val">4</div>
+              <a class="more" href="#">More info &#8594;</a>
+            </div>
+          </div>
+          <div><span class="h-chip warn">3 overdue</span><span class="h-chip violet">5 in review</span><span class="h-chip mint">8 this week</span></div>
+        </section>
+
+        <!-- income_expenses_report - KEPT AS SHIPPED (A2-14 kpi-cards) -->
+        <section class="c12">
+          <div class="kpi-grid">
+            <div class="kpi-card"><div class="k-i ok">+</div><div><div class="v">&#8358;2,40,000</div><div class="l">Income today</div><a class="lk" href="#">More info &#8594;</a></div></div>
+            <div class="kpi-card"><div class="k-i no">&minus;</div><div><div class="v">&#8358;86,500</div><div class="l">Expense today</div><a class="lk" href="#">More info &#8594;</a></div></div>
+            <div class="kpi-card"><div class="k-i ok">+</div><div><div class="v">&#8358;18,45,000</div><div class="l">Total income</div><a class="lk" href="#">More info &#8594;</a></div></div>
+            <div class="kpi-card"><div class="k-i no">&minus;</div><div><div class="v">&#8358;9,12,400</div><div class="l">Total expense</div><a class="lk" href="#">More info &#8594;</a></div></div>
+          </div>
+        </section>
+      </div>
+
+      <!-- ===== widget grid (tbl_dashboard report=0, order_no ASC) ===== -->
+      <div class="grid row-gap">
+
+        <!-- 1 · overdue_report (col-12) -->
+        <section class="c12 card">
+          <span class="drag">&#8942;&#8942;</span><span class="x-btn">&#10005;</span>
+          <div class="tabs">
+            <span class="tab on">Overdue projects <b>(3)</b></span>
+            <span class="tab">Overdue tasks <b>(9)</b></span>
+            <span class="tab">Overdue invoices <b>(4)</b></span>
+            <span class="tab">Expired estimates <b>(2)</b></span>
+            <span class="tab">Unconfirmed bugs <b>(5)</b></span>
+            <span class="tab">Overdue opportunities <b>(1)</b></span>
+          </div>
+          <table class="tbl" style="margin-top:12px">
+            <thead><tr><th>Project</th><th>End date</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody>
+              <tr><td>Web revamp - phase 2</td><td>26 Sep 2026</td><td><span class="tag tag-red">Overdue 3d</span></td><td><a href="#">Open</a></td></tr>
+              <tr><td>ERP data migration</td><td>21 Sep 2026</td><td><span class="tag tag-red">Overdue 8d</span></td><td><a href="#">Open</a></td></tr>
+              <tr><td>Mobile app QA</td><td>18 Sep 2026</td><td><span class="tag tag-amber">Due soon</span></td><td><a href="#">Open</a></td></tr>
+            </tbody>
+          </table>
+          <div class="foot-totals">
+            <span class="ft">Completed projects <b>14</b></span>
+            <span class="ft">Completed tasks <b>48</b></span>
+            <span class="ft">Estimate amount <b>&#8358;4,20,000</b></span>
+            <span class="ft">Resolved bugs <b>27</b></span>
+            <span class="ft">Won opportunities <b>6</b></span>
+          </div>
+        </section>
+
+        <!-- 2 · income_report -->
+        <section class="c6 card">
+          <span class="drag">&#8942;&#8942;</span><span class="x-btn">&#10005;</span>
+          <div class="card-h"><div><h3>Income report</h3><div class="sub">12-month trend</div></div>
+            <div class="pillrow"><select class="select"><option>2026</option></select><span class="tag tag-teal">&#9650; 18%</span></div></div>
+          <div class="card-b">
+            <div class="bars">
+              <i style="height:35%"></i><i style="height:48%"></i><i style="height:42%"></i><i style="height:60%"></i><i style="height:52%"></i><i style="height:70%"></i><i style="height:64%"></i><i style="height:82%"></i><i style="height:75%"></i><i style="height:90%"></i><i style="height:78%"></i><i style="height:96%"></i>
+            </div>
+            <div class="xaxis"><span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span></div>
+          </div>
+        </section>
+
+        <!-- 3 · expense_report -->
+        <section class="c6 card">
+          <span class="drag">&#8942;&#8942;</span><span class="x-btn">&#10005;</span>
+          <div class="card-h"><div><h3>Expense report</h3><div class="sub">12-month trend</div></div>
+            <div class="pillrow"><select class="select"><option>2026</option></select><span class="tag tag-red">&#9660; 6%</span></div></div>
+          <div class="card-b">
+            <div class="bars">
+              <i class="red" style="height:44%"></i><i class="red" style="height:38%"></i><i class="red" style="height:55%"></i><i class="red" style="height:47%"></i><i class="red" style="height:62%"></i><i class="red" style="height:50%"></i><i class="red" style="height:58%"></i><i class="red" style="height:70%"></i><i class="red" style="height:54%"></i><i class="red" style="height:66%"></i><i class="red" style="height:60%"></i><i class="red" style="height:72%"></i>
+            </div>
+            <div class="xaxis"><span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span></div>
+          </div>
+        </section>
+
+        <!-- 4 · active_timers -->
+        <section class="c6 card">
+          <span class="drag">&#8942;&#8942;</span><span class="x-btn">&#10005;</span>
+          <div class="card-h"><div><h3>Active timers</h3><div class="sub">Tracking now</div></div><span class="tag tag-mint">2 running</span></div>
+          <div class="card-b">
+            <div class="timer"><span class="prio" style="background:#10b981"></span><div><div style="font-size:13px">Ayesha - Checkout polish</div><div style="font-size:11px;color:#94a3b8">Web revamp</div></div><span class="el">01:24:10</span><span class="mini-btn stop">Stop</span></div>
+            <div class="timer"><span class="prio" style="background:#f59e0b"></span><div><div style="font-size:13px">Rafi - API docs</div><div style="font-size:11px;color:#94a3b8">Platform</div></div><span class="el">00:47:32</span><span class="mini-btn stop">Stop</span></div>
+            <div class="timer"><span class="prio" style="background:#94a3b8"></span><div><div style="font-size:13px">Nadia - Client calls</div><div style="font-size:11px;color:#94a3b8">Sales</div></div><span class="el">Paused</span><span class="mini-btn">Resume</span></div>
+          </div>
+        </section>
+
+        <!-- 5 · my_project -->
+        <section class="c6 card">
+          <span class="drag">&#8942;&#8942;</span><span class="x-btn">&#10005;</span>
+          <div class="card-h"><div><h3>My projects</h3><div class="sub">In progress</div></div><span class="tag tag-amber">4 active</span></div>
+          <div class="card-b">
+            <div class="goal"><div class="gr"><span>Web revamp - phase 2</span><b style="color:#b45309">72%</b></div><div class="track"><span style="width:72%;background:#f59e0b"></span></div><div style="font-size:11px;color:#94a3b8;margin-top:5px">Due 30 Sep</div></div>
+            <div class="goal"><div class="gr"><span>ERP data migration</span><b style="color:#b45309">45%</b></div><div class="track"><span style="width:45%;background:#f59e0b"></span></div><div style="font-size:11px;color:#94a3b8;margin-top:5px">Due 12 Oct</div></div>
+            <div class="goal"><div class="gr"><span>Mobile app QA</span><b style="color:#b45309">88%</b></div><div class="track"><span style="width:88%;background:#f59e0b"></span></div><div style="font-size:11px;color:#94a3b8;margin-top:5px">Due 26 Sep</div></div>
+          </div>
+        </section>
+
+        <!-- 6 · recent_activities -->
+        <section class="c6 card">
+          <span class="drag">&#8942;&#8942;</span><span class="x-btn">&#10005;</span>
+          <div class="card-h"><div><h3>Recent activities</h3><div class="sub">Last 24 hours</div></div></div>
+          <div class="card-b">
+            <div class="feed"><span class="ic ic-teal">A</span><div><div class="txt">Ayesha recorded payment for <b>INV-1042</b></div><div class="when">2 min ago</div></div></div>
+            <div class="feed"><span class="ic ic-slate">R</span><div><div class="txt">Rafi moved <b>Checkout polish</b> to review</div><div class="when">18 min ago</div></div></div>
+            <div class="feed"><span class="ic ic-purple">N</span><div><div class="txt">Nadia added <b>Trigon Labs</b> as a client</div><div class="when">1 hr ago</div></div></div>
+            <div class="feed"><span class="ic ic-amber">S</span><div><div class="txt">Sabbir commented on <b>ERP data migration</b></div><div class="when">3 hr ago</div></div></div>
+          </div>
+        </section>
+
+        <!-- 7 · income_expense (income vs expense) -->
+        <section class="c6 card">
+          <span class="drag">&#8942;&#8942;</span><span class="x-btn">&#10005;</span>
+          <div class="card-h"><div><h3>Income vs expense</h3><div class="sub">September 2026</div></div>
+            <select class="select"><option>This month</option></select></div>
+          <div class="card-b">
+            <div class="two" style="margin-bottom:14px">
+              <div><div class="stat-lbl">Income</div><div class="stat-big" style="color:#0d9488">&#8358;3,15,000</div></div>
+              <div><div class="stat-lbl">Expense</div><div class="stat-big" style="color:#dc2626">&#8358;1,42,300</div></div>
+            </div>
+            <div class="bars" style="height:80px">
+              <i style="height:70%"></i><i class="red" style="height:40%"></i>
+              <i style="height:85%"></i><i class="red" style="height:52%"></i>
+              <i style="height:60%"></i><i class="red" style="height:35%"></i>
+              <i style="height:95%"></i><i class="red" style="height:48%"></i>
+              <i style="height:75%"></i><i class="red" style="height:44%"></i>
+            </div>
+            <div class="legend"><span><i style="background:#0d9488"></i>Income</span><span><i style="background:#dc2626"></i>Expense</span></div>
+          </div>
+        </section>
+
+        <!-- 8 · todo_list -->
+        <section class="c6 card">
+          <span class="drag">&#8942;&#8942;</span><span class="x-btn">&#10005;</span>
+          <div class="card-h"><div><h3>To-do list</h3><div class="sub">Today</div></div><span class="tag tag-cyan">3 / 7 done</span></div>
+          <div class="card-b">
+            <div class="todo done"><span class="cb">&#10003;</span><span class="tt">Send INV-1042 reminder</span></div>
+            <div class="todo done"><span class="cb">&#10003;</span><span class="tt">Approve Sabbir's leave</span></div>
+            <div class="todo"><span class="cb"></span><span class="tt">Review checkout QA notes</span></div>
+            <div class="todo"><span class="cb"></span><span class="tt">Sign Trigon Labs contract</span></div>
+            <div class="todo"><span class="cb"></span><span class="tt">Prep payroll for Oct</span></div>
+          </div>
+        </section>
+
+        <!-- 9 · announcements -->
+        <section class="c6 card">
+          <span class="drag">&#8942;&#8942;</span><span class="x-btn">&#10005;</span>
+          <div class="card-h"><div><h3>Announcements</h3><div class="sub">Company-wide</div></div></div>
+          <div class="card-b">
+            <div class="ann"><div class="at">Quarterly planning - Friday 4 PM</div><div class="ad">26 Sep 2026</div><div class="ab">All leads please update your project forecasts before the session.</div></div>
+            <div class="ann"><div class="at">New expense policy v2</div><div class="ad">24 Sep 2026</div><div class="ab">Receipts must be attached within 48 hours of any purchase.</div></div>
+            <div class="ann"><div class="at">Office closed 2 Oct</div><div class="ad">22 Sep 2026</div><div class="ab">Public holiday - support will run on rotation.</div></div>
+          </div>
+        </section>
+
+        <!-- 10 · my_tasks -->
+        <section class="c6 card">
+          <span class="drag">&#8942;&#8942;</span><span class="x-btn">&#10005;</span>
+          <div class="card-h"><div><h3>My tasks</h3><div class="sub">Assigned to me</div></div><span class="tag tag-mint">6 open</span></div>
+          <div class="card-b">
+            <div class="todo"><span class="prio" style="background:#f59e0b"></span><span class="tt">Polish invoice PDF template</span><span class="m" style="margin-left:auto;font-size:12px;color:#94a3b8">Today</span></div>
+            <div class="todo"><span class="prio" style="background:#10b981"></span><span class="tt">QA checkout flow - round 2</span><span class="m" style="margin-left:auto;font-size:12px;color:#94a3b8">Wed</span></div>
+            <div class="todo"><span class="prio" style="background:#8b5cf6"></span><span class="tt">Write client sync notes</span><span class="m" style="margin-left:auto;font-size:12px;color:#94a3b8">Thu</span></div>
+            <div class="todo"><span class="prio" style="background:#dc2626"></span><span class="tt">Fix overdue badge count</span><span class="m" style="margin-left:auto;font-size:12px;color:#94a3b8">Yesterday</span></div>
+          </div>
+        </section>
+
+        <!-- 11 · payments_report -->
+        <section class="c6 card">
+          <span class="drag">&#8942;&#8942;</span><span class="x-btn">&#10005;</span>
+          <div class="card-h"><div><h3>Payments report</h3><div class="sub">Last 6 months</div></div><span class="tag tag-teal">&#8358;12.4L total</span></div>
+          <div class="card-b">
+            <div class="bars" style="height:100px">
+              <i style="height:45%"></i><i style="height:62%"></i><i style="height:55%"></i><i style="height:78%"></i><i style="height:70%"></i><i style="height:92%"></i>
+            </div>
+            <div class="xaxis"><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span></div>
+          </div>
+        </section>
+
+        <!-- 12 · finance_overview - hero -->
+        <section class="c6 hero g1">
+          <span class="drag">&#8942;&#8942;</span><span class="x-btn">&#10005;</span>
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div><div class="h-title">Finance overview</div><div class="h-sub" style="margin-top:0">This year vs last</div></div>
+            <span class="h-chip" style="margin-top:0;background:rgba(255,255,255,.14)">All</span>
+          </div>
+          <div class="h-grid" style="margin-top:14px">
+            <div><div class="lbl">Total income</div><div class="val" style="font-size:22px">&#8358;18,45,000</div></div>
+            <div><div class="lbl">Total expense</div><div class="val" style="font-size:22px">&#8358;9,12,400</div></div>
+          </div>
+          <div class="h-bars">
+            <i style="height:40%"></i><i style="height:60%"></i><i style="height:48%"></i><i style="height:72%"></i><i style="height:58%"></i><i style="height:80%"></i><i style="height:66%"></i><i style="height:88%"></i><i style="height:74%"></i><i class="hi" style="height:96%"></i><i style="height:82%"></i><i style="height:90%"></i>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+            <span class="h-sub" style="margin:0">Jan - Dec</span>
+            <span class="h-chip mint" style="margin-top:0">Profit &#8358;9,32,600</span>
+          </div>
+        </section>
+
+        <!-- 13 · recently_paid_invoices -->
+        <section class="c6 card">
+          <span class="drag">&#8942;&#8942;</span><span class="x-btn">&#10005;</span>
+          <div class="card-h"><div><h3>Recently paid invoices</h3><div class="sub">Last 5 payments</div></div></div>
+          <table class="tbl" style="margin-top:10px">
+            <thead><tr><th>Invoice</th><th>Client</th><th>Amount</th><th>Method</th></tr></thead>
+            <tbody>
+              <tr><td><b>INV-1042</b></td><td>Trigon Labs</td><td style="font-weight:700">&#8358;1,20,000</td><td><span class="tag tag-cyan">Bank</span></td></tr>
+              <tr><td><b>INV-1039</b></td><td>Nordex Ltd</td><td style="font-weight:700">&#8358;64,500</td><td><span class="tag tag-teal">Card</span></td></tr>
+              <tr><td><b>INV-1036</b></td><td>Kite Retail</td><td style="font-weight:700">&#8358;88,000</td><td><span class="tag tag-purple">Transfer</span></td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- 14 · goal_report -->
+        <section class="c6 card">
+          <span class="drag">&#8942;&#8942;</span><span class="x-btn">&#10005;</span>
+          <div class="card-h"><div><h3>Goals</h3><div class="sub">Q3 2026</div></div><span class="tag tag-purple">On track</span></div>
+          <div class="card-b">
+            <div class="goal"><div class="gr"><span>Revenue target</span><b style="color:#6d28d9">68%</b></div><div class="track"><span style="width:68%;background:#8b5cf6"></span></div></div>
+            <div class="goal"><div class="gr"><span>New clients (12)</span><b style="color:#6d28d9">40%</b></div><div class="track"><span style="width:40%;background:#8b5cf6"></span></div></div>
+            <div class="goal"><div class="gr"><span>Retention rate</span><b style="color:#6d28d9">85%</b></div><div class="track"><span style="width:85%;background:#8b5cf6"></span></div></div>
+          </div>
+        </section>
+
+      </div>
+      <p class="note">Static redesign demo - same structure as the live admin/dashboard (tbl_dashboard order), colour-forward skin. Block A's four KPI cards are unchanged.</p>
+    </main>
+  </div>
+</div>
+</body>
+</html>
