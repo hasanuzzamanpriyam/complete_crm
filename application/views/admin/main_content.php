@@ -48,7 +48,7 @@ $all_order_data = $this->db->where($where)->order_by('order_no', 'ASC')->get('tb
 <div class="dashboard">
     <!--        ******** transactions ************** -->
     <?php if ($this->session->userdata('user_type') == 1) { ?>
-        <div id="report_menu" class="row">
+        <div id="report_menu" class="row dash-page">
             <?php if (!empty($all_report)) {
                 foreach ($all_report as $v_report) {
                     if ($v_report->name == 'income_expenses_report' && $v_report->status == 1) { ?>
@@ -288,7 +288,7 @@ $all_order_data = $this->db->where($where)->order_by('order_no', 'ASC')->get('tb
     <?php } ?>
     <div class="clearfix visible-sm-block "></div>
 
-    <div id="menu" class="row">
+    <div id="menu" class="row dash-page">
         <?php if (!empty($all_order_data)) {
             foreach ($all_order_data as $v_order) {
                 ?>
