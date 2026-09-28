@@ -8,9 +8,9 @@ $income_expense_order = get_row('tbl_dashboard', array('name' => 'income_expense
 
 if (!empty($income_expense)) { ?>
     <!-- DONUT CHART -->
-    <div class="panel panel-custom menu" style="height: 437px;">
+    <div class="panel panel-custom menu">
         <header class="panel-heading">
-            <h3 class="panel-title"><?= lang('income_expense') ?></h3>
+            <h3 class="panel-title"><?= lang('income_expense') ?><span class="sub">Selected month</span></h3>
         </header>
         <div class="panel-body">
             <form role="form" id="form" action="<?php echo base_url(); ?>admin/dashboard/index/month" method="post" class="form-horizontal form-groups-bordered hidden-xs">
@@ -29,7 +29,27 @@ if (!empty($income_expense)) { ?>
                     <button type="submit" id="income_vs_expense_btn" data-toggle="tooltip" data-placement="top" title="Search" class="btn btn-custom"><i class="fa fa-search"></i></button>
                 </div>
             </form>
-            <div class="chart" id="sales-chart" style="height:35vh; width: 100%;"></div>
+            <div class="two">
+                <div>
+                    <div class="stat-lbl"><?= lang('income') ?></div>
+                    <div class="stat-big" style="color:#0d9488"><?= display_money($income_expense['total_income'], default_currency()); ?></div>
+                </div>
+                <div>
+                    <div class="stat-lbl"><?= lang('expense') ?></div>
+                    <div class="stat-big" style="color:#dc2626"><?= display_money($income_expense['total_expense'], default_currency()); ?></div>
+                </div>
+            </div>
+            <?php
+            $ive_max = max((float) $income_expense['total_income'], (float) $income_expense['total_expense']);
+            ?>
+            <div class="bars pair" style="height:80px">
+                <i style="height:<?= $ive_max > 0 ? max(6, round(((float) $income_expense['total_income'] / $ive_max) * 100)) : 6 ?>%"></i>
+                <i class="red" style="height:<?= $ive_max > 0 ? max(6, round(((float) $income_expense['total_expense'] / $ive_max) * 100)) : 6 ?>%"></i>
+            </div>
+            <div class="legend">
+                <span><i style="background:#0d9488"></i><?= lang('income') ?></span>
+                <span><i style="background:#dc2626"></i><?= lang('expense') ?></span>
+            </div>
         </div><!-- /.box-body -->
     </div><!-- /.box -->
 
@@ -38,32 +58,4 @@ if (!empty($income_expense)) { ?>
             initdatepicker();
         });
     </script>
-    <?php if (!empty($income_expense) && ($income_expense['total_income'] > 0 || $income_expense['total_expense'] > 0)) { ?>
-
-        <script type="text/javascript">
-            $(function() {
-                "use strict";
-                var donut = new Morris.Donut({
-                    element: 'sales-chart',
-                    resize: true,
-                    colors: ["#00a65a", "#f56954"],
-                    data: [{
-                            label: "<?= lang('Income') ?>",
-                            value: <?php
-                                    echo $total_vincome = $income_expense['total_income'];
-                                    ?>
-                        },
-                        {
-                            label: "<?= lang('Expense') ?>",
-                            value: <?php
-
-                                    echo $total_vexpense = $income_expense['total_expense'];
-                                    ?>
-                        },
-                    ],
-                    hideHover: 'auto'
-                });
-            });
-        </script>
-<?php }
-} ?>
+<?php } ?>
