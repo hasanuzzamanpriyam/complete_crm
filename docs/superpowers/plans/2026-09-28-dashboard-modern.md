@@ -662,15 +662,15 @@ Replace the entire `invoice_payment_report` conditional body (starting at `if ($
                                     </div>
                                     <div>
                                         <div class="lbl"><?= lang('payment_today') ?></div>
-                                        <div class="val" id="payment_today"></div>
+                                        <div class="val" id="payment_today" style="color:#34d399"></div>
                                         <a class="more" href="<?= base_url() ?>admin/invoice/all_payments"><?= lang('more_info') ?> <i class="fa fa-arrow-circle-right"></i></a>
                                     </div>
-                                    <div class="h-div" style="grid-column:1">
+                                    <div class="h-div">
                                         <div class="lbl"><?= lang('paid_amount') ?></div>
                                         <div class="val" id="paid_invo_amount"></div>
                                         <a class="more" href="<?= base_url() ?>admin/invoice/all_payments"><?= lang('more_info') ?> <i class="fa fa-arrow-circle-right"></i></a>
                                     </div>
-                                    <div class="h-div" style="grid-column:2">
+                                    <div class="h-div">
                                         <div class="lbl"><?= lang('due_amount') ?></div>
                                         <div class="val" id="client_outstanding" style="color:#fbbf24"></div>
                                         <a class="more" href="<?= base_url() ?>admin/invoice/manage_invoice"><?= lang('more_info') ?> <i class="fa fa-arrow-circle-right"></i></a>
@@ -703,12 +703,12 @@ Replace the entire `ticket_tasks_report` conditional body the same way with:
                                         <div class="val" id="tickets_open"></div>
                                         <a class="more" href="<?= base_url() ?>admin/tickets"><?= lang('more_info') ?> <i class="fa fa-arrow-circle-right"></i></a>
                                     </div>
-                                    <div class="h-div" style="grid-column:1">
+                                    <div class="h-div">
                                         <div class="lbl"><?= lang('in_progress') ?> <?= lang('bugs') ?></div>
                                         <div class="val" id="bugs_in_progress"></div>
                                         <a class="more" href="<?= base_url() ?>admin/bugs"><?= lang('more_info') ?> <i class="fa fa-arrow-circle-right"></i></a>
                                     </div>
-                                    <div class="h-div" style="grid-column:2">
+                                    <div class="h-div">
                                         <div class="lbl"><?= lang('in_progress') ?> <?= lang('project') ?></div>
                                         <div class="val" id="project_in_progress"></div>
                                         <a class="more" href="<?= base_url() ?>admin/projects"><?= lang('more_info') ?> <i class="fa fa-arrow-circle-right"></i></a>
