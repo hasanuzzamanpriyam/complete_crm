@@ -7,9 +7,9 @@ if ($this->session->userdata('user_type') == 1) {
 $income_report_order = get_row('tbl_dashboard', array('name' => 'income_report') + $where);
 if ($this->session->userdata('user_type') == '1') { ?>
 
-    <div class="panel panel-custom menu" style="height: 437px;">
+    <div class="panel panel-custom menu">
         <header class="panel-heading">
-            <h3 class="panel-title"><?= lang('income_report') ?></h3>
+            <h3 class="panel-title"><?= lang('income_report') ?><span class="sub">12-month trend</span></h3>
         </header>
         <div class="panel-body">
             <form role="form" id="form" action="<?php echo base_url(); ?>admin/dashboard/index/Income" method="post" class="form-horizontal form-groups-bordered hidden-xs">
@@ -30,7 +30,27 @@ if ($this->session->userdata('user_type') == '1') { ?>
                 </div>
             </form>
             <!--Sales Chart Canvas -->
-            <canvas id="income" style="height:35vh; width: 100%;"></canvas>
+            <div class="bars">
+                <?php
+                if (!empty($all_income) && !empty($income_report_order)) {
+                    $inc_max = 0;
+                    foreach ($all_income as $v_inc) {
+                        $inc_max = max($inc_max, (float) $v_inc);
+                    }
+                    foreach ($all_income as $v_inc) {
+                        $inc_h = $inc_max > 0 ? max(6, round(((float) $v_inc / $inc_max) * 100)) : 6;
+                        ?><i style="height:<?= $inc_h ?>%"></i><?php
+                    }
+                }
+                ?>
+            </div>
+            <div class="xaxis">
+                <?php if (!empty($all_income)) {
+                    foreach ($all_income as $name => $v_inc) {
+                        ?><span><?= date('M', strtotime($year . '-' . $name)) ?></span><?php
+                    }
+                } ?>
+            </div>
         </div><!-- ./box-body -->
 
     </div>
@@ -39,47 +59,6 @@ if ($this->session->userdata('user_type') == '1') { ?>
             initdatepicker();
         });
     </script>
-    <?php if (!empty($all_income) && !empty($income_report_order)) { ?>
-        <script>
-            var buyerData = {
-
-                labels: [
-                    <?php
-                    foreach ($all_income as $name => $v_income) :
-                        $month_name = date('F', strtotime($year . '-' . $name));
-                    ?> "<?php echo $month_name; ?>",
-                    <?php endforeach; ?>
-                ],
-                datasets: [{
-                    fillColor: "rgba(172,194,132,0.4)",
-                    strokeColor: "#ACC26D",
-                    pointColor: "#fff",
-                    pointStrokeColor: "#9DB86D",
-                    data: [
-                        <?php
-                        foreach ($all_income as $v_income) :
-                        ?> "<?php
-                            /*               if (!empty($v_income)) {
-                                $total_income = 0;
-                                foreach ($v_income as $income) {
-                                $total_income += $income->amount;
-                                }
-
-                                echo $total_income;
-                                }*/
-
-                            echo $v_income;
-                            ?>",
-                        <?php
-                        endforeach;
-                        ?>
-                    ]
-                }]
-            }
-            var buyers = document.getElementById('income').getContext('2d');
-            new Chart(buyers).Line(buyerData);
-        </script>
-    <?php } ?>
 
 
 <?php } ?>
