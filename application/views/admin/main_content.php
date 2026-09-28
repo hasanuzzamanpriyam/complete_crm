@@ -314,58 +314,14 @@ $all_order_data = $this->db->where($where)->order_by('order_no', 'ASC')->get('tb
                         </aside>
                         <?php
                         if ($this->session->userdata('user_type') == '1') { ?>
-                            <footer class="panel-footer bg-white no-padder">
-                                <div class="row text-center no-gutter">
-                                    <div class="col-xs-2 b-r b-light">
-    <span
-            class="h4 font-bold m-t block"
-            id="completed_projects">
-    </span>
-                                        <small class="text-muted m-b block"><?= lang('complete_projects') ?></small>
-                                    </div>
-                                    <div class="col-xs-2 b-r b-light">
-    <span
-            class="h4 font-bold m-t block"
-            id="completed_tasks">
-    </span>
-                                        <small class="text-muted m-b block"><?= lang('complete_tasks') ?></small>
-                                    </div>
-                                    <div class="col-xs-2">
-    <span
-            class="h4 font-bold m-t block"
-            id="total_invoice_amount">
-    </span>
-                                        <small
-                                                class="text-muted m-b block"><?= lang('total') . ' ' . lang('invoice_amount') ?></small>
-
-                                    </div>
-                                    <div class="col-xs-2">
-    <span
-            class="h4 font-bold m-t block"
-            id="total_estimate_amount">
-    </span>
-                                        <small
-                                                class="text-muted m-b block"><?= lang('total') . ' ' . lang('estimate') ?></small>
-
-                                    </div>
-                                    <div class="col-xs-2">
-    <span
-            class="h4 font-bold m-t block"
-            id="total_resolved_bugs">
-    </span>
-                                        <small
-                                                class="text-muted m-b block"><?= lang('resolved') . ' ' . lang('bugs') ?></small>
-
-                                    </div>
-                                    <div class="col-xs-2">
-    <span
-            class="h4 font-bold m-t block"
-            id="total_won_opportunities">
-    </span>
-                                        <small
-                                                class="text-muted m-b block"><?= lang('won') . ' ' . lang('opportunities') ?></small>
-
-                                    </div>
+                            <footer class="panel-footer">
+                                <div class="foot-totals">
+                                    <span class="ft"><?= lang('complete_projects') ?><b id="completed_projects"></b></span>
+                                    <span class="ft"><?= lang('complete_tasks') ?><b id="completed_tasks"></b></span>
+                                    <span class="ft"><?= lang('total') ?> <?= lang('invoice_amount') ?><b id="total_invoice_amount"></b></span>
+                                    <span class="ft"><?= lang('total') ?> <?= lang('estimate') ?><b id="total_estimate_amount"></b></span>
+                                    <span class="ft"><?= lang('resolved') ?> <?= lang('bugs') ?><b id="total_resolved_bugs"></b></span>
+                                    <span class="ft"><?= lang('won') ?> <?= lang('opportunities') ?><b id="total_won_opportunities"></b></span>
                                 </div>
                             </footer>
                         <?php } ?>
