@@ -34,7 +34,7 @@
     
     ?>
     <!-- =============== DESIGN TOKENS (must precede app.css) ===============-->
-    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/tokens.css">
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/tokens.css?v=2">
     <?php
     if (!empty($RTL)) {
         ?>
@@ -44,7 +44,7 @@
         ?>
         <!-- =============== BOOTSTRAP STYLES ===============-->
         <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/bootstrap.min.css" id="bscss">
-        <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/app.css?v=6" id="maincss">
+        <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/app.css?v=8" id="maincss">
     <?php }
     $custom_color = config_item('active_custom_color');
     if (!empty($custom_color) && $custom_color == 1) {

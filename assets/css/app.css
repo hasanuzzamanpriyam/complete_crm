@@ -707,7 +707,10 @@ body {
 }
 
 .wrapper > .aside .aside-inner {
-  padding-top: 110px;
+  /* 56px, not 110: on the phone layout the bar still overlays the sidebar's
+     top, and the brand block is now the first thing in the column - it needs
+     to start under the bar, not 54px below it. */
+  padding-top: 56px;
   height: 100%;
   width: 220px;
   overflow: hidden;
@@ -825,7 +828,9 @@ body {
   }
 
   .wrapper > .aside .aside-inner {
-    padding-top: 55px;
+    /* 0: from 768px the bar sits beside the sidebar, so the column starts at
+       y=0 and the brand block owns the top of it. */
+    padding-top: 0;
   }
 
   .wrapper > section,
@@ -1697,7 +1702,7 @@ _:-ms-lang(x),
 
   .nav-wrapper {
     position: relative;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+    box-shadow: none;
     z-index: 10;
   }
 
@@ -1825,7 +1830,8 @@ _:-ms-lang(x),
   height: 56px;
   min-height: 56px;
   border-bottom: 1px solid var(--c-border);
-  box-shadow: var(--sh-2);
+  /* No shadow: the reference bar is a flat surface separated by its hairline. */
+  box-shadow: none;
 }
 
 .topnavbar .nav-wrapper {
@@ -1844,8 +1850,8 @@ _:-ms-lang(x),
   align-items: center;
   justify-content: center;
   gap: var(--sp-2);
-  min-width: 36px;
-  height: 36px;
+  min-width: 34px;
+  height: 34px;
   padding: 0 var(--sp-2);
   border-radius: var(--r-md);
   transition: background-color var(--dur-fast) var(--ease),
@@ -1873,15 +1879,37 @@ _:-ms-lang(x),
   padding: 0 var(--sp-2);
 }
 
-/* Primary action. Only the background is set: see note 1a for the label. */
+/* Primary action. Only the background is set: see note 1a for the label.
+   Metrics match the reference button: 34px tall, 12px label, 6px gap. */
     .topnavbar .navbar-nav > li > a.topnav-new {
     min-width: 0;
     height: var(--h-control);
     padding: 0 var(--sp-4);
     background: var(--c-accent);
+    font-size: var(--fs-sm);
     font-weight: 600;
+    gap: 6px;
     border-radius: var(--r-md);
+    box-shadow: var(--sh-1);
     }
+
+/* Bento: the icon-only actions on the right sit on soft filled chips instead of
+   floating bare glyphs, so the right end of the bar reads as a control cluster
+   rather than a row of loose symbols. Scoped to the right-hand group (which is
+   floated right) and excluding the New button and the two labelled links - the
+   language link at header.php:171 and the user link at :197, both of which are
+   plain .dropdown-toggle anchors. A chip around a word and an avatar reads as
+   broken, so those keep the bare treatment. Hover repaints the chip, so its
+   hover rule moves here too - the generic :hover above would otherwise leave
+   the flat one on top of it. */
+.topnavbar .navbar-nav.navbar-right > li > a:not(.topnav-new):not(.dropdown-toggle) {
+  background: var(--c-surface-2);
+}
+
+.topnavbar .navbar-nav.navbar-right > li > a:not(.topnav-new):not(.dropdown-toggle):hover,
+.topnavbar .navbar-nav.navbar-right > li > a:not(.topnav-new):not(.dropdown-toggle):focus {
+  background: color-mix(in srgb, var(--c-text) 7%, var(--c-surface-2));
+}
 
     /* bg-custom.php forces a colour on topbar anchors with !important, which would
     paint the accent-filled button with the theme's muted text colour. Set the colour
@@ -1940,8 +1968,8 @@ _:-ms-lang(x),
 .topnavbar .navbar-form {
   height: 56px;
   background: var(--c-surface);
-  border-bottom: 1px solid var(--c-border);
-  box-shadow: var(--sh-3);
+  border-bottom: 0;
+  box-shadow: none;
 }
 
 .topnavbar .navbar-form .awesomplete {
@@ -1950,23 +1978,265 @@ _:-ms-lang(x),
   height: 100%;
 }
 
+/* Bento: the overlay is a single soft pill - field and type select share one
+   radius and one surface so they read as one control instead of two stacked
+   boxes. The field and select sit side by side in an input-group, so the shared
+   corners have to be clipped from the middle edge of each: the field rounds its
+   left side only, the select its right side only. The overlay itself drops its
+   hard bottom rule and shadow for a floating card, matching the soft surface
+   language the sidebar and bar already use. */
 .topnavbar .navbar-form .input-group .form-control {
   float: none;
   height: var(--h-control);
-  max-width: 340px;
+  max-width: 430px;
   margin: 0 auto;
-  border: 0;
-  border-radius: var(--r-md);
+  border: 1px solid var(--c-border);
   background: var(--c-surface-2);
   color: var(--c-text);
   padding-left: var(--sp-4);
+  border-radius: 0 var(--r-full) var(--r-full) 0;
 }
 
 .topnavbar .navbar-form .input-group-btn .form-control {
   width: auto;
-  max-width: 96px;
-  border-radius: var(--r-md);
+  max-width: 130px;
+  height: var(--h-control);
+  border: 1px solid var(--c-border);
+  border-right: 0;
+  background: var(--c-surface-2);
   color: var(--c-text-2);
+  border-radius: var(--r-full) 0 0 var(--r-full);
+}
+
+/* ========================================================================
+   A2-8b - Bento shell: bar and sidebar rebuilt to the reference layout
+   ------------------------------------------------------------------------
+   The reference shell is two columns: a brand block at the top of the dark
+   sidebar, and a white bar that starts where the sidebar ends. The template
+   has the opposite structure - a full-width bar whose first 220px is a logo
+   band sitting on top of the sidebar - so geometry, not just colour, has to
+   move. Supersedes parts of A2-8 (bar height, chip borders, nav-wrapper
+   layout); A2-8's own notes stay as the record of why those were measured
+   that way at the time.
+
+   1. The bar offsets by margin-left because .topnavbar-wrapper is in normal
+      flow on this install (layout_fixed is not in tbl_config, so the fixed
+      rule at app.css:987 never applies) - same mechanism .wrapper > section
+      already uses. Both margins are re-stated for the collapsed rail.
+
+   2. .navbar-form becomes position: relative, not static. It carries
+      form-control-feedback (the clear cross), which anchors to the nearest
+      positioned ancestor; static would resolve that to .nav-wrapper and park
+      the cross at the bar's right edge. Relative also keeps the base rule's
+      top: -100% and the min-768 rule's left: 220px live as offsets, so both
+      have to be cleared explicitly.
+
+   3. The pill keeps overflow visible: awesomplete appends its suggestion list
+      inside the form, and overflow: hidden on a rounded container would clip
+      it. The corners still read as round because every child of the pill is
+      background: transparent - the surface belongs to the form itself.
+
+   4. The search open/magnifier link and the two labels stay in the markup
+      for the phone layout, where the pill would not fit; they are dropped
+      from view at 768px and above, where the pill replaces them.
+   ========================================================================== */
+
+@media only screen and (min-width: 768px) {
+  /* ------------------------------------------------ bar beside the sidebar */
+  .topnavbar-wrapper {
+    margin-left: 220px;
+    transition: margin-left 0.2s cubic-bezier(0.35, 0, 0.25, 1);
+  }
+
+  .aside-collapsed .topnavbar-wrapper {
+    margin-left: 70px;
+  }
+
+  /* The logo band occupied exactly the region the brand block now owns. */
+  .topnavbar .navbar-header {
+    display: none;
+  }
+
+  .topnavbar-wrapper .topnavbar {
+    height: 67px;
+    min-height: 67px;
+    padding: var(--sp-3) var(--sp-5);
+  }
+
+  .topnavbar .nav-wrapper {
+    display: flex;
+    align-items: center;
+    padding: 0;
+  }
+
+  .topnavbar .nav-wrapper > .navbar-nav {
+    flex: 0 0 auto;
+  }
+
+  .topnavbar .nav-wrapper .navbar-nav.navbar-right {
+    margin-left: auto;
+    /* Bootstrap's -15px container offset would be counted by the auto-margin
+       free-space pass and shift this menu 15px past the bar's right padding. */
+    margin-right: 0;
+  }
+
+  .topnavbar .navbar-nav > li + li {
+    margin-left: var(--sp-3);
+  }
+
+  /* New sits at the far right of the reference bar; it is the second item in
+     the markup (the search icon owns the first slot on phones), so the flex
+     order of the right menu does the repositioning. */
+  .topnavbar .navbar-nav.navbar-right > li.topnav-new-item {
+    order: 10;
+  }
+
+  /* Phone-only affordances the pill replaces. */
+  .topnavbar .topnav-search,
+  .topnavbar .topnav-languages .topnav-label,
+  .topnavbar .user-menu > a > span {
+    display: none;
+  }
+
+  /* Flag link gets the same filled chip as its icon-only neighbours once its
+     word is gone; the user link stays bare, because a chip around a face
+     reads as a badge. */
+  .topnavbar .navbar-nav.navbar-right > li.topnav-languages > a {
+    background: var(--c-surface-2);
+  }
+
+  .topnavbar .navbar-nav.navbar-right > li.topnav-languages > a:hover,
+  .topnavbar .navbar-nav.navbar-right > li.topnav-languages > a:focus {
+    background: color-mix(in srgb, var(--c-text) 7%, var(--c-surface-2));
+  }
+
+  /* ------------------------------------------------- crumb (reference: .crumb)
+     Colors are the reference's own, not the tokens: .crumb label #94a3b8
+     over page title #0f172a. */
+  .topnavbar .crumb {
+    font-size: var(--fs-sm);
+    line-height: var(--lh-normal);
+    color: #94a3b8;
+    white-space: nowrap;
+  }
+
+  .topnavbar .crumb b {
+    display: block;
+    font-size: var(--fs-lg);
+    font-weight: 700;
+    line-height: var(--lh-normal);
+    letter-spacing: -.01em;
+    color: #0f172a;
+  }
+
+  /* ---------------------------------------------- search pill (reference: .search)
+     See note 2 for why this is relative rather than static, and note 3 for
+     why there is no overflow: hidden. */
+  .topnavbar .navbar-form {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    height: var(--h-control);
+    flex: 1 1 240px;
+    max-width: 430px;
+    min-width: 0;
+    margin: 0 0 0 var(--sp-5);
+    padding: 0;
+    background: var(--c-surface-2);
+    border-radius: var(--r-full);
+    transition: none;
+  }
+
+  .topnavbar .navbar-form.open {
+    top: auto;
+    width: auto;
+  }
+
+  /* The pill owns the full width; the group must not shrink-to-fit (it is
+     inline-block in the theme, which left the right third of the pill empty
+     and parked the clear cross in the middle). */
+  .topnavbar .navbar-form .form-group {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .topnavbar .navbar-form .input-group .form-control,
+  .topnavbar .navbar-form .input-group-btn .form-control {
+    margin: 0;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    font-size: var(--fs-sm);
+    color: var(--c-text);
+  }
+
+  .topnavbar .navbar-form .input-group .form-control {
+    /* The clear cross is absolutely positioned over the field's right end;
+       keep typed text from running beneath it. */
+    padding-right: 48px;
+  }
+
+  .topnavbar .navbar-form .input-group-btn .form-control {
+    padding-right: var(--sp-2);
+    border-right: 1px solid var(--c-border);
+    color: var(--c-text-2);
+  }
+}
+
+/* ------------------------------------------ sidebar brand (reference: .brand) */
+.side-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  /* 24px top puts the tile level with the reference (its container adds 16
+     plus the brand's own 8); 24px left lines the tile up with the icons in
+     the rows below, which sit at 12px margin + 12px padding. */
+  padding: var(--sp-5) var(--sp-3) var(--sp-4) var(--sp-5);
+}
+
+.side-brand .tile {
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--r-md);
+  background: linear-gradient(135deg, var(--c-accent), var(--ac-cyan));
+  color: var(--c-on-accent);
+  font-size: var(--fs-sm);
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+}
+
+.side-brand .name {
+  color: var(--c-text-inverse);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  letter-spacing: -.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.side-brand .name:hover,
+.side-brand .name:focus {
+  color: var(--c-text-inverse);
+}
+
+.aside-collapsed .side-brand {
+  padding: var(--sp-5) 0 var(--sp-4);
+  justify-content: center;
+}
+
+.aside-collapsed .side-brand .name {
+  display: none;
+}
+
+/* Menu filter sits under the brand block and is inset with the rows. */
+.sidebar .inner-addon {
+  width: auto;
+  margin: 0 var(--sp-3) var(--sp-2);
 }
 
 /* ========================================================================
@@ -2118,7 +2388,11 @@ _:-ms-lang(x),
   }
 
   .sidebar:not(.show-scrollbar) {
-    margin-right: -17px;
+    /* -4px, not -17px: the gutter this cancels is the one ::-webkit-scrollbar
+       actually reserves (app.css:658 sets its width to 4px), and -17px made the
+       nav 17px wider than the clipped column, so every row's right edge - and
+       the active pill's rounded corner - was cut off ~5px short. */
+    margin-right: -4px;
     overflow-y: scroll;
   }
 }
@@ -2334,41 +2608,52 @@ _:-ms-lang(x),
       tags the copy .nav-floating, which sits outside every clipping ancestor.
    ========================================================================== */
 
-/* -------------------------------------------- sidebar group headers */
+/* -------------------------------------------- sidebar group headers
+   Bento look: a small uppercase label sitting in the side padding with no rule
+   under it. The divider is dropped - the label and the 12px space below it
+   already separate one group from the next, and the line only added weight. */
 .sidebar-group-header {
-  padding: var(--sp-4) var(--sp-4) var(--sp-2);
+  padding: var(--sp-3) var(--sp-3) var(--sp-1);
   margin: 0;
-  font-size: var(--fs-xs);
-  font-weight: 600;
+  font-size: 10px;
+  font-weight: 700;
   line-height: 1.4;
-  letter-spacing: .04em;
+  letter-spacing: .09em;
   text-transform: uppercase;
   color: var(--c-sidebar-text);
-  opacity: .65;
+  opacity: .55;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  /* Derived from a mapped token rather than --c-sidebar-border: bg-custom.php
-     maps bg, text and active but not border, so a border token would pin the
-     divider to the tokens.css default - measured near-invisible on teal. */
-  border-bottom: 1px solid color-mix(in srgb, var(--c-sidebar-text) 18%, transparent);
 }
 
 .sidebar > .nav > li > a {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
   height: var(--row-h);
   line-height: var(--row-h);
   padding: 0 var(--sp-3);
-  margin: 0 var(--sp-2) 2px;
+  /* 12px side inset: matches the reference shell, where the container's 12px
+     padding puts the pill 12px from the sidebar edge and the icon 24px in. */
+  margin: 0 var(--sp-3) var(--sp-1);
   border-radius: var(--r-md);
   color: var(--c-sidebar-text);
+  /* 14px / no tracking: the value that used to apply came from the legacy row
+     rule at app.css:2069 (13px, .025em) and measured smaller than the
+     reference's --fs-base rows. */
+  font-size: var(--fs-base);
+  letter-spacing: normal;
   transition: background-color var(--dur-fast) var(--ease),
               color var(--dur-fast) var(--ease);
 }
 
 .sidebar > .nav > li > a > em {
-  width: 20px;
+  flex: 0 0 16px;
+  width: 16px;
   text-align: center;
-  font-size: 16px;
+  font-size: 15px;
+  opacity: .9;
 }
 
 .sidebar > .nav > li > a:hover {
@@ -2376,9 +2661,19 @@ _:-ms-lang(x),
   color: var(--c-sidebar-text-hi);
 }
 
+/* Bento: the active row is a filled pill, not a 3px edge marker. The fill and
+   the label colour both belong to the theme layer - bg-custom.php:149-157 forces
+   them on .sidebar .nav > li.active > a with the high-priority keyword, so the
+   two colour declarations below are dead on the Customiser path and the
+   measured label is the admin's own sidebar_active_color, not the token. They
+   are kept for the legacy path, where the theme sets neither. What this change
+   actually removes is the inset edge marker, which nothing else paints, and
+   that is what turns the row from a bar with a stripe into a filled pill. */
 .sidebar > .nav > li.active > a {
+  background-color: var(--c-sidebar-active);
   color: var(--c-sidebar-text-hi);
-  box-shadow: inset 3px 0 0 var(--c-sidebar-active);
+  font-weight: 600;
+  box-shadow: none;
 }
 
 .sidebar > .nav > li.active > a > em {
@@ -2394,15 +2689,42 @@ _:-ms-lang(x),
   position: relative;
 }
 
+/* justify-content replaces the text-align: center the flex conversion above made
+   inert; the anchor keeps its width and centres the 16px glyph inside it. */
 .aside-collapsed .sidebar > .nav > li > a {
   width: 44px;
   margin: 0 auto;
   padding: 0;
+  justify-content: center;
   text-align: center;
   text-indent: 0;
 }
 
+/* The flex conversion gave the label a second flex item, so the rule that used
+   to hide it in the rail has to move to the label itself. */
 .aside-collapsed .sidebar > .nav > li > a > span {
+  display: none;
+}
+
+/* min-width: 0 is load-bearing. A flex item's automatic minimum size is its
+   min-content width, and an icon-font glyph's min-content width is the glyph's
+   own advance - so the 16px basis above was raised to whatever each glyph
+   happened to measure (21.12px for fa-dashboard, 19.64px for fa-calendar,
+   18.15px for fa-file-excel-o) and the rail's icons stopped lining up. Zeroing
+   the minimum lets every one of them take the 16px basis instead. */
+.aside-collapsed .sidebar > .nav > li > a > em {
+  min-width: 0;
+}
+
+/* The collapse caret has to leave the rail, not just go blank. app.css:955
+   blanks its content but leaves the box in the flow, and the flex conversion
+   turned it into a third flex item: measured, it took a 12px slot and pushed
+   every expandable row's icon 6px left of the row's centre. It carried
+   float: right (app.css:2120) and margin-top: 6px, neither of which reaches a
+   flex item, so the 6px offset came from the item's own half-width. Nothing
+   shows it in a 44px row anyway - the row is a fixed 16px glyph on its own -
+   and the submenu still flies out on hover. */
+.aside-collapsed .sidebar li.sub-menu [data-toggle="collapse"]:after {
   display: none;
 }
 

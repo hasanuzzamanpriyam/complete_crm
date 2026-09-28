@@ -41,31 +41,76 @@ $languages = $this->db->where('active', 1)->order_by('name', 'ASC')->get('tbl_la
                     </a>
                 </li>
                 <!-- END User avatar toggle-->
-                <!-- START lock screen-->
+                <!-- START page crumb: small section over the bold page name,
+                     the reference shell's two-line title -->
                 <li class="hidden-xs">
-                    <a href="" class="text-center"><?php
-                                                                                                    if ($display == 'logo_title' || $display == 'icon_title') {
-                                                                                                        if (config_item('website_name') == '') {
-                                                                                                            echo config_item('company_name');
-                                                                                                        } else {
-                                                                                                            echo config_item('website_name');
-                                                                                                        }
-                                                                                                    }
-                                                                                                    ?></a>
+                    <?php
+                    $crumb_section = (string) $this->uri->segment(2);
+                    $crumb_label = '';
+                    if ($crumb_section !== '') {
+                        $crumb_trans = lang($crumb_section);
+                        $crumb_label = (is_string($crumb_trans) && $crumb_trans !== '' && $crumb_trans !== $crumb_section)
+                            ? $crumb_trans
+                            : ucwords(str_replace(array('-', '_'), ' ', $crumb_section));
+                    }
+                    if ($crumb_label === '') {
+                        $crumb_label = (string) config_item('website_name');
+                    }
+                    $crumb_page = isset($title) ? trim(strip_tags((string) $title)) : '';
+                    if ($crumb_page === '') {
+                        $crumb_seg = (string) $this->uri->segment(3);
+                        $crumb_page = ($crumb_seg !== '' && $crumb_seg !== 'index')
+                            ? ucwords(str_replace(array('-', '_'), ' ', $crumb_seg))
+                            : 'Overview';
+                    }
+                    if (strcasecmp($crumb_page, $crumb_label) === 0) {
+                        $crumb_page = 'Overview';
+                    }
+                    ?>
+                    <div class="crumb"><?= htmlspecialchars($crumb_label) ?><b><?= htmlspecialchars($crumb_page) ?></b></div>
                 </li>
-                <!-- END lock screen-->
+                <!-- END page crumb-->
             </ul>
             <!-- END Left navbar-->
+            <!-- START Search form: inside the nav wrapper, between the two
+                 menus, so it sits inline as the reference pill does -->
+            <div class="navbar-form">
+                <div class="form-group has-feedback">
+                    <div class="input-group">
+                        <div class="input-group-btn">
+                            <select id="searchType" class="form-control">
+                                <option value="projects"><?= lang('projects') ?></option>
+                                <option value="tasks"><?= lang('tasks') ?></option>
+                                <option value="employee"><?= lang('employee') ?></option>
+                                <option value="client"><?= lang('clients') ?></option>
+                                <option value="bugs"><?= lang('bugs') ?></option>
+                                <option value="opportunities"><?= lang('opportunities') ?></option>
+                                <option value="leads"><?= lang('leads') ?></option>
+                                <option value="purchase"><?= lang('purchase') ?></option>
+                                <option value="invoice"><?= lang('invoices') ?></option>
+                                <option value="credit_note"><?= lang('credit_note') ?></option>
+                                <option value="estimates"><?= lang('estimates') ?></option>
+                                <option value="tickets"><?= lang('tickets') ?></option>
+                            </select>
+                        </div>
+                        <input type="text" id="all_search" placeholder="<?= lang('search_your_needs') ?>"
+                            class="form-control search-icon">
+                        <div data-search-dismiss="" class="fa fa-times form-control-feedback"></div>
+                    </div>
+                </div>
+                <button type="submit" class="hidden btn btn-default">Submit</button>
+            </div>
+            <!-- END Search form-->
             <!-- START Right Navbar-->
             <ul class="nav navbar-nav navbar-right">
 
-                <!-- Search icon-->
-                <li>
+                <!-- Search icon: phone only, the desktop bar carries the pill -->
+                <li class="topnav-search">
                     <a href="#" data-search-open="">
                         <em class="icon-magnifier"></em>
                     </a>
                 </li>
-                <li class="dropdown">
+                <li class="dropdown topnav-new-item">
                     <a href="#" class="topnav-new dropdown-toggle" data-toggle="dropdown">
                         <i class="fa fa-plus"></i>
                         <span>New</span>
@@ -167,9 +212,9 @@ $languages = $this->db->where('active', 1)->order_by('name', 'ASC')->get('tbl_la
                     </ul>
                 </li>
                 <?php if (config_item('enable_languages') == 'TRUE') { ?>
-                <li class="dropdown">
+                <li class="dropdown topnav-languages">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                        <i class="fa fa-flag"></i> <?= lang('languages') ?>
+                        <i class="fa fa-flag"></i> <span class="topnav-label"><?= lang('languages') ?></span>
                     </a>
                     <ul class="dropdown-menu animated zoomIn">
                         <?php
@@ -265,34 +310,6 @@ $languages = $this->db->where('active', 1)->order_by('name', 'ASC')->get('tbl_la
             <!-- END Right Navbar-->
         </div>
         <!-- END Nav wrapper-->
-        <!-- START Search form-->
-        <div class="navbar-form">
-            <div class="form-group has-feedback">
-                <div class="input-group">
-                    <div class="input-group-btn">
-                        <select id="searchType" class="form-control">
-                            <option value="projects"><?= lang('projects') ?></option>
-                            <option value="tasks"><?= lang('tasks') ?></option>
-                            <option value="employee"><?= lang('employee') ?></option>
-                            <option value="client"><?= lang('clients') ?></option>
-                            <option value="bugs"><?= lang('bugs') ?></option>
-                            <option value="opportunities"><?= lang('opportunities') ?></option>
-                            <option value="leads"><?= lang('leads') ?></option>
-                            <option value="purchase"><?= lang('purchase') ?></option>
-                            <option value="invoice"><?= lang('invoices') ?></option>
-                            <option value="credit_note"><?= lang('credit_note') ?></option>
-                            <option value="estimates"><?= lang('estimates') ?></option>
-                            <option value="tickets"><?= lang('tickets') ?></option>
-                        </select>
-                    </div>
-                    <input type="text" id="all_search" placeholder="<?= lang('search_your_needs') ?>"
-                        class="form-control search-icon">
-                    <div data-search-dismiss="" class="fa fa-times form-control-feedback"></div>
-                </div>
-            </div>
-            <button type="submit" class="hidden btn btn-default">Submit</button>
-        </div>
-        <!-- END Search form-->
     </nav>
     <!-- END Top Navbar-->
 </header>

@@ -52,6 +52,15 @@
   --c-sidebar-active:  #0d9488;
   --c-sidebar-border:  #262c33;
 
+  /* ---------- sidebar gradient (A2-9) ----------
+     Separate from --c-sidebar-bg on purpose. --c-sidebar-bg is consumed as a
+     *colour* by color-mix() and by background-color in several places; handing
+     it a gradient image would invalidate those declarations at computed-value
+     time and they would silently fall back to inherited/transparent. Painting
+     the gradient as a background-image layer instead degrades cleanly to
+     'none', so solid stays the default. */
+  --c-sidebar-grad:    none;
+
   /* ---------- spacing scale ---------- */
   --sp-1: 4px;
   --sp-2: 8px;
@@ -89,6 +98,23 @@
   --fs-2xl: 26px;
   --lh-tight: 1.25;
   --lh-normal: 1.5;
+
+  /* ---------- card system (A2-9 dashboard) ----------
+     Density: Comfortable. 16px card padding and 16px grid gaps.
+     Accents are a fixed four-stop set. None of the dashboard's 11 KPI values
+     is a percentage, so no KPI earns a ring - the chip in --ac-* is the
+     colour signal instead. */
+  --c-app-bg:       color-mix(in srgb, var(--c-text) 4%, var(--c-bg));
+  --ac-mint:        #10b981;
+  --ac-cyan:        #06b6d4;
+  --ac-amber:       #f59e0b;
+  --ac-purple:      #8b5cf6;
+  --card-pad:       16px;
+  --card-gap:       16px;
+  --card-icon:      32px;
+  --card-track:     8px;
+  --card-ploth:     150px;
+  --card-subtle:    color-mix(in srgb, var(--ac-cyan) 12%, var(--c-surface));
 
   /* ---------- density (Refined dense: compact controls) ---------- */
   --h-control:    34px;

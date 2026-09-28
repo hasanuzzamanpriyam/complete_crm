@@ -32,12 +32,24 @@
     <!-- START Sidebar (left)-->
     <div class="aside-inner">
         <nav data-sidebar-anyclick-close="" class="sidebar <?= config_item('show-scrollbar') ?>">
+            <!-- START sidebar brand: tile + site name, as the reference shell -->
+            <div class="side-brand">
+                <?php
+                $brand_name = trim((string) config_item('website_name'));
+                if ($brand_name === '') {
+                    $brand_name = trim((string) config_item('company_name'));
+                }
+                $brand_initial = $brand_name !== '' ? strtoupper(substr($brand_name, 0, 1)) : 'A';
+                ?>
+                <span class="tile"><?= htmlspecialchars($brand_initial) ?></span>
+                <a href="<?= base_url('admin/dashboard') ?>" class="name"><?= htmlspecialchars($brand_name !== '' ? $brand_name : 'App') ?></a>
+            </div>
+            <!-- END sidebar brand -->
             <!-- START sidebar nav-->
-            <div class="inner-addon left-addon" style="width: 95%">
+            <div class="inner-addon left-addon">
                 <i class="fa fa-search"></i>
                 <input type="search" id="s-menu" class="form-control menu-border-transparent" placeholder="<?= lang('search_menu') ?>"/>
             </div>
-            <br/>
 
             <ul class="nav pinned" id="nav_pinned_cont">
             </ul>

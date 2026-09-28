@@ -45,7 +45,9 @@ $css .= "    }\n";
     }
 
     .wrapper > .aside {
-        background-color: #1e1e2d;
+        /* Same colour as the sidebar itself, so the column reads as one
+           surface instead of a teal-tinted band behind a neutral panel. */
+        background-color: var(--c-sidebar-bg);
     }
 
     /* ========================================================================
@@ -87,7 +89,7 @@ $css .= "    }\n";
     }
 
     .topnavbar .navbar-nav > li > [data-toggle='navbar-search'] {
-        color: #ffffff;
+        color: var(--c-topbar-fg);
     }
 
     .topnavbar .nav-wrapper {
@@ -102,7 +104,9 @@ $css .= "    }\n";
         .topnavbar .navbar-nav > .open > a,
         .topnavbar .navbar-nav > .open > a:hover,
         .topnavbar .navbar-nav > .open > a:focus {
-            box-shadow: 0 -3px 0 rgba(255, 255, 255, 0.5) inset;
+            /* Brand accent, not white: the bar itself is white now, so the old
+               white inset would paint nothing. */
+            box-shadow: 0 -3px 0 var(--c-accent) inset;
         }
 
         .topnavbar .navbar-nav > li > a,
@@ -138,7 +142,10 @@ $css .= "    }\n";
     .sidebar .nav > li > .nav-item:focus,
     .sidebar .nav > li > a:hover,
     .sidebar .nav > li > .nav-item:hover {
-        color: var(--c-sidebar-active)<?= $im ?>;
+        /* White, like the reference shell: the old rule painted the hover label
+           with the active background (teal on teal), which read as a tint, not
+           as a hover state. */
+        color: var(--c-sidebar-text-hi)<?= $im ?>;
     }
 
     .sidebar .nav > li > a > em,
@@ -146,12 +153,15 @@ $css .= "    }\n";
         color: inherit;
     }
 
-    .sidebar .nav > li.active,
-    .sidebar .nav > li.open,
+    /* The fill belongs on the row's anchor, not on the li: filling the li made
+       the active item a full-width band, and the demo's active item is a pill
+       inset from both edges. Submenu rows keep the li-level fill because their
+       anchor's background is suppressed with the high-priority keyword further
+       down, so the only surface that can paint is the li's. */
     .sidebar .nav > li.active > a,
     .sidebar .nav > li.open > a,
-    .sidebar .nav > li.active .nav,
-    .sidebar .nav > li.open .nav {
+    .sidebar-subnav > li.active,
+    .sidebar-subnav > li.open {
         background-color: var(--c-sidebar-active)<?= $im ?>;
         color: var(--th-sidebar-active-txt)<?= $im ?>;
     }
@@ -162,7 +172,9 @@ $css .= "    }\n";
     }
 
     .sidebar .nav > li.active {
-        border-left-color: var(--th-sidebar-active-txt)<?= $im ?>;
+        /* Transparent: the old rule painted the 3px li edge in the active text
+           colour, which on a white label is a bright stripe beside the pill. */
+        border-left-color: transparent<?= $im ?>;
     }
 
     .sidebar-subnav {
@@ -220,25 +232,28 @@ $css .= "    }\n";
         background-color: var(--th-active-bg)<?= $im ?>;
     }
 
+    /* These five rules were accents that piggybacked on the bar colour. The bar
+       is white now, so keeping them on --c-topbar-bg would erase them (white
+       rules on white surfaces); they take the brand accent instead. */
     .panel-custom .panel-heading {
-        border-bottom: 2px solid var(--c-topbar-bg);
+        border-bottom: 2px solid var(--c-accent);
     }
 
     .custom-bg, .fc-state-default {
-        background: var(--c-topbar-bg);
-        color: var(--c-topbar-fg)<?= $im ?>;
+        background: var(--c-accent);
+        color: var(--c-on-accent)<?= $im ?>;
     }
 
     .nav-tabs > li.active > a {
-        border-top: 2px solid var(--c-topbar-bg);
+        border-top: 2px solid var(--c-accent);
     }
 
     .timeline-2, .timeline-2 .time-item:after, .time-item, .time-item:after {
-        border-color: var(--c-topbar-bg);
+        border-color: var(--c-accent);
     }
 
     .sub-active {
-        border-left-color: var(--c-topbar-bg);
+        border-left-color: var(--c-accent);
     }
 
     <?php
