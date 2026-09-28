@@ -9540,8 +9540,6 @@ li[type="datetime"] .value-wrap {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
-  padding: 12px 16px 16px;
-  border-top: 1px solid #f1f3f5;
 }
 .dash-page .ft {
   background: #f8fafb;
@@ -9550,6 +9548,7 @@ li[type="datetime"] .value-wrap {
   padding: 7px 11px;
   font-size: 12px;
   color: var(--dc-text-2);
+  white-space: nowrap;
 }
 .dash-page .ft b { color: var(--dc-text); font-size: 13px; margin-left: 4px; }
 

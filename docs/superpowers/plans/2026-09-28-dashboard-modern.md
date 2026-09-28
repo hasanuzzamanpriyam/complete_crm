@@ -387,8 +387,6 @@ Append the following block at the very end of `assets/css/app.css` (do not modif
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
-  padding: 12px 16px 16px;
-  border-top: 1px solid #f1f3f5;
 }
 .dash-page .ft {
   background: #f8fafb;
@@ -397,6 +395,7 @@ Append the following block at the very end of `assets/css/app.css` (do not modif
   padding: 7px 11px;
   font-size: 12px;
   color: var(--dc-text-2);
+  white-space: nowrap;
 }
 .dash-page .ft b { color: var(--dc-text); font-size: 13px; margin-left: 4px; }
 
@@ -766,6 +765,8 @@ git commit -m "feat: A2-15 dashboard - report row tiles become colour heroes"
 - [ ] **Step 1: Replace the footer markup**
 
 Replace the `<?php if ($this->session->userdata('user_type') == '1') { ?> <footer ...> ... </footer> <?php } ?>` block (lines 419-475) with:
+
+- Quality review found the first pass duplicated the divider: `.dash-page .panel > .panel-footer` already sets `padding: 12px 16px 16px` + `border-top: 1px solid #f1f3f5`, so those two declarations were removed from `.foot-totals` and `white-space: nowrap` was added to `.ft` (see Task 2 Step 1) — single hairline above the chips now.
 
 ```php
                         <?php
