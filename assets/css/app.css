@@ -1745,6 +1745,231 @@ _:-ms-lang(x),
 }
 
 /* ========================================================================
+   A2-8 - top bar Soft UI: 56px bar, 36px icon targets, accented primary
+   action, restyled action menus and search overlay.
+   ------------------------------------------------------------------------
+   Every deviation from the plan's draft below was measured with
+   getComputedStyle and getBoundingClientRect, not assumed.
+
+   1. The bar's surface and its link colour belong to a later layer, so this
+      block supplies geometry only. assets/css/bg-custom.php is included
+      after app.css and paints .topnavbar, .topnavbar .nav-wrapper and
+      .topnavbar .navbar-nav > li > a (plus :hover and :focus) from
+      --c-topbar-bg and --c-topbar-fg, the link colour forced with the
+      high-priority keyword. Both are mapped from tbl_config, so the bar
+      keeps the colour the admin chose. The draft's background:
+      var(--c-surface) and its link colour declarations were therefore dead
+      and are dropped. border-bottom and box-shadow are set by no theme
+      file, so those two do apply and are kept.
+
+   1a. That forced link colour also owns the label inside the user link and
+      the label on the new button, so the draft's color: var(--c-text) on
+      the user name and color: var(--c-on-accent) on the new button go too.
+      No selector can outrank a forced declaration - the draft's (0,4,1)
+      new-button rule measured the theme's colour, not the token - and
+      repainting them would put a label on the bar that the admin never
+      picked. The new button's background is not forced, so the accent does
+      land: it measured as --c-accent.
+
+   2. Selectors say .navbar-nav, not .nav. The markup is
+      <ul class="nav navbar-nav"> (header.php:31,60) and the theme layer
+      spells it .navbar-nav, so a .nav selector sat one class behind and
+      lost on specificity alone, before source order was considered.
+
+   3. The link target is min-width, not width. header.php:170 renders the
+      language link as an icon plus the word "Languages" inside an
+      <li class="dropdown"> carrying no distinguishing class, so it cannot
+      be exempted by selector. It is present and visible on this install,
+      117.12px wide before this change, so a fixed 36px would have clipped
+      it. With min-width and symmetric padding the four icon-only links
+      measure 36px and the three labelled ones grow to fit.
+
+   4. .nav-wrapper is not turned into a flex container. It holds two floated
+      ULs and the left one is offset by the 220px floated .navbar-header;
+      flex ignores both floats. The draft's display: flex moved the
+      right-hand group from x=1478.3 to x=389.2 and emptied the right 1100px
+      of the bar. Height and centring therefore go on the ULs, which stay
+      floated: .navbar-nav as a flex container ignores the <li> floats and
+      centres them, and the right group keeps float: right. Measured at
+      x=220 and right-aligned to 1922.97, i.e. unchanged.
+
+   5. The menu restyle is scoped to the action menus. No theme file styles
+      .topnavbar .dropdown-menu, but app.css:1568-1574 already sets the
+      surface and the bottom border on .nav-wrapper .navbar-nav .open
+      .dropdown-menu at (0,4,0), so the draft's (0,2,0) would have lost the
+      border; the container selector is raised to match. The row restyle
+      excludes .dropdown-list and .user-menu, whose panels the draft also
+      matched: notification rows went display block to flex, padding 0 15px
+      to 0 12px and min-height 0 to 40px, and the user panel went padding 0
+      to 8px, radius 4px to 12px and gained a top border. Both are
+      full-bleed panels with a design of their own, so only the 18-link
+      action menus are in scope here.
+
+   6. The draft's notification badge rule targeted .badge. The counter in
+      components/notifications.php:5 is a .label, and there is no .badge
+      anywhere in the top bar, so the selector can never match. Dropped
+      rather than left as dead code; restyling the counter needs an edit to
+      that view, which this change does not make.
+
+   7. The search overlay is 56px rather than the draft's 55px, because it
+      covers the bar it now sits in, and it needs two declarations the draft
+      omitted. awesomplete.js wraps the text field in a plain block, so once
+      the field shrank to --h-control it fell to the top of the overlay -
+      measured y=0 against the type selector's y=10.61. Rejoining the field
+      to the input row as a table cell and clearing the float puts both at
+      y=10.63.
+   ========================================================================== */
+
+/* ------------------------------------------------ bar surface + geometry */
+.topnavbar-wrapper .topnavbar {
+  height: 56px;
+  min-height: 56px;
+  border-bottom: 1px solid var(--c-border);
+  box-shadow: var(--sh-2);
+}
+
+.topnavbar .nav-wrapper {
+  height: 100%;
+}
+
+.topnavbar .navbar-nav {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+/* ------------------------------------------------------ link hit targets */
+.topnavbar .navbar-nav > li > a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  min-width: 36px;
+  height: 36px;
+  padding: 0 var(--sp-2);
+  border-radius: var(--r-md);
+  transition: background-color var(--dur-fast) var(--ease),
+              color var(--dur-fast) var(--ease);
+}
+
+/* The custom icon font has no advance of its own, so each glyph needs a box
+   to sit in. This one is load-bearing: the anchor is a flex container, so the
+   em is a flex item and the 20px basis centres it. */
+.topnavbar .navbar-nav > li > a > em {
+  flex: 0 0 20px;
+  text-align: center;
+  line-height: 1;
+}
+
+.topnavbar .navbar-nav > li > a:hover,
+.topnavbar .navbar-nav > li > a:focus {
+  background-color: color-mix(in srgb, var(--c-text) 6%, transparent);
+}
+
+/* Lock-screen title. The 20px it used to carry was an inline style on the
+   anchor, which is now gone, so this needs no override to outrank. */
+.topnavbar .navbar-nav > li.hidden-xs > a[href=""] {
+  font-size: var(--fs-base);
+  padding: 0 var(--sp-2);
+}
+
+/* Primary action. Only the background is set: see note 1a for the label. */
+    .topnavbar .navbar-nav > li > a.topnav-new {
+    min-width: 0;
+    height: var(--h-control);
+    padding: 0 var(--sp-4);
+    background: var(--c-accent);
+    font-weight: 600;
+    border-radius: var(--r-md);
+    }
+
+    /* bg-custom.php forces a colour on topbar anchors with !important, which would
+    paint the accent-filled button with the theme's muted text colour. Set the colour
+    on the children instead: they inherit from the anchor but carry no forced
+    declaration, so this wins without adding an !important of our own. */
+    .topnavbar .navbar-nav > li > a.topnav-new > i,
+    .topnavbar .navbar-nav > li > a.topnav-new > span {
+    color: var(--c-on-accent);
+    }
+
+.topnavbar .navbar-nav > li > a.topnav-new:hover,
+.topnavbar .navbar-nav > li > a.topnav-new:focus {
+  background: var(--c-accent-hover);
+}
+
+/* ------------------------------------------------------ action menu rows */
+.topnavbar .nav-wrapper .navbar-nav > li.dropdown:not(.dropdown-list):not(.user-menu) > .dropdown-menu {
+  padding: var(--sp-2);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-3);
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.topnavbar .nav-wrapper .navbar-nav > li.dropdown:not(.dropdown-list):not(.user-menu) > .dropdown-menu > li > a {
+  display: flex;
+  align-items: center;
+  min-height: var(--row-h);
+  padding: 0 var(--sp-3);
+  border-radius: var(--r-sm);
+  color: var(--c-text);
+}
+
+.topnavbar .nav-wrapper .navbar-nav > li.dropdown:not(.dropdown-list):not(.user-menu) > .dropdown-menu > li > a:hover,
+.topnavbar .nav-wrapper .navbar-nav > li.dropdown:not(.dropdown-list):not(.user-menu) > .dropdown-menu > li > a:focus {
+  background-color: color-mix(in srgb, var(--c-text) 6%, transparent);
+}
+
+.topnavbar .user-menu .user-image {
+  width: 28px;
+  height: 28px;
+}
+
+.topnavbar .user-menu > a > span {
+  font-size: var(--fs-base);
+}
+
+@media only screen and (max-width: 1199px) {
+  .topnavbar .user-menu > a > span {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------- search overlay */
+.topnavbar .navbar-form {
+  height: 56px;
+  background: var(--c-surface);
+  border-bottom: 1px solid var(--c-border);
+  box-shadow: var(--sh-3);
+}
+
+.topnavbar .navbar-form .awesomplete {
+  display: table-cell;
+  vertical-align: middle;
+  height: 100%;
+}
+
+.topnavbar .navbar-form .input-group .form-control {
+  float: none;
+  height: var(--h-control);
+  max-width: 340px;
+  margin: 0 auto;
+  border: 0;
+  border-radius: var(--r-md);
+  background: var(--c-surface-2);
+  color: var(--c-text);
+  padding-left: var(--sp-4);
+}
+
+.topnavbar .navbar-form .input-group-btn .form-control {
+  width: auto;
+  max-width: 96px;
+  border-radius: var(--r-md);
+  color: var(--c-text-2);
+}
+
+/* ========================================================================
    Component: sidebar.less
  ========================================================================== */
 .sidebar {

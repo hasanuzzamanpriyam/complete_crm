@@ -43,7 +43,7 @@ $languages = $this->db->where('active', 1)->order_by('name', 'ASC')->get('tbl_la
                 <!-- END User avatar toggle-->
                 <!-- START lock screen-->
                 <li class="hidden-xs">
-                    <a href="" class="text-center" style="vertical-align: middle;font-size: 20px;"><?php
+                    <a href="" class="text-center"><?php
                                                                                                     if ($display == 'logo_title' || $display == 'icon_title') {
                                                                                                         if (config_item('website_name') == '') {
                                                                                                             echo config_item('company_name');
@@ -66,8 +66,9 @@ $languages = $this->db->where('active', 1)->order_by('name', 'ASC')->get('tbl_la
                     </a>
                 </li>
                 <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                        <i class="fa fa-plus-circle"></i>
+                    <a href="#" class="topnav-new dropdown-toggle" data-toggle="dropdown">
+                        <i class="fa fa-plus"></i>
+                        <span>New</span>
                     </a>
                     <ul class="dropdown-menu animated zoomIn">
                         <li>
