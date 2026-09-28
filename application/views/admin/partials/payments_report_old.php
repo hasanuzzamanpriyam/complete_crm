@@ -12,9 +12,9 @@ if (!empty($payments_report_order)) {
 ?>
 
 
-    <div class="panel panel-custom menu" style="height: 437px;">
+    <div class="panel panel-custom menu">
         <header class="panel-heading">
-            <h3 class="panel-title"><?= lang('payments_report') ?></h3>
+            <h3 class="panel-title"><?= lang('payments_report') ?><span class="sub">12-month collections</span></h3>
         </header>
         <div class="panel-body">
             <form role="form" id="form" action="<?php echo base_url(); ?>admin/dashboard/index/payments" method="post" class="form-horizontal form-groups-bordered hidden-xs">
@@ -33,7 +33,25 @@ if (!empty($payments_report_order)) {
                     <button type="submit" data-toggle="tooltip" data-placement="top" title="Search" id="payments_report_btn" class="btn btn-custom"><i class="fa fa-search"></i></button>
                 </div>
             </form>
-            <canvas id="yearly_report" style="height:35vh; width: 100%;" class="col-sm-12"></canvas>
+            <div class="bars" style="height:100px">
+                <?php
+                if (!empty($yearly_overview)) {
+                    $pay_max = 0;
+                    foreach ($yearly_overview as $v_pay) {
+                        $pay_max = max($pay_max, (float) $v_pay);
+                    }
+                    foreach ($yearly_overview as $v_pay) {
+                        $pay_h = $pay_max > 0 ? max(6, round(((float) $v_pay / $pay_max) * 100)) : 6;
+                        ?><i style="height:<?= $pay_h ?>%"></i><?php
+                    }
+                }
+                ?>
+            </div>
+            <div class="xaxis">
+                <?php for ($i = 1; $i <= 12; $i++) {
+                    ?><span><?= date('M', strtotime($yearly . '-' . $i)) ?></span><?php
+                } ?>
+            </div>
         </div><!-- ./box-body -->
     </div>
     <script type="text/javascript">
@@ -41,35 +59,4 @@ if (!empty($payments_report_order)) {
             initdatepicker();
         });
     </script>
-    <?php if (!empty($yearly_overview)) { ?>
-        <script>
-            var buyerData = {
-
-                labels: [
-                    <?php
-                    for ($i = 1; $i <= 12; $i++) {
-                        $month_name = date('F', strtotime($yearly . '-' . $i));
-                    ?> "<?php echo $month_name; ?>", <?php }; ?>
-                ],
-                datasets: [{
-                    fillColor: "rgba(172,194,132,0.4)",
-                    strokeColor: "#ACC26D",
-                    pointColor: "#fff",
-                    pointStrokeColor: "#9DB86D",
-                    data: [
-                        <?php
-                        foreach ($yearly_overview as $v_overview) :
-                        ?> "<?php
-                            echo $v_overview;
-                            ?>",
-                        <?php
-                        endforeach;
-                        ?>
-                    ]
-                }]
-            };
-            var buyers = document.getElementById('yearly_report').getContext('2d');
-            new Chart(buyers).Line(buyerData);
-        </script>
-<?php }
-} ?>
+<?php } ?>
