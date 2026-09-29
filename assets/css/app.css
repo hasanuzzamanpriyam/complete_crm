@@ -9751,3 +9751,13 @@ li[type="datetime"] .value-wrap {
   .dash-page .hero .h-grid { grid-template-columns: 1fr; }
   .dash-page .hero .h-div { border-top: 0; padding-top: 0; }
 }
+
+/* A2-15: content cap - cards scroll internally instead of growing unbounded */
+.dash-page .panel .table-responsive,
+.dash-page .panel .panel-body,
+.dash-page .panel .todo-scroll,
+.dash-page .panel .ann-scroll {
+  max-height: 440px;
+  overflow-y: auto;
+}
+

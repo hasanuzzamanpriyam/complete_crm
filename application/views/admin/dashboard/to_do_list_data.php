@@ -13,7 +13,7 @@ $my_todo_list = $this->db->where('user_id', $this->session->userdata('user_id'))
             </div>
         </h3>
     </header>
-    <div class="">
+    <div class="todo-scroll">
 
         <table class="table todo-preview table-striped m-b-none text-sm items">
             <thead>

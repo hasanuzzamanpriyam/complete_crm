@@ -7,7 +7,6 @@ if ($this->session->userdata('user_type') == 1) {
 $income_expense_order = get_row('tbl_dashboard', array('name' => 'income_expense') + $where);
 
 if (!empty($income_expense)) { ?>
-    <!-- DONUT CHART -->
     <div class="panel panel-custom menu">
         <header class="panel-heading">
             <h3 class="panel-title"><?= lang('income_expense') ?><span class="sub">Selected month</span></h3>

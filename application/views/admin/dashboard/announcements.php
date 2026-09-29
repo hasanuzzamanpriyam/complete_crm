@@ -3,6 +3,7 @@
         <h3 class="panel-title"><?= lang('announcements') ?><span class="sub">Company-wide</span></h3>
     </header>
 
+    <div class="ann-scroll">
     <?php
     $all_announcements = get_order_by('tbl_announcements', null, 'announcements_id', null, '10');
     if (!empty($all_announcements)):foreach ($all_announcements as $v_announcements): ?>
@@ -22,7 +23,7 @@
                 </h5>
                 <div class="notice-calendar-date">
                     <?php
-                    echo strip_html_tags(mb_substr($v_announcements->description, 0, 200),true) . '...';
+                    echo strip_html_tags(mb_substr($v_announcements->description, 0, 200)) . '...';
                     ?>
                 </div>
             </div>
@@ -39,5 +40,6 @@
 
     endforeach; ?>
     <?php endif; ?>
+    </div>
 
 </div><!-- ./box-body -->

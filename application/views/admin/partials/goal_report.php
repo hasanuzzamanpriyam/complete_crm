@@ -53,11 +53,10 @@ if (!empty($goal_report_order)) {
             </form>
             </p>
             <!--End select input year -->
-            <!--Sales Chart Canvas -->
             <div class="goal-list">
                 <?php if (!empty($goal_report)) {
                     foreach ($goal_report as $v_goal_report) {
-                        $g_pct = ($v_goal_report->target > 0) ? min(100, round(((float) $v_goal_report->amount_or_count / (float) $v_goal_report->target) * 100)) : 0;
+                        $g_pct = ($v_goal_report->target > 0) ? max(0, min(100, round(((float) $v_goal_report->amount_or_count / (float) $v_goal_report->target) * 100))) : 0;
                         ?>
                         <div class="goal">
                             <div class="gr">

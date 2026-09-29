@@ -1401,7 +1401,8 @@ git commit -m "feat: A2-15 dashboard - content-sized cards with heading subs"
 
 ---
 
-### Task 13: Full verification against the demo + gates
+#
+**Review amendment (post-Task-12 review):** with real data, content-sizing made table-heavy cards unbounded (my_tasks 6499px, document 13k px, empty float-row gaps). Added to the A2-15 block in ``assets/css/app.css`` (EOF):  ```css /* A2-15: content cap - cards scroll internally instead of growing unbounded */ .dash-page .panel .table-responsive, .dash-page .panel .panel-body, .dash-page .panel .todo-scroll, .dash-page .panel .ann-scroll {   max-height: 440px;   overflow-y: auto; } ```  plus ``announcements.php`` wrapped its item blocks in ``<div class="ann-scroll">`` (per-item caps did not bound the 10-item stack) and its preview snippet now strips all tags (``true`` allowlist let an unclosed ``<strong>`` swallow following blocks), ``to_do_list_data.php`` gained ``class="todo-scroll"``, goal % clamped to ``max(0, min(100, ...))``, two stale Chart.js comments removed, and the CSS cache buster bumped to ``app.css?v=11``. ## Task 13: Full verification against the demo + gates
 
 **Files:** none (verification only; fixes if needed are committed as `fix: A2-15 ...`)
 
