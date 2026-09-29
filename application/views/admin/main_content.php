@@ -65,8 +65,7 @@ $all_order_data = $this->db->where($where)->order_by('order_no', 'ASC')->get('tb
                                                 <h4 class="kpi-card__value" id="today_income"></h4>
                                                 <p class="kpi-card__label"><?= lang('income_today') ?></p>
                                                 <a href="<?= base_url() ?>admin/transactions/deposit"
-                                                   class="kpi-card__link"><?= lang('more_info') ?> <i
-                                                        class="fa fa-arrow-circle-right"></i></a>
+                                                   class="kpi-card__link"><?= lang('more_info') ?> &#8594;</a>
                                             </div>
                                         </div>
 
@@ -78,8 +77,7 @@ $all_order_data = $this->db->where($where)->order_by('order_no', 'ASC')->get('tb
                                                 <h4 class="kpi-card__value" id="today_expense"></h4>
                                                 <p class="kpi-card__label"><?= lang('expense_today') ?></p>
                                                 <a href="<?= base_url() ?>admin/transactions/expense"
-                                                   class="kpi-card__link"><?= lang('more_info') ?> <i
-                                                        class="fa fa-arrow-circle-right"></i></a>
+                                                   class="kpi-card__link"><?= lang('more_info') ?> &#8594;</a>
                                             </div>
                                         </div>
 
@@ -91,8 +89,7 @@ $all_order_data = $this->db->where($where)->order_by('order_no', 'ASC')->get('tb
                                                 <h4 class="kpi-card__value" id="total_income"></h4>
                                                 <p class="kpi-card__label"><?= lang('total_income') ?></p>
                                                 <a href="<?= base_url() ?>admin/transactions/deposit"
-                                                   class="kpi-card__link"><?= lang('more_info') ?> <i
-                                                        class="fa fa-arrow-circle-right"></i></a>
+                                                   class="kpi-card__link"><?= lang('more_info') ?> &#8594;</a>
                                             </div>
                                         </div>
 
@@ -104,8 +101,7 @@ $all_order_data = $this->db->where($where)->order_by('order_no', 'ASC')->get('tb
                                                 <h4 class="kpi-card__value" id="total_expense"></h4>
                                                 <p class="kpi-card__label"><?= lang('total_expense') ?></p>
                                                 <a href="<?= base_url() ?>admin/transactions/expense"
-                                                   class="kpi-card__link"><?= lang('more_info') ?> <i
-                                                        class="fa fa-arrow-circle-right"></i></a>
+                                                   class="kpi-card__link"><?= lang('more_info') ?> &#8594;</a>
                                             </div>
                                         </div>
                                     </div>
@@ -126,22 +122,22 @@ $all_order_data = $this->db->where($where)->order_by('order_no', 'ASC')->get('tb
                                     <div>
                                         <div class="lbl"><?= lang('invoice_today') ?></div>
                                         <div class="val" id="today_invo_amount"></div>
-                                        <a class="more" href="<?= base_url() ?>admin/invoice/manage_invoice"><?= lang('more_info') ?> <i class="fa fa-arrow-circle-right"></i></a>
+                                        <a class="more" href="<?= base_url() ?>admin/invoice/manage_invoice"><?= lang('more_info') ?> &#8594;</a>
                                     </div>
                                     <div>
                                         <div class="lbl"><?= lang('payment_today') ?></div>
                                         <div class="val" id="payment_today" style="color:#34d399"></div>
-                                        <a class="more" href="<?= base_url() ?>admin/invoice/all_payments"><?= lang('more_info') ?> <i class="fa fa-arrow-circle-right"></i></a>
+                                        <a class="more" href="<?= base_url() ?>admin/invoice/all_payments"><?= lang('more_info') ?> &#8594;</a>
                                     </div>
                                     <div class="h-div">
                                         <div class="lbl"><?= lang('paid_amount') ?></div>
                                         <div class="val" id="paid_invo_amount"></div>
-                                        <a class="more" href="<?= base_url() ?>admin/invoice/all_payments"><?= lang('more_info') ?> <i class="fa fa-arrow-circle-right"></i></a>
+                                        <a class="more" href="<?= base_url() ?>admin/invoice/all_payments"><?= lang('more_info') ?> &#8594;</a>
                                     </div>
                                     <div class="h-div">
                                         <div class="lbl"><?= lang('due_amount') ?></div>
                                         <div class="val" id="client_outstanding" style="color:#fbbf24"></div>
-                                        <a class="more" href="<?= base_url() ?>admin/invoice/manage_invoice"><?= lang('more_info') ?> <i class="fa fa-arrow-circle-right"></i></a>
+                                        <a class="more" href="<?= base_url() ?>admin/invoice/manage_invoice"><?= lang('more_info') ?> &#8594;</a>
                                     </div>
                                 </div>
                             </div>
@@ -157,22 +153,22 @@ $all_order_data = $this->db->where($where)->order_by('order_no', 'ASC')->get('tb
                                     <div>
                                         <div class="lbl"><?= lang('in_progress') ?> <?= lang('task') ?></div>
                                         <div class="val" id="tasks_in_progress"></div>
-                                        <a class="more" href="<?= base_url() ?>admin/tasks/all_task"><?= lang('more_info') ?> <i class="fa fa-arrow-circle-right"></i></a>
+                                        <a class="more" href="<?= base_url() ?>admin/tasks/all_task"><?= lang('more_info') ?> &#8594;</a>
                                     </div>
                                     <div>
                                         <div class="lbl"><?= lang('open') ?> <?= lang('tickets') ?></div>
                                         <div class="val" id="tickets_open"></div>
-                                        <a class="more" href="<?= base_url() ?>admin/tickets"><?= lang('more_info') ?> <i class="fa fa-arrow-circle-right"></i></a>
+                                        <a class="more" href="<?= base_url() ?>admin/tickets"><?= lang('more_info') ?> &#8594;</a>
                                     </div>
                                     <div class="h-div">
                                         <div class="lbl"><?= lang('in_progress') ?> <?= lang('bugs') ?></div>
                                         <div class="val" id="bugs_in_progress"></div>
-                                        <a class="more" href="<?= base_url() ?>admin/bugs"><?= lang('more_info') ?> <i class="fa fa-arrow-circle-right"></i></a>
+                                        <a class="more" href="<?= base_url() ?>admin/bugs"><?= lang('more_info') ?> &#8594;</a>
                                     </div>
                                     <div class="h-div">
                                         <div class="lbl"><?= lang('in_progress') ?> <?= lang('project') ?></div>
                                         <div class="val" id="project_in_progress"></div>
-                                        <a class="more" href="<?= base_url() ?>admin/projects"><?= lang('more_info') ?> <i class="fa fa-arrow-circle-right"></i></a>
+                                        <a class="more" href="<?= base_url() ?>admin/projects"><?= lang('more_info') ?> &#8594;</a>
                                     </div>
                                 </div>
                             </div>

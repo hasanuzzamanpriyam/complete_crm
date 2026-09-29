@@ -9461,7 +9461,19 @@ li[type="datetime"] .value-wrap {
   white-space: nowrap;
 }
 .dash-page .hero .h-sub { font-size: 11px; opacity: .72; margin-top: 6px; }
-.dash-page .hero .more { font-size: 11px; color: #fff; opacity: .75; margin-top: 8px; display: inline-block; }
+.dash-page .hero .more {
+  font-size: 11px;
+  color: #fff;
+  opacity: .75;
+  margin-top: 8px;
+  display: inline-block;
+  position: static;
+  background: none;
+  padding-top: 0;
+  text-align: left;
+  line-height: 1.5;
+  font-weight: 400;
+}
 .dash-page .hero .more:hover { opacity: 1; color: #fff; text-decoration: none; }
 .dash-page .hero .h-grid {
   display: grid;
@@ -9469,7 +9481,7 @@ li[type="datetime"] .value-wrap {
   gap: 14px 18px;
   margin-top: 12px;
 }
-.dash-page .hero .h-div { border-top: 1px solid rgba(255, 255, 255, .14); padding-top: 12px; }
+.dash-page .hero .h-div { border-top: 1px solid rgba(255, 255, 255, .14); margin-top: 14px; padding-top: 12px; }
 .dash-page .hero .h-bars {
   display: flex;
   align-items: flex-end;
