@@ -2219,6 +2219,14 @@ _:-ms-lang(x),
   text-overflow: ellipsis;
 }
 
+/* Company logo replaces the site-name text when one is configured. */
+.side-brand .name img {
+  display: block;
+  height: 26px;
+  width: auto;
+  max-width: 150px;
+}
+
 .side-brand .name:hover,
 .side-brand .name:focus {
   color: var(--c-text-inverse);
@@ -9298,18 +9306,44 @@ li[type="datetime"] .value-wrap {
   --dc-hero-3: linear-gradient(135deg, #1c1917, #3b2f52);
 }
 
-/* ---------------- grid rhythm (16px gutters) ---------------- */
-.dash-page .row {
-  margin-left: -8px;
-  margin-right: -8px;
+/* ---------------- grid rhythm (demo: repeat(12,1fr), gap 16) ----------------
+   The rows carry both classes on ONE element (class="row dash-page"), so the
+   old `.dash-page .row` descendant selectors never matched: columns stayed
+   Bootstrap floats with -15px margins and 30px gutters, misaligning every
+   row against the demo's row-aligned grid. The rows are now real CSS grids
+   and the column boxes are neutralised (float/width/padding/margin). */
+.dash-page.row {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 16px;
+  margin: 0;
 }
-.dash-page .row > [class*="col-"] {
-  padding-left: 8px;
-  padding-right: 8px;
+/* Bootstrap .row clearfix pseudo-elements become real grid items in a grid
+   container (::before = display:table, 1 col wide) - they steal row1/col1 and
+   stagger the report heroes. Grids do not need clearfix: disable them. */
+.dash-page.row::before,
+.dash-page.row::after {
+  content: none;
+  display: none;
 }
-.dash-page .mt-lg { margin-top: 16px; }
-.dash-page .report,
-.dash-page #menu > div { position: relative; }
+.dash-page.row + .dash-page.row,
+.dash-page.row + .clearfix + .dash-page.row {
+  margin-top: 16px;
+}
+.dash-page.row > [class*="col-"] {
+  float: none;
+  width: auto;
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  position: relative;
+}
+.dash-page.row > .col-sm-6,
+.dash-page.row > .col-md-6 { grid-column: span 6; }
+.dash-page.row > .col-sm-12,
+.dash-page.row > .col-md-12 { grid-column: span 12; }
+.dash-page .mt-lg { margin-top: 0; }
+.dash-page .report { position: relative; }
 
 /* ---------------- white card chrome (existing .panel markup) ---------------- */
 .dash-page .panel,
@@ -9345,7 +9379,8 @@ li[type="datetime"] .value-wrap {
   flex-wrap: wrap;
   align-items: baseline;
   gap: 4px 10px;
-  width: 100%;
+  flex: 1 1 auto;
+  min-width: 0;
   margin: 0;
   font-size: 15px;
   font-weight: 700;
@@ -9394,7 +9429,7 @@ li[type="datetime"] .value-wrap {
   transition: .15s;
 }
 .dash-page .report:hover .close-btn,
-.dash-page #menu > div:hover .close-btn { opacity: 1; }
+.dash-page.row > div:hover .close-btn { opacity: 1; }
 
 /* ---------------- heroes ---------------- */
 .dash-page .hero {
@@ -9725,6 +9760,50 @@ li[type="datetime"] .value-wrap {
 }
 .dash-page .panel-body .input-group-addon a { color: var(--dc-slate); }
 
+/* Filter forms live in the card heading as a compact pill (demo .pillrow):
+   label hidden, 28px input, calendar addon dropped, small teal action. */
+.dash-page .panel-heading > form {
+  flex: 0 0 auto;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.dash-page .panel-heading > form .form-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.dash-page .panel-heading > form .control-label { display: none; }
+.dash-page .panel-heading > form .col-sm-5 {
+  width: auto;
+  flex: 0 0 auto;
+  padding: 0;
+}
+.dash-page .panel-heading > form .input-group { width: auto; }
+.dash-page .panel-heading > form .form-control {
+  height: 28px;
+  width: 96px;
+  border: 1px solid var(--dc-border-2);
+  border-radius: 8px;
+  box-shadow: none;
+  font-size: 12px;
+  color: var(--dc-text);
+  background: #fff;
+}
+.dash-page .panel-heading > form .input-group-addon { display: none; }
+.dash-page .panel-heading > form .btn-custom {
+  height: 28px;
+  min-width: 30px;
+  padding: 0 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* ---------------- feeds / announcements ---------------- */
 .dash-page .comment-item {
   padding: 10px 0;
@@ -9757,7 +9836,8 @@ li[type="datetime"] .value-wrap {
 .dash-page .panel .table-responsive,
 .dash-page .panel .panel-body,
 .dash-page .panel .todo-scroll,
-.dash-page .panel .ann-scroll {
+.dash-page .panel .ann-scroll,
+.dash-page .panel .nav-tabs-custom .tab-content {
   max-height: 440px;
   overflow-y: auto;
 }
@@ -9768,6 +9848,13 @@ li[type="datetime"] .value-wrap {
   max-height: none;
 }
 
+@media (max-width: 991px) {
+  .dash-page.row > .col-md-6,
+  .dash-page.row > .col-md-12 { grid-column: span 12; }
+}
+@media (max-width: 767px) {
+  .dash-page.row > [class*="col-"] { grid-column: span 12; }
+}
 @media (max-width: 768px) {
   .dash-page .hero .h-grid { grid-template-columns: 1fr; }
   .dash-page .hero .h-div { border-top: 0; padding-top: 0; }

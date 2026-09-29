@@ -25,9 +25,6 @@ if (!empty($goal_report_order)) {
     <div class="panel panel-custom menu">
         <header class="panel-heading">
             <h3 class="panel-title"><?= lang('goal') . ' ' . lang('report') ?><span class="sub">Achievement vs target</span></h3>
-        </header>
-        <div class="panel-body">
-            <p class="text-center ">
             <form role="form" id="form"
                   action="<?php echo base_url(); ?>admin/dashboard/index/goal_month"
                   method="post" class="form-horizontal form-groups-bordered hidden-xs">
@@ -51,7 +48,8 @@ if (!empty($goal_report_order)) {
                             class="btn btn-custom"><i class="fa fa-search"></i></button>
                 </div>
             </form>
-            </p>
+        </header>
+        <div class="panel-body">
             <!--End select input year -->
             <div class="goal-list">
                 <?php if (!empty($goal_report)) {

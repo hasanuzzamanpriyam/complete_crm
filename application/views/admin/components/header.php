@@ -95,7 +95,7 @@ $languages = $this->db->where('active', 1)->order_by('name', 'ASC')->get('tbl_la
                         </div>
                         <input type="text" id="all_search" placeholder="<?= lang('search_your_needs') ?>"
                             class="form-control search-icon">
-                        <div data-search-dismiss="" class="fa fa-times form-control-feedback"></div>
+                        <div data-search-dismiss="" class="fa fa-times form-control-feedback" style="display:none"></div>
                     </div>
                 </div>
                 <button type="submit" class="hidden btn btn-default">Submit</button>
@@ -313,5 +313,22 @@ $languages = $this->db->where('active', 1)->order_by('name', 'ASC')->get('tbl_la
     </nav>
     <!-- END Top Navbar-->
 </header>
+<script>
+    // The search clear (X) only appears once the user has typed something.
+    (function () {
+        var inp = document.getElementById('all_search');
+        var x = document.querySelector('[data-search-dismiss]');
+        if (!inp || !x) { return; }
+        function sync() { x.style.display = inp.value ? '' : 'none'; }
+        inp.addEventListener('input', sync);
+        // keyup runs before app.js's own handler clears the field on ESC, so
+        // defer the sync past it.
+        inp.addEventListener('keyup', function () { setTimeout(sync, 0); });
+        // app.js stops propagation on the X's click before clearing the input,
+        // so listen on the element itself and sync after its handler ran.
+        x.addEventListener('click', function () { setTimeout(sync, 0); });
+        sync();
+    })();
+</script>
 <link rel="stylesheet" href="<?php echo base_url(); ?>assets/plugins/awesomplete/awesomplete.css">
 <script src="<?= base_url() ?>assets/plugins/awesomplete/awesomplete.min.js"></script>

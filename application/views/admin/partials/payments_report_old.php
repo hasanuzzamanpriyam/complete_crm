@@ -15,8 +15,6 @@ if (!empty($payments_report_order)) {
     <div class="panel panel-custom menu">
         <header class="panel-heading">
             <h3 class="panel-title"><?= lang('payments_report') ?><span class="sub">12-month collections</span></h3>
-        </header>
-        <div class="panel-body">
             <form role="form" id="form" action="<?php echo base_url(); ?>admin/dashboard/index/payments" method="post" class="form-horizontal form-groups-bordered hidden-xs">
                 <div class="form-group">
                     <label class="col-sm-3 control-label"><?= lang('select') . ' ' . lang('year') ?>
@@ -33,6 +31,8 @@ if (!empty($payments_report_order)) {
                     <button type="submit" data-toggle="tooltip" data-placement="top" title="Search" id="payments_report_btn" class="btn btn-custom"><i class="fa fa-search"></i></button>
                 </div>
             </form>
+        </header>
+        <div class="panel-body">
             <div class="bars" style="height:100px">
                 <?php
                 if (!empty($yearly_overview)) {

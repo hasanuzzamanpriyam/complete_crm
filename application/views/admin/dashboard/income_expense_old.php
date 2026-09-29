@@ -10,8 +10,6 @@ if (!empty($income_expense)) { ?>
     <div class="panel panel-custom menu">
         <header class="panel-heading">
             <h3 class="panel-title"><?= lang('income_expense') ?><span class="sub">Selected month</span></h3>
-        </header>
-        <div class="panel-body">
             <form role="form" id="form" action="<?php echo base_url(); ?>admin/dashboard/index/month" method="post" class="form-horizontal form-groups-bordered hidden-xs">
                 <div class="form-group">
                     <label class="col-sm-3 control-label"><?= lang('select') . ' ' . lang('month') ?>
@@ -28,6 +26,8 @@ if (!empty($income_expense)) { ?>
                     <button type="submit" id="income_vs_expense_btn" data-toggle="tooltip" data-placement="top" title="Search" class="btn btn-custom"><i class="fa fa-search"></i></button>
                 </div>
             </form>
+        </header>
+        <div class="panel-body">
             <div class="two">
                 <div>
                     <div class="stat-lbl"><?= lang('income') ?></div>

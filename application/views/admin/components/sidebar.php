@@ -40,9 +40,20 @@
                     $brand_name = trim((string) config_item('company_name'));
                 }
                 $brand_initial = $brand_name !== '' ? strtoupper(substr($brand_name, 0, 1)) : 'A';
+                $brand_logo_rel = trim((string) config_item('company_logo'));
+                $brand_logo_url = '';
+                if ($brand_logo_rel !== '' && file_exists(ROOTPATH . '/' . $brand_logo_rel)) {
+                    $brand_logo_url = base_url($brand_logo_rel);
+                }
                 ?>
                 <span class="tile"><?= htmlspecialchars($brand_initial) ?></span>
-                <a href="<?= base_url('admin/dashboard') ?>" class="name"><?= htmlspecialchars($brand_name !== '' ? $brand_name : 'App') ?></a>
+                <a href="<?= base_url('admin/dashboard') ?>" class="name">
+                    <?php if ($brand_logo_url !== '') { ?>
+                        <img src="<?= $brand_logo_url ?>" alt="<?= htmlspecialchars($brand_name !== '' ? $brand_name : 'App') ?>">
+                    <?php } else { ?>
+                        <?= htmlspecialchars($brand_name !== '' ? $brand_name : 'App') ?>
+                    <?php } ?>
+                </a>
             </div>
             <!-- END sidebar brand -->
             <!-- START sidebar nav-->

@@ -10,8 +10,6 @@ if ($this->session->userdata('user_type') == '1') { ?>
     <div class="panel panel-custom menu">
         <header class="panel-heading">
             <h3 class="panel-title"><?= lang('income_report') ?><span class="sub">12-month trend</span></h3>
-        </header>
-        <div class="panel-body">
             <form role="form" id="form" action="<?php echo base_url(); ?>admin/dashboard/index/Income" method="post" class="form-horizontal form-groups-bordered hidden-xs">
                 <div class="form-group">
                     <label class="col-sm-3 control-label"><?= lang('select') . ' ' . lang('year') ?>
@@ -29,6 +27,8 @@ if ($this->session->userdata('user_type') == '1') { ?>
                     <button type="submit" id="income_report_btn" data-toggle="tooltip" data-placement="top" title="Search" class="btn btn-custom"><i class="fa fa-search"></i></button>
                 </div>
             </form>
+        </header>
+        <div class="panel-body">
             <div class="bars">
                 <?php
                 if (!empty($all_income) && !empty($income_report_order)) {

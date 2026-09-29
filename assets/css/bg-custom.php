@@ -171,9 +171,13 @@ $css .= "    }\n";
         color: var(--th-sidebar-active-txt)<?= $im ?>;
     }
 
-    .sidebar .nav > li.active {
-        /* Transparent: the old rule painted the 3px li edge in the active text
-           colour, which on a white label is a bright stripe beside the pill. */
+    .sidebar .nav > li.active,
+    .sidebar .nav > li.open {
+        /* Transparent: app.css fills li.active/li.open #fcfcfc, which showed as
+           white bands at both sides of the inset teal pill (the demo sidebar is
+           uniformly dark around the pill). The 3px li edge also stays clear so
+           no bright stripe sits beside the pill. */
+        background-color: transparent<?= $im ?>;
         border-left-color: transparent<?= $im ?>;
     }
 

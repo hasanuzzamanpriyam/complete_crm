@@ -194,7 +194,7 @@ $all_order_data = $this->db->where($where)->order_by('order_no', 'ASC')->get('tb
                     <section class="panel panel-custom menu">
                         <aside class="nav-tabs-custom">
                             <ul class="nav nav-tabs">
-                                <li class=""><a href="#projects" id="overdue_projects"
+                                <li class="active"><a href="#projects" id="overdue_projects"
                                                 data-toggle="tab"><?= lang('overdue') . ' ' . lang('project') ?>
                                         <strong class="pull-right "
                                                 id="overdue_projects_total">(<?php //echo $project_overdue ?>)</strong>
@@ -231,7 +231,7 @@ $all_order_data = $this->db->where($where)->order_by('order_no', 'ASC')->get('tb
 
                             <section class="scrollable">
                                 <div class="tab-content">
-                                    <div class="tab-pane " id="projects">
+                                    <div class="tab-pane active" id="projects">
 
                                         <?php
                                         //$this->load->view("admin/dashboard/overdue_projects_old");
@@ -596,6 +596,13 @@ $all_order_data = $this->db->where($where)->order_by('order_no', 'ASC')->get('tb
             fire_datatable(base_url + "admin/dashboard/rendering/unconfirmed_bugs/", 'datatable_unconfirmed_bugs');
 
         });
+
+        // The first tab is rendered active on load, so its click handler never
+        // runs; trigger it so the active pane's rows load like a user click.
+        var $activeOverdueTab = $(".nav-tabs-custom .nav-tabs > li.active > a[data-toggle='tab']");
+        if ($activeOverdueTab.length) {
+            $activeOverdueTab.trigger("click");
+        }
 
     });
 

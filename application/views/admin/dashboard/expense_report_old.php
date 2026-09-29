@@ -11,8 +11,6 @@ $expense_report_order = get_row('tbl_dashboard', array('name' => 'expense_report
 <div class="panel panel-custom menu">
     <header class="panel-heading">
         <h3 class="panel-title"><?= lang('expense_report') ?><span class="sub">12-month trend</span></h3>
-    </header>
-    <div class="panel-body">
         <form role="form" id="form" action="<?php echo base_url(); ?>admin/dashboard" method="post" class="form-horizontal form-groups-bordered hidden-xs">
             <div class="form-group">
                 <label class="col-sm-3 control-label"><?= lang('select') . ' ' . lang('year') ?>
@@ -29,6 +27,8 @@ $expense_report_order = get_row('tbl_dashboard', array('name' => 'expense_report
                 <button type="submit" id="expense_report_btn" data-toggle="tooltip" data-placement="top" title="Search" class="btn btn-custom"><i class="fa fa-search"></i></button>
             </div>
         </form>
+    </header>
+    <div class="panel-body">
         <!--End select input year -->
         <div class="bars">
             <?php
