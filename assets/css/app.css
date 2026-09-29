@@ -9344,6 +9344,12 @@ li[type="datetime"] .value-wrap {
 .dash-page.row > .col-md-12 { grid-column: span 12; }
 .dash-page .mt-lg { margin-top: 0; }
 .dash-page .report { position: relative; }
+/* equal-height cards: wrapper + card fill the stretched grid column so every
+   section gap stays uniform (grid 16 + mt-lg 15 = 31) instead of leaving dead
+   space under shorter cards */
+.dash-page > div > [id$="_div"] { height: 100%; }
+.dash-page > div > [id$="_div"] > .panel,
+.dash-page > div > [id$="_div"] > .hero { height: 100%; }
 
 /* ---------------- white card chrome (existing .panel markup) ---------------- */
 .dash-page .panel,
