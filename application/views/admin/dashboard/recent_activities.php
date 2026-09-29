@@ -1,7 +1,7 @@
 
-<div class="panel panel-custom menu" style="height: 437px;overflow-y: scroll;">
+<div class="panel panel-custom menu">
     <header class="panel-heading">
-    <h3 class="panel-title"><?= lang('recent_activities') ?></h3>
+    <h3 class="panel-title"><?= lang('recent_activities') ?><span class="sub">Latest updates</span></h3>
 </header>
 <div class="panel-body">
     <section class="comment-list block">

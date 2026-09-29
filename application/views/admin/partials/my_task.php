@@ -6,9 +6,9 @@ $my_task = $this->admin_model->my_permission('tbl_task', $this->session->userdat
 ?>
 
 
-<div class="panel panel-custom menu" style="height: 437px;overflow-y: scroll;">
+<div class="panel panel-custom menu">
     <header class="panel-heading mb0">
-        <h3 class="panel-title"><?= lang('my_tasks') ?></h3>
+        <h3 class="panel-title"><?= lang('my_tasks') ?><span class="sub">Assigned to me</span></h3>
     </header>
     <div class="table-responsive">
         <table class="table table-striped m-b-none text-sm">

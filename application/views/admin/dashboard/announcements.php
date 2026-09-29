@@ -1,6 +1,6 @@
-<div class="panel panel-custom menu" style="height: 437px;overflow-y: scroll;">
+<div class="panel panel-custom menu">
     <header class="panel-heading mb0">
-        <h3 class="panel-title"><?= lang('announcements') ?></h3>
+        <h3 class="panel-title"><?= lang('announcements') ?><span class="sub">Company-wide</span></h3>
     </header>
 
     <?php

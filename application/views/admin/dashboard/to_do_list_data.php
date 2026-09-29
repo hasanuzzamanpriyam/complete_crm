@@ -1,9 +1,9 @@
 <?php
 $my_todo_list = $this->db->where('user_id', $this->session->userdata('user_id'))->order_by('order', 'ASC')->get('tbl_todo')->result();
 ?>
-<div class="panel panel-custom menu" style="height: 437px;overflow-y: scroll;">
+<div class="panel panel-custom menu">
     <header class="panel-heading mb0">
-        <h3 class="panel-title"><?= lang('to_do') . ' ' . lang('list') ?> |
+        <h3 class="panel-title"><?= lang('to_do') . ' ' . lang('list') ?><span class="sub">My tasks</span> |
             <a class="text-sm" target="_blank"
                href="<?= base_url() ?>admin/dashboard/all_todo"><?= lang('view_all') ?></a>
             <div class="pull-right " style="padding-top: 0px;padding-bottom: 8px">

@@ -1,6 +1,6 @@
-<div class="panel panel-custom menu" style="height: 437px;overflow-y: scroll;">
+<div class="panel panel-custom menu">
     <header class="panel-heading mb0">
-        <h3 class="panel-title"><?= lang('my_project') ?></h3>
+        <h3 class="panel-title"><?= lang('my_project') ?><span class="sub">In progress</span></h3>
     </header>
     <div class="table-responsive">
         <table class="table table-striped m-b-none text-sm">
