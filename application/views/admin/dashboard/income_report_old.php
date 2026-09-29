@@ -29,7 +29,6 @@ if ($this->session->userdata('user_type') == '1') { ?>
                     <button type="submit" id="income_report_btn" data-toggle="tooltip" data-placement="top" title="Search" class="btn btn-custom"><i class="fa fa-search"></i></button>
                 </div>
             </form>
-            <!--Sales Chart Canvas -->
             <div class="bars">
                 <?php
                 if (!empty($all_income) && !empty($income_report_order)) {

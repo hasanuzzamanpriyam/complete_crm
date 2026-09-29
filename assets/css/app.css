@@ -9753,11 +9753,6 @@ li[type="datetime"] .value-wrap {
   color: #fff !important;
 }
 
-@media (max-width: 768px) {
-  .dash-page .hero .h-grid { grid-template-columns: 1fr; }
-  .dash-page .hero .h-div { border-top: 0; padding-top: 0; }
-}
-
 /* A2-15: content cap - cards scroll internally instead of growing unbounded */
 .dash-page .panel .table-responsive,
 .dash-page .panel .panel-body,
@@ -9766,4 +9761,16 @@ li[type="datetime"] .value-wrap {
   max-height: 440px;
   overflow-y: auto;
 }
+
+/* A2-15: Block A keeps its A2-14 geometry - no panel padding, no content cap */
+.dash-page .panel-kpi > .panel-body {
+  padding: 0;
+  max-height: none;
+}
+
+@media (max-width: 768px) {
+  .dash-page .hero .h-grid { grid-template-columns: 1fr; }
+  .dash-page .hero .h-div { border-top: 0; padding-top: 0; }
+}
+
 
