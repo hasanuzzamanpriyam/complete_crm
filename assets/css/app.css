@@ -9321,6 +9321,12 @@ li[type="datetime"] .value-wrap {
   box-shadow: var(--dc-sh-1);
   margin-bottom: 0;
 }
+/* Block A wrapper must stay invisible over the page bg (A2-14 intent; ties .dash-page .panel specificity, wins by order) */
+.dash-page .panel-kpi {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
 .dash-page .panel > .panel-heading,
 .dash-page .panel-custom .panel-heading {
   display: flex;
