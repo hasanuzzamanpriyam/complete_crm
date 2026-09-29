@@ -9832,11 +9832,52 @@ li[type="datetime"] .value-wrap {
   color: #fff !important;
 }
 
+/* ---------------- widget row variants (spec: timer rows, goal rows, list rows) ---- */
+.dash-page .rowlist { padding: 8px 16px 14px; }
+.dash-page .rowlist .empty { padding: 22px 0; text-align: center; font-size: 13px; color: var(--dc-slate); }
+.dash-page .prio { width: 8px; height: 8px; border-radius: 999px; flex: 0 0 8px; }
+
+/* active timers: dot + name/project + elapsed + stop/resume */
+.dash-page .timer { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid #f1f3f5; }
+.dash-page .timer:last-child { border-bottom: 0; }
+.dash-page .timer .tmeta { min-width: 0; }
+.dash-page .timer .tname { display: block; font-size: 13px; font-weight: 600; color: var(--dc-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dash-page .timer .tname:hover { color: var(--dc-accent); }
+.dash-page .timer .tsub { font-size: 11px; color: var(--dc-slate); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dash-page .timer .el { margin-left: auto; font-variant-numeric: tabular-nums; font-size: 13px; font-weight: 700; color: var(--dc-text-2); white-space: nowrap; }
+.dash-page .timer .tbtns { display: flex; gap: 6px; flex: 0 0 auto; }
+.dash-page .mini-btn { font-size: 11px; font-weight: 700; border-radius: 7px; padding: 4px 9px; background: #f1f3f5; color: var(--dc-text-2); border: 0; line-height: 1.35; }
+.dash-page .mini-btn:hover { background: #e7ebf0; color: var(--dc-text-2); text-decoration: none; }
+.dash-page .mini-btn.stop { background: #fef2f2; color: #b91c1c; }
+.dash-page .mini-btn.stop:hover { background: #fee2e2; color: #b91c1c; }
+
+/* my projects: amber track rows + due line */
+.dash-page .goal .gr a { color: var(--dc-text); }
+.dash-page .goal .gr a:hover { color: var(--dc-accent); }
+.dash-page .goal .gr b { color: #b45309; }
+.dash-page .goal .due { font-size: 11px; color: var(--dc-slate); margin-top: 5px; }
+.dash-page .goal .due.late { color: var(--dc-danger); }
+
+/* list rows (my tasks inside .rowlist) */
+.dash-page .rowlist .todo { display: flex; gap: 10px; align-items: center; padding: 9px 0; border-bottom: 1px solid #f1f3f5; font-size: 13px; }
+.dash-page .rowlist .todo:last-child { border-bottom: 0; }
+.dash-page .rowlist .todo .tt { color: var(--dc-text); min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dash-page .rowlist .todo .tt:hover { color: var(--dc-accent); }
+.dash-page .rowlist .todo.done .tt { color: var(--dc-slate); text-decoration: line-through; }
+.dash-page .rowlist .todo .due-lbl { margin-left: auto; font-size: 12px; color: var(--dc-slate); white-space: nowrap; flex: 0 0 auto; }
+.dash-page .rowlist .todo .due-lbl.late { color: var(--dc-danger); }
+
+/* todo preview: cyan checkbox, done rows muted (demo: check = cyan, title struck) */
+.dash-page .todo-preview .c-checkbox input[type="checkbox"] + span { border-color: #cbd5e1; border-radius: 4px; }
+.dash-page .todo-preview .c-checkbox input[type="checkbox"]:checked + span { border-color: var(--dc-cyan); background-color: var(--dc-cyan); }
+.dash-page .todo-preview tr.done td a.text-info { color: var(--dc-slate) !important; text-decoration: line-through; }
+
 /* A2-15: content cap - cards scroll internally instead of growing unbounded */
 .dash-page .panel .table-responsive,
 .dash-page .panel .panel-body,
 .dash-page .panel .todo-scroll,
 .dash-page .panel .ann-scroll,
+.dash-page .panel .rowlist,
 .dash-page .panel .nav-tabs-custom .tab-content {
   max-height: 440px;
   overflow-y: auto;

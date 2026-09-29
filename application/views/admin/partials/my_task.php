@@ -1,78 +1,57 @@
 <?php
 
 $my_task = $this->admin_model->my_permission('tbl_task', $this->session->userdata('user_id'));
-//echo $this->db->last_query(); exit();
-//echo '<pre>'; print_r($my_task); exit();
+$prio_map = array(
+    'low' => '#10b981',
+    'medium' => '#f59e0b',
+    'high' => '#8b5cf6',
+    'urgent' => '#dc2626',
+);
 ?>
-
 
 <div class="panel panel-custom menu">
     <header class="panel-heading mb0">
         <h3 class="panel-title"><?= lang('my_tasks') ?><span class="sub">Assigned to me</span></h3>
     </header>
-    <div class="table-responsive">
-        <table class="table table-striped m-b-none text-sm">
-            <thead>
-            <tr>
-                <th data-check-all>
-
-                </th>
-                <th><?= lang('task_name') ?></th>
-                <th><?= lang('end_date') ?></th>
-            </tr>
-            </thead>
-            <tbody>
-            <?php
-            if (!empty($my_task)): foreach ($my_task as $v_my_task):
+    <div class="rowlist">
+        <?php
+        if (!empty($my_task)):
+            foreach ($my_task as $v_my_task):
                 if ($v_my_task->task_status == 'not_started' || $v_my_task->task_status == 'in_progress' || $v_my_task->task_progress < 100) {
-                    $due_date = $v_my_task->due_date;
-                    $due_time = strtotime($due_date);
+                    $due_ts = strtotime($v_my_task->due_date);
+                    $day_diff = (int)floor(($due_ts - strtotime(date('Y-m-d'))) / 86400);
+                    $is_late = ($day_diff < 0 && $v_my_task->task_progress < 100);
+
+                    if ($day_diff === 0) {
+                        $due_label = 'Today';
+                    } elseif ($day_diff === 1) {
+                        $due_label = 'Tomorrow';
+                    } elseif ($day_diff === -1) {
+                        $due_label = 'Yesterday';
+                    } elseif ($day_diff < -1) {
+                        $due_label = lang('overdue');
+                    } elseif ($day_diff <= 6) {
+                        $due_label = date('D', $due_ts);
+                    } else {
+                        $due_label = strftime(config_item('date_format'), $due_ts);
+                    }
+
+                    $priority = isset($v_my_task->priority) ? $v_my_task->priority : null;
+                    $dot = (is_string($priority) && isset($prio_map[$priority])) ? $prio_map[$priority] : '#94a3b8';
                     ?>
-                    <tr>
-                        <td class="col-sm-1">
-                            <div class="complete checkbox c-checkbox">
-                                <label>
-                                    <input type="checkbox" data-id="<?= $v_my_task->task_id ?>"
-                                           style="position: absolute;" <?php
-                                    if ($v_my_task->task_progress >= 100) {
-                                        echo 'checked';
-                                    }
-                                    ?>>
-                                    <span class="fa fa-check"></span>
-                                </label>
-                            </div>
-                        </td>
-                        <td>
-                            <a class="text-info"
-                               href="<?= base_url() ?>admin/tasks/details/<?= $v_my_task->task_id ?>">
-                                <?php echo $v_my_task->task_name; ?></a>
-                            <?php if (strtotime(date('Y-m-d')) > $due_time && $v_my_task->task_progress < 100) { ?>
-                                <span
-                                        class="label label-danger pull-right"><?= lang('overdue') ?></span>
-                            <?php } ?>
-
-                            <div class="progress progress-xs progress-striped active">
-                                <div
-                                        class="progress-bar progress-bar-<?php echo ($v_my_task->task_progress >= 100) ? 'success' : 'primary'; ?>"
-                                        data-toggle="tooltip"
-                                        data-original-title="<?= $v_my_task->task_progress ?>%"
-                                        style="width: <?= $v_my_task->task_progress; ?>%"></div>
-                            </div>
-
-                        </td>
-
-                        <td>
-                            <?= strftime(config_item('date_format'), strtotime($due_date)) ?>
-                        </td>
-
-
-                    </tr>
+                    <div class="todo">
+                        <span class="prio" style="background: <?= $dot ?>"></span>
+                        <a class="tt" href="<?= base_url() ?>admin/tasks/details/<?= $v_my_task->task_id ?>"><?= $v_my_task->task_name ?></a>
+                        <span class="due-lbl<?= $is_late ? ' late' : '' ?>"><?= $due_label ?></span>
+                    </div>
                     <?php
                 }
-            endforeach; ?>
-            <?php endif; ?>
-            </tbody>
-        </table>
-    </div><!-- ./box-body -->
-
+            endforeach;
+        else:
+            ?>
+            <div class="empty"><?= lang('no_data') ?></div>
+            <?php
+        endif;
+        ?>
+    </div>
 </div>

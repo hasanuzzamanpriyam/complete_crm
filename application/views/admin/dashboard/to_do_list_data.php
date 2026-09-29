@@ -29,7 +29,6 @@ $my_todo_list = $this->db->where('user_id', $this->session->userdata('user_id'))
 <tbody>
 <?php
 if (!empty($my_todo_list)):foreach ($my_todo_list as $tkey => $my_todo):
-    if ($my_todo->status != 3) {
         if ($my_todo->status == 3) {
             $todo_label = '<small style="font-size:10px;padding:2px;" class="label label-success ">' . lang('done') . '</small>';
         } elseif ($my_todo->status == 2) {
@@ -43,7 +42,7 @@ if (!empty($my_todo_list)):foreach ($my_todo_list as $tkey => $my_todo):
             $due_date = date('D-M-Y');
         }
         ?>
-        <tr class="sortable item" data-item-id="<?= $my_todo->todo_id ?>">
+        <tr class="sortable item<?= $my_todo->status == 3 ? ' done' : '' ?>" data-item-id="<?= $my_todo->todo_id ?>">
             <td class="item_no dragger pl-lg pr-lg"><?= $tkey + 1 ?></td>
             <td>
                 <div class="complete-todo checkbox c-checkbox ">
@@ -67,15 +66,17 @@ if (!empty($my_todo_list)):foreach ($my_todo_list as $tkey => $my_todo):
                    href="<?= base_url() ?>admin/dashboard/new_todo/<?= $my_todo->todo_id ?>">
                     <?php echo $my_todo->title; ?></a>
                 <?php if (!empty($my_todo->assigned) && $my_todo->assigned != 0) {
-                    //$a_userinfo = $this->db->where('user_id', $my_todo->assigned)->get('tbl_account_details')->row();
-
-                    ?>
-                    <small class="block" data-toggle="tooltip"
-                           data-placement="top"><?= lang('assign_by') ?><a
-                            class="text-danger"
-                            href="<?= base_url() ?>admin/user/user_details/<?= $my_todo->assigned ?>"> <?= $a_userinfo->fullname ?></a>
-                    </small>
-                <?php } ?>
+                    $a_userinfo = $this->db->where('user_id', $my_todo->assigned)->get('tbl_account_details')->row();
+                    if (!empty($a_userinfo)) {
+                        ?>
+                        <small class="block" data-toggle="tooltip"
+                               data-placement="top"><?= lang('assign_by') ?><a
+                                class="text-danger"
+                                href="<?= base_url() ?>admin/user/user_details/<?= $my_todo->assigned ?>"> <?= $a_userinfo->fullname ?></a>
+                        </small>
+                        <?php
+                    }
+                } ?>
             </td>
             <td>
                 <?= $todo_label ?>
@@ -111,7 +112,6 @@ if (!empty($my_todo_list)):foreach ($my_todo_list as $tkey => $my_todo):
 
         </tr>
         <?php
-    }
 endforeach; ?>
 <?php endif; ?>
 </tbody>
