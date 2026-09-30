@@ -79,6 +79,12 @@ button:focus:not(:focus-visible) {
   outline: none;
 }
 
+/* Topbar search: text inputs match :focus-visible even on click, so the ring
+   popped on every click. The demo has no focus ring — caret is enough here. */
+#all_search:focus-visible {
+  outline: none !important;
+}
+
 a.text-muted:hover,
 a.text-muted:focus {
   color: #748690;

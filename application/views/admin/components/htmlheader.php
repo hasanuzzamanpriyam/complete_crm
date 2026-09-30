@@ -44,7 +44,7 @@
         ?>
         <!-- =============== BOOTSTRAP STYLES ===============-->
         <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/bootstrap.min.css" id="bscss">
-        <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/app.css?v=22" id="maincss">
+        <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/app.css?v=23" id="maincss">
     <?php }
     $custom_color = config_item('active_custom_color');
     if (!empty($custom_color) && $custom_color == 1) {
