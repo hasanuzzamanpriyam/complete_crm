@@ -54,6 +54,7 @@ $gcal_id = config_item('gcal_id');
                         $('#ev_title').val(event.title);
                         $('#ev_category').val(event.ev_category || 'project');
                         $('#ev_related').val(event.ev_related_id || '');
+                        if ($('#ev_related').val() === null) { $('#ev_related').val(''); }
                         $('#apptStartTime').val(moment(event.start).format('YYYY-MM-DD'));
                         $('#apptEndTime').val(event.end ? moment(event.end).format('YYYY-MM-DD') : moment(event.start).format('YYYY-MM-DD'));
                         $('#ev_start_time').val(event.ev_start_time || '');
@@ -621,22 +622,51 @@ $gcal_id = config_item('gcal_id');
                             'holiday' => config_item('holiday_color'),
                             'on_leave' => config_item('on_leave_color'),
                         );
+                        $manual_filter_map = array(
+                            'projects' => 'project',
+                            'milestones' => 'milestone',
+                            'tasks' => 'tasks',
+                            'bugs' => 'bugs',
+                            'invoices' => 'invoice',
+                            'payments' => 'payments',
+                            'holiday' => 'holiday',
+                            'on_leave' => 'on_leave',
+                        );
+                        $manual_filter_cat = null;
+                        if (!empty($searchType) && $searchType != 'all') {
+                            $manual_filter_cat = !empty($manual_filter_map[$searchType]) ? $manual_filter_map[$searchType] : '__none__';
+                        }
                         if (!empty($manual_events)) {
                             foreach ($manual_events as $me) :
+                                if ($manual_filter_cat !== null && $me->category !== $manual_filter_cat) {
+                                    continue;
+                                }
                                 $me_color = !empty($manual_colors[$me->category]) ? $manual_colors[$me->category] : '#0d9488';
                                 $me_end = !empty($me->end_date) ? $me->end_date : $me->start_date;
+                                $me_start_dt = (!$me->all_day && trim((string) $me->start_time) !== '') ? strtotime($me->start_date . ' ' . $me->start_time) : false;
+                                $me_start = ($me_start_dt !== false) ? date('Y-m-d H:i:s', $me_start_dt) : $me->start_date;
+                                $me_emit_end = true;
+                                $me_end_value = $me_end;
+                                if (!$me->all_day && trim((string) $me->end_time) !== '' && !empty($me->end_date)) {
+                                    $me_end_dt = strtotime($me->end_date . ' ' . $me->end_time);
+                                    if ($me_end_dt !== false) {
+                                        $me_end_value = date('Y-m-d H:i:s', $me_end_dt);
+                                    }
+                                } elseif ($me_start_dt !== false && trim((string) $me->end_time) === '') {
+                                    $me_emit_end = false;
+                                }
                                 ?> {
                                     title: <?= json_encode($me->title, JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?: '""' ?>,
-                                    start: "<?= $me->start_date ?>",
-                                    end: "<?= $me_end ?>",
-                                    color: "<?= $me_color ?>",
+                                    start: "<?= $me_start ?>",
+                                    <?php if ($me_emit_end) { ?>end: "<?= $me_end_value ?>",
+                                    <?php } ?>color: "<?= $me_color ?>",
                                     allDay: <?= $me->all_day ? 'true' : 'false' ?>,
                                     type: "manual",
                                     cal_id: <?= (int) $me->calendar_events_id ?>,
                                     ev_category: "<?= $me->category ?>",
                                     ev_related_id: <?= $me->related_id ? (int) $me->related_id : 'null' ?>,
-                                    ev_start_time: <?= json_encode((string) $me->start_time) ?>,
-                                    ev_end_time: <?= json_encode((string) $me->end_time) ?>,
+                                    ev_start_time: <?= json_encode((string) $me->start_time, JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?: '""' ?>,
+                                    ev_end_time: <?= json_encode((string) $me->end_time, JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?: '""' ?>,
                                     ev_allday: <?= $me->all_day ? 'true' : 'false' ?>,
                                     ev_notify: <?= $me->notify ? 'true' : 'false' ?>,
                                     ev_notes: <?= json_encode((string) $me->notes, JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?: '""' ?>
