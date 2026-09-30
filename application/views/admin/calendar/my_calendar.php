@@ -650,7 +650,7 @@ $gcal_id = config_item('gcal_id');
                 ]
             });
             function updateCalendarKpis() {
-                if (typeof moment === 'undefined') { return; }
+                if (typeof moment === 'undefined' || typeof calendar === 'undefined' || !calendar) { return; }
                 var evs = calendar.fullCalendar('clientEvents');
                 var now = moment();
                 var mStart = now.clone().startOf('month');
@@ -674,6 +674,7 @@ $gcal_id = config_item('gcal_id');
                 $(this).addClass('on').siblings().removeClass('on');
                 calendar.fullCalendar('changeView', $(this).data('view'));
             });
+            updateCalendarKpis();
         }
     });
 </script>
