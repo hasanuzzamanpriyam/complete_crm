@@ -560,7 +560,7 @@ $gcal_id = config_item('gcal_id');
                     },
                     {
                         events: [
-                        <?php if (config_item('domain_on_calendar') == 'on') {
+                        <?php if ((empty($searchType) || $searchType == 'all' || $searchType == 'domain') && config_item('domain_on_calendar') == 'on') {
                             $domain_events = $this->domain_model->get_calendar_events();
                             if (!empty($domain_events)) {
                                 foreach ($domain_events as $domain_event) {
@@ -576,7 +576,7 @@ $gcal_id = config_item('gcal_id');
                                     <?php }
                             }
                         } ?>
-                        <?php if (config_item('hosting_on_calendar') == 'on') {
+                        <?php if ((empty($searchType) || $searchType == 'all' || $searchType == 'hosting') && config_item('hosting_on_calendar') == 'on') {
                                 $hosting_events = $this->hosting_model->get_calendar_events();
                                 if (!empty($hosting_events)) {
                                     foreach ($hosting_events as $hosting_event) {
@@ -592,7 +592,7 @@ $gcal_id = config_item('gcal_id');
                         <?php }
                                 }
                             } ?>
-                        <?php if (config_item('billing_on_calendar') == 'on') {
+                        <?php if ((empty($searchType) || $searchType == 'all' || $searchType == 'billing') && config_item('billing_on_calendar') == 'on') {
                                 $this->load->model('billing_model');
                                 $billing_events = $this->billing_model->get_calendar_events();
                                 if (!empty($billing_events)) {

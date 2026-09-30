@@ -365,6 +365,15 @@ $this->load->view("admin/calendar/my_calendar");
                 $this.colorpicker({ color: $this.find('input').val() });
             });
         });
+
+        // settings modal: destroy colorpickers on close so their body-level
+        // popup elements are removed instead of accumulating per reopen
+        $('#myModal').on('hidden.bs.modal', function () {
+            $('#myModal .colorpicker-component').each(function () {
+                var $c = $(this);
+                if ($c.data('colorpicker')) { $c.colorpicker('destroy'); }
+            });
+        });
     });
 </script>
 
