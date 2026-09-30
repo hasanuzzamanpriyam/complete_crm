@@ -110,7 +110,7 @@
         </script>
     <?php } ?>
     <!-- =============== APP SCRIPTS ===============-->
-    <script src="<?= base_url() ?>assets/js/app.js"></script>
+    <script src="<?= base_url() ?>assets/js/app.js?v=22"></script>
     <?php if (empty($dataTables)) { ?>
         <?php include_once 'assets/plugins/dataTables/js/dataTables.php'; ?>
     <?php } ?>

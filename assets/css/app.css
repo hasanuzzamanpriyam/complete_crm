@@ -2205,7 +2205,7 @@ _:-ms-lang(x),
   color: var(--c-on-accent);
   font-size: var(--fs-sm);
   font-weight: 800;
-  display: grid;
+  display: none;
   place-items: center;
 }
 
@@ -2239,6 +2239,11 @@ _:-ms-lang(x),
 
 .aside-collapsed .side-brand .name {
   display: none;
+}
+
+/* letter tile only stands in for the logo when the sidebar is collapsed */
+.aside-collapsed .side-brand .tile {
+  display: grid;
 }
 
 /* Menu filter sits under the brand block and is inset with the rows. */

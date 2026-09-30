@@ -1958,8 +1958,6 @@ $(document).ready(function () {
     $searchField.on("change", function () {
         $searchBox.val("").focus();
     });
-
-    $searchBox.focus();
 });
 // Search by tags from the tables for any tag clicked.
 $("body").on("click", ".tags", function () {
