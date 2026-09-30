@@ -1,5 +1,5 @@
 <link href="<?php echo base_url() ?>assets/plugins/fullcalendar/fullcalendar.min.css" rel="stylesheet" type="text/css">
-<link href="<?php echo base_url() ?>assets/css/calendar_modern.css" rel="stylesheet" type="text/css">
+<link href="<?php echo base_url() ?>assets/css/calendar_modern.css?v=2" rel="stylesheet" type="text/css">
 <?php
 $curency = $this->admin_model->check_by(array('code' => config_item('default_currency')), 'tbl_currencies');
 $gcal_api_key = config_item('gcal_api_key');
@@ -23,22 +23,51 @@ $gcal_id = config_item('gcal_id');
                     }
                 },
                 header: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'month,agendaWeek,agendaDay'
+                    left: '',
+                    center: '',
+                    right: ''
+                },
+                viewRender: function (view) {
+                    $('#calTitle').text(view.title);
+                },
+                eventAfterAllRender: function () {
+                    updateCalendarKpis();
                 },
                 selectable: true,
                 selectHelper: true,
                 eventLimit: true,
-                select: function(start, end, allDay) {
-                    var endtime = $.fullCalendar.formatDate(end, 'h:mm tt');
-                    var starttime = $.fullCalendar.formatDate(start, 'yyyy/MM/dd');
-                    var mywhen = starttime + ' - ' + endtime;
-                    $('#event_modal #apptStartTime').val(starttime);
-                    $('#event_modal #apptEndTime').val(starttime);
-                    $('#event_modal #apptAllDay').val(allDay);
-                    $('#event_modal #when').text(mywhen);
+                select: function (start, end, allDay) {
+                    if (typeof window.resetEventModal === 'function') {
+                        window.resetEventModal();
+                    }
+                    var d = moment(start).format('YYYY-MM-DD');
+                    $('#apptStartTime').val(d);
+                    $('#apptEndTime').val(d);
+                    $('#apptAllDay').prop('checked', !!allDay);
+                    $('#when').text(d);
                     $('#event_modal').modal('show');
+                    calendar.fullCalendar('unselect');
+                },
+                eventClick: function (event, element) {
+                    if (event.type === 'manual') {
+                        $('#calendar_events_id').val(event.cal_id);
+                        $('#ev_title').val(event.title);
+                        $('#ev_category').val(event.ev_category || 'project');
+                        $('#ev_related').val(event.ev_related_id || '');
+                        $('#apptStartTime').val(moment(event.start).format('YYYY-MM-DD'));
+                        $('#apptEndTime').val(event.end ? moment(event.end).format('YYYY-MM-DD') : moment(event.start).format('YYYY-MM-DD'));
+                        $('#ev_start_time').val(event.ev_start_time || '');
+                        $('#ev_end_time').val(event.ev_end_time || '');
+                        $('#apptAllDay').prop('checked', !!event.ev_allday);
+                        $('#ev_notify').prop('checked', !!event.ev_notify);
+                        $('#ev_notes').val(event.ev_notes || '');
+                        $('#evModalTitle').text('Edit event');
+                        $('#evSave').text('Save changes');
+                        $('#evDelete').show();
+                        $('#when').text(moment(event.start).format('YYYY-MM-DD'));
+                        $('#event_modal').modal('show');
+                        return false;
+                    }
                 },
                 eventSources: [{
                         events: [
@@ -579,9 +608,71 @@ $gcal_id = config_item('gcal_id');
                         <?php }
                                 }
                             } ?>
+                        <?php
+                        // Manual events (tbl_calendar_events)
+                        $manual_events = $this->db->order_by('start_date', 'ASC')->get('tbl_calendar_events')->result();
+                        $manual_colors = array(
+                            'project' => config_item('project_color'),
+                            'milestone' => config_item('milestone_color'),
+                            'tasks' => config_item('tasks_color'),
+                            'bugs' => config_item('bugs_color'),
+                            'invoice' => config_item('invoice_color'),
+                            'payments' => config_item('payments_color'),
+                            'holiday' => config_item('holiday_color'),
+                            'on_leave' => config_item('on_leave_color'),
+                        );
+                        if (!empty($manual_events)) {
+                            foreach ($manual_events as $me) :
+                                $me_color = !empty($manual_colors[$me->category]) ? $manual_colors[$me->category] : '#0d9488';
+                                $me_end = !empty($me->end_date) ? $me->end_date : $me->start_date;
+                                ?> {
+                                    title: <?= json_encode($me->title, JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?: '""' ?>,
+                                    start: "<?= $me->start_date ?>",
+                                    end: "<?= $me_end ?>",
+                                    color: "<?= $me_color ?>",
+                                    allDay: <?= $me->all_day ? 'true' : 'false' ?>,
+                                    type: "manual",
+                                    cal_id: <?= (int) $me->calendar_events_id ?>,
+                                    ev_category: "<?= $me->category ?>",
+                                    ev_related_id: <?= $me->related_id ? (int) $me->related_id : 'null' ?>,
+                                    ev_start_time: <?= json_encode((string) $me->start_time) ?>,
+                                    ev_end_time: <?= json_encode((string) $me->end_time) ?>,
+                                    ev_allday: <?= $me->all_day ? 'true' : 'false' ?>,
+                                    ev_notify: <?= $me->notify ? 'true' : 'false' ?>,
+                                    ev_notes: <?= json_encode((string) $me->notes, JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?: '""' ?>
+                                },
+                                <?php
+                            endforeach;
+                        }
+                        ?>
                         ]
                     }
                 ]
+            });
+            function updateCalendarKpis() {
+                if (typeof moment === 'undefined') { return; }
+                var evs = calendar.fullCalendar('clientEvents');
+                var now = moment();
+                var mStart = now.clone().startOf('month');
+                var mEnd = now.clone().endOf('month');
+                var wStart = now.clone().startOf('day');
+                var wEnd = now.clone().add(7, 'days');
+                var inMonth = 0, inWeek = 0;
+                for (var i = 0; i < evs.length; i++) {
+                    var s = moment(evs[i].start);
+                    if (!s.isBefore(mStart) && !s.isAfter(mEnd)) { inMonth++; }
+                    if (!s.isBefore(wStart) && !s.isAfter(wEnd)) { inWeek++; }
+                }
+                $('#kpiEvents').text(inMonth);
+                $('#kpiUpcoming').text(inWeek);
+            }
+
+            $('#calPrev').on('click', function () { calendar.fullCalendar('prev'); });
+            $('#calToday').on('click', function () { calendar.fullCalendar('today'); });
+            $('#calNext').on('click', function () { calendar.fullCalendar('next'); });
+            $('#calSeg button').on('click', function () {
+                $(this).addClass('on').siblings().removeClass('on');
+                calendar.fullCalendar('changeView', $(this).data('view'));
             });
         }
     });
