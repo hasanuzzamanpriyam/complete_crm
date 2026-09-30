@@ -5,22 +5,22 @@
     <div class="cal-settings">
         <div class="m-head">
             <div>
-                <h3><?php echo lang('calendar_settings'); ?></h3>
+                <h3 id="myModalLabel"><?php echo lang('calendar_settings'); ?></h3>
                 <div class="sub">Google sync &amp; what appears on the calendar</div>
             </div>
-            <button type="button" class="m-x" data-dismiss="modal" aria-hidden="true"><span aria-hidden="true">&times;</span></button>
+            <button type="button" class="m-x" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
         </div>
         <div class="m-body">
             <div class="m-sec">Google Calendar</div>
             <div class="gcal-note"><span>&#8505;</span> Paste your Google API key and Calendar ID to sync events both ways. Leave empty to use CRM events only.</div>
             <div class="f-2" style="margin-top:13px">
                 <div class="f-row">
-                    <label><?php echo lang('google_api'); ?></label>
-                    <input type="text" class="inp" value="<?php echo config_item('gcal_api_key'); ?>" name="gcal_api_key">
+                    <label for="gcal_api_key"><?php echo lang('google_api'); ?></label>
+                    <input type="text" class="inp" id="gcal_api_key" value="<?php echo htmlspecialchars((string) config_item('gcal_api_key'), ENT_QUOTES); ?>" name="gcal_api_key">
                 </div>
                 <div class="f-row">
-                    <label><?php echo lang('calendar_id'); ?></label>
-                    <input type="text" class="inp" value="<?php echo config_item('gcal_id'); ?>" name="gcal_id">
+                    <label for="gcal_id"><?php echo lang('calendar_id'); ?></label>
+                    <input type="text" class="inp" id="gcal_id" value="<?php echo htmlspecialchars((string) config_item('gcal_id'), ENT_QUOTES); ?>" name="gcal_id">
                 </div>
             </div>
 
@@ -53,12 +53,15 @@
             <div class="so-grid">
                 <?php foreach ($cal_items as $ci):
                     list($vis_key, $color_key, $lang_key, $default_color) = $ci;
-                    $label = isset($lang[$lang_key]) ? lang($lang_key) : (isset($label_fallbacks[$lang_key]) ? $label_fallbacks[$lang_key] : ucwords(str_replace('_', ' ', $lang_key)));
+                    $label = lang($lang_key);
+                    if (!$label || $label === $lang_key) {
+                        $label = isset($label_fallbacks[$lang_key]) ? $label_fallbacks[$lang_key] : ucwords(str_replace('_', ' ', $lang_key));
+                    }
                     $color_value = config_item($color_key) ? config_item($color_key) : $default_color;
                     $cp_id = 'cp_' . str_replace('_color', '', $color_key);
                     ?>
                     <div class="so">
-                        <span class="prio" style="background:<?php echo $color_value; ?>"></span>
+                        <span class="prio" style="background:<?php echo htmlspecialchars($color_value, ENT_QUOTES); ?>"></span>
                         <span class="so-l"><?php echo $label; ?></span>
                         <div class="checkbox c-checkbox so-cb">
                             <label class="needsclick">
@@ -67,7 +70,7 @@
                             </label>
                         </div>
                         <div id="<?php echo $cp_id; ?>" class="input-group colorpicker-component">
-                            <input type="hidden" value="<?php echo $color_value; ?>" name="<?php echo $color_key; ?>" class="form-control"/>
+                            <input type="hidden" value="<?php echo htmlspecialchars($color_value, ENT_QUOTES); ?>" name="<?php echo $color_key; ?>" class="form-control"/>
                             <span class="input-group-addon"><i></i></span>
                         </div>
                     </div>
@@ -75,8 +78,8 @@
             </div>
 
             <div class="f-row" style="margin-top:14px">
-                <label><?php echo isset($lang['upcoming_expiry_days']) ? lang('upcoming_expiry_days') : 'Upcoming Expiry Days'; ?></label>
-                <input type="number" class="inp" style="max-width:160px" value="<?php echo config_item('upcoming_expiry_days') ? config_item('upcoming_expiry_days') : '7'; ?>" name="upcoming_expiry_days" min="1" max="90">
+                <label for="upcoming_expiry_days"><?php $l = lang('upcoming_expiry_days'); echo ($l !== FALSE && $l !== '' && $l !== 'upcoming_expiry_days') ? $l : 'Upcoming Expiry Days'; ?></label>
+                <input type="number" class="inp" id="upcoming_expiry_days" style="max-width:160px" value="<?php echo htmlspecialchars((string) (config_item('upcoming_expiry_days') ? config_item('upcoming_expiry_days') : '7'), ENT_QUOTES); ?>" name="upcoming_expiry_days" min="1" max="90">
             </div>
 
             <script>

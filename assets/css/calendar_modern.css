@@ -87,9 +87,9 @@
 #my_calendar .fc-popover .fc-day-grid-event { border-radius: 6px; }
 
 /* ---------------- shared modal design (both modals) ---------------- */
-.cal-modal, #myModal .modal-content.cal-settings { border: 0; border-radius: var(--r-xl); box-shadow: 0 24px 60px rgba(15, 23, 42, .28); overflow: hidden; }
+.cal-modal, #myModal .modal-content:has(> form > .cal-settings) { border: 0; border-radius: var(--r-xl); box-shadow: 0 24px 60px rgba(15, 23, 42, .28); overflow: hidden; }
 #myModal .modal-dialog { border: 0; }
-#myModal .modal-dialog:has(> .modal-content > .cal-settings) { max-width: 640px; }
+#myModal .modal-dialog:has(> .modal-content > form > .cal-settings) { max-width: 640px; }
 #event_modal .modal-dialog { max-width: 560px; }
 .m-head { display: flex; align-items: flex-start; gap: 10px; padding: 18px 20px 0; }
 .m-head h3 { margin: 0; font-size: 16.5px; font-weight: 700; letter-spacing: -.01em; color: var(--c-text); }

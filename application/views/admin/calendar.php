@@ -356,6 +356,15 @@ $this->load->view("admin/calendar/my_calendar");
         if ($.fn.datepicker) {
             $('#eventForm .datepicker').datepicker({ autoclose: true, format: 'yyyy-mm-dd' });
         }
+
+        // settings modal: (re)initialize colorpickers each time it opens
+        $('#myModal').on('loaded.bs.modal', function () {
+            $('#myModal .colorpicker-component').each(function () {
+                var $this = $(this);
+                if ($this.data('colorpicker')) { return; }
+                $this.colorpicker({ color: $this.find('input').val() });
+            });
+        });
     });
 </script>
 
