@@ -56,7 +56,7 @@ The existing `select` handler (`my_calendar.php:33-42`) fills `#event_modal` fie
 
   | Element id (legacy) | `name` (POST/DB) | Filled by day-click |
   |---|---|---|
-  | `#apptStartTime` | `start_date` | date `yyyy/MM/dd` |
+  | `#apptStartTime` | `start_date` | date ISO `yyyy-mm-dd` |
   | `#apptEndTime` | `end_date` | same date (existing handler already does this) |
   | `#when` (text) | — | "date - time" label (display only) |
   | `#apptAllDay` (hidden/checkbox) | `all_day` | `allDay` flag |
