@@ -101,151 +101,256 @@ echo message_box('error');
 $curency = $this->admin_model->check_by(array('code' => config_item('default_currency')), 'tbl_currencies');
 $leave_info = $this->db->where('attendance_status', '3')->get('tbl_attendance')->result();
 
+// KPI strip (real data): leave + holidays overlapping the current month
+$kpi_leave = $this->db->where('attendance_status', '3')
+        ->where('date_in >=', date('Y-m-01'))
+        ->where('date_in <=', date('Y-m-t'))
+        ->count_all_results('tbl_attendance');
+$kpi_holidays = $this->db->where('start_date <=', date('Y-m-t'))
+        ->where('end_date >=', date('Y-m-01'))
+        ->count_all_results('tbl_holiday');
 ?>
 <div class="dashboard row">
 
-<div class="full-calender">
-<div class="clearfix visible-sm-block "></div>
+    <div class="full-calender">
+        <div class="clearfix visible-sm-block "></div>
 
-<div class="col-sm-12 mt-lg">
-<div class="panel panel-custom ">
-<div class="panel-heading mb0 pt-sm pb-sm">
-<div class="panel-title ">
-<h4><?= lang('calendar') ?>
-<div class="pull-right ">
-<?php if (admin_head()) { ?>
-<div class="pull-right ml">
-<a data-toggle="modal" data-target="#myModal"
-   href="<?= base_url() ?>admin/calendar/calendar_settings"
-   class="text-default ml"><i class="fa fa-cogs"></i></a>
-</div>
-<?php } ?>
-<div class="pull-left" style="position: relative; z-index: 9999;">
-<div class="btn-group calendar-filter">
-<button class="btn btn-xs btn-success dropdown-toggle calendar-filter-btn" data-toggle="dropdown">
-    <?php
-    if (!empty($searchType)) {
-        echo lang($searchType);
-    } else {
-        echo lang('all');
-    }
-    ?>
-    <span class="caret"></span></button>
-<ul class="dropdown-menu pull-right animated zoomIn calendar-dropdown">
-    <li>
-        <a href="javascript:void(0);" class="calendar-filter-link" data-filter="all"><?php echo lang('all'); ?></a>
-    </li>
-    <?php 
-    if (!empty($calendar_categories)) {
-        foreach ($calendar_categories as $cat) {
-            // Map category keys to language strings
-            $lang_keys = array(
-                'project' => 'project',
-                'milestone' => 'milestone',
-                'tasks' => 'tasks',
-                'bugs' => 'bugs',
-                'invoice' => 'invoice',
-                'payments' => 'payments',
-                'estimate' => 'estimate',
-                'opportunities' => 'opportunities',
-                'leads' => 'leads',
-                'goal' => 'goal_tracking',
-                'holiday' => 'holiday',
-                'absent' => 'absent',
-                'on_leave' => 'on_leave',
-                'expenses' => 'expense_schedules',
-                'domain' => 'domains',
-                'hosting' => 'hosting'
-            );
-            $lang_key = isset($lang_keys[$cat]) ? $lang_keys[$cat] : $cat;
-            ?>
-            <li>
-                <a href="javascript:void(0);" class="calendar-filter-link" data-filter="<?php echo $cat; ?>"><?php echo lang($lang_key); ?></a>
-            </li>
-            <?php
-        }
-    }
-    ?>
-</ul>
-</div>
-</div>
-</div>
-</div>
-</h4>
+        <div class="col-sm-12 mt-lg">
 
-</div>
-</div>
+            <!-- KPI strip (layout C) -->
+            <div class="kpi-strip">
+                <div class="kpi-grid">
+                    <div class="kpi-card"><div class="k-i ok">&#9636;</div><div><div class="v"><span id="kpiEvents">0</span></div><div class="l">Events this month</div></div></div>
+                    <div class="kpi-card"><div class="k-i cyan">&#9200;</div><div><div class="v"><span id="kpiUpcoming">0</span></div><div class="l">Upcoming this week</div></div></div>
+                    <div class="kpi-card"><div class="k-i amb">&#9873;</div><div><div class="v"><?php echo (int) $kpi_leave; ?></div><div class="l">On leave this month</div></div></div>
+                    <div class="kpi-card"><div class="k-i no">&#10006;</div><div><div class="v"><?php echo (int) $kpi_holidays; ?></div><div class="l">Holidays this month</div></div></div>
+                </div>
+            </div>
 
+            <!-- calendar card -->
+            <section class="card cal-card">
+                <div class="cal-toolbar">
+                    <div class="nav-btns">
+                        <button type="button" class="mini-btn" id="calPrev">&#8249;</button>
+                        <button type="button" class="mini-btn" id="calToday">Today</button>
+                        <button type="button" class="mini-btn" id="calNext">&#8250;</button>
+                    </div>
+                    <span class="cal-title" id="calTitle"><?php echo date('F Y'); ?></span>
+                    <div class="seg" id="calSeg">
+                        <button type="button" class="on" data-view="month">Month</button>
+                        <button type="button" data-view="agendaWeek">Week</button>
+                        <button type="button" data-view="agendaDay">Day</button>
+                    </div>
+                    <div class="tb-right">
+                        <button type="button" class="btn-new" id="calNewEvent">+ New event</button>
+                        <?php if (admin_head()) { ?>
+                        <a class="icon-btn" title="Calendar settings" data-toggle="modal" data-target="#myModal" href="<?php echo base_url(); ?>admin/calendar/calendar_settings"><i class="fa fa-cogs"></i></a>
+                        <?php } ?>
+                        <div class="btn-group calendar-filter">
+                            <button type="button" class="filter-pill dropdown-toggle" data-toggle="dropdown">
+                                <span class="c-dot"></span><span class="filter-label"><?php echo !empty($searchType) ? lang($searchType) : lang('all'); ?></span> <span class="caret-i">&#9662;</span>
+                            </button>
+                            <ul class="dropdown-menu pull-right animated zoomIn calendar-dropdown">
+                                <li><a href="javascript:void(0);" class="calendar-filter-link" data-filter="all"><?php echo lang('all'); ?></a></li>
+                                <?php
+                                if (!empty($calendar_categories)) {
+                                    foreach ($calendar_categories as $cat) {
+                                        $lang_keys = array(
+                                            'project' => 'project',
+                                            'milestone' => 'milestone',
+                                            'tasks' => 'tasks',
+                                            'bugs' => 'bugs',
+                                            'invoice' => 'invoice',
+                                            'payments' => 'payments',
+                                            'estimate' => 'estimate',
+                                            'opportunities' => 'opportunities',
+                                            'leads' => 'leads',
+                                            'goal' => 'goal_tracking',
+                                            'holiday' => 'holiday',
+                                            'absent' => 'absent',
+                                            'on_leave' => 'on_leave',
+                                            'expenses' => 'expense_schedules',
+                                            'domain' => 'domains',
+                                            'hosting' => 'hosting'
+                                        );
+                                        $lang_key = isset($lang_keys[$cat]) ? $lang_keys[$cat] : $cat;
+                                        ?>
+                                        <li><a href="javascript:void(0);" class="calendar-filter-link" data-filter="<?php echo $cat; ?>"><?php echo lang($lang_key); ?></a></li>
+                                        <?php
+                                    }
+                                }
+                                ?>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="content-body">
+                    <div class="calendar-content-body" id="my_calendar"></div>
+                </div>
+            </section>
 
-
-<div class="content-body">
-<div class="mt-lg calendar-content-body" id="my_calendar"></div>
-
-
-</div>
-</div>
-</div>
+        </div>
+    </div>
 
 </div>
 <?php
 $this->load->view("admin/calendar/my_calendar");
-
 ?>
-<!--Calendar-->
+
+<!-- New / edit event modal -->
+<div class="modal fade" id="event_modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content cal-modal">
+            <div class="m-head">
+                <div><h3 id="evModalTitle">New event</h3><div class="sub" id="when">&nbsp;</div></div>
+                <button type="button" class="m-x" data-dismiss="modal">&#10005;</button>
+            </div>
+            <form id="eventForm" method="post" action="<?php echo base_url(); ?>admin/calendar/save_event">
+                <div class="m-body">
+                    <input type="hidden" name="calendar_events_id" id="calendar_events_id" value="0">
+                    <div class="f-row"><label>Event title <span class="req">*</span></label>
+                        <input type="text" class="inp" name="title" id="ev_title" placeholder="e.g. Client sync - Trigon Labs" required></div>
+                    <div class="f-2">
+                        <div class="f-row"><label>Category</label>
+                            <select class="inp" name="category" id="ev_category">
+                                <option value="project">Project</option>
+                                <option value="milestone">Milestone</option>
+                                <option value="tasks" selected>Tasks</option>
+                                <option value="bugs">Bugs</option>
+                                <option value="invoice">Invoice</option>
+                                <option value="payments">Payments</option>
+                                <option value="holiday">Holiday</option>
+                                <option value="on_leave">On leave</option>
+                            </select></div>
+                        <div class="f-row"><label>Related to</label>
+                            <select class="inp" name="related_id" id="ev_related">
+                                <option value="">None</option>
+                                <?php
+                                $related_projects = $this->db->order_by('project_id', 'DESC')->limit(30)->get('tbl_project')->result();
+                                if (!empty($related_projects)) {
+                                    foreach ($related_projects as $rp) {
+                                        echo '<option value="' . (int) $rp->project_id . '">' . htmlspecialchars($rp->project_name) . '</option>';
+                                    }
+                                }
+                                ?>
+                            </select></div>
+                    </div>
+                    <div class="f-2">
+                        <div class="f-row"><label>Start date <span class="req">*</span></label>
+                            <input type="text" class="inp datepicker" name="start_date" id="apptStartTime" required></div>
+                        <div class="f-row"><label>End date</label>
+                            <input type="text" class="inp datepicker" name="end_date" id="apptEndTime"></div>
+                    </div>
+                    <div class="f-2">
+                        <div class="f-row"><label>Start time</label>
+                            <input type="text" class="inp" name="start_time" id="ev_start_time" placeholder="10:00 AM"></div>
+                        <div class="f-row"><label>End time</label>
+                            <input type="text" class="inp" name="end_time" id="ev_end_time" placeholder="11:00 AM"></div>
+                    </div>
+                    <div class="f-row f-checks">
+                        <label class="chk"><input type="checkbox" id="apptAllDay" name="all_day" value="1"> All-day event</label>
+                        <label class="chk"><input type="checkbox" id="ev_notify" name="notify" value="1" checked> Notify attendees</label>
+                    </div>
+                    <div class="f-row"><label>Notes</label>
+                        <textarea class="inp" name="notes" id="ev_notes" placeholder="Agenda, links, preparation..."></textarea></div>
+                </div>
+                <div class="m-foot">
+                    <button type="button" class="btn-danger-ghost" id="evDelete" style="display:none">Delete</button>
+                    <span class="spacer-m"></span>
+                    <button type="button" class="btn-ghost" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn-accent" id="evSave">Add event</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <script type="text/javascript">
-$(document).ready(function() {
-    // Calendar Filter Functionality
-    $('.calendar-filter-link').on('click', function(e) {
-        e.preventDefault();
-        
-        var filter = $(this).data('filter');
-        
-        // Update dropdown button text
-        var filterText = $(this).text();
-        $('.calendar-filter-btn').html(filterText + ' <span class="caret"></span>');
-        
-        // Filter calendar events via FullCalendar
-        if (typeof calendar !== 'undefined') {
-            // Get all event sources
-            var allSources = calendar.fullCalendar('getEventSources');
-            
-            // Hide all events first
-            calendar.fullCalendar('removeEventSource', allSources);
-            
+    $(document).ready(function () {
+        // ---- category filter (reloads with the selected source) ----
+        $('.calendar-filter-link').on('click', function (e) {
+            e.preventDefault();
+            var filter = $(this).data('filter');
+            $('.filter-label').text($(this).text());
+            var searchMap = {
+                'project': 'projects',
+                'milestone': 'milestones',
+                'tasks': 'tasks',
+                'bugs': 'bugs',
+                'invoice': 'invoices',
+                'payments': 'payments',
+                'estimate': 'estimates',
+                'opportunities': 'opportunities',
+                'leads': 'leads',
+                'goal': 'goal',
+                'holiday': 'holiday',
+                'absent': 'absent',
+                'on_leave': 'on_leave',
+                'expenses': 'expenses',
+                'domain': 'domain',
+                'hosting': 'hosting'
+            };
             if (filter === 'all') {
-                // Reload all sources - we need to reload the page or store original sources
-                // For now, we'll use the event filtering approach
                 location.href = '<?php echo base_url(); ?>admin/calendar/index/search/all';
             } else {
-                // Filter events by type - reload with specific search
-                var searchMap = {
-                    'project': 'projects',
-                    'milestone': 'milestones',
-                    'tasks': 'tasks',
-                    'bugs': 'bugs',
-                    'invoice': 'invoices',
-                    'payments': 'payments',
-                    'estimate': 'estimates',
-                    'opportunities': 'opportunities',
-                    'leads': 'leads',
-                    'goal': 'goal',
-                    'holiday': 'holiday',
-                    'absent': 'absent',
-                    'on_leave': 'on_leave',
-                    'expenses': 'expenses',
-                    'domain': 'domain',
-                    'hosting': 'hosting'
-                };
-                var searchValue = isset(searchMap[filter]) ? searchMap[filter] : filter;
+                var searchValue = searchMap[filter] || filter;
                 location.href = '<?php echo base_url(); ?>admin/calendar/index/search/' + searchValue;
             }
+        });
+
+        // ---- event modal helpers ----
+        function resetEventModal() {
+            document.getElementById('eventForm').reset();
+            $('#calendar_events_id').val('0');
+            $('#evModalTitle').text('New event');
+            $('#evSave').text('Add event');
+            $('#evDelete').hide();
+            $('#when').text(moment().format('YYYY-MM-DD'));
+        }
+        window.resetEventModal = resetEventModal;
+
+        function pad(n) { return n < 10 ? '0' + n : '' + n; }
+        function isoOf(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+
+        $('#calNewEvent').on('click', function () {
+            resetEventModal();
+            var t = new Date();
+            $('#apptStartTime').val(isoOf(t));
+            $('#apptEndTime').val(isoOf(t));
+            $('#event_modal').modal('show');
+        });
+
+        $('#eventForm').on('submit', function (e) {
+            e.preventDefault();
+            var form = this;
+            $.post(form.action, $(form).serialize(), function (r) {
+                if (r && r.status === 'success') {
+                    $('#event_modal').modal('hide');
+                    location.reload();
+                } else {
+                    alert((r && r.message) || 'Save failed');
+                }
+            }, 'json').fail(function () { alert('Save failed'); });
+        });
+
+        $('#evDelete').on('click', function () {
+            if (!confirm('Delete this event?')) { return; }
+            $.post('<?php echo base_url(); ?>admin/calendar/delete_event',
+                { calendar_events_id: $('#calendar_events_id').val() },
+                function (r) {
+                    if (r && r.status === 'success') {
+                        $('#event_modal').modal('hide');
+                        location.reload();
+                    } else {
+                        alert((r && r.message) || 'Delete failed');
+                    }
+                }, 'json').fail(function () { alert('Delete failed'); });
+        });
+
+        if ($.fn.datepicker) {
+            $('#eventForm .datepicker').datepicker({ autoclose: true, format: 'yyyy-mm-dd' });
         }
     });
-    
-    // Alternative client-side filtering using event source filtering
-    // This works if calendar is initialized with named sources
-});
 </script>
 
 
