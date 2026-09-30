@@ -98,14 +98,13 @@ font-size: 14px;
 <?php
 echo message_box('success');
 echo message_box('error');
-$curency = $this->admin_model->check_by(array('code' => config_item('default_currency')), 'tbl_currencies');
-$leave_info = $this->db->where('attendance_status', '3')->get('tbl_attendance')->result();
 
 // KPI strip (real data): leave + holidays overlapping the current month
-$kpi_leave = $this->db->where('attendance_status', '3')
+$kpi_leave = $this->db->select('COUNT(DISTINCT user_id) AS c', false)
+        ->where('attendance_status', '3')
         ->where('date_in >=', date('Y-m-01'))
         ->where('date_in <=', date('Y-m-t'))
-        ->count_all_results('tbl_attendance');
+        ->get('tbl_attendance')->row()->c;
 $kpi_holidays = $this->db->where('start_date <=', date('Y-m-t'))
         ->where('end_date >=', date('Y-m-01'))
         ->count_all_results('tbl_holiday');
@@ -148,31 +147,31 @@ $kpi_holidays = $this->db->where('start_date <=', date('Y-m-t'))
                         <?php } ?>
                         <div class="btn-group calendar-filter">
                             <button type="button" class="filter-pill dropdown-toggle" data-toggle="dropdown">
-                                <span class="c-dot"></span><span class="filter-label"><?php echo !empty($searchType) ? lang($searchType) : lang('all'); ?></span> <span class="caret-i">&#9662;</span>
+                                <span class="c-dot"></span><span class="filter-label"><?php echo htmlspecialchars(!empty($searchType) ? lang($searchType) : lang('all')); ?></span> <span class="caret-i">&#9662;</span>
                             </button>
                             <ul class="dropdown-menu pull-right animated zoomIn calendar-dropdown">
                                 <li><a href="javascript:void(0);" class="calendar-filter-link" data-filter="all"><?php echo lang('all'); ?></a></li>
                                 <?php
                                 if (!empty($calendar_categories)) {
+                                    $lang_keys = array(
+                                        'project' => 'project',
+                                        'milestone' => 'milestone',
+                                        'tasks' => 'tasks',
+                                        'bugs' => 'bugs',
+                                        'invoice' => 'invoice',
+                                        'payments' => 'payments',
+                                        'estimate' => 'estimate',
+                                        'opportunities' => 'opportunities',
+                                        'leads' => 'leads',
+                                        'goal' => 'goal_tracking',
+                                        'holiday' => 'holiday',
+                                        'absent' => 'absent',
+                                        'on_leave' => 'on_leave',
+                                        'expenses' => 'expense_schedules',
+                                        'domain' => 'domains',
+                                        'hosting' => 'hosting'
+                                    );
                                     foreach ($calendar_categories as $cat) {
-                                        $lang_keys = array(
-                                            'project' => 'project',
-                                            'milestone' => 'milestone',
-                                            'tasks' => 'tasks',
-                                            'bugs' => 'bugs',
-                                            'invoice' => 'invoice',
-                                            'payments' => 'payments',
-                                            'estimate' => 'estimate',
-                                            'opportunities' => 'opportunities',
-                                            'leads' => 'leads',
-                                            'goal' => 'goal_tracking',
-                                            'holiday' => 'holiday',
-                                            'absent' => 'absent',
-                                            'on_leave' => 'on_leave',
-                                            'expenses' => 'expense_schedules',
-                                            'domain' => 'domains',
-                                            'hosting' => 'hosting'
-                                        );
                                         $lang_key = isset($lang_keys[$cat]) ? $lang_keys[$cat] : $cat;
                                         ?>
                                         <li><a href="javascript:void(0);" class="calendar-filter-link" data-filter="<?php echo $cat; ?>"><?php echo lang($lang_key); ?></a></li>
@@ -198,7 +197,7 @@ $this->load->view("admin/calendar/my_calendar");
 ?>
 
 <!-- New / edit event modal -->
-<div class="modal fade" id="event_modal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" id="event_modal" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="evModalTitle">
     <div class="modal-dialog" role="document">
         <div class="modal-content cal-modal">
             <div class="m-head">
@@ -208,10 +207,10 @@ $this->load->view("admin/calendar/my_calendar");
             <form id="eventForm" method="post" action="<?php echo base_url(); ?>admin/calendar/save_event">
                 <div class="m-body">
                     <input type="hidden" name="calendar_events_id" id="calendar_events_id" value="0">
-                    <div class="f-row"><label>Event title <span class="req">*</span></label>
+                    <div class="f-row"><label for="ev_title">Event title <span class="req">*</span></label>
                         <input type="text" class="inp" name="title" id="ev_title" placeholder="e.g. Client sync - Trigon Labs" required></div>
                     <div class="f-2">
-                        <div class="f-row"><label>Category</label>
+                        <div class="f-row"><label for="ev_category">Category</label>
                             <select class="inp" name="category" id="ev_category">
                                 <option value="project">Project</option>
                                 <option value="milestone">Milestone</option>
@@ -222,7 +221,7 @@ $this->load->view("admin/calendar/my_calendar");
                                 <option value="holiday">Holiday</option>
                                 <option value="on_leave">On leave</option>
                             </select></div>
-                        <div class="f-row"><label>Related to</label>
+                        <div class="f-row"><label for="ev_related">Related to</label>
                             <select class="inp" name="related_id" id="ev_related">
                                 <option value="">None</option>
                                 <?php
@@ -236,22 +235,22 @@ $this->load->view("admin/calendar/my_calendar");
                             </select></div>
                     </div>
                     <div class="f-2">
-                        <div class="f-row"><label>Start date <span class="req">*</span></label>
+                        <div class="f-row"><label for="apptStartTime">Start date <span class="req">*</span></label>
                             <input type="text" class="inp datepicker" name="start_date" id="apptStartTime" required></div>
-                        <div class="f-row"><label>End date</label>
+                        <div class="f-row"><label for="apptEndTime">End date</label>
                             <input type="text" class="inp datepicker" name="end_date" id="apptEndTime"></div>
                     </div>
                     <div class="f-2">
-                        <div class="f-row"><label>Start time</label>
+                        <div class="f-row"><label for="ev_start_time">Start time</label>
                             <input type="text" class="inp" name="start_time" id="ev_start_time" placeholder="10:00 AM"></div>
-                        <div class="f-row"><label>End time</label>
+                        <div class="f-row"><label for="ev_end_time">End time</label>
                             <input type="text" class="inp" name="end_time" id="ev_end_time" placeholder="11:00 AM"></div>
                     </div>
                     <div class="f-row f-checks">
                         <label class="chk"><input type="checkbox" id="apptAllDay" name="all_day" value="1"> All-day event</label>
                         <label class="chk"><input type="checkbox" id="ev_notify" name="notify" value="1" checked> Notify attendees</label>
                     </div>
-                    <div class="f-row"><label>Notes</label>
+                    <div class="f-row"><label for="ev_notes">Notes</label>
                         <textarea class="inp" name="notes" id="ev_notes" placeholder="Agenda, links, preparation..."></textarea></div>
                 </div>
                 <div class="m-foot">
@@ -322,15 +321,22 @@ $this->load->view("admin/calendar/my_calendar");
 
         $('#eventForm').on('submit', function (e) {
             e.preventDefault();
+            var $btn = $('#evSave');
+            if ($btn.prop('disabled')) { return; }
+            $btn.prop('disabled', true);
             var form = this;
             $.post(form.action, $(form).serialize(), function (r) {
                 if (r && r.status === 'success') {
                     $('#event_modal').modal('hide');
                     location.reload();
                 } else {
+                    $btn.prop('disabled', false);
                     alert((r && r.message) || 'Save failed');
                 }
-            }, 'json').fail(function () { alert('Save failed'); });
+            }, 'json').fail(function () {
+                $btn.prop('disabled', false);
+                alert('Save failed');
+            });
         });
 
         $('#evDelete').on('click', function () {
