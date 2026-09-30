@@ -271,14 +271,21 @@ class Calendar extends Admin_Controller
             return;
         }
         $event = $this->db->where('calendar_events_id', $id)->get('tbl_calendar_events')->row();
-        $this->db->where('calendar_events_id', $id)->delete('tbl_calendar_events');
+        if (empty($event)) {
+            $this->json_error('Event not found');
+            return;
+        }
+        if (!$this->db->where('calendar_events_id', $id)->delete('tbl_calendar_events')) {
+            $this->json_error('Could not delete event');
+            return;
+        }
 
         $activity = array(
             'user' => $this->session->userdata('user_id'),
             'module' => 'calendar',
             'module_field_id' => $id,
             'activity' => 'Event Deleted',
-            'value1' => $event ? $event->title : null
+            'value1' => $event->title
         );
 
         $this->admin_model->_table_name = 'tbl_activities';
