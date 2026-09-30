@@ -142,4 +142,62 @@ class Calendar extends Admin_Controller
         }
     }
 
+    public function save_event()
+    {
+        $title = trim((string) $this->input->post('title'));
+        $start_date = trim((string) $this->input->post('start_date'));
+        $id = (int) $this->input->post('calendar_events_id');
+
+        if ($title === '' || $start_date === '' || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $start_date)) {
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode(array('status' => 'error', 'message' => 'Title and a valid start date are required')));
+            return;
+        }
+
+        $row = array(
+            'title'        => $title,
+            'category'     => in_array($this->input->post('category'), array('project', 'milestone', 'tasks', 'bugs', 'invoice', 'payments', 'holiday', 'on_leave'), true) ? $this->input->post('category') : 'project',
+            'start_date'   => $start_date,
+            'end_date'     => trim((string) $this->input->post('end_date')) !== '' ? $this->input->post('end_date') : $start_date,
+            'start_time'   => (string) $this->input->post('start_time'),
+            'end_time'     => (string) $this->input->post('end_time'),
+            'all_day'      => $this->input->post('all_day') ? 1 : 0,
+            'notify'       => $this->input->post('notify') ? 1 : 0,
+            'related_type' => $this->input->post('related_id') ? 'project' : null,
+            'related_id'   => $this->input->post('related_id') ? (int) $this->input->post('related_id') : null,
+            'notes'        => (string) $this->input->post('notes'),
+        );
+
+        if ($id > 0) {
+            $this->db->where('calendar_events_id', $id)->update('tbl_calendar_events', $row);
+            $message = 'Event updated';
+        } else {
+            $row['created_by'] = (int) $this->session->userdata('user_id');
+            $row['created_at'] = date('Y-m-d H:i:s');
+            $this->db->insert('tbl_calendar_events', $row);
+            $id = (int) $this->db->insert_id();
+            $message = 'Event created';
+        }
+
+        $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode(array('status' => 'success', 'id' => $id, 'message' => $message)));
+    }
+
+    public function delete_event()
+    {
+        $id = (int) $this->input->post('calendar_events_id');
+        if ($id <= 0) {
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode(array('status' => 'error', 'message' => 'Missing event id')));
+            return;
+        }
+        $this->db->where('calendar_events_id', $id)->delete('tbl_calendar_events');
+        $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode(array('status' => 'success', 'message' => 'Event deleted')));
+    }
+
 }
