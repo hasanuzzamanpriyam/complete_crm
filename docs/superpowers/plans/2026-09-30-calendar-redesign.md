@@ -76,7 +76,16 @@ $baseUrl = rtrim($opts['base'] ?? 'http://localhost/complete_crm', '/');
 $user = 'forid';
 $pass = 'Admin@123';
 
+$errorPattern = '/Fatal error|Parse error|Uncaught\s|<b>Warning\b|<b>Notice\b|'
+              . 'Allowed memory size|Cannot redeclare|Call to undefined|'
+              . 'mysqli_sql_exception|SQLSTATE\[/i';
+
 $cookieJar = (getenv('TEMP') ?: sys_get_temp_dir()) . '/tic_crm_cal_' . getmypid() . '.jar';
+
+if (!function_exists('curl_init')) {
+    fwrite(STDERR, "FATAL: the PHP curl extension is required.\n");
+    exit(1);
+}
 
 function request(string $method, string $url, array $post = []): array
 {
@@ -102,12 +111,14 @@ function request(string $method, string $url, array $post = []): array
     if ($raw === false) {
         $err = curl_error($ch);
         curl_close($ch);
+        unset($ch);
         return ['error' => $err, 'status' => 0, 'body' => ''];
     }
     $headerLen = (int) curl_getinfo($ch, CURLINFO_HEADER_SIZE);
     $status = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $body = substr($raw, $headerLen);
     curl_close($ch);
+    unset($ch);
     $set = [];
     if (is_file($cookieJar)) {
         foreach (file($cookieJar, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
@@ -128,12 +139,13 @@ $login = request('POST', $baseUrl . '/login', [
 ]);
 if (empty($login['cookie']['uniquecoder']) || strlen($login['cookie']['uniquecoder']) < 10) {
     fwrite(STDERR, "FATAL: login produced no session cookie.\n");
+    if (is_file($cookieJar)) { @unlink($cookieJar); }
     exit(1);
 }
 
 $checks = [];
 $titleOld = 'Plan e2e event ' . date('His');
-$titleNew = $titleOld . ' edited';
+$titleNew = 'Plan e2e edited ' . date('His');
 $today = date('Y-m-d');
 $createdId = 0;
 
@@ -155,6 +167,9 @@ $checks['save_event creates an event'] =
         ? null : 'response: ' . substr($res['body'], 0, 200);
 if (is_array($json) && isset($json['id'])) {
     $createdId = (int) $json['id'];
+}
+if ($createdId === 0 && preg_match('/"id"\s*:\s*(\d+)/', $res['body'], $m)) {
+    $createdId = (int) $m[1];
 }
 
 // 2. appears on the calendar page
@@ -205,7 +220,7 @@ if ($createdId > 0) {
 
 // 6. page health
 $checks['calendar page has no PHP errors'] =
-    preg_match('/Fatal error|Parse error|Uncaught\s|<b>Warning\b|<b>Notice\b/i', $page['body'])
+    preg_match($errorPattern, $page['body'])
         ? 'PHP error text present' : null;
 
 // teardown (best effort, in case an assertion failed mid-run)
@@ -227,6 +242,7 @@ foreach ($checks as $name => $reason) {
 }
 echo str_repeat('=', 76) . "\n";
 printf("%d assertions — %d passed, %d failed\n", count($checks), count($checks) - $fail, $fail);
+if (is_file($cookieJar)) { @unlink($cookieJar); }
 exit($fail === 0 ? 0 : 1);
 ```
 
@@ -235,7 +251,7 @@ exit($fail === 0 ? 0 : 1);
 ```bash
 C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe plan\_tools\calendar-event-test.php
 ```
-Expected: FAIL on `save_event creates an event` (route missing → HTML 404, `json_decode` null) and the dependent assertions. This is the red state.
+Expected: FAIL on `save_event creates an event` (route missing → HTML 404, `json_decode` null) and the dependent assertions. This is the red state. Exact final line: `4 assertions — 1 passed, 3 failed`.
 
 ---
 
@@ -315,12 +331,12 @@ C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe -l application\controllers\
 ```
 Expected: `No syntax errors detected`.
 
-- [ ] **Step 3: Run the test — expect PASS (green)**
+- [ ] **Step 3: Run the test — endpoint assertions go green (render ones stay red until Task 5)**
 
 ```bash
 C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe plan\_tools\calendar-event-test.php
 ```
-Expected: `9 assertions — 9 passed, 0 failed`.
+Expected: `8 assertions — 6 passed, 2 failed`. Passing: create, update, validation, delete, delete-removes-render (trivially), health. Still failing: `created event renders on the calendar page` and `updated title replaces the old one` — both need the manual event source from Task 5 Step 4 to render titles into the page. Full `8 passed, 0 failed` comes after Task 5.
 
 - [ ] **Step 4: Commit**
 
@@ -762,7 +778,7 @@ Expected: `No syntax errors detected`.
 ```bash
 C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe plan\_tools\calendar-event-test.php
 ```
-Expected: PASS (page loads, CRUD intact — the source block edit didn't break PHP).
+Expected: `8 assertions — 8 passed, 0 failed` (page loads, CRUD intact, manual source renders titles into the page).
 
 - [ ] **Step 8: Commit**
 
@@ -1131,7 +1147,7 @@ C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe plan\_tools\smoke.php
 C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe plan\_tools\login-test.php
 C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe plan\_tools\calendar-event-test.php
 ```
-Expected: 59/59, 22/22, 7/7, 9/9 — 0 failures.
+Expected: 59/59, 22/22, 7/7, 8/8 — 0 failures.
 
 - [ ] **Step 3: Commit + push**
 
