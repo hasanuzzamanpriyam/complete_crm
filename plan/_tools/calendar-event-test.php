@@ -23,7 +23,16 @@ $baseUrl = rtrim($opts['base'] ?? 'http://localhost/complete_crm', '/');
 $user = 'forid';
 $pass = 'Admin@123';
 
+$errorPattern = '/Fatal error|Parse error|Uncaught\s|<b>Warning\b|<b>Notice\b|'
+              . 'Allowed memory size|Cannot redeclare|Call to undefined|'
+              . 'mysqli_sql_exception|SQLSTATE\[/i';
+
 $cookieJar = (getenv('TEMP') ?: sys_get_temp_dir()) . '/tic_crm_cal_' . getmypid() . '.jar';
+
+if (!function_exists('curl_init')) {
+    fwrite(STDERR, "FATAL: the PHP curl extension is required.\n");
+    exit(1);
+}
 
 function request(string $method, string $url, array $post = []): array
 {
@@ -77,12 +86,13 @@ $login = request('POST', $baseUrl . '/login', [
 ]);
 if (empty($login['cookie']['uniquecoder']) || strlen($login['cookie']['uniquecoder']) < 10) {
     fwrite(STDERR, "FATAL: login produced no session cookie.\n");
+    if (is_file($cookieJar)) { @unlink($cookieJar); }
     exit(1);
 }
 
 $checks = [];
 $titleOld = 'Plan e2e event ' . date('His');
-$titleNew = $titleOld . ' edited';
+$titleNew = 'Plan e2e edited ' . date('His');
 $today = date('Y-m-d');
 $createdId = 0;
 
@@ -104,6 +114,9 @@ $checks['save_event creates an event'] =
         ? null : 'response: ' . substr($res['body'], 0, 200);
 if (is_array($json) && isset($json['id'])) {
     $createdId = (int) $json['id'];
+}
+if ($createdId === 0 && preg_match('/"id"\s*:\s*(\d+)/', $res['body'], $m)) {
+    $createdId = (int) $m[1];
 }
 
 // 2. appears on the calendar page
@@ -154,7 +167,7 @@ if ($createdId > 0) {
 
 // 6. page health
 $checks['calendar page has no PHP errors'] =
-    preg_match('/Fatal error|Parse error|Uncaught\s|<b>Warning\b|<b>Notice\b/i', $page['body'])
+    preg_match($errorPattern, $page['body'])
         ? 'PHP error text present' : null;
 
 // teardown (best effort, in case an assertion failed mid-run)
@@ -176,4 +189,5 @@ foreach ($checks as $name => $reason) {
 }
 echo str_repeat('=', 76) . "\n";
 printf("%d assertions — %d passed, %d failed\n", count($checks), count($checks) - $fail, $fail);
+if (is_file($cookieJar)) { @unlink($cookieJar); }
 exit($fail === 0 ? 0 : 1);
