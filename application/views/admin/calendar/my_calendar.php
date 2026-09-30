@@ -1,5 +1,5 @@
 <link href="<?php echo base_url() ?>assets/plugins/fullcalendar/fullcalendar.min.css" rel="stylesheet" type="text/css">
-<link href="<?php echo base_url() ?>assets/css/calendar_modern.css?v=2" rel="stylesheet" type="text/css">
+<link href="<?php echo base_url() ?>assets/css/calendar_modern.css?v=3" rel="stylesheet" type="text/css">
 <?php
 $curency = $this->admin_model->check_by(array('code' => config_item('default_currency')), 'tbl_currencies');
 $gcal_api_key = config_item('gcal_api_key');
