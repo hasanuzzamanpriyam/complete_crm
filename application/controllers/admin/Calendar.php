@@ -142,43 +142,121 @@ class Calendar extends Admin_Controller
         }
     }
 
+    private function json_error($message)
+    {
+        $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode(array('status' => 'error', 'message' => $message)));
+    }
+
     public function save_event()
     {
-        $title = trim((string) $this->input->post('title'));
-        $start_date = trim((string) $this->input->post('start_date'));
-        $id = (int) $this->input->post('calendar_events_id');
+        $fields = array('title', 'notes', 'start_date', 'end_date', 'start_time', 'end_time', 'category', 'related_id', 'all_day', 'notify', 'calendar_events_id');
+        $post = array();
+        foreach ($fields as $field) {
+            $value = $this->input->post($field);
+            if ($value !== NULL && !is_scalar($value)) {
+                $this->json_error('Invalid input');
+                return;
+            }
+            $post[$field] = $value;
+        }
 
-        if ($title === '' || $start_date === '' || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $start_date)) {
-            $this->output
-                ->set_content_type('application/json')
-                ->set_output(json_encode(array('status' => 'error', 'message' => 'Title and a valid start date are required')));
+        $title = trim((string) $post['title']);
+        $start_date = trim((string) $post['start_date']);
+        $end_date = trim((string) $post['end_date']);
+        $start_time = trim((string) $post['start_time']);
+        $end_time = trim((string) $post['end_time']);
+        $id = (int) $post['calendar_events_id'];
+
+        if ($title === '' || $start_date === '') {
+            $this->json_error('Title and a valid start date are required');
             return;
         }
+        if (strlen($title) > 255) {
+            $this->json_error('Title must be 255 characters or fewer');
+            return;
+        }
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $start_date)
+            || ($d = DateTime::createFromFormat('Y-m-d', $start_date)) === FALSE
+            || $d->format('Y-m-d') !== $start_date) {
+            $this->json_error('Invalid start date');
+            return;
+        }
+        if ($end_date !== '') {
+            if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $end_date)
+                || ($d = DateTime::createFromFormat('Y-m-d', $end_date)) === FALSE
+                || $d->format('Y-m-d') !== $end_date) {
+                $this->json_error('Invalid end date');
+                return;
+            }
+            if ($end_date < $start_date) {
+                $this->json_error('End date must be on or after the start date');
+                return;
+            }
+        }
+        if (strlen($start_time) > 10) {
+            $this->json_error('Start time must be 10 characters or fewer');
+            return;
+        }
+        if (strlen($end_time) > 10) {
+            $this->json_error('End time must be 10 characters or fewer');
+            return;
+        }
+        $end_date = $end_date !== '' ? $end_date : $start_date;
+
+        $allowed_categories = array('project', 'milestone', 'tasks', 'bugs', 'invoice', 'payments', 'holiday', 'on_leave');
+        $category = in_array($post['category'], $allowed_categories, true) ? $post['category'] : 'project';
 
         $row = array(
             'title'        => $title,
-            'category'     => in_array($this->input->post('category'), array('project', 'milestone', 'tasks', 'bugs', 'invoice', 'payments', 'holiday', 'on_leave'), true) ? $this->input->post('category') : 'project',
+            'category'     => $category,
             'start_date'   => $start_date,
-            'end_date'     => trim((string) $this->input->post('end_date')) !== '' ? $this->input->post('end_date') : $start_date,
-            'start_time'   => (string) $this->input->post('start_time'),
-            'end_time'     => (string) $this->input->post('end_time'),
-            'all_day'      => $this->input->post('all_day') ? 1 : 0,
-            'notify'       => $this->input->post('notify') ? 1 : 0,
-            'related_type' => $this->input->post('related_id') ? 'project' : null,
-            'related_id'   => $this->input->post('related_id') ? (int) $this->input->post('related_id') : null,
-            'notes'        => (string) $this->input->post('notes'),
+            'end_date'     => $end_date,
+            'start_time'   => $start_time,
+            'end_time'     => $end_time,
+            'all_day'      => $post['all_day'] ? 1 : 0,
+            'notify'       => $post['notify'] ? 1 : 0,
+            'related_type' => $post['related_id'] ? 'project' : null,
+            'related_id'   => $post['related_id'] ? (int) $post['related_id'] : null,
+            'notes'        => (string) $post['notes'],
         );
 
         if ($id > 0) {
-            $this->db->where('calendar_events_id', $id)->update('tbl_calendar_events', $row);
+            $exists = $this->db->where('calendar_events_id', $id)->count_all_results('tbl_calendar_events') > 0;
+            if (!$exists) {
+                $this->json_error('Event not found');
+                return;
+            }
+            if (!$this->db->where('calendar_events_id', $id)->update('tbl_calendar_events', $row)) {
+                $this->json_error('Could not save event');
+                return;
+            }
             $message = 'Event updated';
+            $activity_key = 'active_event_updated';
         } else {
             $row['created_by'] = (int) $this->session->userdata('user_id');
             $row['created_at'] = date('Y-m-d H:i:s');
-            $this->db->insert('tbl_calendar_events', $row);
+            if (!$this->db->insert('tbl_calendar_events', $row)) {
+                $this->json_error('Could not save event');
+                return;
+            }
             $id = (int) $this->db->insert_id();
             $message = 'Event created';
+            $activity_key = 'active_event_saved';
         }
+
+        $activity = array(
+            'user' => $this->session->userdata('user_id'),
+            'module' => 'calendar',
+            'module_field_id' => $id,
+            'activity' => $activity_key,
+            'value1' => $title
+        );
+
+        $this->admin_model->_table_name = 'tbl_activities';
+        $this->admin_model->_primary_key = 'activities_id';
+        $this->admin_model->save($activity);
 
         $this->output
             ->set_content_type('application/json')
@@ -189,12 +267,24 @@ class Calendar extends Admin_Controller
     {
         $id = (int) $this->input->post('calendar_events_id');
         if ($id <= 0) {
-            $this->output
-                ->set_content_type('application/json')
-                ->set_output(json_encode(array('status' => 'error', 'message' => 'Missing event id')));
+            $this->json_error('Missing event id');
             return;
         }
+        $event = $this->db->where('calendar_events_id', $id)->get('tbl_calendar_events')->row();
         $this->db->where('calendar_events_id', $id)->delete('tbl_calendar_events');
+
+        $activity = array(
+            'user' => $this->session->userdata('user_id'),
+            'module' => 'calendar',
+            'module_field_id' => $id,
+            'activity' => 'Event Deleted',
+            'value1' => $event ? $event->title : null
+        );
+
+        $this->admin_model->_table_name = 'tbl_activities';
+        $this->admin_model->_primary_key = 'activities_id';
+        $this->admin_model->save($activity);
+
         $this->output
             ->set_content_type('application/json')
             ->set_output(json_encode(array('status' => 'success', 'message' => 'Event deleted')));
