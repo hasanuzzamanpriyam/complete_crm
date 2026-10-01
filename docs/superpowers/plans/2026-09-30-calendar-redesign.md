@@ -1166,3 +1166,15 @@ Only stage the six files above — `_design/*.png`, `.superpowers/`, `docs/` art
 1. **Spec coverage:** page restructure → Task 4; FC theming + cache buster → Tasks 5/6; KPI (client counts + leave/holiday SQL) → Tasks 4/5; settings modal → Task 7 (fields/actions/colorpickers preserved); event modal + table + endpoints + source + edit/delete → Tasks 1/2/3/4/5; error handling (JSON validation errors, confirm delete) → Task 3/4; testing (gates + e2e + browser vs mockup) → Tasks 8/9. Gap found & fixed: spec's `yyyy/MM/dd` legacy format cell updated to ISO `yyyy-mm-dd` (datepicker/DB format).
 2. **Placeholder scan:** no TBD/TODO; every code step carries complete code.
 3. **Type consistency:** `calendar_events_id` (PK/POST field), `save_event`/`delete_event` routes, `#kpiEvents/#kpiUpcoming` ids, `updateCalendarKpis()` name and `cal_id`/`ev_*` event props are identical across Tasks 3-5; `resetEventModal` is defined global in Task 4 and consumed in Task 5.
+
+---
+
+## Amendments made during execution (code review findings)
+
+The code blocks above are the AS-WRITTEN plan; final implementations differ where review found bugs. Source of truth = the committed code. Key deltas:
+
+- **Task 2 test (inline-synced earlier):** `unset($ch)` after `curl_close` (PHP 8 jar flush), disjoint `$titleNew`, cookie-jar `unlink` on both exits, smoke.php `$errorPattern`, id regex fallback, curl guard.
+- **Task 3 endpoints:** raw-post scalar guard (`Invalid input`), title ≤255, real-date `DateTime` roundtrip validation for start/end, `end >= start`, time ≤10 chars, existence check (`Event not found`) + `insert/update/delete` return checks, private `json_error()` helper, `tbl_activities` audit rows on create/update/delete (delete skips audit when event missing).
+- **Task 4 view:** label `for=` attrs + `aria-labelledby`, leave KPI = `COUNT(DISTINCT user_id)` headcount, `htmlspecialchars(lang($searchType))`, `$lang_keys` hoisted, dead `$curency`/`$leave_info` removed, double-submit guard on `#evSave`. i18n decision: new strings stay English (existing lang keys context-drifted, e.g. `category`='All Category'; 25-language translation out of scope).
+- **Task 5 FC wiring:** init guard in `updateCalendarKpis` (`eventAfterAllRender` fires synchronously during init before `var calendar` assigned) + seed call after wiring; manual source emits `Y-m-d H:i:s` start/end when timed (`!all_day && start_time`), omits `end` when timed without end time; manual events gated by `$searchType` via singular/plural map (`projects→project`, …, unmapped → no manual events); hardened `json_encode` on `ev_start_time`/`ev_end_time`; `#ev_related` null-guard.
+- **Task 6 note:** `.cal-card` border needs `!important` (bg-white/bg-dark themes define `.card { border … !important }` and the section keeps `class="card cal-card"`).
