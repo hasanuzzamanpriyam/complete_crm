@@ -284,7 +284,7 @@ class Calendar extends Admin_Controller
             'user' => $this->session->userdata('user_id'),
             'module' => 'calendar',
             'module_field_id' => $id,
-            'activity' => 'Event Deleted',
+            'activity' => 'active_event_deleted',
             'value1' => $event->title
         );
 

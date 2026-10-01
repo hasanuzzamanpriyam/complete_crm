@@ -1,5 +1,5 @@
 <link href="<?php echo base_url() ?>assets/plugins/fullcalendar/fullcalendar.min.css" rel="stylesheet" type="text/css">
-<link href="<?php echo base_url() ?>assets/css/calendar_modern.css?v=3" rel="stylesheet" type="text/css">
+<link href="<?php echo base_url() ?>assets/css/calendar_modern.css?v=4" rel="stylesheet" type="text/css">
 <?php
 $curency = $this->admin_model->check_by(array('code' => config_item('default_currency')), 'tbl_currencies');
 $gcal_api_key = config_item('gcal_api_key');
@@ -660,7 +660,7 @@ $gcal_id = config_item('gcal_id');
                                     start: "<?= $me_start ?>",
                                     <?php if ($me_emit_end) { ?>end: "<?= $me_end_value ?>",
                                     <?php } ?>color: "<?= $me_color ?>",
-                                    allDay: <?= $me->all_day ? 'true' : 'false' ?>,
+                                    allDay: <?= ($me->all_day || (trim((string) $me->start_time) === '' && trim((string) $me->end_time) === '')) ? 'true' : 'false' ?>,
                                     type: "manual",
                                     cal_id: <?= (int) $me->calendar_events_id ?>,
                                     ev_category: "<?= $me->category ?>",
@@ -681,8 +681,14 @@ $gcal_id = config_item('gcal_id');
             });
             function updateCalendarKpis() {
                 if (typeof moment === 'undefined' || typeof calendar === 'undefined' || !calendar) { return; }
-                var evs = calendar.fullCalendar('clientEvents');
+                var view = null;
+                try { view = calendar.fullCalendar('getView'); } catch (e) { view = null; }
                 var now = moment();
+                if (!view || !view.intervalStart || !view.intervalEnd ||
+                    now.isBefore(view.intervalStart) || !now.isBefore(view.intervalEnd)) {
+                    return;
+                }
+                var evs = calendar.fullCalendar('clientEvents');
                 var mStart = now.clone().startOf('month');
                 var mEnd = now.clone().endOf('month');
                 var wStart = now.clone().startOf('day');

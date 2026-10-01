@@ -340,7 +340,10 @@ $this->load->view("admin/calendar/my_calendar");
         });
 
         $('#evDelete').on('click', function () {
+            var $btn = $(this);
+            if ($btn.prop('disabled')) { return; }
             if (!confirm('Delete this event?')) { return; }
+            $btn.prop('disabled', true);
             $.post('<?php echo base_url(); ?>admin/calendar/delete_event',
                 { calendar_events_id: $('#calendar_events_id').val() },
                 function (r) {
@@ -348,9 +351,13 @@ $this->load->view("admin/calendar/my_calendar");
                         $('#event_modal').modal('hide');
                         location.reload();
                     } else {
+                        $btn.prop('disabled', false);
                         alert((r && r.message) || 'Delete failed');
                     }
-                }, 'json').fail(function () { alert('Delete failed'); });
+                }, 'json').fail(function () {
+                    $btn.prop('disabled', false);
+                    alert('Delete failed');
+                });
         });
 
         if ($.fn.datepicker) {

@@ -187,6 +187,7 @@ $lang['color'] = 'Color';
 $lang['this_information_exist'] = 'This Information Already Exist';
 $lang['active_event_saved'] = 'Event Added';
 $lang['active_event_updated'] = 'Event Updated';
+$lang['active_event_deleted'] = 'Event Deleted';
 $lang['holiday_information_saved'] = 'Holiday Information successfully Update';
 $lang['activity_delete_holiday'] = 'Holiday Information Deleted';
 $lang['holoday_information_delete'] = 'Holiday information successfully Deleted';
