@@ -64,6 +64,13 @@ class Woocommerce extends Admin_Controller
     {
         $data['title'] = lang('products');
         $data['active'] = 1;
+        $data['kpi'] = array(
+            array('cls' => 'cyan', 'icon' => '&#128230;', 'val' => number_format($this->db->count_all('tbl_woocommerce_products')), 'label' => lang('kpi_total_products')),
+            array('cls' => 'ok', 'icon' => '&#10003;', 'val' => number_format($this->db->where('status', 'publish')->count_all_results('tbl_woocommerce_products')), 'label' => lang('kpi_published')),
+            array('cls' => 'amb', 'icon' => '&#9998;', 'val' => number_format($this->db->where('status', 'draft')->count_all_results('tbl_woocommerce_products')), 'label' => lang('kpi_draft')),
+            array('cls' => 'pur', 'icon' => '&#36;', 'val' => number_format((float) $this->db->query("SELECT COALESCE(SUM(sales + 0), 0) AS s FROM tbl_woocommerce_products")->row()->s), 'label' => lang('kpi_total_sales')),
+        );
+        $data['woo_stores'] = $this->db->order_by('store_name', 'ASC')->get('tbl_woocommerce_stores')->result();
         $data['subview'] = $this->load->view('woocommerce/products', $data, TRUE);
         $this->load->view('admin/_layout_main', $data);
     }
@@ -177,34 +184,63 @@ class Woocommerce extends Admin_Controller
         if ($this->input->is_ajax_request()) {
             $this->load->model('datatables');
             $this->datatables->table = 'tbl_woocommerce_products';
-            $action_array = array('tbl_woocommerce_products.id');
-            $main_column = array('sku', 'name', 'category', 'status', 'price', 'sales', 'picture');
-            $result = array_merge($main_column, $action_array);
-            $this->datatables->column_order = $result;
-            $this->datatables->column_search = $result;
-            $fetch_data = make_datatables();
+            $this->datatables->join_table = array('tbl_woocommerce_stores');
+            $this->datatables->join_where = array('tbl_woocommerce_products.store_id=tbl_woocommerce_stores.store_id');
+            $this->datatables->select = 'tbl_woocommerce_products.*,tbl_woocommerce_stores.store_name as store_name';
+            $this->datatables->column_order = array(
+                'tbl_woocommerce_products.name',
+                'tbl_woocommerce_products.price',
+                'tbl_woocommerce_products.sales',
+                'tbl_woocommerce_products.status',
+                'tbl_woocommerce_stores.store_name',
+                'tbl_woocommerce_products.id',
+            );
+            $this->datatables->column_search = array(
+                'tbl_woocommerce_products.name',
+                'tbl_woocommerce_products.sku',
+                'tbl_woocommerce_products.category',
+                'tbl_woocommerce_products.status',
+                'tbl_woocommerce_products.price',
+                'tbl_woocommerce_products.sales',
+                'tbl_woocommerce_stores.store_name',
+                'tbl_woocommerce_products.id',
+            );
+            $where = array();
+            if (!empty($_POST['woo_status'])) {
+                $where['tbl_woocommerce_products.status'] = $_POST['woo_status'];
+            }
+            if (!empty($_POST['woo_store'])) {
+                $where['tbl_woocommerce_products.store_id'] = $_POST['woo_store'];
+            }
+            $fetch_data = make_datatables($where);
             $data = array();
             foreach ($fetch_data as $_key => $v_announcements) {
-                $action = null;
+                $e = function ($x) { return htmlspecialchars((string) $x, ENT_QUOTES, 'UTF-8'); };
                 $sub_array = array();
-                $sub_array[] = $v_announcements->name;
-                $sub_array[] = $v_announcements->status;
-                $sub_array[] = $v_announcements->price;
-                $sub_array[] = $v_announcements->sales;
-                $sub_array[] = $v_announcements->picture;
-                $action .= '<a target="_blank" href="' . $v_announcements->permalink . '"
-                               class="btn btn-primary btn-xs"><span class="fa fa-list-alt"></span></a>  ';
-                $action .= '<a href="' . base_url() . 'woocommerce/edit_products/' . $v_announcements->id . '"
-                               class="btn btn-primary btn-xs" title="' . lang('edit') . '" data-toggle="modal"
-                               data-target="#myModal_lg"><span class="fa fa-pencil-square-o"></span></a>  ';
-                $action .= '<a href="' . base_url() . 'woocommerce/delete/products/' . $v_announcements->product_id . '/' . $v_announcements->id . '"
-                               class="btn btn-danger btn-xs" title="' . lang('delete') . '" ><span class="fa fa-trash-o"></span></a>  ';
-                
-                
+                $sub_array[] = '<div class="cell-main">'
+                    . '<img class="thumb" src="' . $e($v_announcements->picture) . '" alt=""'
+                    . ' onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'grid\'">'
+                    . '<div class="thumb-fb">' . woo_initials($v_announcements->name) . '</div>'
+                    . '<div><div class="nm">' . $e($v_announcements->name) . '</div>'
+                    . '<div class="sub">' . $e(woo_product_sub($v_announcements->sku, $v_announcements->category)) . '</div></div>'
+                    . '</div>';
+                $sub_array[] = '<span class="num">' . display_money($v_announcements->price, '$') . '</span>';
+                $sub_array[] = '<span class="num col-soft">' . number_format((int) $v_announcements->sales) . '</span>';
+                $sub_array[] = woo_pill($v_announcements->status);
+                $sub_array[] = woo_store_tag($v_announcements->store_name);
+                $action = '<div class="acts">';
+                $action .= '<a target="_blank" href="' . $e($v_announcements->permalink) . '"'
+                    . ' class="btn btn-primary btn-xs" title="' . lang('view') . '"><span class="fa fa-list-alt"></span></a> ';
+                $action .= '<a href="' . base_url() . 'woocommerce/edit_products/' . $v_announcements->id . '"'
+                    . ' class="btn btn-primary btn-xs" title="' . lang('edit') . '" data-toggle="modal"'
+                    . ' data-target="#myModal_lg"><span class="fa fa-pencil-square-o"></span></a> ';
+                $action .= '<a href="' . base_url() . 'woocommerce/delete/products/' . $v_announcements->product_id . '/' . $v_announcements->id . '"'
+                    . ' class="btn btn-danger btn-xs" title="' . lang('delete') . '"><span class="fa fa-trash-o"></span></a>';
+                $action .= '</div>';
                 $sub_array[] = $action;
                 $data[] = $sub_array;
             }
-            render_table($data);
+            render_table($data, $where);
         } else {
             redirect('admin/dashboard');
         }
