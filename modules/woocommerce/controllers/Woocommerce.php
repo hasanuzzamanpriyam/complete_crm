@@ -21,6 +21,13 @@ class Woocommerce extends Admin_Controller
     public function orders()
     {
         $data['title'] = lang('orders');
+        $data['kpi'] = array(
+            array('cls' => 'cyan', 'icon' => '&#128722;', 'val' => number_format($this->db->count_all('tbl_woocommerce_orders')), 'label' => lang('kpi_total_orders')),
+            array('cls' => 'ok', 'icon' => '&#36;', 'val' => '$' . number_format((float) $this->db->query("SELECT COALESCE(SUM(total + 0), 0) AS s FROM tbl_woocommerce_orders WHERE status = 'completed'")->row()->s, 2), 'label' => lang('kpi_revenue_completed')),
+            array('cls' => 'amb', 'icon' => '&#8987;', 'val' => number_format($this->db->where_in('status', array('pending', 'processing', 'on-hold'))->count_all_results('tbl_woocommerce_orders')), 'label' => lang('kpi_pending_processing')),
+            array('cls' => 'ok', 'icon' => '&#10003;', 'val' => number_format($this->db->where('status', 'completed')->count_all_results('tbl_woocommerce_orders')), 'label' => lang('kpi_completed')),
+        );
+        $data['woo_stores'] = $this->db->order_by('store_name', 'ASC')->get('tbl_woocommerce_stores')->result();
         $data['subview'] = $this->load->view('woocommerce/orders', $data, TRUE);
         $this->load->view('admin/_layout_main', $data);
     }
@@ -475,40 +482,73 @@ class Woocommerce extends Admin_Controller
         if ($this->input->is_ajax_request()) {
             $this->load->model('datatables');
             $this->datatables->table = 'tbl_woocommerce_orders';
-            $this->datatables->join_table = array('tbl_woocommerce_customers');
-            $this->datatables->join_where = array('tbl_woocommerce_orders.customer_id=tbl_woocommerce_customers.woo_customer_id');
-            $this->datatables->select = 'tbl_woocommerce_orders.*,tbl_woocommerce_orders.id as orderID ,tbl_woocommerce_customers.*';
-            
-            $action_array = array('tbl_woocommerce_orders.id');
-            $main_column = array('order_number', 'address', 'phone', 'status', 'total', 'date_created', 'currency');
-            $result = array_merge($main_column, $action_array);
-            $this->datatables->column_order = $result;
-            $this->datatables->column_search = $result;
-            $fetch_data = make_datatables();
+            $this->datatables->join_table = array('tbl_woocommerce_customers', 'tbl_woocommerce_stores');
+            $this->datatables->join_where = array(
+                'tbl_woocommerce_orders.customer_id=tbl_woocommerce_customers.woo_customer_id AND tbl_woocommerce_customers.store_id=tbl_woocommerce_orders.store_id', // D8: scope customer join per store (kills 1913-vs-1496 fan-out)
+                'tbl_woocommerce_orders.store_id=tbl_woocommerce_stores.store_id',
+            );
+            $this->datatables->select = 'tbl_woocommerce_orders.*,tbl_woocommerce_orders.id as orderID,tbl_woocommerce_customers.*,tbl_woocommerce_customers.phone as customer_phone,tbl_woocommerce_stores.store_name as store_name';
+            // D9: every column qualified (unqualified `phone` is ambiguous between orders + customers)
+            $this->datatables->column_order = array(
+                'tbl_woocommerce_orders.order_number',
+                'tbl_woocommerce_customers.last_name',
+                'tbl_woocommerce_stores.store_name',
+                'tbl_woocommerce_orders.total',
+                'tbl_woocommerce_orders.status',
+                'tbl_woocommerce_orders.date_created',
+                'tbl_woocommerce_orders.id',
+            );
+            $this->datatables->column_search = array(
+                'tbl_woocommerce_orders.order_number',
+                'tbl_woocommerce_customers.first_name',
+                'tbl_woocommerce_customers.last_name',
+                'tbl_woocommerce_customers.email',
+                'tbl_woocommerce_customers.username',
+                'tbl_woocommerce_orders.address',
+                'tbl_woocommerce_orders.phone',
+                'tbl_woocommerce_orders.status',
+                'tbl_woocommerce_orders.total',
+                'tbl_woocommerce_orders.date_created',
+                'tbl_woocommerce_orders.currency',
+                'tbl_woocommerce_stores.store_name',
+                'tbl_woocommerce_orders.id',
+            );
+            $where = array();
+            if (!empty($_POST['woo_status'])) {
+                $where['tbl_woocommerce_orders.status'] = $_POST['woo_status'];
+            }
+            if (!empty($_POST['woo_store'])) {
+                $where['tbl_woocommerce_orders.store_id'] = $_POST['woo_store'];
+            }
+            $fetch_data = make_datatables($where);
             $data = array();
             foreach ($fetch_data as $_key => $v_announcements) {
-                $action = null;
+                $e = function ($x) { return htmlspecialchars((string) $x, ENT_QUOTES, 'UTF-8'); };
+                $name = trim($v_announcements->first_name . ' ' . $v_announcements->last_name);
+                $sub = $v_announcements->email ?: $v_announcements->customer_phone ?: explode(',', $v_announcements->address)[0];
+                $sub = trim((string) $sub) !== '' ? $sub : '—';
                 $sub_array = array();
-                $sub_array[] = $v_announcements->order_number;
-                
-                $sub_array[] = $v_announcements->first_name . ' ' . $v_announcements->last_name;
-                $sub_array[] = $v_announcements->address;
-                $sub_array[] = $v_announcements->phone;
-                $sub_array[] = $v_announcements->currency . ' ' . $v_announcements->total;
-                $sub_array[] = display_date($v_announcements->date_created);
-                $sub_array[] = $v_announcements->status;
-                
-                $action .= '<a href="' . base_url() . 'admin/woocommerce/order/' . $v_announcements->order_id . '"
-                               class="btn btn-primary btn-xs" title="' . lang('view') . '"><span class="fa fa-list-alt"></span></a>  ';
-                $action .= '<a href="' . base_url() . 'admin/woocommerce/edit_orders/' . $v_announcements->orderID . '"
-                               class="btn btn-primary btn-xs" title="' . lang('edit') . '" data-toggle="modal"
-                               data-target="#myModal_lg"><span class="fa fa-pencil-square-o"></span></a>  ';
-                $action .= '<a href="' . base_url() . 'admin/woocommerce/delete/orders/' . $v_announcements->order_id . "/" . $v_announcements->id . '"
-                               class="btn btn-danger btn-xs" title="' . lang('delete') . '" ><span class="fa fa-trash-o"></span></a>  ';
+                $sub_array[] = '<b class="mono">#' . $e($v_announcements->order_number) . '</b>';
+                $sub_array[] = '<div class="cell-main"><div><div class="nm">'
+                    . $e($name !== '' ? $name : ($v_announcements->email ?: lang('guest_checkout')))
+                    . '</div><div class="sub">' . $e($sub) . '</div></div></div>';
+                $sub_array[] = woo_store_tag($v_announcements->store_name);
+                $sub_array[] = '<span class="num">' . $e($v_announcements->currency . ' ' . $v_announcements->total) . '</span>';
+                $sub_array[] = woo_pill($v_announcements->status);
+                $sub_array[] = '<span class="mono col-soft">' . display_date($v_announcements->date_created) . '</span>';
+                $action = '<div class="acts">';
+                $action .= '<a href="' . base_url() . 'admin/woocommerce/order/' . $v_announcements->order_id . '"'
+                    . ' class="btn btn-primary btn-xs" title="' . lang('view') . '"><span class="fa fa-list-alt"></span></a> ';
+                $action .= '<a href="' . base_url() . 'admin/woocommerce/edit_orders/' . $v_announcements->orderID . '"'
+                    . ' class="btn btn-primary btn-xs" title="' . lang('edit') . '" data-toggle="modal"'
+                    . ' data-target="#myModal_lg"><span class="fa fa-pencil-square-o"></span></a> ';
+                $action .= '<a href="' . base_url() . 'admin/woocommerce/delete/orders/' . $v_announcements->order_id . "/" . $v_announcements->id . '"'
+                    . ' class="btn btn-danger btn-xs" title="' . lang('delete') . '"><span class="fa fa-trash-o"></span></a>';
+                $action .= '</div>';
                 $sub_array[] = $action;
                 $data[] = $sub_array;
             }
-            render_table($data);
+            render_table($data, $where);
         } else {
             redirect('admin/dashboard');
         }
