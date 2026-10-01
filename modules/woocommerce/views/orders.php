@@ -90,6 +90,10 @@
                 ],
                 oLanguage: {
                     sLengthMenu: "_MENU_",
+                    sZeroRecords: "<?= lang('nothing_found_sorry') ?>",
+                    sInfoEmpty: "<?= lang('no_record_available') ?>",
+                    sInfo: "<?= lang('showing') ?> _START_–_END_ <?= lang('of') ?> _TOTAL_",
+                    sInfoFiltered: "",
                     zeroRecords: "<?= lang('nothing_found_sorry') ?>",
                     infoEmpty: "<?= lang('no_record_available') ?>",
                     info: "<?= lang('showing') ?> _START_–_END_ <?= lang('of') ?> _TOTAL_",

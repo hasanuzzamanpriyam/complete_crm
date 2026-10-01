@@ -42,6 +42,7 @@ $lang['billing_details'] = 'Billing Details';
 $lang['customer_details'] = 'Customer Details';
 $lang['woocommerce_id'] = 'WooCommerce ID';
 $lang['update_successfully'] = 'Update Successfully';
+$lang['Something_went_wrong'] = 'Something went wrong: ';
 $lang['order_id'] = 'Order Id';
 $lang['status_select_one'] = 'Status (Select One)';
 $lang['processing'] = 'Processing';
