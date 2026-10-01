@@ -1,5 +1,6 @@
 <script type="text/javascript">
-    function fire_datatable(req_url, ttable = null) {
+    function fire_datatable(req_url, ttable = null, opts = {}) {
+        opts = opts || {};
         // For some browsers, `attr` is undefined; for others,
         // `attr` is false.  Check for both.
         //alert(ttable);
@@ -49,7 +50,7 @@
                 return a - b;
             });
 
-            table = $(dtable).dataTable({
+            var dtConfig = {
                 // $(dtable).dataTable({
                 'retrieve': true,
                 'responsive': true, // Table pagination
@@ -153,6 +154,9 @@
                     },
                     data: function (d) {
                         d.csrf_token = getCookie('csrf_cookie');
+                        if (typeof opts.ajaxData === 'function') {
+                            opts.ajaxData(d);
+                        }
                     },
                 },
                 'fnCreatedRow': function (nRow, aData, iDataIndex) {
@@ -168,13 +172,23 @@
                     infoFiltered: "(<?= lang('filtered_from') ?> _MAX_ <?= lang('total') ?> <?= lang('records') ?>)"
                 }
 
-            });
+            };
+            if (opts.config) {
+                $.extend(dtConfig, opts.config);
+            }
+            table = $(dtable).dataTable(dtConfig);
+            if (typeof opts.onInit === 'function') {
+                opts.onInit(table.api());
+            }
         }
     }
 
 
     $(function () {
-        fire_datatable(list);
+        if (typeof list !== 'undefined' && list) {
+            fire_datatable(list, null,
+                (typeof woo_opts !== 'undefined' && woo_opts) ? woo_opts : {});
+        }
     });
 
 
