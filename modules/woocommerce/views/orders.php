@@ -1,6 +1,6 @@
 <?php echo message_box('success'); ?>
 <?php echo message_box('error'); ?>
-<link rel="stylesheet" type="text/css" href="<?= base_url() ?>assets/css/woocommerce_modern.css?v=1">
+<link rel="stylesheet" type="text/css" href="<?= base_url() ?>assets/css/woocommerce_modern.css?v=2">
 <div class="woo-modern">
     <h1 class="page-t"><?= lang('orders') ?></h1>
 

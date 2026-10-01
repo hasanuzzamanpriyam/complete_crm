@@ -39,7 +39,7 @@ if ($apiOk && !empty($orders->shipping_lines) && is_array($orders->shipping_line
     $shipMethod = $orders->shipping_lines[0]->method_title;
 }
 ?>
-<link rel="stylesheet" type="text/css" href="<?= base_url() ?>assets/css/woocommerce_modern.css?v=1">
+<link rel="stylesheet" type="text/css" href="<?= base_url() ?>assets/css/woocommerce_modern.css?v=2">
 <div class="woo-modern" id="sales_details">
     <div class="dt-bar">
         <a href="<?= base_url('admin/woocommerce/orders') ?>" class="mini-btn">&lsaquo; <?= lang('back_to_orders') ?></a>

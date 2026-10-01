@@ -6,7 +6,7 @@
     }
 </style>
 <?php if (strpos(uri_string(), 'woocommerce') !== false) { ?>
-    <link rel="stylesheet" type="text/css" href="<?= base_url() ?>assets/css/woocommerce_modern.css?v=1">
+    <link rel="stylesheet" type="text/css" href="<?= base_url() ?>assets/css/woocommerce_modern.css?v=2">
 <?php } ?>
 <?php if (!empty($dropzone)) { ?>
     <link rel="stylesheet" type="text/css" href="<?= base_url() ?>assets/plugins/dropzone/dropzone.min.css">
