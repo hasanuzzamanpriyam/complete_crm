@@ -85,6 +85,12 @@ class Woocommerce extends Admin_Controller
     public function stores($id = null)
     {
         $data['title'] = lang('stores');
+        $data['kpi'] = array(
+            array('cls' => 'cyan', 'icon' => '&#127978;', 'val' => number_format($this->db->count_all('tbl_woocommerce_stores')), 'label' => lang('kpi_total_stores')),
+            array('cls' => 'ok', 'icon' => '&#128722;', 'val' => number_format(woo_summary_totals('orders')), 'label' => lang('kpi_synced_orders')),
+            array('cls' => 'amb', 'icon' => '&#128230;', 'val' => number_format(woo_summary_totals('products')), 'label' => lang('kpi_synced_products')),
+            array('cls' => 'pur', 'icon' => '&#128101;', 'val' => number_format(woo_summary_totals('customers')), 'label' => lang('kpi_synced_customers')),
+        );
         $data['subview'] = $this->load->view('woocommerce/stores', $data, TRUE);
         $this->load->view('admin/_layout_main', $data);
     }
@@ -144,43 +150,63 @@ class Woocommerce extends Admin_Controller
         if ($this->input->is_ajax_request()) {
             $this->load->model('datatables');
             $this->datatables->table = 'tbl_woocommerce_stores';
-            $action_array = array('tbl_woocommerce_stores.store_id');
-            $main_column = array('store_name', 'assignees', 'date_created');
-            $result = array_merge($main_column, $action_array);
-            $this->datatables->column_order = $result;
-            $this->datatables->column_search = $result;
-            $fetch_data = make_datatables();
+            // D10: `assignees` is not a column — it broke every stores search
+            $this->datatables->column_order = array(
+                'tbl_woocommerce_stores.store_name',
+                'tbl_woocommerce_stores.store_id',
+                'tbl_woocommerce_stores.store_id',
+                'tbl_woocommerce_stores.date_created',
+                'tbl_woocommerce_stores.store_id',
+            );
+            $this->datatables->column_search = array(
+                'tbl_woocommerce_stores.store_name',
+                'tbl_woocommerce_stores.url',
+                'tbl_woocommerce_stores.date_created',
+                'tbl_woocommerce_stores.store_id',
+            );
+            $where = array();
+            $fetch_data = make_datatables($where);
             $data = array();
             foreach ($fetch_data as $_key => $v_announcements) {
-                $userDetail = join_data('tbl_woocommerce_assigned', 'tbl_account_details.fullname', array('tbl_woocommerce_assigned.store_id' => $v_announcements->store_id), ['tbl_account_details' => 'tbl_account_details.user_id=tbl_woocommerce_assigned.user_id'], 'object');
-                $action = null;
-                $sub_array = array();
-                $sub_array[] = $v_announcements->store_name;
-                $name = '';
+                $e = function ($x) { return htmlspecialchars((string) $x, ENT_QUOTES, 'UTF-8'); };
+                $userDetail = join_data('tbl_woocommerce_assigned', 'tbl_account_details.fullname', array('tbl_woocommerce_assigned.store_id' => $v_announcements->store_id), array('tbl_account_details' => 'tbl_account_details.user_id=tbl_woocommerce_assigned.user_id'), 'object');
+                $asg = '<div class="assignees">';
                 if (!empty($userDetail)) {
-                    foreach ($userDetail as $key => $value) {
-                        $name .= $key + 1 . '. ' . $value->fullname . '<br>';
+                    foreach ($userDetail as $value) {
+                        $asg .= '<span class="asg">' . $e($value->fullname) . '</span>';
                     }
                 }
-                $sub_array[] = $name;
-                $sub_array[] = display_date($v_announcements->date_created);
-                $action .= '<a data-id=' . $v_announcements->store_id . ' href="" ' . 'onclick="updateWooStore(this)"' . '
-                               class="btn btn-primary btn-xs" title="' . lang('check_update') . '" data-toggle="modal"
-                               ><span class="fa fa-refresh"></span></a>  ';
-                $action .= '<a data-id=' . $v_announcements->store_id . ' href=""' . 'onclick="wooco_test(this)"' . '
-                               class="btn btn-info btn-xs" title="' . lang('test_connection') . '" data-toggle="modal"
-                               ><span class="fa fa-play"></span></a>  ';
-                $action .= '<a href="' . base_url() . 'admin/woocommerce/new_stores/' . $v_announcements->store_id . '"
-                               class="btn btn-primary btn-xs" title="' . lang('edit') . '" data-toggle="modal"
-                               data-target="#myModal_lg"><span class="fa fa-pencil-square-o"></span></a>  ';
-                $action .= '<a data-id=' . $v_announcements->store_id . ' href=""' . 'onclick="woo_reset(this)"' . '
-                               class="btn btn-warning btn-xs" title="' . lang('reset') . '" data-toggle="modal"
-                               ><span class="fa fa-recycle"></span></a>  ';
+                $asg .= '</div>';
+                $synced = '<div class="synced">'
+                    . '<span><b>' . number_format(woo_store_synced($v_announcements->store_id, 'orders')) . '</b> ' . lang('orders') . '</span>'
+                    . '<span><b>' . number_format(woo_store_synced($v_announcements->store_id, 'products')) . '</b> ' . lang('products') . '</span>'
+                    . '<span><b>' . number_format(woo_store_synced($v_announcements->store_id, 'customers')) . '</b> ' . lang('customers') . '</span>'
+                    . '</div>';
+                $action = '<div class="acts">';
+                $action .= '<a data-id=' . $v_announcements->store_id . ' href="" onclick="updateWooStore(this)"'
+                    . ' class="btn btn-primary btn-xs" title="' . lang('check_update') . '" data-toggle="modal"'
+                    . '><span class="fa fa-refresh"></span></a> ';
+                $action .= '<a data-id=' . $v_announcements->store_id . ' href="" onclick="wooco_test(this)"'
+                    . ' class="btn btn-info btn-xs" title="' . lang('test_connection') . '" data-toggle="modal"'
+                    . '><span class="fa fa-play"></span></a> ';
+                $action .= '<a href="' . base_url() . 'admin/woocommerce/new_stores/' . $v_announcements->store_id . '"'
+                    . ' class="btn btn-primary btn-xs" title="' . lang('edit') . '" data-toggle="modal"'
+                    . ' data-target="#myModal_lg"><span class="fa fa-pencil-square-o"></span></a> ';
+                $action .= '<a data-id=' . $v_announcements->store_id . ' href="" onclick="woo_reset(this)"'
+                    . ' class="btn btn-warning btn-xs" title="' . lang('reset') . '" data-toggle="modal"'
+                    . '><span class="fa fa-recycle"></span></a> ';
                 $action .= ajax_anchor(base_url('admin/woocommerce/delete_stores/' . $v_announcements->store_id), "<i class='btn btn-xs btn-danger fa fa-trash-o'></i>", array("class" => "", "title" => lang('delete'), "data-fade-out-on-success" => "#table_" . $_key)) . ' ';
+                $action .= '</div>';
+                $sub_array = array();
+                $sub_array[] = '<div class="cell-main"><div><div class="nm">' . $e($v_announcements->store_name) . '</div>'
+                    . '<div class="sub">' . $e($v_announcements->url) . '</div></div></div>';
+                $sub_array[] = $asg;
+                $sub_array[] = $synced;
+                $sub_array[] = '<span class="mono col-soft">' . display_date($v_announcements->date_created) . '</span>';
                 $sub_array[] = $action;
                 $data[] = $sub_array;
             }
-            render_table($data);
+            render_table($data, $where);
         } else {
             redirect('admin/dashboard');
         }
@@ -448,7 +474,7 @@ class Woocommerce extends Admin_Controller
     {
         if (empty($id)) {
             $type = "error";
-            $message = "no_record_found";
+            $message = lang('no_record_found');
             set_message($type, $message);
             redirect(base_url('woocommerce/stores'));
         } else {

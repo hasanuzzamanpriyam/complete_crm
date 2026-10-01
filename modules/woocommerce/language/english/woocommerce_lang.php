@@ -33,6 +33,7 @@ $lang['check_update'] = 'Check Update';
 $lang['connect_success'] = 'Connect Success';
 $lang['no_record_found'] = 'No Record Found';
 $lang['woocommerce_check_successful'] = 'WooCommerce Check Successful';
+$lang['woocommerce_reset_successful'] = 'WooCommerce reset successfully';
 $lang['woocommerce_stores_delete'] = 'Woocommerce Stores Delete';
 $lang['woocommerce_store_added'] = 'Woocommerce Store Added';
 $lang['woocommerce_store_updated'] = 'Woocommerce Store Updated';
