@@ -5,6 +5,9 @@
         z-index: 99999 !important;
     }
 </style>
+<?php if (strpos(uri_string(), 'woocommerce') !== false) { ?>
+    <link rel="stylesheet" type="text/css" href="<?= base_url() ?>assets/css/woocommerce_modern.css?v=1">
+<?php } ?>
 <?php if (!empty($dropzone)) { ?>
     <link rel="stylesheet" type="text/css" href="<?= base_url() ?>assets/plugins/dropzone/dropzone.min.css">
     <script type="text/javascript" src="<?= base_url() ?>assets/plugins/dropzone/dropzone.min.js"></script>

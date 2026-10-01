@@ -9,10 +9,10 @@
     </div>
     <div class="modal-body wrap-modal wrap">
         <form role="form" id="form" data-parsley-validate="" novalidate="" enctype="multipart/form-data"
-              action="<?php echo base_url(); ?>woocommerce/update/product/" <?= (!empty($products->product_id) ? $products->product_id : ''); ?>
+              action="<?php echo base_url(); ?>woocommerce/update/product/"
               method="post" class="form-horizontal form-groups-bordered">
             <div class="form-group">
-                <label for="field-1" class="col-sm-3 control-label"><?= lang('client') ?> <span
+                <label for="field-1" class="col-sm-3 control-label"><?= lang('product_id') ?> <span
                             class="required">*</span></label>
                 <div class="col-sm-8">
                     <input type="text" class="form-control" name="productId" id="productId"

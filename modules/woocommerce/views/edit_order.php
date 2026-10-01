@@ -51,6 +51,15 @@
                 </div>
             </div>
             <div class="form-group">
+                <label class="col-sm-3 control-label"><?= lang('preview') ?></label>
+                <div class="col-sm-8">
+                    <div class="live-pill">
+                        <span class="lp-l"><?= lang('status') ?></span>
+                        <span id="wooPillPreview"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
                 <div class="col-sm-offset-3 col-sm-2">
                     <button type="submit" id="file-save-button"
                             class="btn btn-primary btn-block"><?= lang('update') ?></button>
@@ -59,3 +68,31 @@
         </form>
     </div>
 </div>
+<script type="text/javascript">
+    (function () {
+        var labels = <?= json_encode(array(
+            'pending' => woo_status_label('pending'),
+            'processing' => woo_status_label('processing'),
+            'on-hold' => woo_status_label('on-hold'),
+            'completed' => woo_status_label('completed'),
+            'cancelled' => woo_status_label('cancelled'),
+            'refunded' => woo_status_label('refunded'),
+            'failed' => woo_status_label('failed'),
+        )) ?>;
+        var sel = document.getElementById('status');
+        if (!sel) {
+            return;
+        }
+        function renderPill() {
+            var v = sel.value;
+            document.getElementById('wooPillPreview').innerHTML =
+                '<span class="st st-' + v + '">' + (labels[v] || v) + '</span>';
+        }
+        renderPill();
+        if (window.jQuery) {
+            window.jQuery(sel).on('change', renderPill);
+        } else {
+            sel.addEventListener('change', renderPill);
+        }
+    })();
+</script>
