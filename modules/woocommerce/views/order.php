@@ -1,165 +1,147 @@
 <?php
-$client_lang = 'english';
+$orders = isset($orders) ? $orders : null;
+$row = isset($row) ? $row : null;
+$apiOk = is_object($orders);
+
+$e = function ($x) { return htmlspecialchars((string) $x, ENT_QUOTES, 'UTF-8'); };
+$addr = function ($a) {
+    if (!is_object($a)) {
+        return '';
+    }
+    $bits = array();
+    foreach (array('address_1', 'address_2', 'city', 'state', 'postcode', 'country') as $f) {
+        if (!empty($a->{$f})) {
+            $bits[] = $a->{$f};
+        }
+    }
+    return implode(', ', $bits);
+};
+
+$bill = ($apiOk && !empty($orders->billing) && is_object($orders->billing)) ? $orders->billing : null;
+$ship = ($apiOk && !empty($orders->shipping) && is_object($orders->shipping)) ? $orders->shipping : null;
+$billAddr = $addr($bill);
+$shipAddr = $addr($ship);
+$custName = $bill ? trim($bill->first_name . ' ' . $bill->last_name) : '';
+$currencySymbol = ($apiOk && !empty($orders->currency_symbol)) ? $orders->currency_symbol : '';
+
+$lineItems = ($apiOk && !empty($orders->line_items) && is_array($orders->line_items)) ? $orders->line_items : array();
+$subTotal = 0.0;
+foreach ($lineItems as $item) {
+    $subTotal += ((float) $item->quantity) * ((float) $item->price);
+}
+if (empty($lineItems) && $apiOk && isset($orders->total)) {
+    $subTotal = (float) $orders->total;
+}
+
+$shipMethod = '';
+if ($apiOk && !empty($orders->shipping_lines) && is_array($orders->shipping_lines)
+    && isset($orders->shipping_lines[0]->method_title)) {
+    $shipMethod = $orders->shipping_lines[0]->method_title;
+}
 ?>
-
-<div class="panel" id="sales_details">
-    <div class="panel-body ">
-        
-        <div class="row mb-lg">
-            <div class="col-lg-6 col-xs-6">
-                <h5 class="p-md bg-items mr-15">
-                    <?= lang('customer_details') ?>:
-                </h5>
-                <div class="pl-sm">
-                    <?= lang('woocommerce_id') ?> : <?= $orders->customer_id ?>
-                    <br/>
-                    
-                    <?= $orders->billing->first_name . " " . $orders->billing->last_name ?>
-                    <br/><?= $orders->billing->company ?>
-                    <br/><?= $orders->billing->phone ?>
-                    <br/><?= $orders->billing->email ?>
-                
-                
-                </div>
-            </div>
-            <div class="col-lg-3 col-xs-3 ">
-                <h5 class="p-md bg-items ml-13">
-                    <?= lang('billing_details') ?>:
-                </h5>
-                <div class="pl-sm">
-                    <?php echo $orders->billing->address_1;
-                    echo $orders->billing->address_2 . ",<br />";
-                    echo $orders->billing->city . "<br />";
-                    echo $orders->billing->state . ",<br />";
-                    echo $orders->billing->country . "," . $orders->billing->postcode;
-                    ?><br/>
-                </div>
-            </div>
-            <div class="col-lg-3 col-xs-3 p-l-0 ">
-                <h5 class="p-md bg-items ml-13">
-                    <?= lang('shipping_details') ?>:
-                </h5>
-                <div class="pl-sm">
-                    <?php echo $orders->shipping->address_1 . ",";
-                    echo $orders->shipping->address_2 . "<br />";
-                    echo $orders->shipping->city . ",<br />";
-                    echo $orders->shipping->state . ",<br />";
-                    echo $orders->shipping->country . "," . $orders->shipping->postcode;
-                    ?><br/>
-                </div>
-            </div>
-        
+<link rel="stylesheet" type="text/css" href="<?= base_url() ?>assets/css/woocommerce_modern.css?v=1">
+<div class="woo-modern" id="sales_details">
+    <div class="dt-bar">
+        <a href="<?= base_url('admin/woocommerce/orders') ?>" class="mini-btn">&lsaquo; <?= lang('back_to_orders') ?></a>
+        <span class="dt-title">#<?= $e($row->order_number) ?></span>
+        <?= woo_pill($row->status) ?>
+        <span class="dt-when"><?= display_date($row->date_created) ?><?= !empty($store_name) ? ' &middot; ' . $e($store_name) : '' ?></span>
+        <div class="tb-right">
+            <button type="button" class="btn-ghost" onclick="window.print()"><i class="fa fa-print"></i> <?= lang('print') ?></button>
+            <a class="btn-accent" href="<?= base_url('admin/woocommerce/edit_orders/' . $row->id) ?>"
+               data-toggle="modal" data-target="#myModal_lg"><?= lang('edit_status') ?></a>
         </div>
-        <style type="text/css">
-            .dragger {
-                background: url(../../../../assets/img/dragger.png) 0px 11px no-repeat;
-                cursor: pointer;
-            }
+    </div>
 
-            .table > tbody > tr > td {
-                vertical-align: initial;
-            }
-        </style>
-        
-        <div class="table-responsive mb-lg">
-            <table class="table items invoice-items-preview" page-break-inside: auto;>
-                <thead class="bg-items">
-                <tr>
-                    <th><?= lang('id') ?> #</th>
-                    <th><?= lang('name') ?></th>
-                    <?php
-                    $invoice_view = config_item('invoice_view');
-                    if (!empty($invoice_view) && $invoice_view == '2') {
-                        ?>
-                        <th><?= lang('hsn_code') ?></th>
-                    <?php } ?>
-                    <?php
-                    $qty_heading = lang('qty');
-                    if (isset($orders->show_quantity_as) && $orders->show_quantity_as == 'hours' || isset($hours_quantity)) {
-                        $qty_heading = lang('hours');
-                    } else if (isset($orders->show_quantity_as) && $orders->show_quantity_as == 'qty_hours') {
-                        $qty_heading = lang('qty') . '/' . lang('hours');
-                    }
-                    ?>
-                    <th><?php echo $qty_heading; ?></th>
-                    <th class="col-sm-1"><?= lang('price') ?></th>
-                    <th class="col-sm-2"><?= lang('tax') ?></th>
-                    <th class="col-sm-1"><?= lang('total') ?></th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php foreach ($orders->line_items as $item) {
-                    echo '<tr><td>' . $item->id . '</td>';
-                    echo '<td>' . $item->name . '</td>';
-                    echo '<td>' . $item->quantity . '</td>';
-                    echo '<td>' . $item->price . '</td>';
-                    echo '<td>' . $item->total_tax . '</td>';
-                    echo '<td>' . $item->total . '</td></tr>';
-                } ?>
-                </tbody>
-            </table>
-        </div>
-        <div class="row" style="margin-top: 35px">
-            <div class="col-xs-8">
-                <?= $orders->customer_note ?>
+    <div class="dt-grid">
+        <section class="card">
+            <div class="card-h">
+                <div>
+                    <h3><?= lang('customer') ?></h3>
+                    <div class="sub"><?= !empty($store_name) ? $e($store_name) : '&mdash;' ?></div>
+                </div>
             </div>
-            <div class="col-sm-4 pv">
-                <div class="clearfix">
-                    <p class="pull-left"><?= lang('sub_total') ?></p>
-                    <p class="pull-right mr">
-                        <?= $orders->total ? display_money($orders->total) : '0.00' ?>
-                    </p>
+            <div class="card-b">
+                <div class="kv"><span class="k"><?= lang('name') ?></span><span class="val"><?= $e($custName !== '' ? $custName : ($bill && !empty($bill->email) ? $bill->email : '—')) ?></span></div>
+                <div class="kv"><span class="k"><?= lang('email') ?></span><span class="val"><?= $e($bill && !empty($bill->email) ? $bill->email : '—') ?></span></div>
+                <div class="kv"><span class="k"><?= lang('phone') ?></span><span class="val"><?= $e($bill && !empty($bill->phone) ? $bill->phone : '—') ?></span></div>
+            </div>
+        </section>
+        <section class="card">
+            <div class="card-h"><div><h3><?= lang('billing_details') ?></h3></div></div>
+            <div class="card-b">
+                <div class="kv"><span class="k"><?= lang('billing_address') ?></span><span class="val"><?= $e($billAddr !== '' ? $billAddr : '—') ?></span></div>
+                <div class="kv"><span class="k"><?= lang('payment') ?></span><span class="val"><?= lang('woocommerce') ?></span></div>
+                <div class="kv"><span class="k"><?= lang('currency') ?></span><span class="val"><?= $e($row->currency) ?></span></div>
+            </div>
+        </section>
+        <section class="card">
+            <div class="card-h"><div><h3><?= lang('shipping_details') ?></h3></div></div>
+            <div class="card-b">
+                <div class="kv"><span class="k"><?= lang('shipping_address') ?></span><span class="val"><?= $e($shipAddr !== '' ? $shipAddr : '—') ?></span></div>
+                <?php if ($shipMethod !== '') { ?>
+                    <div class="kv"><span class="k"><?= lang('shipping') ?></span><span class="val"><?= $e($shipMethod) ?></span></div>
+                <?php } ?>
+            </div>
+        </section>
+    </div>
+
+    <div class="dt-2">
+        <section class="card">
+            <div class="card-h">
+                <div>
+                    <h3><?= lang('line_items') ?></h3>
+                    <div class="sub"><?= lang('woocommerce') ?></div>
                 </div>
-                <?php if ($orders->discount_total > 0) : ?>
-                    <div class="clearfix">
-                        <p class="pull-left"><?= lang('discount') ?></p>
-                        <p class="pull-right mr">
-                            <?= $orders->discount_total ? display_money($orders->discount_total) : '0.00' ?>
-                        </p>
+            </div>
+            <div class="card-b" style="padding:12px 0 0">
+                <?php if (!empty($lineItems)) { ?>
+                    <div class="tbl-wrap">
+                        <table class="tbl" style="min-width:520px">
+                            <thead>
+                            <tr>
+                                <th><?= lang('name') ?></th>
+                                <th class="t-r"><?= lang('qty') ?></th>
+                                <th class="t-r"><?= lang('price') ?></th>
+                                <th class="t-r"><?= lang('total') ?></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <?php foreach ($lineItems as $item) { ?>
+                                <tr>
+                                    <td><div class="nm" style="max-width:420px"><?= $e($item->name) ?></div></td>
+                                    <td class="num"><?= (int) $item->quantity ?></td>
+                                    <td class="num"><?= display_money($item->price, $currencySymbol) ?></td>
+                                    <td class="num"><?= display_money($item->total, $currencySymbol) ?></td>
+                                </tr>
+                            <?php } ?>
+                            </tbody>
+                        </table>
                     </div>
-                <?php endif ?>
-                <?php if ($orders->discount_tax > 0) : ?>
-                    <div class="clearfix">
-                        <p class="pull-left"><?= lang('discount_tax') ?></p>
-                        <p class="pull-right mr">
-                            <?= $orders->discount_tax ? display_money($orders->discount_tax) : '0.00' ?>
-                        </p>
-                    </div>
-                <?php endif ?>
-                <?php if ($orders->shipping_total > 0) : ?>
-                    <div class="clearfix">
-                        <p class="pull-left"><?= lang('discount') ?></p>
-                        <p class="pull-right mr">
-                            <?= $orders->shipping_total ? display_money($orders->shipping_total) : '0.00' ?>
-                        </p>
-                    </div>
-                <?php endif ?>
-                <?php if ($orders->total_tax > 0) : ?>
-                    <div class="clearfix">
-                        <p class="pull-left"><?= lang('total') . ' ' . lang('tax') ?></p>
-                        <p class="pull-right mr">
-                            <?= display_money($orders->total_tax); ?>
-                        </p>
-                    </div>
-                <?php endif;
-                ?>
-                <div class="clearfix">
-                    <p class="pull-left"><?= lang('total') ?></p>
-                    <p class="pull-right mr">
-                        <?= display_money($orders->total, $orders->currency_symbol) ?>
-                    </p>
-                </div>
-                
-                <?php if (config_item('amount_to_words') == 'Yes') { ?>
-                    <div class="clearfix">
-                        <p class="pull-right h4"><strong class="h3"><?= lang('num_word') ?>
-                                : </strong> <?= number_to_word($orders->currency, $orders->total); ?></p>
+                <?php } else { ?>
+                    <div class="empty">
+                        <div class="big">&#9776;</div>
+                        <b><?= lang('line_items') ?></b>
+                        <?= $apiOk ? lang('nothing_found_sorry') : lang('woo_details_unavailable') ?>
                     </div>
                 <?php } ?>
             </div>
-        
-        </div>
+        </section>
+        <section class="card">
+            <div class="card-h"><div><h3><?= lang('order_totals') ?></h3></div></div>
+            <div class="card-b">
+                <div class="tot-row"><span><?= lang('sub_total') ?></span><span class="tv"><?= display_money($subTotal, $currencySymbol) ?></span></div>
+                <div class="tot-row"><span><?= lang('discount') ?></span><span class="tv"><?= display_money(($apiOk && isset($orders->discount_total)) ? $orders->discount_total : 0, $currencySymbol) ?></span></div>
+                <div class="tot-row"><span><?= lang('shipping') ?></span><span class="tv"><?= display_money(($apiOk && isset($orders->shipping_total)) ? $orders->shipping_total : 0, $currencySymbol) ?></span></div>
+                <div class="tot-row"><span><?= lang('tax') ?></span><span class="tv"><?= display_money(($apiOk && isset($orders->total_tax)) ? $orders->total_tax : 0, $currencySymbol) ?></span></div>
+                <div class="tot-row grand"><span><?= lang('total') ?></span><span class="tv"><?= display_money(($apiOk && isset($orders->total)) ? $orders->total : 0, $currencySymbol) ?></span></div>
+            </div>
+        </section>
     </div>
+
+    <?php if ($apiOk && !empty($orders->customer_note)) { ?>
+        <div class="note-box"><b><?= lang('customer_note') ?></b><?= $e($orders->customer_note) ?></div>
+    <?php } ?>
 </div>
 
 <?php include_once 'assets/js/sales.php'; ?>

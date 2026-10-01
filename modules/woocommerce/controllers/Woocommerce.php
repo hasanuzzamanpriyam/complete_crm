@@ -36,6 +36,14 @@ class Woocommerce extends Admin_Controller
     {
         $data['title'] = lang('woocommerce_order');
         $data['orders'] = $this->get_order($id);
+        $data['row'] = get_row('tbl_woocommerce_orders', array('order_id' => $id));
+        $data['store_name'] = '';
+        if (!empty($data['row']->store_id)) {
+            $store = $this->woocommerce_model->get_store_id($data['row']->store_id);
+            if (!empty($store->store_name)) {
+                $data['store_name'] = $store->store_name;
+            }
+        }
         $data['subview'] = $this->load->view('woocommerce/order', $data, true);
         $this->load->view('admin/_layout_main', $data);
     }

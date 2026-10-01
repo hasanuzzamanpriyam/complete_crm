@@ -308,8 +308,17 @@ if ($detailUrl === null) {
 } else {
     $page = request('GET', $detailUrl);
     if (strpos($page['body'], 'dt-bar') !== false) {
-        $reason = markers_in($page['body'], ['dt-bar', 'dt-grid', 'tot-row', 'note-box', 'dt-title'])
+        // API down => view renders structural cards + graceful empty-state, but no
+        // customer-note box (it needs live API data). Assert structure, SKIP note-box.
+        $apiDown = strpos($page['body'], 'Order details are unavailable') !== false;
+        $need = $apiDown
+            ? ['dt-bar', 'dt-grid', 'tot-row', 'dt-title']
+            : ['dt-bar', 'dt-grid', 'tot-row', 'note-box', 'dt-title'];
+        $reason = markers_in($page['body'], $need)
             ?: (preg_match($errorPattern, $page['body'], $m) ? 'PHP error: ' . $m[0] : null);
+        if ($reason === null && $apiDown) {
+            $reason = 'SKIP: WooCommerce API unreachable (note-box needs live API data)';
+        }
         $checks['order detail page renders modern detail'] = $reason;
     } elseif (preg_match($errorPattern, $page['body'], $m)) {
         $checks['order detail page renders modern detail'] = 'PHP error: ' . $m[0];
