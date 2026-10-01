@@ -370,3 +370,148 @@ function get_staff_stores($staff_id = '')
     $CI->load->model('woocommwece/woocommerce_model');
     return $CI->woocommerce_model->staff_stores($staff_id);
 }
+
+if (!function_exists('woo_status_label')) {
+    function woo_status_label($status)
+    {
+        $status = trim((string) $status);
+        if ($status === '') {
+            return '-';
+        }
+        $key = str_replace('-', '_', $status);
+        $label = lang($key);
+        if (is_string($label) && $label !== '' && $label !== $key) {
+            return $label;
+        }
+        if ($status === 'on-hold') {
+            return 'On hold';
+        }
+        return ucfirst($status);
+    }
+}
+
+if (!function_exists('woo_pill')) {
+    function woo_pill($status)
+    {
+        $status = trim((string) $status);
+        if ($status === '') {
+            return '-';
+        }
+        return '<span class="st st-' . htmlspecialchars($status, ENT_QUOTES, 'UTF-8') . '">'
+            . woo_status_label($status) . '</span>';
+    }
+}
+
+if (!function_exists('woo_store_tag')) {
+    function woo_store_tag($name)
+    {
+        $name = trim((string) $name);
+        if ($name === '') {
+            return '-';
+        }
+        return '<span class="tag">' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '</span>';
+    }
+}
+
+if (!function_exists('woo_initials')) {
+    function woo_initials($name)
+    {
+        $parts = preg_split('/\s+/', trim((string) $name));
+        $initials = mb_strtoupper(mb_substr($parts[0] ?? '?', 0, 1));
+        if (!empty($parts[1])) {
+            $initials .= mb_strtoupper(mb_substr($parts[1], 0, 1));
+        }
+        return $initials !== '' ? $initials : '?';
+    }
+}
+
+if (!function_exists('woo_product_sub')) {
+    function woo_product_sub($sku, $category)
+    {
+        $bits = array();
+        $sku = trim((string) $sku);
+        if ($sku !== '') {
+            $bits[] = $sku;
+        }
+        $cats = json_decode((string) $category, true);
+        if (is_array($cats)) {
+            foreach ($cats as $cat) {
+                if (!empty($cat['name'])) {
+                    $bits[] = $cat['name'];
+                }
+                if (count($bits) >= 3) {
+                    break;
+                }
+            }
+        }
+        return implode(' · ', array_slice($bits, 0, 3));
+    }
+}
+
+if (!function_exists('woo_summary_rows')) {
+    function woo_summary_rows()
+    {
+        static $rows = null;
+        if ($rows === null) {
+            $CI = &get_instance();
+            $rows = $CI->db->get('tbl_woocommerce_summary')->result();
+        }
+        return $rows;
+    }
+}
+
+if (!function_exists('woo_summary_blob')) {
+    function woo_summary_blob($row, $col)
+    {
+        if (!in_array($col, array('customers', 'orders', 'products'), true)) {
+            return array();
+        }
+        $val = isset($row->{$col}) ? $row->{$col} : null;
+        $decoded = is_string($val) ? json_decode($val, true) : $val;
+        return is_array($decoded) ? $decoded : array();
+    }
+}
+
+if (!function_exists('woo_summary_paying')) {
+    function woo_summary_paying()
+    {
+        $total = 0;
+        foreach (woo_summary_rows() as $row) {
+            foreach (woo_summary_blob($row, 'customers') as $item) {
+                if (isset($item['slug']) && $item['slug'] === 'paying') {
+                    $total += (int) (isset($item['total']) ? $item['total'] : 0);
+                }
+            }
+        }
+        return $total;
+    }
+}
+
+if (!function_exists('woo_summary_totals')) {
+    function woo_summary_totals($col)
+    {
+        $total = 0;
+        foreach (woo_summary_rows() as $row) {
+            foreach (woo_summary_blob($row, $col) as $item) {
+                $total += (int) (isset($item['total']) ? $item['total'] : 0);
+            }
+        }
+        return $total;
+    }
+}
+
+if (!function_exists('woo_store_synced')) {
+    function woo_store_synced($store_id, $col)
+    {
+        foreach (woo_summary_rows() as $row) {
+            if ((int) $row->store_id === (int) $store_id) {
+                $total = 0;
+                foreach (woo_summary_blob($row, $col) as $item) {
+                    $total += (int) (isset($item['total']) ? $item['total'] : 0);
+                }
+                return $total;
+            }
+        }
+        return 0;
+    }
+}

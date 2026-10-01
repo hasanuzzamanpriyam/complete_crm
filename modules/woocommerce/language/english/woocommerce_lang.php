@@ -48,4 +48,52 @@ $lang['on_hold'] = 'On Hold';
 $lang['completed'] = 'Completed';
 $lang['cancelled'] = 'Cancelled';
 $lang['refunded'] = 'Refunded';
-$lang['failed'] = 'failed';
+$lang['failed'] = 'Failed';
+
+// --- WooCommerce redesign: KPI labels ---
+$lang['kpi_total_orders'] = 'Total orders';
+$lang['kpi_revenue_completed'] = 'Revenue (completed)';
+$lang['kpi_pending_processing'] = 'Pending / processing';
+$lang['kpi_completed'] = 'Completed';
+$lang['kpi_total_products'] = 'Total products';
+$lang['kpi_published'] = 'Published';
+$lang['kpi_draft'] = 'Draft';
+$lang['kpi_total_sales'] = 'Total sales';
+$lang['kpi_total_customers'] = 'Total customers';
+$lang['kpi_paying'] = 'Paying';
+$lang['kpi_active_stores'] = 'Active stores';
+$lang['kpi_orders'] = 'Orders';
+$lang['kpi_total_stores'] = 'Total stores';
+$lang['kpi_synced_orders'] = 'Synced orders';
+$lang['kpi_synced_products'] = 'Synced products';
+$lang['kpi_synced_customers'] = 'Synced customers';
+// --- toolbar / filters ---
+$lang['all_statuses'] = 'All statuses';
+$lang['all_stores'] = 'All stores';
+$lang['search_products'] = 'Search name, SKU, category...';
+$lang['search_customers'] = 'Search name, email, phone...';
+$lang['search_stores'] = 'Search stores...';
+$lang['export_csv'] = 'Export CSV';
+$lang['export_excel'] = 'Export Excel';
+$lang['export_pdf'] = 'Export PDF';
+$lang['print_selected'] = 'Print selected';
+// --- statuses used by pills + modal selects (D5) ---
+$lang['pending'] = 'Pending';
+$lang['draft'] = 'Draft';
+// --- misc UI ---
+$lang['of'] = 'of';
+$lang['synced'] = 'Synced';
+$lang['guest_checkout'] = 'Guest checkout';
+$lang['back_to_orders'] = 'Back to orders';
+$lang['edit_status'] = 'Edit status';
+$lang['shipping'] = 'Shipping';
+$lang['product_id'] = 'Product ID';
+$lang['line_items'] = 'Line items';
+$lang['order_totals'] = 'Order totals';
+$lang['customer_note'] = 'Customer note';
+$lang['billing_address'] = 'Billing address';
+$lang['shipping_address'] = 'Shipping address';
+$lang['payment'] = 'Payment';
+$lang['currency'] = 'Currency';
+$lang['phone'] = 'Phone';
+$lang['woo_details_unavailable'] = 'Order details are unavailable right now (WooCommerce API unreachable).';
