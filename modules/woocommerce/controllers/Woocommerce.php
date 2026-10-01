@@ -56,6 +56,13 @@ class Woocommerce extends Admin_Controller
     public function customers()
     {
         $data['title'] = lang('customers');
+        $data['kpi'] = array(
+            array('cls' => 'cyan', 'icon' => '&#128101;', 'val' => number_format($this->db->count_all('tbl_woocommerce_customers')), 'label' => lang('kpi_total_customers')),
+            array('cls' => 'ok', 'icon' => '&#10003;', 'val' => number_format(woo_summary_paying()), 'label' => lang('kpi_paying')),
+            array('cls' => 'amb', 'icon' => '&#127978;', 'val' => number_format($this->db->count_all('tbl_woocommerce_stores')), 'label' => lang('kpi_active_stores')),
+            array('cls' => 'pur', 'icon' => '&#128230;', 'val' => number_format($this->db->count_all('tbl_woocommerce_orders')), 'label' => lang('kpi_orders')),
+        );
+        $data['woo_stores'] = $this->db->order_by('store_name', 'ASC')->get('tbl_woocommerce_stores')->result();
         $data['subview'] = $this->load->view('woocommerce/customers', $data, TRUE);
         $this->load->view('admin/_layout_main', $data);
     }
@@ -251,31 +258,64 @@ class Woocommerce extends Admin_Controller
         if ($this->input->is_ajax_request()) {
             $this->load->model('datatables');
             $this->datatables->table = 'tbl_woocommerce_customers';
-            $action_array = array('tbl_woocommerce_customers.id');
-            $main_column = array('id', 'username', 'first_name', 'last_name', 'phone_number', 'email', 'avatar_url');
-            $result = array_merge($main_column, $action_array);
-            $this->datatables->column_order = $result;
-            $this->datatables->column_search = $result;
-            $fetch_data = make_datatables();
+            $this->datatables->join_table = array('tbl_woocommerce_stores');
+            $this->datatables->join_where = array('tbl_woocommerce_customers.store_id=tbl_woocommerce_stores.store_id');
+            $this->datatables->select = 'tbl_woocommerce_customers.*,tbl_woocommerce_stores.store_name as store_name';
+            // D1: real column is `phone` (phone_number does not exist)
+            $this->datatables->column_order = array(
+                'tbl_woocommerce_customers.last_name',
+                'tbl_woocommerce_customers.email',
+                'tbl_woocommerce_customers.phone',
+                'tbl_woocommerce_stores.store_name',
+                'tbl_woocommerce_customers.id',
+                'tbl_woocommerce_customers.id',
+            );
+            $this->datatables->column_search = array(
+                'tbl_woocommerce_customers.username',
+                'tbl_woocommerce_customers.first_name',
+                'tbl_woocommerce_customers.last_name',
+                'tbl_woocommerce_customers.phone',
+                'tbl_woocommerce_customers.email',
+                'tbl_woocommerce_stores.store_name',
+                'tbl_woocommerce_customers.id',
+            );
+            $where = array();
+            if (!empty($_POST['woo_store'])) {
+                $where['tbl_woocommerce_customers.store_id'] = $_POST['woo_store'];
+            }
+            $fetch_data = make_datatables($where);
             $data = array();
             foreach ($fetch_data as $_key => $v_announcements) {
-                $action = null;
+                $e = function ($x) { return htmlspecialchars((string) $x, ENT_QUOTES, 'UTF-8'); };
+                $nm = trim($v_announcements->first_name . ' ' . $v_announcements->last_name);
+                if (!empty($v_announcements->avatar_url)) {
+                    $av = '<img class="av" src="' . $e($v_announcements->avatar_url) . '" alt=""'
+                        . ' onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'grid\'">'
+                        . '<div class="av-fb">' . woo_initials($nm) . '</div>';
+                } else {
+                    $av = '<span class="av av-ini">' . woo_initials($nm) . '</span>';
+                }
+                $ordersCount = (int) $this->db->where('customer_id', $v_announcements->woo_customer_id)
+                    ->count_all_results('tbl_woocommerce_orders');
                 $sub_array = array();
-                $sub_array[] = $v_announcements->id;
-                $sub_array[] = $v_announcements->username;
-                $sub_array[] = $v_announcements->first_name . " " . $v_announcements->last_name;
-                $sub_array[] = (!empty($v_announcements->phone_number) ? $v_announcements->phone_number : '-');
-                $sub_array[] = $v_announcements->email;
-                $sub_array[] = '<img src="' . $v_announcements->avatar_url . '" alt="Avatar" width="60" height="60" class="img-thumbnail img-circle">';
-                $action .= '<a href="' . base_url() . 'woocommerce/edit_customer/' . $v_announcements->id . '"
-                               class="btn btn-primary btn-xs" title="' . lang('edit') . '" data-toggle="modal"
-                               data-target="#myModal_lg"><span class="fa fa-pencil-square-o"></span></a>  ';
-                $action .= '<a href="' . base_url() . 'woocommerce/delete/customers/' . $v_announcements->woo_customer_id . "/" . $v_announcements->id . '"
-                               class="btn btn-danger btn-xs" title="' . lang('delete') . '" ><span class="fa fa-trash-o"></span></a>  ';
+                $sub_array[] = '<div class="cell-main">' . $av
+                    . '<div><div class="nm">' . $e($nm !== '' ? $nm : $v_announcements->username) . '</div>'
+                    . '<div class="sub">' . $e($v_announcements->username) . '</div></div></div>';
+                $sub_array[] = '<span class="col-soft">' . $e($v_announcements->email) . '</span>';
+                $sub_array[] = '<span class="mono col-soft">' . ($v_announcements->phone !== '' && $v_announcements->phone !== null ? $e($v_announcements->phone) : '—') . '</span>';
+                $sub_array[] = woo_store_tag($v_announcements->store_name);
+                $sub_array[] = '<span class="num">' . number_format($ordersCount) . '</span>';
+                $action = '<div class="acts">';
+                $action .= '<a href="' . base_url() . 'woocommerce/edit_customer/' . $v_announcements->id . '"'
+                    . ' class="btn btn-primary btn-xs" title="' . lang('edit') . '" data-toggle="modal"'
+                    . ' data-target="#myModal_lg"><span class="fa fa-pencil-square-o"></span></a> ';
+                $action .= '<a href="' . base_url() . 'woocommerce/delete/customers/' . $v_announcements->woo_customer_id . '/' . $v_announcements->id . '"'
+                    . ' class="btn btn-danger btn-xs" title="' . lang('delete') . '"><span class="fa fa-trash-o"></span></a>';
+                $action .= '</div>';
                 $sub_array[] = $action;
                 $data[] = $sub_array;
             }
-            render_table($data);
+            render_table($data, $where);
         } else {
             redirect('admin/dashboard');
         }
