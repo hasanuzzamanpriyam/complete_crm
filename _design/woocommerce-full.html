@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WooCommerce redesign demo - TIC CRM</title>
+<style>
+/* Same tokens/shell as _design/dashboard-modern.html + calendar-full.html */
+:root{
+  --c-bg:#f4f6f8; --c-surface:#fff; --c-border-2:#e3e6ea; --c-border:#d5dae0;
+  --c-text:#1a1d21; --c-text-2:#475569; --c-text-3:#7a828c; --c-slate:#94a3b8;
+  --c-accent:#0d9488; --c-mint:#10b981; --c-cyan:#06b6d4; --c-amber:#f59e0b;
+  --c-purple:#8b5cf6; --c-danger:#dc2626;
+  --r-xl:16px; --r-lg:14px; --r-md:10px; --r-full:999px;
+  --sh-1:0 1px 2px rgba(15,23,42,.06);
+  --fs-sm:13px; --fs-xs:12px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--c-bg);color:var(--c-text);font-size:14px}
+a{color:var(--c-accent);text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+
+/* ---------------- shell ---------------- */
+.shell{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:220px;flex:0 0 220px;background:#14181c;color:#b6bdc6;padding-bottom:24px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2a3138 transparent}
+.sidebar::-webkit-scrollbar{width:6px}
+.sidebar::-webkit-scrollbar-thumb{background:#2a3138;border-radius:99px}
+.brand{display:flex;align-items:center;gap:8px;padding:24px 12px 16px 24px}
+.brand .tile{width:30px;height:30px;border-radius:var(--r-md);background:linear-gradient(135deg,var(--c-accent),var(--c-cyan));color:#fff;font-weight:800;font-size:13px;display:grid;place-items:center;flex:0 0 30px}
+.brand .name{color:#fff;font-size:16px;font-weight:700;letter-spacing:-.01em}
+.side-search{margin:0 12px 8px;position:relative}
+.side-search input{width:100%;height:34px;border-radius:var(--r-md);border:1px solid #262c33;background:#1b2026;color:#d6dbe1;padding:0 10px 0 30px;font-size:12.5px;outline:none}
+.side-search::before{content:"\2315";position:absolute;left:9px;top:7px;color:#64748b;font-size:14px}
+.grp{padding:12px 16px 4px 16px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#64748b}
+.nav a{display:flex;align-items:center;gap:10px;height:40px;margin:0 12px 4px;padding:0 12px;border-radius:8px;color:#b6bdc6;font-size:14px;font-weight:500;cursor:pointer}
+.nav a:hover{background:#1c2126;color:#fff}
+.nav a.on{background:var(--c-accent);color:#fff;font-weight:600}
+.nav .dot{width:6px;height:6px;border-radius:99px;background:currentColor;opacity:.55;flex:0 0 6px}
+.nav .cnt{margin-left:auto;font-size:10px;font-weight:700;background:#242b31;color:#9aa4ae;border-radius:99px;padding:2px 7px}
+.nav a.on .cnt{background:rgba(255,255,255,.22);color:#fff}
+
+.main{flex:1;min-width:0;display:flex;flex-direction:column;overflow-y:auto}
+.topbar{height:67px;background:#fff;border-bottom:1px solid var(--c-border-2);display:flex;align-items:center;gap:12px;padding:12px 24px;position:sticky;top:0;z-index:5}
+.burger{width:34px;height:34px;border-radius:8px;background:#f1f3f5;display:grid;place-items:center;color:var(--c-text-2);font-size:15px}
+.crumb{font-size:12px;color:var(--c-slate);white-space:nowrap}
+.crumb b{display:block;font-size:16px;font-weight:700;letter-spacing:-.01em;color:#0f172a}
+.tpill{flex:1 1 240px;max-width:430px;margin-left:12px;height:34px;background:#f1f3f5;border-radius:var(--r-full);display:flex;align-items:center;padding:0 14px;color:var(--c-slate);font-size:13px;gap:8px}
+.spacer{margin-left:auto}
+.chip-btn{width:34px;height:34px;border-radius:8px;background:#f1f3f5;display:grid;place-items:center;color:var(--c-text-2);font-size:14px;position:relative}
+.chip-btn .badge{position:absolute;top:-4px;right:-4px;background:var(--c-danger);color:#fff;font-size:9px;font-weight:700;border-radius:99px;padding:1px 5px}
+.avatar{width:34px;height:34px;border-radius:99px;background:linear-gradient(135deg,#0d9488,#06b6d4);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:700}
+.btn-new{height:34px;border-radius:8px;background:var(--c-accent);color:#fff;font-size:12px;font-weight:600;padding:0 16px;display:flex;align-items:center;gap:6px;box-shadow:0 1px 2px rgba(13,148,136,.35);border:0}
+.btn-new:hover{background:#0b7c72}
+
+.page{padding:20px 24px 40px;max-width:1600px;flex:1}
+h1.page-t{font-size:18px;font-weight:700;margin:0 0 14px;letter-spacing:-.01em}
+.note{font-size:12.5px;color:var(--c-slate);line-height:1.6}
+
+.pv{display:none}
+.pv.on{display:block}
+
+/* cards + KPI */
+.card{background:var(--c-surface);border:1px solid var(--c-border-2);border-radius:var(--r-xl);box-shadow:var(--sh-1);position:relative;min-width:0}
+.card-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 16px 0}
+.card-h h3{margin:0;font-size:15px;font-weight:700;letter-spacing:-.01em}
+.card-h .sub{font-size:11px;color:var(--c-slate);margin-top:1px}
+.card-b{padding:14px 16px 16px}
+.kpi-strip{margin-bottom:16px}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.kpi-card{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--c-surface);border:1px solid var(--c-border-2);border-radius:var(--r-xl);box-shadow:var(--sh-1);min-width:0}
+.kpi-card .k-i{width:32px;height:32px;flex:0 0 32px;border-radius:var(--r-md);display:grid;place-items:center;font-size:15px;font-weight:700}
+.k-i.ok{background:#ecfdf5;color:#10b981}.k-i.no{background:#fef2f2;color:#dc2626}
+.k-i.cyan{background:#ecfeff;color:#0e7490}.k-i.amb{background:#fffbeb;color:#b45309}
+.k-i.pur{background:#f5f3ff;color:#6d28d9}
+.kpi-card .v{font-size:20px;font-weight:700;line-height:1.2;font-variant-numeric:tabular-nums;white-space:nowrap}
+.kpi-card .l{font-size:var(--fs-sm);color:var(--c-text-3);margin-top:2px}
+
+.tag{font-size:10px;font-weight:700;border-radius:var(--r-full);padding:3px 8px;white-space:nowrap}
+
+/* toolbar */
+.list-toolbar{display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid #f1f3f5;flex-wrap:wrap}
+.tsearch{display:flex;align-items:center;gap:7px;height:32px;border-radius:999px;background:#f1f3f5;padding:0 13px;min-width:230px}
+.tsearch input{border:0;background:transparent;outline:none;font-size:12.5px;color:var(--c-text);width:100%;font-family:inherit}
+.tsearch .ico{color:var(--c-slate);font-size:13px}
+.filter-pill{display:flex;align-items:center;gap:7px;height:32px;border-radius:999px;background:#f1f3f5;color:var(--c-text-2);font-size:12px;font-weight:600;padding:0 13px;border:0}
+.filter-pill:hover{background:#e9ecef}
+.filter-pill .c-dot{width:7px;height:7px;border-radius:99px;background:var(--c-accent)}
+.icon-btn{width:32px;height:32px;border-radius:8px;background:#f1f3f5;display:grid;place-items:center;color:var(--c-text-2);font-size:13px;border:0}
+.icon-btn:hover{background:#e9ecef}
+.tb-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+.dd-wrap{position:relative}
+.dd{position:absolute;top:38px;left:0;min-width:190px;background:#fff;border:1px solid var(--c-border-2);border-radius:12px;box-shadow:0 12px 32px rgba(15,23,42,.14);padding:6px;z-index:45;display:none}
+.dd.open{display:block}
+.dd-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;font-size:12.5px;color:var(--c-text-2);cursor:pointer;font-weight:600;white-space:nowrap}
+.dd-item:hover{background:#f1f3f5}
+.dd-item.on{color:var(--c-accent)}
+.dd-item .ck{width:13px;font-size:11px;flex:0 0 13px}
+.dd-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--c-slate);font-weight:700;padding:7px 10px 4px}
+
+/* table */
+.tbl-wrap{overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;font-size:13px;min-width:840px}
+.tbl th{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--c-slate);font-weight:700;text-align:left;padding:10px 16px;background:#fafbfc;border-bottom:1px solid var(--c-border-2)}
+.tbl td{padding:11px 16px;border-bottom:1px solid #f1f3f5;color:var(--c-text);vertical-align:middle}
+.tbl tbody tr:last-child td{border-bottom:0}
+.tbl tbody tr:hover{background:#fafcfb}
+.tbl .num{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.tbl .t-r{text-align:right}
+.cell-main{display:flex;gap:10px;align-items:center;min-width:0}
+.thumb{width:34px;height:34px;border-radius:8px;object-fit:cover;background:#f1f3f5;flex:0 0 34px}
+.thumb-fb{width:34px;height:34px;border-radius:8px;display:none;place-items:center;background:#ecfdf5;color:#0d9488;font-size:12px;font-weight:800;flex:0 0 34px}
+.av{width:32px;height:32px;border-radius:99px;object-fit:cover;background:linear-gradient(135deg,#0d9488,#06b6d4);flex:0 0 32px}
+.av-fb{width:32px;height:32px;border-radius:99px;display:none;place-items:center;background:#ecfdf5;color:#0d9488;font-size:11px;font-weight:800;flex:0 0 32px}
+.nm{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:340px}
+.sub{font-size:11.5px;color:var(--c-slate);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:340px}
+.mono{font-variant-numeric:tabular-nums}
+
+/* status pills */
+.st{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;border-radius:999px;padding:4px 10px;text-transform:capitalize;white-space:nowrap}
+.st::before{content:"";width:6px;height:6px;border-radius:99px;background:currentColor;opacity:.75}
+.st-completed,.st-publish{background:#ecfdf5;color:#0d9488}
+.st-pending{background:#fffbeb;color:#b45309}
+.st-processing{background:#eff6ff;color:#2563eb}
+.st-on-hold,.st-draft{background:#f1f3f5;color:#475569}
+.st-cancelled,.st-failed{background:#fef2f2;color:#dc2626}
+.st-refunded,.st-private{background:#f5f3ff;color:#6d28d9}
+
+/* row actions */
+.acts{display:flex;gap:6px;justify-content:flex-end}
+.act{width:28px;height:28px;border-radius:8px;border:1px solid var(--c-border-2);background:#fff;color:var(--c-text-3);display:grid;place-items:center;font-size:12px}
+.act:hover{background:#f1f3f5;color:var(--c-text)}
+.act.danger:hover{background:#fef2f2;color:#dc2626;border-color:#fecaca}
+.store-mini{font-size:11px;color:var(--c-slate);margin-top:2px}
+.synced{display:flex;gap:8px;font-size:11.5px;color:var(--c-text-2);font-variant-numeric:tabular-nums}
+.synced b{font-weight:700;color:var(--c-text)}
+.assignees{display:flex;flex-wrap:wrap;gap:4px}
+.asg{font-size:10.5px;font-weight:700;background:#f1f3f5;color:var(--c-text-2);border-radius:99px;padding:3px 8px;white-space:nowrap}
+
+/* pager + empty */
+.pager{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-top:1px solid #f1f3f5;font-size:12px;color:var(--c-slate)}
+.pg-btns{display:flex;gap:6px}
+.pg{height:28px;min-width:28px;padding:0 9px;border-radius:8px;border:1px solid var(--c-border-2);background:#fff;font-size:12px;font-weight:700;color:var(--c-text-2)}
+.pg:hover:not(:disabled){background:#f1f3f5}
+.pg:disabled{opacity:.4;cursor:default}
+.empty{padding:44px 16px;text-align:center;color:var(--c-slate)}
+.empty .big{font-size:26px;margin-bottom:6px}
+.empty b{display:block;color:var(--c-text-2);font-size:14px;margin-bottom:3px}
+
+/* order detail */
+.dt-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.dt-title{font-size:18px;font-weight:700;letter-spacing:-.01em}
+.dt-when{font-size:12px;color:var(--c-slate)}
+.dt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid #f1f3f5;font-size:13px}
+.kv:last-child{border-bottom:0}
+.kv .k{color:var(--c-slate)}
+.kv .val{font-weight:600;text-align:right;word-break:break-word}
+.dt-2{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:16px}
+.tot-row{display:flex;justify-content:space-between;padding:8px 0;font-size:13px;color:var(--c-text-2);border-bottom:1px solid #f1f3f5}
+.tot-row:last-child{border-bottom:0}
+.tot-row .tv{font-weight:600;color:var(--c-text);font-variant-numeric:tabular-nums}
+.tot-row.grand{border-top:2px solid var(--c-border-2);border-bottom:0;margin-top:4px;padding-top:12px;font-size:15px;font-weight:800;color:var(--c-text)}
+.note-box{background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.55;margin-top:14px}
+.note-box b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+
+/* buttons (calendar set) */
+.mini-btn{font-size:11.5px;font-weight:700;border-radius:8px;padding:6px 11px;background:#f1f3f5;color:var(--c-text-2);border:0}
+.mini-btn:hover{background:#e9ecef}
+.btn-ghost{height:36px;border-radius:9px;background:#f1f3f5;border:0;color:var(--c-text-2);font-size:13px;font-weight:700;padding:0 16px}
+.btn-ghost:hover{background:#e9ecef}
+.btn-accent{height:36px;border-radius:9px;background:var(--c-accent);border:0;color:#fff;font-size:13px;font-weight:700;padding:0 18px;box-shadow:0 1px 2px rgba(13,148,136,.35)}
+.btn-accent:hover{background:#0b7c72}
+.btn-danger-ghost{height:36px;border-radius:9px;background:#fef2f2;border:1px solid #fecaca;color:#dc2626;font-size:13px;font-weight:700;padding:0 16px}
+.btn-danger-ghost:hover{background:#fee2e2}
+
+/* modals */
+.m-back{position:fixed;inset:0;background:rgba(15,23,42,.45);backdrop-filter:blur(1.5px);z-index:70;display:none;align-items:flex-start;justify-content:center;padding:70px 16px 30px;overflow:auto}
+.m-back.open{display:flex}
+.m-dialog{background:var(--c-surface);border-radius:var(--r-xl);box-shadow:0 24px 60px rgba(15,23,42,.28);width:100%;max-width:540px;animation:pop .16s ease-out}
+.m-dialog.wide{max-width:600px}
+@keyframes pop{from{transform:translateY(8px);opacity:.4}to{transform:none;opacity:1}}
+.m-head{display:flex;align-items:center;gap:10px;padding:18px 20px 0}
+.m-head h3{margin:0;font-size:16.5px;font-weight:700;letter-spacing:-.01em}
+.m-head .sub{font-size:12px;color:var(--c-slate);margin-top:2px}
+.m-x{margin-left:auto;width:30px;height:30px;border-radius:999px;background:#f1f3f5;border:0;color:var(--c-text-3);font-size:14px;display:grid;place-items:center}
+.m-x:hover{background:#e9ecef;color:var(--c-text)}
+.m-body{padding:16px 20px 4px}
+.m-sec{font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--c-slate);margin:14px 0 9px}
+.m-sec:first-child{margin-top:0}
+.m-foot{display:flex;justify-content:flex-end;gap:9px;padding:14px 20px 18px;border-top:1px solid #f1f3f5;margin-top:16px}
+.f-row{margin-bottom:13px}
+.f-row label{display:block;font-size:12.5px;font-weight:700;color:var(--c-text-2);margin-bottom:6px}
+.f-row label .req{color:var(--c-danger)}
+.inp{width:100%;height:38px;border-radius:9px;border:1px solid var(--c-border-2);background:#fff;padding:0 12px;font-size:13.5px;color:var(--c-text);outline:none;font-family:inherit}
+.inp:focus{border-color:var(--c-accent);box-shadow:0 0 0 3px rgba(13,148,136,.12)}
+.inp[readonly]{background:#f8f9fa;color:var(--c-text-3)}
+textarea.inp{height:74px;padding:9px 12px;resize:vertical}
+select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2394a3b8' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.f-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.ck-chip{display:inline-flex;align-items:center;gap:7px;background:#f1f3f5;border-radius:999px;padding:6px 13px;font-size:12.5px;font-weight:600;color:var(--c-text-2);cursor:pointer;border:1px solid transparent;user-select:none}
+.ck-chip.on{background:#ecfdf5;color:#0d9488;border-color:#99f6e4}
+.live-pill{display:flex;align-items:center;gap:10px;background:#f8f9fa;border:1px solid var(--c-border-2);border-radius:12px;padding:11px 13px;margin-bottom:14px}
+.live-pill .lp-l{font-size:11.5px;color:var(--c-slate);font-weight:600}
+
+/* toasts */
+#toasts{position:fixed;right:18px;bottom:18px;display:flex;flex-direction:column;gap:8px;z-index:90}
+.toast{background:#14181c;color:#fff;font-size:13px;border-radius:10px;padding:11px 15px;box-shadow:0 12px 30px rgba(15,23,42,.35);display:flex;gap:9px;align-items:center;animation:tin .18s ease-out;max-width:360px}
+.toast.ok{border-left:3px solid #10b981}
+.toast.warn{border-left:3px solid #f59e0b}
+.toast.err{border-left:3px solid #dc2626}
+@keyframes tin{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
+
+@media (max-width:1100px){
+  .sidebar{display:none}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .dt-grid,.dt-2{grid-template-columns:1fr}
+}
+@media (max-width:760px){ .kpi-grid{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ============ sidebar ============ -->
+  <aside class="sidebar">
+    <div class="brand"><span class="tile">T</span><span class="name">TIC Limited</span></div>
+    <div class="side-search"><input placeholder="Search menu"></div>
+    <div class="grp">CRM &amp; Clients</div>
+    <nav class="nav">
+      <a><span class="dot"></span>Dashboard</a>
+      <a><span class="dot"></span>Clients</a>
+      <a><span class="dot"></span>Leads &amp; Opportunities</a>
+    </nav>
+    <div class="grp">Projects &amp; Tasks</div>
+    <nav class="nav">
+      <a><span class="dot"></span>Projects</a>
+      <a><span class="dot"></span>Tasks</a>
+    </nav>
+    <div class="grp">Finance &amp; Billing</div>
+    <nav class="nav">
+      <a><span class="dot"></span>Invoices</a>
+      <a><span class="dot"></span>Payments</a>
+    </nav>
+    <div class="grp">Tools &amp; Admin</div>
+    <nav class="nav">
+      <a><span class="dot"></span>Reports</a>
+      <a><span class="dot"></span>Settings</a>
+    </nav>
+    <div class="grp">Woocommerce</div>
+    <nav class="nav">
+      <a id="nav-orders" class="on" onclick="go('orders')"><span class="dot"></span>Orders<span class="cnt">1.5k</span></a>
+      <a id="nav-products" onclick="go('products')"><span class="dot"></span>Products<span class="cnt">741</span></a>
+      <a id="nav-customers" onclick="go('customers')"><span class="dot"></span>Customers<span class="cnt">2.1k</span></a>
+      <a id="nav-stores" onclick="go('stores')"><span class="dot"></span>Stores<span class="cnt">3</span></a>
+    </nav>
+  </aside>
+
+  <!-- ============ main ============ -->
+  <div class="main">
+    <header class="topbar">
+      <div class="burger">&#9776;</div>
+      <div class="crumb">Woocommerce<b id="crumbPage">Orders</b></div>
+      <div class="tpill">&#9906;&nbsp; Search orders, products, customers...</div>
+      <div class="spacer"></div>
+      <div class="chip-btn">&#9673;<span class="badge">3</span></div>
+      <div class="chip-btn">&#9873;</div>
+      <div class="avatar">FR</div>
+      <button class="btn-new" onclick="topNew()">&plus; New</button>
+    </header>
+
+    <main class="page">
+
+      <!-- ==================== ORDERS ==================== -->
+      <section class="pv on" id="pv-orders">
+        <div id="ordersList">
+          <h1 class="page-t">Orders</h1>
+
+          <div class="kpi-strip"><div class="kpi-grid">
+            <div class="kpi-card"><div class="k-i cyan">&#128722;</div><div><div class="v">1,496</div><div class="l">Total orders</div></div></div>
+            <div class="kpi-card"><div class="k-i ok">&#36;</div><div><div class="v">$21,100.65</div><div class="l">Revenue (completed)</div></div></div>
+            <div class="kpi-card"><div class="k-i amb">&#8987;</div><div><div class="v">11</div><div class="l">Pending / processing</div></div></div>
+            <div class="kpi-card"><div class="k-i ok">&#10003;</div><div><div class="v">591</div><div class="l">Completed</div></div></div>
+          </div></div>
+
+          <section class="card">
+            <div class="list-toolbar">
+              <div class="tsearch"><span class="ico">&#9906;</span><input id="qOrders" placeholder="Search all columns..." oninput="state.orders.q=this.value;state.orders.page=1;renderOrders()"></div>
+              <div class="dd-wrap">
+                <button class="filter-pill" onclick="toggleDD(event,'ddStatusO')"><span class="c-dot"></span><span id="lblStatusO">All statuses</span>&#9662;</button>
+                <div class="dd" id="ddStatusO" onclick="event.stopPropagation()"></div>
+              </div>
+              <div class="dd-wrap">
+                <button class="filter-pill" onclick="toggleDD(event,'ddStoreO')"><span class="c-dot"></span><span id="lblStoreO">All stores</span>&#9662;</button>
+                <div class="dd" id="ddStoreO" onclick="event.stopPropagation()"></div>
+              </div>
+              <div class="tb-right">
+                <button class="icon-btn" title="Export CSV" onclick="toast('CSV export started (demo)','ok')">&#8681;</button>
+                <button class="icon-btn" title="Export PDF" onclick="toast('PDF export started (demo)','ok')">&#128196;</button>
+                <button class="icon-btn" title="Print" onclick="toast('Send to printer (demo)','ok')">&#9113;</button>
+              </div>
+            </div>
+            <div class="tbl-wrap">
+              <table class="tbl">
+                <thead><tr>
+                  <th>Order #</th><th>Customer</th><th>Store</th>
+                  <th class="t-r">Total</th><th>Status</th><th>Date</th>
+                  <th class="t-r">Actions</th>
+                </tr></thead>
+                <tbody id="ordersBody"></tbody>
+              </table>
+            </div>
+            <div id="ordersEmpty" style="display:none"></div>
+            <div class="pager" id="pagerOrders">
+              <span id="pgInfoOrders"></span>
+              <div class="pg-btns">
+                <button class="pg" id="pgPrevO" onclick="setPage('orders',state.orders.page-1)">&#8249;</button>
+                <button class="pg" id="pgNextO" onclick="setPage('orders',state.orders.page+1)">&#8250;</button>
+              </div>
+            </div>
+          </section>
+
+          <p class="note" style="margin-top:16px">WooCommerce redesign demo &mdash; dashboard tokens &amp; card system, sample rows are real synced data. Try the search box, status &amp; store filter pills, row actions, or click an order to open its detail page.</p>
+        </div>
+
+        <!-- order detail -->
+        <div id="ordersDetail" style="display:none">
+          <div class="dt-bar">
+            <button class="mini-btn" onclick="closeOrder()">&#8249; Back to orders</button>
+            <span class="dt-title" id="dtTitle">#18037</span>
+            <span id="dtStatus"></span>
+            <span class="dt-when" id="dtWhen"></span>
+            <div class="tb-right">
+              <button class="btn-ghost" onclick="toast('Send to printer (demo)','ok')">&#9113; Print</button>
+              <button class="btn-accent" onclick="openStatus(CUR_ORDER)">Edit status</button>
+            </div>
+          </div>
+
+          <div class="dt-grid">
+            <section class="card"><div class="card-h"><div><h3>Customer</h3><div class="sub" id="dtStoreSub">DigitalSoftwareKey</div></div></div>
+              <div class="card-b">
+                <div class="kv"><span class="k">Name</span><span class="val" id="dtName"></span></div>
+                <div class="kv"><span class="k">Email</span><span class="val" id="dtEmail"></span></div>
+                <div class="kv"><span class="k">Phone</span><span class="val" id="dtPhone"></span></div>
+              </div>
+            </section>
+            <section class="card"><div class="card-h"><div><h3>Billing details</h3></div></div>
+              <div class="card-b">
+                <div class="kv"><span class="k">Address</span><span class="val" id="dtBillAddr"></span></div>
+                <div class="kv"><span class="k">Payment</span><span class="val">WooCommerce checkout</span></div>
+                <div class="kv"><span class="k">Currency</span><span class="val">USD</span></div>
+              </div>
+            </section>
+            <section class="card"><div class="card-h"><div><h3>Shipping details</h3></div></div>
+              <div class="card-b">
+                <div class="kv"><span class="k">Address</span><span class="val" id="dtShipAddr"></span></div>
+                <div class="kv"><span class="k">Method</span><span class="val">Electronic delivery</span></div>
+                <div class="kv"><span class="k">Status</span><span class="val">Sent</span></div>
+              </div>
+            </section>
+          </div>
+
+          <div class="dt-2">
+            <section class="card">
+              <div class="card-h"><div><h3>Line items</h3><div class="sub">Loaded from the WooCommerce API</div></div></div>
+              <div class="card-b" style="padding:12px 0 0">
+                <div class="tbl-wrap">
+                  <table class="tbl" style="min-width:520px">
+                    <thead><tr><th>Item</th><th class="t-r">Qty</th><th class="t-r">Price</th><th class="t-r">Total</th></tr></thead>
+                    <tbody id="dtItems"></tbody>
+                  </table>
+                </div>
+                <div id="dtItemsEmpty" class="empty" style="display:none">
+                  <div class="big">&#9776;</div>
+                  <b>No line items stored locally</b>
+                  They load live from the WooCommerce API when the order detail opens.
+                </div>
+              </div>
+            </section>
+            <section class="card">
+              <div class="card-h"><div><h3>Order totals</h3></div></div>
+              <div class="card-b">
+                <div class="tot-row"><span>Subtotal</span><span class="tv" id="dtSub">&mdash;</span></div>
+                <div class="tot-row"><span>Discount</span><span class="tv" id="dtDisc">&mdash;</span></div>
+                <div class="tot-row"><span>Shipping</span><span class="tv" id="dtShip">&mdash;</span></div>
+                <div class="tot-row"><span>Tax</span><span class="tv" id="dtTax">&mdash;</span></div>
+                <div class="tot-row grand"><span>Total</span><span class="tv" id="dtTotal"></span></div>
+              </div>
+            </section>
+          </div>
+
+          <div class="note-box" id="dtNote" style="display:none"><b>Customer note</b><span id="dtNoteText"></span></div>
+        </div>
+      </section>
+
+      <!-- ==================== PRODUCTS ==================== -->
+      <section class="pv" id="pv-products">
+        <h1 class="page-t">Products</h1>
+
+        <div class="kpi-strip"><div class="kpi-grid">
+          <div class="kpi-card"><div class="k-i cyan">&#128230;</div><div><div class="v">741</div><div class="l">Total products</div></div></div>
+          <div class="kpi-card"><div class="k-i ok">&#10003;</div><div><div class="v">728</div><div class="l">Published</div></div></div>
+          <div class="kpi-card"><div class="k-i amb">&#9998;</div><div><div class="v">7</div><div class="l">Draft</div></div></div>
+          <div class="kpi-card"><div class="k-i pur">&#36;</div><div><div class="v">826</div><div class="l">Total sales</div></div></div>
+        </div></div>
+
+        <section class="card">
+          <div class="list-toolbar">
+            <div class="tsearch"><span class="ico">&#9906;</span><input id="qProducts" placeholder="Search name, SKU, category..." oninput="state.products.q=this.value;state.products.page=1;renderProducts()"></div>
+            <div class="dd-wrap">
+              <button class="filter-pill" onclick="toggleDD(event,'ddStatusP')"><span class="c-dot"></span><span id="lblStatusP">All statuses</span>&#9662;</button>
+              <div class="dd" id="ddStatusP" onclick="event.stopPropagation()"></div>
+            </div>
+            <div class="dd-wrap">
+              <button class="filter-pill" onclick="toggleDD(event,'ddStoreP')"><span class="c-dot"></span><span id="lblStoreP">All stores</span>&#9662;</button>
+              <div class="dd" id="ddStoreP" onclick="event.stopPropagation()"></div>
+            </div>
+            <div class="tb-right">
+              <button class="icon-btn" title="Export CSV" onclick="toast('CSV export started (demo)','ok')">&#8681;</button>
+              <button class="icon-btn" title="Export PDF" onclick="toast('PDF export started (demo)','ok')">&#128196;</button>
+            </div>
+          </div>
+          <div class="tbl-wrap">
+            <table class="tbl">
+              <thead><tr>
+                <th>Product</th><th class="t-r">Price</th><th class="t-r">Sales</th>
+                <th>Status</th><th>Store</th><th class="t-r">Actions</th>
+              </tr></thead>
+              <tbody id="productsBody"></tbody>
+            </table>
+          </div>
+          <div id="productsEmpty" style="display:none"></div>
+          <div class="pager" id="pagerProducts">
+            <span id="pgInfoProducts"></span>
+            <div class="pg-btns">
+              <button class="pg" id="pgPrevP" onclick="setPage('products',state.products.page-1)">&#8249;</button>
+              <button class="pg" id="pgNextP" onclick="setPage('products',state.products.page+1)">&#8250;</button>
+            </div>
+          </div>
+        </section>
+
+        <p class="note" style="margin-top:16px">Every product carries its SKU/category data (stored but never shown today), thumbnails, and a status pill. Row actions: open on the store, edit, delete.</p>
+      </section>
+
+      <!-- ==================== CUSTOMERS ==================== -->
+      <section class="pv" id="pv-customers">
+        <h1 class="page-t">Customers</h1>
+
+        <div class="kpi-strip"><div class="kpi-grid">
+          <div class="kpi-card"><div class="k-i cyan">&#128101;</div><div><div class="v">2,133</div><div class="l">Total customers</div></div></div>
+          <div class="kpi-card"><div class="k-i ok">&#10003;</div><div><div class="v">15</div><div class="l">Paying</div></div></div>
+          <div class="kpi-card"><div class="k-i amb">&#127978;</div><div><div class="v">3</div><div class="l">Active stores</div></div></div>
+          <div class="kpi-card"><div class="k-i pur">&#128230;</div><div><div class="v">1,496</div><div class="l">Orders</div></div></div>
+        </div></div>
+
+        <section class="card">
+          <div class="list-toolbar">
+            <div class="tsearch"><span class="ico">&#9906;</span><input id="qCustomers" placeholder="Search name, email, phone..." oninput="state.customers.q=this.value;state.customers.page=1;renderCustomers()"></div>
+            <div class="dd-wrap">
+              <button class="filter-pill" onclick="toggleDD(event,'ddStoreC')"><span class="c-dot"></span><span id="lblStoreC">All stores</span>&#9662;</button>
+              <div class="dd" id="ddStoreC" onclick="event.stopPropagation()"></div>
+            </div>
+            <div class="tb-right">
+              <button class="icon-btn" title="Export CSV" onclick="toast('CSV export started (demo)','ok')">&#8681;</button>
+              <button class="icon-btn" title="Export PDF" onclick="toast('PDF export started (demo)','ok')">&#128196;</button>
+            </div>
+          </div>
+          <div class="tbl-wrap">
+            <table class="tbl">
+              <thead><tr>
+                <th>Customer</th><th>Email</th><th>Phone</th><th>Store</th>
+                <th class="t-r">Orders</th><th class="t-r">Actions</th>
+              </tr></thead>
+              <tbody id="customersBody"></tbody>
+            </table>
+          </div>
+          <div id="customersEmpty" style="display:none"></div>
+          <div class="pager" id="pagerCustomers">
+            <span id="pgInfoCustomers"></span>
+            <div class="pg-btns">
+              <button class="pg" id="pgPrevC" onclick="setPage('customers',state.customers.page-1)">&#8249;</button>
+              <button class="pg" id="pgNextC" onclick="setPage('customers',state.customers.page+1)">&#8250;</button>
+            </div>
+          </div>
+        </section>
+
+        <p class="note" style="margin-top:16px">Avatars come from each customer's WooCommerce profile; the Orders column counts rows in <code>tbl_woocommerce_orders</code> per customer.</p>
+      </section>
+
+      <!-- ==================== STORES ==================== -->
+      <section class="pv" id="pv-stores">
+        <h1 class="page-t">Stores</h1>
+
+        <div class="kpi-strip"><div class="kpi-grid">
+          <div class="kpi-card"><div class="k-i cyan">&#127978;</div><div><div class="v" id="kStCount">3</div><div class="l">Total stores</div></div></div>
+          <div class="kpi-card"><div class="k-i ok">&#128722;</div><div><div class="v" id="kStOrders">3,039</div><div class="l">Synced orders</div></div></div>
+          <div class="kpi-card"><div class="k-i amb">&#128230;</div><div><div class="v" id="kStProducts">776</div><div class="l">Synced products</div></div></div>
+          <div class="kpi-card"><div class="k-i pur">&#128101;</div><div><div class="v" id="kStCustomers">2,961</div><div class="l">Synced customers</div></div></div>
+        </div></div>
+
+        <section class="card">
+          <div class="list-toolbar">
+            <div class="tsearch"><span class="ico">&#9906;</span><input id="qStores" placeholder="Search stores..." oninput="state.stores.q=this.value;state.stores.page=1;renderStores()"></div>
+            <div class="tb-right">
+              <button class="btn-new" onclick="openStore(null)">&plus; New store</button>
+            </div>
+          </div>
+          <div class="tbl-wrap">
+            <table class="tbl">
+              <thead><tr>
+                <th>Store</th><th>Assigned to</th><th>Synced</th><th>Created</th><th class="t-r">Actions</th>
+              </tr></thead>
+              <tbody id="storesBody"></tbody>
+            </table>
+          </div>
+          <div id="storesEmpty" style="display:none"></div>
+          <div class="pager" id="pagerStores">
+            <span id="pgInfoStores"></span>
+            <div class="pg-btns">
+              <button class="pg" id="pgPrevS" onclick="setPage('stores',state.stores.page-1)">&#8249;</button>
+              <button class="pg" id="pgNextS" onclick="setPage('stores',state.stores.page+1)">&#8250;</button>
+            </div>
+          </div>
+        </section>
+
+        <p class="note" style="margin-top:16px">Synced totals come from <code>tbl_woocommerce_summary</code> &mdash; real data your app fetches on every sync but never displays anywhere. Row actions: sync, test connection, edit, reset, delete.</p>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ============ MODAL: edit order status ============ -->
+<div class="m-back" id="mStatus" onclick="if(event.target===this)closeModal(this)">
+  <div class="m-dialog">
+    <div class="m-head">
+      <div><h3>Update order</h3><div class="sub" id="msSub">Order details</div></div>
+      <button class="m-x" onclick="closeModal(document.getElementById('mStatus'))">&#10005;</button>
+    </div>
+    <div class="m-body">
+      <div class="f-2">
+        <div class="f-row"><label>Order #</label><input class="inp" id="msOrder" readonly></div>
+        <div class="f-row"><label>Status <span class="req">*</span></label>
+          <select class="inp" id="msStatus" onchange="document.getElementById('msPill').innerHTML=pillHTML(this.value)">
+            <option value="pending">Pending payment</option>
+            <option value="processing">Processing</option>
+            <option value="on-hold">On hold</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+            <option value="refunded">Refunded</option>
+            <option value="failed">Failed</option>
+          </select>
+        </div>
+      </div>
+      <div class="live-pill"><span class="lp-l">Preview</span><span id="msPill"></span></div>
+      <p class="note">Changing the status here pushes the update to the WooCommerce API, exactly like the current app does.</p>
+    </div>
+    <div class="m-foot">
+      <button class="btn-ghost" onclick="closeModal(document.getElementById('mStatus'))">Cancel</button>
+      <button class="btn-accent" onclick="saveStatus()">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: store ============ -->
+<div class="m-back" id="mStore" onclick="if(event.target===this)closeModal(this)">
+  <div class="m-dialog wide">
+    <div class="m-head">
+      <div><h3 id="mstoreTitle">New store</h3><div class="sub">Connect a WooCommerce store via REST API</div></div>
+      <button class="m-x" onclick="closeModal(document.getElementById('mStore'))">&#10005;</button>
+    </div>
+    <div class="m-body">
+      <div class="m-sec">Store</div>
+      <div class="f-row"><label>Store name <span class="req">*</span></label><input class="inp" id="mstoreName" placeholder="e.g. MicroProkey"></div>
+      <div class="f-row"><label>WooCommerce website URL <span class="req">*</span></label><input class="inp" id="mstoreUrl" placeholder="https://example.com/"></div>
+      <div class="m-sec">API credentials</div>
+      <div class="f-2">
+        <div class="f-row"><label>Consumer key <span class="req">*</span></label><input class="inp" id="mstoreKey" placeholder="ck_..."></div>
+        <div class="f-row"><label>Consumer secret <span class="req">*</span></label><input class="inp" id="mstoreSecret" type="password" placeholder="cs_..."></div>
+      </div>
+      <div class="m-sec">Assignees</div>
+      <div class="chips" id="mstoreAssignees"></div>
+    </div>
+    <div class="m-foot">
+      <button class="btn-ghost" onclick="closeModal(document.getElementById('mStore'))">Cancel</button>
+      <button class="btn-accent" onclick="saveStore()">Save store</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: edit product ============ -->
+<div class="m-back" id="mProduct" onclick="if(event.target===this)closeModal(this)">
+  <div class="m-dialog">
+    <div class="m-head">
+      <div><h3>Update product</h3><div class="sub" id="mpSub">Product details</div></div>
+      <button class="m-x" onclick="closeModal(document.getElementById('mProduct'))">&#10005;</button>
+    </div>
+    <div class="m-body">
+      <div class="f-row"><label>Name <span class="req">*</span></label><input class="inp" id="mpName"></div>
+      <div class="f-2">
+        <div class="f-row"><label>Price</label><input class="inp" id="mpPrice"></div>
+        <div class="f-row"><label>Status</label>
+          <select class="inp" id="mpStatus">
+            <option value="publish">Publish</option><option value="draft">Draft</option>
+            <option value="pending">Pending</option><option value="private">Private</option>
+          </select>
+        </div>
+      </div>
+      <div class="f-row"><label>Short description</label><textarea class="inp" id="mpDesc" placeholder="Describe the product..."></textarea></div>
+    </div>
+    <div class="m-foot">
+      <button class="btn-ghost" onclick="closeModal(document.getElementById('mProduct'))">Cancel</button>
+      <button class="btn-accent" onclick="saveProduct()">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: edit customer ============ -->
+<div class="m-back" id="mCustomer" onclick="if(event.target===this)closeModal(this)">
+  <div class="m-dialog">
+    <div class="m-head">
+      <div><h3>Update customer</h3><div class="sub" id="mcSub">Customer details</div></div>
+      <button class="m-x" onclick="closeModal(document.getElementById('mCustomer'))">&#10005;</button>
+    </div>
+    <div class="m-body">
+      <div class="f-row"><label>Username</label><input class="inp" id="mcUsername" readonly></div>
+      <div class="f-2">
+        <div class="f-row"><label>First name</label><input class="inp" id="mcFirst"></div>
+        <div class="f-row"><label>Last name</label><input class="inp" id="mcLast"></div>
+      </div>
+      <div class="f-row"><label>Email</label><input class="inp" id="mcEmail"></div>
+    </div>
+    <div class="m-foot">
+      <button class="btn-ghost" onclick="closeModal(document.getElementById('mCustomer'))">Cancel</button>
+      <button class="btn-accent" onclick="saveCustomer()">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<div id="toasts"></div>
+
+<script>
+/* ================= data (real synced rows, display-sanitized) ================= */
+var STORES = {
+  1:{name:'MicroProkey', url:'microprokey.com', created:'2024-10-01', assignees:['Forid Mondol'], orders:1387, products:194, customers:2055},
+  2:{name:'DigitalSoftwareKey', url:'digitalsoftwarekey.com', created:'2024-10-01', assignees:['Forid Mondol','Moktadir Rahman','Tanjid Rashel','Raju Ahamed','mst sadia akter'], orders:821, products:256, customers:705},
+  3:{name:'MsKeyDeals', url:'mskeydeals.com', created:'2024-10-01', assignees:['Forid Mondol','Moktadir Rahman','Tanjid Rashel','Raju Ahamed','mst sadia akter'], orders:831, products:326, customers:201}
+};
+var ALL_ASSIGNEES = ['Forid Mondol','Moktadir Rahman','Tanjid Rashel','Raju Ahamed','mst sadia akter'];
+
+var ORDERS = [
+  {n:19488, st:'processing', total:31.89, date:'2026-01-23', s:2, name:'', email:'', phone:'', addr:'',
+   items:[{n:'Windows 10 Home OEM License - Single User Lifetime',q:1,p:49.99}], disc:20, ship:0, tax:1.90, note:''},
+  {n:19486, st:'refunded', total:41.22, date:'2026-01-23', s:2, name:'', email:'', phone:'', addr:'', items:null},
+  {n:18221, st:'refunded', total:37.34, date:'2025-05-03', s:2, name:'', email:'', phone:'351964842233', addr:'', items:null},
+  {n:18100, st:'refunded', total:58.89, date:'2025-04-07', s:2, name:'', email:'', phone:'', addr:'', items:null},
+  {n:18087, st:'refunded', total:49.99, date:'2025-04-04', s:2, name:'', email:'', phone:'15868232698', addr:'', items:null},
+  {n:18037, st:'completed', total:20.99, date:'2025-03-22', s:2, name:'Tim Roddy', email:'trod@comcast.net', phone:'18658063691', addr:'2918 Hinds Creek Road, , , US',
+   items:[{n:'Buy Windows 10 Pro OEM License – Genuine Product Key',q:1,p:32.99}], disc:15, ship:0, tax:3.00, note:'Key by email please – I\u2019m offline after 6 PM CET.'},
+  {n:18036, st:'completed', total:29.99, date:'2025-03-22', s:2, name:'', email:'', phone:'12524321437', addr:'174 lake royale - 105 Kiowa Co, , , US', items:null},
+  {n:18021, st:'completed', total:7.79, date:'2025-03-22', s:2, name:'', email:'', phone:'', addr:'507 S. Cottonwood Rd., , , US', items:null},
+  {n:18020, st:'completed', total:52.79, date:'2025-03-22', s:2, name:'', email:'', phone:'', addr:'2800 Plaza del Amo Unit 52, , , US', items:null},
+  {n:18019, st:'cancelled', total:95.40, date:'2025-03-21', s:2, name:'', email:'', phone:'', addr:'24 Newmarket Way, , , GB', items:null},
+  {n:18018, st:'completed', total:38.99, date:'2025-03-21', s:2, name:'', email:'', phone:'+60379587388', addr:'Dream Centre, 2 Jalan 13/1, Seksyen 13, , , MY', items:null},
+  {n:18017, st:'completed', total:9.59, date:'2025-03-21', s:2, name:'', email:'', phone:'', addr:'Beethovenstr. 10, , , DE', items:null},
+  {n:18016, st:'completed', total:59.99, date:'2025-03-20', s:2, name:'', email:'', phone:'9128825327', addr:'PO Box 2598, , , US', items:null},
+  {n:17989, st:'completed', total:59.99, date:'2025-03-20', s:2, name:'', email:'', phone:'', addr:'720 U.S. 377, suite 140 - PMB 277, , , US', items:null},
+  {n:17988, st:'completed', total:0.00, date:'2025-03-19', s:2, name:'', email:'alinefrye40@dust.claxyn.org', phone:'', addr:'aloker mor, , , US', items:null},
+  {n:17983, st:'failed', total:21.99, date:'2025-03-19', s:2, name:'', email:'', phone:'', addr:'123 pearl street lancaster pa 17603, , , US', items:null},
+  {n:17982, st:'completed', total:239.96, date:'2025-03-19', s:2, name:'', email:'', phone:'13107259688', addr:'27042 Towne Centre Dr, Ste 250, , , US',
+   items:[{n:'Microsoft Office 2019 Professional Plus 5 PC',q:1,p:99.99},{n:'Windows 11 Pro Upgrade from Windows 11 Home',q:2,p:39.00},{n:'Windows 10 Pro OEM License – Genuine Product Key',q:1,p:32.99}], disc:0, ship:0, tax:28.98, note:''},
+  {n:15755, st:'pending', total:30.79, date:'2024-09-25', s:2, name:'', email:'zangza@hotmail.com', phone:'', addr:'',
+   items:[{n:'Microsoft Office 2016 Standard',q:1,p:49.99}], disc:20, ship:0, tax:0.80, note:''},
+  {n:11216, st:'completed', total:28.79, date:'2022-11-30', s:1, name:'', email:'', phone:'', addr:'10033 W 186th St S., Sapulpa, OK, US', items:null},
+  {n:11197, st:'completed', total:28.79, date:'2022-11-28', s:1, name:'Nathan Schwemer', email:'mamma-cicadas.0r@icloud.com', phone:'9254516888', addr:'5806 Wolf Pack Dr, Pflugerville, TX, US',
+   items:[{n:'Windows XP Pro SP3 Lifetime License',q:1,p:24.00}], disc:0, ship:0, tax:4.79, note:''},
+  {n:11182, st:'cancelled', total:35.99, date:'2022-11-28', s:1, name:'', email:'', phone:'4039688337', addr:'24306 Meadow Drive, Calgary, AB, CA', items:null},
+  {n:5975, st:'processing', total:0.00, date:'2024-07-13', s:3, name:'', email:'mohonmondol0231@gmail.com', phone:'+8801786180499', addr:'', items:null},
+  {n:5884, st:'cancelled', total:49.68, date:'2024-07-12', s:3, name:'kouz ogon', email:'kanpeitou@gmail.com', phone:'', addr:'7th street, , , US', items:null},
+  {n:5882, st:'failed', total:17.83, date:'2024-07-12', s:3, name:'David Lightner', email:'prateektalk52@gmail.com', phone:'12102567191', addr:'34 Allen street, , , US', items:null},
+  {n:5881, st:'completed', total:19.10, date:'2024-07-12', s:3, name:'', email:'', phone:'', addr:'55 Broadway, , , US', items:null}
+];
+
+var P = 'https://microprokey.com/wp-content/uploads/';
+var PRODUCTS = [
+  {name:'Windows XP Pro SP3 Lifetime License', st:'draft', price:24, sales:4, cat:'Windows', s:1, sku:'WXP-SP3', pic:P+'2024/03/Windows-XP-Pro-SP3-scaled.webp'},
+  {name:'Windows server data center 2022 (16 cores)', st:'publish', price:399, sales:0, cat:'Windows Server', s:1, sku:'WS22-DC-16', pic:P+'2024/02/Windows-server-data-center-2022-16-cores.webp'},
+  {name:'Windows Server 2012 Standard', st:'publish', price:179.99, sales:0, cat:'Microsoft Server', s:1, sku:'WS12-STD', pic:P+'2024/02/Windows-Server-2012-Standard.webp'},
+  {name:'Windows Small Business Server 2011 Standard', st:'publish', price:99.99, sales:0, cat:'Microsoft Server', s:1, sku:'SBS-2011', pic:P+'2024/02/2011WindowsServerR2Standard_380x380.webp'},
+  {name:'Windows Server 2016 Standard Core Add-on', st:'publish', price:69.99, sales:0, cat:'Windows Server', s:1, sku:'WS16-CORE', pic:P+'2024/02/Windows-server-2016-standard-Core-Add-On.webp'},
+  {name:'Windows Server 2019 Standard Core Add-on', st:'publish', price:79.99, sales:0, cat:'Windows Server', s:1, sku:'WS19-CORE', pic:P+'2024/02/2019WSStandard16Core_b20167ed-b0e3-4e3d-abe8-2b9a7def88ab_380x380.webp'},
+  {name:'Windows Server 2016 Datacenter Core Add-on', st:'publish', price:349.99, sales:0, cat:'Windows Server', s:1, sku:'WS16-DC', pic:P+'2024/02/Windows-server-2016-dataCenter-Core-Add-On.webp'},
+  {name:'Windows Server 2019 Datacenter Core Add-on', st:'publish', price:399.99, sales:0, cat:'Windows Server', s:1, sku:'WS19-DC', pic:P+'2024/02/Windows-Server-2019-DataCenter.jpg'},
+  {name:'Microsoft Office 2021 Professional Plus 5 PC', st:'publish', price:149.99, sales:1, cat:'Microsoft Office', s:1, sku:'OF21-5PC', pic:P+'2024/02/Office-Professional-Plus-2021-5pc.webp'},
+  {name:'Microsoft Office 2019 Professional Plus 5 PC', st:'publish', price:99.99, sales:1, cat:'Microsoft Office', s:1, sku:'OF19-5PC', pic:P+'2024/02/Office-Professional-Plus-2019-5pc.webp'},
+  {name:'Microsoft Visual Studio 2022', st:'publish', price:99.99, sales:0, cat:'Visual Studio', s:1, sku:'VS2022-PRO', pic:P+'2024/02/Microsoft-Visual-Studio-2022.jpg'},
+  {name:'Windows 11 Pro Upgrade from Windows 11 Home', st:'publish', price:39, sales:10, cat:'Windows 11', s:1, sku:'W11-UPG', pic:P+'2024/02/Windows-11-pro-upgrade.webp'},
+  {name:'Buy Windows 10 Pro OEM License – Genuine Product Key', st:'publish', price:32.99, sales:3, cat:'Windows 10', s:2, sku:'W10-OEM-PRO', pic:'https://digitalsoftwarekey.com/wp-content/uploads/2024/12/Windows-10-Pro-OEM.webp'},
+  {name:'Windows 10 Home OEM License - Single User Lifetime', st:'publish', price:49.99, sales:0, cat:'Windows 10', s:2, sku:'W10-OEM-HOME', pic:'https://digitalsoftwarekey.com/wp-content/uploads/2024/12/Windows-10-Home-OEM-\u2013-Genuine-1.webp'},
+  {name:'Windows 10 Pro - 5 User Retail License | Lifetime Activation', st:'publish', price:149.99, sales:0, cat:'Windows 10', s:2, sku:'W10-RT-5U', pic:'https://digitalsoftwarekey.com/wp-content/uploads/2024/12/Windows-10-Pro-\u2013-5-User-Retail.webp'},
+  {name:'Windows 10 Home - Genuine Retail License for 5 Users | Lifetime Access', st:'publish', price:159.99, sales:0, cat:'Windows 10', s:2, sku:'W10-RT-HOME', pic:'https://digitalsoftwarekey.com/wp-content/uploads/2024/12/Windows-10-Home-\u2013-Genuine-Retail-License-for-5-Users-Lifetime-Access-1.webp'},
+  {name:'Adobe Acrobat Pro DC 2022', st:'publish', price:50, sales:0, cat:'Adobe', s:3, sku:'ADB-ACR-22', pic:'https://i0.wp.com/mskeydeals.com/wp-content/uploads/2024/03/Adobe-Acrobat-Pro-DC-2022.webp?fit=1000%2C1000&ssl=1'},
+  {name:'Microsoft Office 2013 Home & Business', st:'publish', price:69.99, sales:5, cat:'Microsoft Office', s:3, sku:'OF13-HB', pic:'https://i0.wp.com/mskeydeals.com/wp-content/uploads/2024/03/Microsoft-Office-2013-Home-Business-1.webp?fit=1000%2C1000&ssl=1'},
+  {name:'Microsoft Office 2016 Standard', st:'publish', price:49.99, sales:0, cat:'Microsoft Office', s:3, sku:'OF16-STD', pic:'https://i0.wp.com/mskeydeals.com/wp-content/uploads/2024/03/Microsoft-Office-2016-Standard.webp?fit=1000%2C1000&ssl=1'}
+];
+
+var G = 'https://secure.gravatar.com/avatar/';
+var CUSTOMERS = [
+  {id:9, first:'Eriden', last:'Estrella', user:'eridena', email:'eridena@gmail.com', phone:'8094790768', s:1, orders:3, av:G+'3aa6597aa7f2f66fdc538ca51292bb9d?s=96&d=mm&r=g'},
+  {id:13, first:'Jose', last:'Nunez', user:'josernunez', email:'josernunez@gmail.com', phone:'6264883735', s:1, orders:1, av:G+'6ab457a0c7757d7deb4686e0d44184d9?s=96&d=mm&r=g'},
+  {id:14, first:'fabian', last:'martinez', user:'fabssmartinez', email:'fabssmartinez@gmail.com', phone:'9492908266', s:1, orders:2, av:G+'a72961d4985418be699e82cf775ac567?s=96&d=mm&r=g'},
+  {id:15, first:'Cody', last:'Stelzer', user:'cody.stelzer', email:'cody.stelzer@gmail.com', phone:'5054692824', s:1, orders:0, av:G+'6ba3aae1369eba6b5a8a631e37d490f0?s=96&d=mm&r=g'},
+  {id:16, first:'Tony', last:'Ong', user:'tony.ong', email:'tonyongto@hotmail.com', phone:'4169855962', s:1, orders:1, av:G+'1cbc864ad24da17e8603449ba1ce3e45?s=96&d=mm&r=g'},
+  {id:17, first:'Jeff', last:'Pressler', user:'jeff.pressler', email:'j_pressler@hotmail.com', phone:'9729786830', s:1, orders:4, av:G+'bdc1b61b9294733f070d7b22d54e463b?s=96&d=mm&r=g'},
+  {id:18, first:'Joe', last:'Ballato', user:'atxjoe', email:'atxjoe@gmail.com', phone:'5123516043', s:1, orders:2, av:G+'028baf33c39c5df9f05e32eb03cd5944?s=96&d=mm&r=g'},
+  {id:19, first:'Ronald', last:'Spotts', user:'ronald.spotts', email:'snspotts@gmail.com', phone:'2677681446', s:1, orders:0, av:G+'0cbfb37ed48f45b28a42c968bdf2dd94?s=96&d=mm&r=g'},
+  {id:20, first:'vikram', last:'nadgir', user:'vikram.nadgir', email:'vikramand@gmail.com', phone:'9845739220', s:1, orders:5, av:G+'25807749dc3a6a8e50d94512247c5acd?s=96&d=mm&r=g'},
+  {id:21, first:'Justin', last:'Alexander', user:'justin.alexander', email:'troglite@gmail.com', phone:'+12074832021', s:1, orders:1, av:G+'e71d3a0f7c31f27dbe23166b1ec9edd7?s=96&d=mm&r=g'},
+  {id:22, first:'Mohammed', last:'Abu Hass', user:'mohammed.abu hass', email:'engmohfh@gmail.com', phone:'970592181235', s:1, orders:2, av:G+'9cec70fde605f4ab71432d22a6daf718?s=96&d=mm&r=g'},
+  {id:23, first:'Dean', last:'Paquin', user:'dgp333', email:'dgp333@yahoo.com', phone:'604 746 9859', s:1, orders:0, av:G+'098b333a53359a86d878bffb1e9e1d94?s=96&d=mm&r=g'},
+  {id:24, first:'Belal', last:'Tassi', user:'belal.tassi', email:'belal.tassi@gmail.com', phone:'5194941110', s:1, orders:1, av:G+'a48e74ef582179bbe862d73319fd973e?s=96&d=mm&r=g'},
+  {id:25, first:'Nigel', last:'chew', user:'nigel.chew', email:'nigelchewyijun@gmail.com', phone:'+65 91707811', s:1, orders:0, av:G+'8b4815297eda8fdbaf0f93dfc2e6bb94?s=96&d=mm&r=g'},
+  {id:1717, first:'sohel', last:'sohel', user:'sohel', email:'sohel@ticlimited.com.bd', phone:'01316286339', s:2, orders:2, av:''},
+  {id:1732, first:'Kristopher', last:'Horton', user:'kris', email:'kris@carsbykris.com', phone:'7604815542', s:2, orders:6, av:''},
+  {id:1741, first:'Rezaul', last:'Karim', user:'firefly.thegamer', email:'firefly.thegamer@gmail.com', phone:'', s:2, orders:1, av:''},
+  {id:1785, first:'ScottFoulaPV', last:'', user:'digitalsoftwarekey.com', email:'info@digitalsoftwarekey.com', phone:'', s:2, orders:0, av:''},
+  {id:1795, first:'minh', last:'quynh', user:'couponsthedeals', email:'couponsthedeals@gmail.com', phone:'', s:2, orders:3, av:''},
+  {id:17104, first:'Mizanur', last:'Rahman', user:'mizanm622', email:'mizanm622@gmail.com', phone:'01738502041', s:2, orders:1, av:''}
+];
+
+/* ================= state ================= */
+var state = {
+  orders:{q:'',status:'all',store:'all',page:1},
+  products:{q:'',status:'all',store:'all',page:1},
+  customers:{q:'',store:'all',page:1},
+  stores:{q:'',page:1}
+};
+var PER = 10;
+var CUR_ORDER = null, CUR_PAGE = 'orders', CUR_MODAL_ORDER = null, CUR_PRODUCT = null, CUR_CUSTOMER = null, CUR_STORE = null;
+
+var ORDER_STATUSES = ['pending','processing','on-hold','completed','cancelled','refunded','failed'];
+var PRODUCT_STATUSES = ['publish','draft','pending','private'];
+function statusLabel(s){ return s==='on-hold' ? 'On hold' : s.charAt(0).toUpperCase()+s.slice(1); }
+function pillHTML(s){ return '<span class="st st-'+s+'">'+statusLabel(s)+'</span>'; }
+function money(v){ return '$'+Number(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function initials(n){ n=(n||'?').trim().split(/\s+/); return ((n[0]||'?')[0]+((n[1]||'')[0]||'')).toUpperCase(); }
+function custName(o){ return o.name || o.email || 'Guest checkout'; }
+function storeName(id){ return STORES[id] ? STORES[id].name : '—'; }
+function storeShort(id){ return STORES[id] ? STORES[id].name : ''; }
+
+/* ================= generic helpers ================= */
+function toggleDD(e, id){
+  e.stopPropagation();
+  var dd = document.getElementById(id), was = dd.classList.contains('open');
+  document.querySelectorAll('.dd.open').forEach(function(d){ d.classList.remove('open'); });
+  if(!was) dd.classList.add('open');
+}
+document.addEventListener('click', function(){ document.querySelectorAll('.dd.open').forEach(function(d){ d.classList.remove('open'); }); });
+
+function buildDD(ddId, lblId, options, cur, onPick){
+  var dd = document.getElementById(ddId);
+  dd.innerHTML = options.map(function(o){
+    return '<div class="dd-item'+(cur===o.v?' on':'')+'" data-v="'+esc(o.v)+'"><span class="ck">'+(cur===o.v?'&#10003;':'')+'</span>'+esc(o.l)+'</div>';
+  }).join('');
+  Array.prototype.forEach.call(dd.querySelectorAll('.dd-item'), function(it){
+    it.addEventListener('click', function(){ document.getElementById(lblId).textContent = it.textContent.replace(/^\s*/,'').trim(); onPick(it.getAttribute('data-v')); dd.classList.remove('open'); });
+  });
+}
+function setPage(key, p){
+  var total = filtered(key).length, max = Math.max(1, Math.ceil(total/PER));
+  state[key].page = Math.min(Math.max(1,p), max);
+  ({orders:renderOrders, products:renderProducts, customers:renderCustomers, stores:renderStores})[key]();
+}
+function filtered(key){
+  var s = state[key];
+  var rows = {orders:ORDERS, products:PRODUCTS, customers:CUSTOMERS, stores:STORES_ARR}[key];
+  return rows.filter(function(r){
+    if(s.status !== undefined && s.status !== 'all'){ if((r.st||r.status) !== s.status) return false; }
+    if(s.store !== undefined && s.store !== 'all'){ if(String(r.s) !== String(s.store)) return false; }
+    if(s.q){
+      var hay = JSON.stringify(r).toLowerCase();
+      if(hay.indexOf(s.q.toLowerCase()) === -1) return false;
+    }
+    return true;
+  });
+}
+function pagerHTML(key, total, page){
+  var max = Math.max(1, Math.ceil(total/PER));
+  var from = total === 0 ? 0 : (page-1)*PER+1, to = Math.min(total, page*PER);
+  document.getElementById('pgInfo'+key.charAt(0).toUpperCase()+key.slice(1)).textContent = 'Showing '+from+'\u2013'+to+' of '+total;
+}
+function emptyBlock(text, sub){
+  return '<div class="empty"><div class="big">&#128269;</div><b>'+text+'</b>'+sub+'</div>';
+}
+
+/* ================= orders ================= */
+function renderOrders(){
+  var s = state.orders, rows = filtered('orders');
+  var page = Math.min(s.page, Math.max(1,Math.ceil(rows.length/PER)));
+  s.page = page;
+  var slice = rows.slice((page-1)*PER, page*PER);
+  var body = document.getElementById('ordersBody');
+  body.innerHTML = slice.map(function(o){
+    var idx = ORDERS.indexOf(o);
+    return '<tr>'+
+      '<td class="mono"><b>#'+o.n+'</b></td>'+
+      '<td><div class="cell-main"><div><div class="nm">'+esc(custName(o))+'</div><div class="sub">'+esc(o.email || o.phone || o.addr.split(',')[0] || '—')+'</div></div></div></td>'+
+      '<td><span class="tag" style="background:#ecfeff;color:#0e7490">'+esc(storeShort(o.s))+'</span></td>'+
+      '<td class="num">'+money(o.total)+'</td>'+
+      '<td>'+pillHTML(o.st)+'</td>'+
+      '<td class="mono" style="color:var(--c-text-2)">'+o.date+'</td>'+
+      '<td><div class="acts">'+
+        '<button class="act" title="View order" onclick="openOrder('+idx+')">&#128065;</button>'+
+        '<button class="act" title="Edit status" onclick="openStatus('+idx+')">&#9998;</button>'+
+        '<button class="act danger" title="Delete" onclick="toast(\'Order #'+o.n+' deleted (demo)\',\'warn\')">&#128465;</button>'+
+      '</div></td></tr>';
+  }).join('');
+  var isEmpty = rows.length === 0;
+  document.getElementById('ordersEmpty').style.display = isEmpty ? 'block' : 'none';
+  document.getElementById('ordersEmpty').innerHTML = isEmpty ? emptyBlock('No orders match your filters','Try clearing the search box or status / store pills.') : '';
+  document.getElementById('pagerOrders').style.display = isEmpty ? 'none' : 'flex';
+  pagerHTML('orders', rows.length, page);
+  document.getElementById('pgPrevO').disabled = page<=1;
+  document.getElementById('pgNextO').disabled = page>=Math.ceil(rows.length/PER);
+  buildDD('ddStatusO','lblStatusO',[{v:'all',l:'All statuses'}].concat(ORDER_STATUSES.map(function(x){return {v:x,l:statusLabel(x)};})), s.status, function(v){ s.status=v; s.page=1; renderOrders(); });
+  buildDD('ddStoreO','lblStoreO',[{v:'all',l:'All stores'},{v:'1',l:'MicroProkey'},{v:'2',l:'DigitalSoftwareKey'},{v:'3',l:'MsKeyDeals'}], s.store, function(v){ s.store=v; s.page=1; renderOrders(); });
+}
+function openOrder(idx){
+  CUR_ORDER = idx;
+  var o = ORDERS[idx];
+  document.getElementById('dtTitle').textContent = '#'+o.n;
+  document.getElementById('dtStatus').innerHTML = pillHTML(o.st);
+  document.getElementById('dtWhen').textContent = o.date+' \u00b7 '+storeName(o.s);
+  document.getElementById('dtStoreSub').textContent = storeName(o.s);
+  document.getElementById('dtName').textContent = custName(o);
+  document.getElementById('dtEmail').textContent = o.email || '—';
+  document.getElementById('dtPhone').textContent = o.phone || '—';
+  document.getElementById('dtBillAddr').textContent = o.addr || '—';
+  document.getElementById('dtShipAddr').textContent = o.addr || '—';
+  var itemsBody = document.getElementById('dtItems');
+  if(o.items && o.items.length){
+    var sub = 0;
+    itemsBody.innerHTML = o.items.map(function(it){
+      sub += it.q*it.p;
+      return '<tr><td><div class="nm" style="max-width:420px">'+esc(it.n)+'</div></td><td class="num">'+it.q+'</td><td class="num">'+money(it.p)+'</td><td class="num">'+money(it.q*it.p)+'</td></tr>';
+    }).join('');
+    document.getElementById('dtItemsEmpty').style.display='none';
+    document.getElementById('dtSub').textContent = money(sub);
+    document.getElementById('dtDisc').textContent = o.disc ? '-'+money(o.disc) : money(0);
+    document.getElementById('dtShip').textContent = money(o.ship||0);
+    document.getElementById('dtTax').textContent = money(o.tax||0);
+    document.getElementById('dtTotal').textContent = money(sub-(o.disc||0)+(o.ship||0)+(o.tax||0));
+  } else {
+    itemsBody.innerHTML = '';
+    document.getElementById('dtItemsEmpty').style.display='block';
+    document.getElementById('dtSub').textContent='—';
+    document.getElementById('dtDisc').textContent='—';
+    document.getElementById('dtShip').textContent='—';
+    document.getElementById('dtTax').textContent='—';
+    document.getElementById('dtTotal').textContent = money(o.total);
+  }
+  var noteBox = document.getElementById('dtNote');
+  if(o.note){ noteBox.style.display='block'; document.getElementById('dtNoteText').textContent = o.note; }
+  else noteBox.style.display='none';
+  document.getElementById('ordersList').style.display='none';
+  document.getElementById('ordersDetail').style.display='block';
+  window.scrollTo(0,0);
+}
+function closeOrder(){
+  document.getElementById('ordersDetail').style.display='none';
+  document.getElementById('ordersList').style.display='block';
+}
+
+/* ================= products ================= */
+function renderProducts(){
+  var s = state.products, rows = filtered('products');
+  var page = Math.min(s.page, Math.max(1,Math.ceil(rows.length/PER)));
+  s.page = page;
+  var slice = rows.slice((page-1)*PER, page*PER);
+  document.getElementById('productsBody').innerHTML = slice.map(function(p){
+    var idx = PRODUCTS.indexOf(p);
+    return '<tr>'+
+      '<td><div class="cell-main">'+
+        '<img class="thumb" src="'+esc(p.pic)+'" alt="" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'grid\'">'+
+        '<div class="thumb-fb">'+initials(p.name)+'</div>'+
+        '<div><div class="nm">'+esc(p.name)+'</div><div class="sub">'+esc(p.sku)+' \u00b7 '+esc(p.cat)+'</div></div>'+
+      '</div></td>'+
+      '<td class="num">'+money(p.price)+'</td>'+
+      '<td class="num" style="color:var(--c-text-2)">'+p.sales+'</td>'+
+      '<td>'+pillHTML(p.st)+'</td>'+
+      '<td><span class="tag" style="background:#ecfeff;color:#0e7490">'+esc(storeShort(p.s))+'</span></td>'+
+      '<td><div class="acts">'+
+        '<button class="act" title="View on store" onclick="toast(\'Opens '+esc(STORES[p.s].url)+' in a new tab (demo)\',\'ok\')">&#8599;</button>'+
+        '<button class="act" title="Edit" onclick="openProduct('+idx+')">&#9998;</button>'+
+        '<button class="act danger" title="Delete" onclick="toast(\'Product deleted (demo)\',\'warn\')">&#128465;</button>'+
+      '</div></td></tr>';
+  }).join('');
+  var isEmpty = rows.length===0;
+  document.getElementById('productsEmpty').style.display = isEmpty?'block':'none';
+  document.getElementById('productsEmpty').innerHTML = isEmpty ? emptyBlock('No products match your filters','Try clearing the search box or status / store pills.') : '';
+  document.getElementById('pagerProducts').style.display = isEmpty?'none':'flex';
+  pagerHTML('products', rows.length, page);
+  document.getElementById('pgPrevP').disabled = page<=1;
+  document.getElementById('pgNextP').disabled = page>=Math.ceil(rows.length/PER);
+  buildDD('ddStatusP','lblStatusP',[{v:'all',l:'All statuses'}].concat(PRODUCT_STATUSES.map(function(x){return {v:x,l:statusLabel(x)};})), s.status, function(v){ s.status=v; s.page=1; renderProducts(); });
+  buildDD('ddStoreP','lblStoreP',[{v:'all',l:'All stores'},{v:'1',l:'MicroProkey'},{v:'2',l:'DigitalSoftwareKey'},{v:'3',l:'MsKeyDeals'}], s.store, function(v){ s.store=v; s.page=1; renderProducts(); });
+}
+
+/* ================= customers ================= */
+function renderCustomers(){
+  var s = state.customers, rows = filtered('customers');
+  var page = Math.min(s.page, Math.max(1,Math.ceil(rows.length/PER)));
+  s.page = page;
+  var slice = rows.slice((page-1)*PER, page*PER);
+  document.getElementById('customersBody').innerHTML = slice.map(function(c){
+    var idx = CUSTOMERS.indexOf(c);
+    var nm = (c.first+' '+c.last).trim();
+    return '<tr>'+
+      '<td><div class="cell-main">'+
+        (c.av ? '<img class="av" src="'+esc(c.av)+'" alt="" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'grid\'">' : '<span class="av" style="display:grid;background:#ecfdf5;color:#0d9488;font-size:11px;font-weight:800">'+initials(nm)+'</span>')+
+        '<div class="av-fb" style="width:32px;height:32px">'+initials(nm)+'</div>'+
+        '<div><div class="nm">'+esc(nm)+'</div><div class="sub">'+esc(c.user)+'</div></div>'+
+      '</div></td>'+
+      '<td style="color:var(--c-text-2)">'+esc(c.email)+'</td>'+
+      '<td class="mono" style="color:var(--c-text-2)">'+esc(c.phone||'—')+'</td>'+
+      '<td><span class="tag" style="background:#ecfeff;color:#0e7490">'+esc(storeShort(c.s))+'</span></td>'+
+      '<td class="num">'+c.orders+'</td>'+
+      '<td><div class="acts">'+
+        '<button class="act" title="Edit" onclick="openCustomer('+idx+')">&#9998;</button>'+
+        '<button class="act danger" title="Delete" onclick="toast(\'Customer deleted (demo)\',\'warn\')">&#128465;</button>'+
+      '</div></td></tr>';
+  }).join('');
+  var isEmpty = rows.length===0;
+  document.getElementById('customersEmpty').style.display = isEmpty?'block':'none';
+  document.getElementById('customersEmpty').innerHTML = isEmpty ? emptyBlock('No customers match your filters','Try clearing the search box or store pill.') : '';
+  document.getElementById('pagerCustomers').style.display = isEmpty?'none':'flex';
+  pagerHTML('customers', rows.length, page);
+  document.getElementById('pgPrevC').disabled = page<=1;
+  document.getElementById('pgNextC').disabled = page>=Math.ceil(rows.length/PER);
+  buildDD('ddStoreC','lblStoreC',[{v:'all',l:'All stores'},{v:'1',l:'MicroProkey'},{v:'2',l:'DigitalSoftwareKey'},{v:'3',l:'MsKeyDeals'}], s.store, function(v){ s.store=v; s.page=1; renderCustomers(); });
+}
+
+/* ================= stores ================= */
+var STORES_ARR = [1,2,3].map(function(id){
+  var st = STORES[id];
+  return {id:id, name:st.name, url:st.url, created:st.created, assignees:st.assignees, orders:st.orders, products:st.products, customers:st.customers, s:id};
+});
+function renderStores(){
+  document.getElementById('kStCount').textContent = STORES_ARR.length;
+  document.getElementById('kStOrders').textContent = STORES_ARR.reduce(function(a,b){ return a+b.orders; },0).toLocaleString('en-US');
+  document.getElementById('kStProducts').textContent = STORES_ARR.reduce(function(a,b){ return a+b.products; },0).toLocaleString('en-US');
+  document.getElementById('kStCustomers').textContent = STORES_ARR.reduce(function(a,b){ return a+b.customers; },0).toLocaleString('en-US');
+  var s = state.stores;
+  var rows = STORES_ARR.filter(function(r){
+    if(s.q && (r.name+' '+r.url).toLowerCase().indexOf(s.q.toLowerCase())===-1) return false;
+    return true;
+  });
+  var page = Math.min(s.page, Math.max(1,Math.ceil(rows.length/PER)));
+  s.page = page;
+  document.getElementById('storesBody').innerHTML = rows.map(function(st){
+    return '<tr>'+
+      '<td><div class="cell-main"><div><div class="nm">'+esc(st.name)+'</div><div class="sub">'+esc(st.url)+'</div></div></div></td>'+
+      '<td><div class="assignees">'+st.assignees.map(function(a){return '<span class="asg">'+esc(a)+'</span>';}).join('')+'</div></td>'+
+      '<td><div class="synced"><span><b>'+st.orders.toLocaleString('en-US')+'</b> orders</span><span><b>'+st.products+'</b> products</span><span><b>'+st.customers.toLocaleString('en-US')+'</b> customers</span></div></td>'+
+      '<td class="mono" style="color:var(--c-text-2)">'+st.created+'</td>'+
+      '<td><div class="acts">'+
+        '<button class="act" title="Check update / sync" onclick="toast(\''+esc(st.name)+': sync started (demo)\',\'ok\')">&#8635;</button>'+
+        '<button class="act" title="Test connection" onclick="toast(\''+esc(st.name)+': connection OK (demo)\',\'ok\')">&#9654;</button>'+
+        '<button class="act" title="Edit" onclick="openStore('+st.id+')">&#9998;</button>'+
+        '<button class="act" title="Reset data" onclick="toast(\''+esc(st.name)+': data reset (demo)\',\'warn\')">&#8634;</button>'+
+        '<button class="act danger" title="Delete" onclick="toast(\''+esc(st.name)+' deleted (demo)\',\'warn\')">&#128465;</button>'+
+      '</div></td></tr>';
+  }).join('');
+  var isEmpty = rows.length===0;
+  document.getElementById('storesEmpty').style.display = isEmpty?'block':'none';
+  document.getElementById('storesEmpty').innerHTML = isEmpty ? emptyBlock('No stores match your search','') : '';
+  document.getElementById('pagerStores').style.display = isEmpty?'none':'flex';
+  pagerHTML('stores', rows.length, page);
+}
+
+/* ================= navigation ================= */
+function go(page){
+  CUR_PAGE = page;
+  closeOrder();
+  document.querySelectorAll('.pv').forEach(function(el){ el.classList.remove('on'); });
+  document.getElementById('pv-'+page).classList.add('on');
+  ['orders','products','customers','stores'].forEach(function(p){
+    document.getElementById('nav-'+p).classList.toggle('on', p===page);
+  });
+  document.getElementById('crumbPage').textContent = page.charAt(0).toUpperCase()+page.slice(1);
+  if(page==='orders') renderOrders();
+  if(page==='products') renderProducts();
+  if(page==='customers') renderCustomers();
+  if(page==='stores') renderStores();
+  window.scrollTo(0,0);
+  var main = document.querySelector('.main'); if(main) main.scrollTop = 0;
+  var act = document.getElementById('nav-'+page); if(act && act.scrollIntoView) act.scrollIntoView({block:'nearest'});
+}
+
+/* ================= modals ================= */
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(el){ el.classList.remove('open'); }
+document.addEventListener('keydown', function(e){
+  if(e.key==='Escape') document.querySelectorAll('.m-back.open').forEach(function(m){ m.classList.remove('open'); });
+});
+
+function openStatus(idx){
+  if(idx===null || idx===undefined || !ORDERS[idx]) return;
+  CUR_MODAL_ORDER = idx;
+  var o = ORDERS[idx];
+  document.getElementById('msOrder').value = '#'+o.n;
+  document.getElementById('msSub').textContent = custName(o)+' \u00b7 '+storeName(o.s);
+  document.getElementById('msStatus').value = o.st;
+  document.getElementById('msPill').innerHTML = pillHTML(o.st);
+  openModal('mStatus');
+}
+function saveStatus(){
+  var o = ORDERS[CUR_MODAL_ORDER];
+  o.st = document.getElementById('msStatus').value;
+  closeModal(document.getElementById('mStatus'));
+  toast('Order #'+o.n+' status \u2192 '+statusLabel(o.st)+' (demo)','ok');
+  renderOrders();
+  if(CUR_ORDER!==null && document.getElementById('ordersDetail').style.display==='block'){
+    document.getElementById('dtStatus').innerHTML = pillHTML(o.st);
+  }
+}
+function openStore(id){
+  CUR_STORE = id;
+  var st = id ? STORES[id] : null;
+  document.getElementById('mstoreTitle').textContent = st ? 'Edit store' : 'New store';
+  document.getElementById('mstoreName').value = st ? st.name : '';
+  document.getElementById('mstoreUrl').value = st ? 'https://'+st.url+'/' : '';
+  document.getElementById('mstoreKey').value = st ? 'ck_'+'\u2022'.repeat(20) : '';
+  document.getElementById('mstoreSecret').value = st ? 'cs_'+'\u2022'.repeat(20) : '';
+  var sel = st ? st.assignees : [];
+  document.getElementById('mstoreAssignees').innerHTML = ALL_ASSIGNEES.map(function(a){
+    return '<span class="ck-chip'+(sel.indexOf(a)>-1?' on':'')+'" onclick="this.classList.toggle(\'on\')">&#10003; '+esc(a)+'</span>';
+  }).join('');
+  openModal('mStore');
+}
+function saveStore(){
+  var name = document.getElementById('mstoreName').value.trim();
+  var url = document.getElementById('mstoreUrl').value.trim();
+  if(!name || !url){ toast('Store name and URL are required','err'); return; }
+  var bare = url.replace(/^https?:\/\//,'').replace(/\/$/,'');
+  var assignees = Array.prototype.map.call(document.querySelectorAll('#mstoreAssignees .ck-chip.on'), function(c){
+    return c.textContent.replace(/^\s*\u2713\s*/,'').trim();
+  });
+  if(CUR_STORE){
+    var st = STORES[CUR_STORE];
+    st.name = name; st.url = bare; st.assignees = assignees;
+    var arr = STORES_ARR.filter(function(x){ return x.id === CUR_STORE; })[0];
+    if(arr){ arr.name = name; arr.url = bare; arr.assignees = assignees; }
+    toast('Store updated (demo)','ok');
+  }else{
+    var id = Math.max.apply(null, Object.keys(STORES).map(Number)) + 1;
+    var created = new Date().toISOString().slice(0,10);
+    STORES[id] = {name:name, url:bare, created:created, assignees:assignees, orders:0, products:0, customers:0};
+    STORES_ARR.push({id:id, name:name, url:bare, created:created, assignees:assignees, orders:0, products:0, customers:0, s:id});
+    toast(name+' connected (demo)','ok');
+  }
+  closeModal(document.getElementById('mStore'));
+  renderStores();
+}
+function topNew(){
+  if(CUR_PAGE === 'stores'){ openStore(null); return; }
+  toast('WooCommerce data syncs from your stores \u2014 use Stores \u2192 New store (demo)','warn');
+}
+function openProduct(idx){
+  CUR_PRODUCT = idx;
+  var p = PRODUCTS[idx];
+  document.getElementById('mpSub').textContent = p.sku+' \u00b7 '+storeName(p.s);
+  document.getElementById('mpName').value = p.name;
+  document.getElementById('mpPrice').value = p.price;
+  document.getElementById('mpStatus').value = p.st;
+  document.getElementById('mpDesc').value = '';
+  openModal('mProduct');
+}
+function saveProduct(){
+  var p = PRODUCTS[CUR_PRODUCT];
+  p.name = document.getElementById('mpName').value || p.name;
+  p.price = parseFloat(document.getElementById('mpPrice').value)||p.price;
+  p.st = document.getElementById('mpStatus').value;
+  closeModal(document.getElementById('mProduct'));
+  toast('Product updated (demo)','ok');
+  renderProducts();
+}
+function openCustomer(idx){
+  CUR_CUSTOMER = idx;
+  var c = CUSTOMERS[idx];
+  document.getElementById('mcSub').textContent = storeName(c.s);
+  document.getElementById('mcUsername').value = c.user;
+  document.getElementById('mcFirst').value = c.first;
+  document.getElementById('mcLast').value = c.last;
+  document.getElementById('mcEmail').value = c.email;
+  openModal('mCustomer');
+}
+function saveCustomer(){
+  var c = CUSTOMERS[CUR_CUSTOMER];
+  c.first = document.getElementById('mcFirst').value || c.first;
+  c.last = document.getElementById('mcLast').value || c.last;
+  c.email = document.getElementById('mcEmail').value || c.email;
+  closeModal(document.getElementById('mCustomer'));
+  toast('Customer updated (demo)','ok');
+  renderCustomers();
+}
+
+/* ================= toasts ================= */
+function toast(msg, kind){
+  var wrap = document.getElementById('toasts');
+  var el = document.createElement('div');
+  el.className = 'toast '+(kind||'ok');
+  el.innerHTML = '<span>'+esc(msg)+'</span>';
+  wrap.appendChild(el);
+  setTimeout(function(){ el.style.opacity='0'; el.style.transition='opacity .3s'; setTimeout(function(){ el.remove(); }, 320); }, 2600);
+}
+
+/* ================= boot ================= */
+renderOrders(); renderProducts(); renderCustomers(); renderStores();
+(function(){ var act = document.getElementById('nav-orders'); if(act && act.scrollIntoView) act.scrollIntoView({block:'nearest'}); var main=document.querySelector('.main'); if(main) main.scrollTop=0; })();
+</script>
+</body>
+</html>

@@ -27,7 +27,7 @@ Let the user see the redesigned WooCommerce section (Orders, Products, Customers
 2. **KPI strip** — 4 cards (calendar `.kpi-strip` pattern: icon chip, big value, label):
    - Orders: Total orders · Revenue (Σ total) · Pending · Completed
    - Products: Total products · Published · Draft · Total sales (Σ sales)
-   - Customers: Total customers · New this month · Active stores · Orders
+   - Customers: Total customers · Paying (per `tbl_woocommerce_summary`) · Active stores · Orders
    - Stores: Total stores · Synced orders · Synced products · Synced customers (mirrors real `tbl_woocommerce_summary`, currently never displayed)
 3. **Card toolbar:** live search input · filter pills `Status ▾` (orders, products) and `Store ▾` (orders, products, customers — multi-store data) · export icon buttons (CSV / PDF / Print, matching today's DataTables exports) · primary button `+ New store` on Stores only (the one real primary action).
 4. **New data-table style** (first table component in the new language):
