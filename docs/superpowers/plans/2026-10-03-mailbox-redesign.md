@@ -1447,6 +1447,8 @@ git commit -m "feat: restyle client mailbox favourites + trash tabs/sublists"
 
 ### Task 7: Read page (`read_mail.php`)
 
+> **STATUS: COMPLETE** — commits `79e889dc` (both blocks) + `ba79922a` (client delete restored to soft `delete_inbox_mail` after old-view comparison) + `4a8eee8e` (round-1 fixes: `html_escape($ini)` ×10 views, guarded `$read_from` line, working inbox-guarded star toggle) + `53d88538` (gate: section 2b sent-read assertions + `tbl_sent` fixture 900003) + plan amendments `c4462b0d`. Spec review ✅ (byte-exact vs amended plan, preservation + diff-discipline verified, gate `19 assertions — 17 passed, 2 failed` compose-only). Quality review round 1: **With fixes** (Critical stored-XSS `$ini`; Important sent-read `Undefined property` + replyall/forward semantics; Minors) → round 2: **Yes, ready to merge** — all six findings resolved or recorded; fresh-eyes pass found no new Critical/Important (only a crafted-URL `$read_mail === null` Minor, app-posture-consistent). Fixture note: gate reads flip 900001/900002 `view_status` 2→1 (harmless — no marker depends on it). Task 8 carries the compose-mode branch (Step 2b).
+
 **Files:**
 - Modify: `modules/mailbox/views/read_mail.php`
 - Modify: `application/views/client/mailbox/read_mail.php`
@@ -1768,7 +1770,7 @@ with a loop over `$all_to` (immediately after the existing draft-options loop, s
                     <?php
                     if (!empty($get_draft_info->attach_file)) {
                         $uploaded_file = json_decode($get_draft_info->attach_file);
-                    } else if (!empty($inbox_info->attach_file)) {
+                    } else if ($method == 'forward' && !empty($inbox_info->attach_file)) {
                         $uploaded_file = json_decode($inbox_info->attach_file);
                     }
                     if (!empty($uploaded_file)) {
