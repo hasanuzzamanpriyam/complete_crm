@@ -246,6 +246,34 @@ foreach (['admin', 'client'] as $role) {
     $checks[$name] = $reason;
 }
 
+/* ---------- 3b. compose modes: reply / replyall / forward prefill ---------- */
+$modeChecks = [
+    'client compose reply prefills sender + RE subject' => [
+        'url' => "$baseUrl/client/mailbox/index/compose/900002/reply",
+        'markers' => ['mb-compose', 'RE: Mailbox redesign fixture (client)'],
+    ],
+    'client compose replyall adds original to' => [
+        'url' => "$baseUrl/client/mailbox/index/compose/900002/replyall",
+        'markers' => ['mb-compose', 'RE: Mailbox redesign fixture (client)', 'value="mailbox_client@tic.test" selected'],
+    ],
+    'client compose forward prefills FW subject + body' => [
+        'url' => "$baseUrl/client/mailbox/index/compose/900002/forward",
+        'markers' => ['mb-compose', 'FW: Mailbox redesign fixture (client)', 'Seeded client message'],
+    ],
+];
+foreach ($modeChecks as $name => $spec) {
+    $page = request('GET', $spec['url'], [], [], jar_for('client'));
+    $reason = null;
+    if ($page['status'] !== 200) {
+        $reason = 'HTTP ' . $page['status'];
+    } elseif (preg_match($errorPattern, $page['body'], $m)) {
+        $reason = 'PHP error: ' . $m[0];
+    } else {
+        $reason = markers_in($page['body'], $spec['markers']);
+    }
+    $checks[$name] = $reason;
+}
+
 /* ---------- 4. no stylesheet leak on non-mailbox pages ---------- */
 $leakPages = ['/admin/settings' => $jarAdmin, '/client/dashboard' => $jarClient];
 foreach ($leakPages as $path => $jar) {
