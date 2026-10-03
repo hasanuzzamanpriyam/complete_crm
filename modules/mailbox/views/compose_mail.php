@@ -15,11 +15,11 @@ if (!empty($get_draft_info->draft_id)) {
     if ($action_type == 'inbox') {
         if ($method == 'reply') {
             $subject = 'RE: ' . $inbox_info->subject;
-            $all_to = unserialize($inbox_info->to);;
+            $all_to = unserialize($inbox_info->to, array('allowed_classes' => false));
         } else if ($method == 'replyall') {
             $subject = 'RE: ' . $inbox_info->subject;
             $all_to[] = $inbox_info->from;
-            $allto = unserialize($inbox_info->to);
+            $allto = unserialize($inbox_info->to, array('allowed_classes' => false));
             if (empty($allto)) {
                 $allto = $inbox_info->to;
             }
@@ -31,7 +31,7 @@ if (!empty($get_draft_info->draft_id)) {
             $uploaded_file = json_decode($inbox_info->attach_file);
         }
     } else if (!empty($get_draft_info)) {
-        $all_to = unserialize($get_draft_info->to);
+        $all_to = unserialize($get_draft_info->to, array('allowed_classes' => false));
         if ($method == 'reply') {
             $subject = 'RE: ' . $get_draft_info->subject;
         } else if ($method == 'replyall') {
