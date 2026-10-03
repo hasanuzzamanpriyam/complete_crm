@@ -353,7 +353,7 @@ git commit -m "test: mailbox e2e - two sessions, fixtures, fixed read IDs"
 
 ### Task 2: `mailbox_modern.css` + conditional stylesheet link
 
-> **STATUS: COMPLETE** — commit `b4d5c886`. Approved deviation: the `<link>` was inserted **after** the RTL/LTR branch closes (before `$custom_color`), so RTL also loads it. Spec + code-quality reviews still to be dispatched (tracked outside this plan).
+> **STATUS: COMPLETE** — commit `b4d5c886`; spec review ✅. Code-quality review found a Critical **plan defect**: the stylesheet uses `--c-border-2`/`--c-slate`/`--c-amber`, which `tokens.css` does not define (undefined `var()` nullifies the declaration — every card border computed to `none`, browser-verified) → fixed in `765b2282` by adding the three tokens to `assets/css/tokens.css` `:root` (file set +1: `tokens.css`) and bumping `tokens.css?v=3` → `?v=4` in htmlheader; `mailbox_modern.css` itself stays byte-identical to the plan. Approved deviation: the `<link>` was inserted **after** the RTL/LTR branch closes (before `$custom_color`), so RTL also loads it. Task-3 quality review subsequently added `.folders .sec` flex + `.fr`/`.sub` rules to `mailbox_modern.css` (commit `5c3c7912`, stylesheet bumped to `?v=2`).
 
 **Files:**
 - Create: `assets/css/mailbox_modern.css`
@@ -595,13 +595,15 @@ git commit -m "feat: add mailbox modern stylesheet + conditional link"
 
 ### Task 3: Wrapper folder panel (admin module + client)
 
+> **STATUS: COMPLETE** — commit `b6da678e` (both wrappers byte-identical to this plan's content; spec review ✅). Code-quality review: *Yes with fixes* → applied in `5c3c7912`: C1/M1 `.folders .sec` made flex + `.fr`/`.sec.sub` rules added to `mailbox_modern.css`; C2 `#mail_box_menu` restored `nav nav-pills nav-stacked fsub` (the remote-folder AJAX payload depends on Bootstrap pill/`active` styles; `fsub` kept as the Design A hook); htmlheader `mailbox_modern.css?v=1` → `?v=2` cache-bust.
+
 **Files:**
 - Modify: `modules/mailbox/views/mailbox.php` (live admin wrapper — col-2 folder panel + col-10 `$view` slot)
 - Modify: `application/views/client/mailbox/mailbox.php` (live client wrapper)
 
 - [ ] **Step 1: Replace the admin wrapper (`modules/mailbox/views/mailbox.php`)**
 
-Full content (preserves verbatim: `$smtp_syn_time` sync button, settings link, `$system_mail_count` counts, `#mail_box_menu` AJAX container, `message_box()` flashes, `$rata`/`$view` load, and the whole sync-`<script>` block including `mail_box_menu/<?= $folder ?>` + `fetch_remote_mails`):
+Full content (preserves verbatim: `$smtp_syn_time` sync button, settings link, `$system_mail_count` counts, `#mail_box_menu` AJAX container, `message_box()` flashes, `$rata`/`$view` load, and the whole sync-`<script>` block including `mail_box_menu/<?= $folder ?>` + `fetch_remote_mails` — functional logic byte-identical; only the inline `//` JS comments are dropped):
 
 ```php
 <div class="mbflex">
@@ -629,7 +631,7 @@ Full content (preserves verbatim: `$smtp_syn_time` sync button, settings link, `
                 <span class="fc<?php echo (in_array($mb_key, array('inbox', 'sent', 'draft'), true) && !empty($system_mail_count[$mb_key]) && $system_mail_count[$mb_key] > 0) ? ' hot' : ''; ?>"><?php echo isset($system_mail_count[$mb_key]) ? $system_mail_count[$mb_key] : 0; ?></span>
             </a>
         <?php endforeach; ?>
-        <ul id="mail_box_menu" class="fsub"></ul>
+        <ul id="mail_box_menu" class="nav nav-pills nav-stacked fsub"></ul>
     </div>
     <div class="list-col">
         <?php echo message_box('success'); ?>
@@ -763,6 +765,8 @@ git commit -m "feat: restyle mailbox folder panel wrapper"
 
 ### Task 4: Admin server-rendered list (`local_mails.php` + controller block) + client inbox
 
+> **STATUS: COMPLETE** — commits `c77d09f4` (controller block + both views) + `1b09f42a` (review fixes). Spec review ✅ (controller insert pure +18/0, legacy branch byte-identical to the old file, client swap clean, test `9 passed, 8 failed`). Code-quality review: *Yes with fixes* → M1 sent rows now `unserialize` (data reality: `tbl_inbox.to` is serialized for sent AND draft — raw concat rendered blobs), M2 `.f-tag` rule added + `mailbox_modern.css?v=3`, M3 guarded `json_decode` ×2, M4 `?? ''`, M5 `allowed_classes => false`; the same guards were back-ported into the Task 5/6 plan blocks. M6 (no LIMIT — full-list by design) and M7 (`lang('alert_delete')` undefined → empty confirm — pre-existing) recorded, no action.
+
 **Files:**
 - Modify: `modules/mailbox/controllers/Mailbox.php` (**additive block only** — inserted immediately before `$data['subview'] = $this->load->view('mailbox', $data, TRUE);`, currently line 141)
 - Modify: `modules/mailbox/views/local_mails.php`
@@ -770,7 +774,7 @@ git commit -m "feat: restyle mailbox folder panel wrapper"
 
 - [ ] **Step 1: Add the row-fetch block to the module controller**
 
-Insert exactly this block (no existing line is modified or moved):
+Insert exactly this block immediately **before line 141** (`$data['subview'] = $this->load->view('mailbox', $data, TRUE);`), i.e. after the view-selection if/elseif chain — `$action` (line 78) and `$data` are in scope there, and `$data['local_messages']` reaches the inner view because CI3/MX Loader merges every view's vars into `_ci_cached_vars` and extracts from the full cache (`system/core/Loader.php:867-868`, `application/third_party/MX/Loader.php:324-326`). No existing line is modified or moved:
 
 ```php
         // Mailbox redesign (additive): server-render system-folder rows for local_mails.php
@@ -795,7 +799,7 @@ Insert exactly this block (no existing line is modified or moved):
 
 - [ ] **Step 2: Replace `modules/mailbox/views/local_mails.php`**
 
-Full content (preserves verbatim: form `method/post` + action `admin/mailbox/delete_mail/<?= $action ?>`, `#parent_present`, `.child_present` + `name="selected_id[]"` values, star URL `admin/mailbox/index/added_favourites/<id>/<flag>`, read link `admin/mailbox/index/read_inbox_mail/<id>`, draft link `admin/mailbox/index/compose/<id>`, trash restore `admin/mailbox/restore/remote_host/<id>` + permanent delete `admin/mailbox/delete_mail/remote_host/deleted/<id>`, `time_ago()`, attachment `json_decode(attach_file)` flag. The `list` global + DataTables table are removed — the guarded bootstrap at `assets/plugins/dataTables/js/dataTables.php:188` then skips, and `inboxList`/`mailboxList` remain untouched for remote folders):
+Full content (preserves verbatim: form `method/post` + action `admin/mailbox/delete_mail/<?= $action ?>`, `#parent_present`, `.child_present` + `name="selected_id[]"` values, star URL `admin/mailbox/index/added_favourites/<id>/<flag>`, read link `admin/mailbox/index/read_inbox_mail/<id>`, draft link `admin/mailbox/index/compose/<id>`, trash restore `admin/mailbox/restore/remote_host/<id>` + permanent delete `admin/mailbox/delete_mail/remote_host/deleted/<id>`, `time_ago()`, attachment `json_decode(attach_file)` flag. **For the five system folders** the `list` global + DataTables table are removed — the guarded bootstrap at `assets/plugins/dataTables/js/dataTables.php:188` (fires only when global `list` is set) then skips; **non-system actions (remote mailbox folders / unknown keys) keep the legacy DataTable block byte-identically**, so `inboxList` keeps serving remote folders — `mailboxList`/`inboxList` remain untouched):
 
 ```php
 <?php
@@ -811,7 +815,52 @@ $mb_rows = isset($local_messages) ? $local_messages : array();
 $mb_is_draft = ($action == 'draft');
 $mb_is_trash = ($action == 'trash');
 $mb_is_sent = ($action == 'sent');
+$mb_system = in_array($action, array('inbox', 'sent', 'draft', 'favourites', 'trash'), true);
+if (!$mb_system):
+    // Non-system action (remote mailbox folder / unknown key): legacy DataTable path,
+    // byte-identical old file — `list` global boots inboxList via the dataTables.php:188 guard.
 ?>
+<div class="row">
+    <div class="col-md-12">
+        <form method="post" action="<?php echo base_url() ?>admin/mailbox/delete_mail/<?= $action; ?>">
+            <!-- Main content -->
+            <div class="panel panel-custom">
+                <div class="panel-heading">
+                    <div class="mailbox-controls">
+
+                        <!-- Check all button -->
+                        <div class="mail_checkbox mr-sm">
+                            <input type="checkbox" id="parent_present">
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-default btn-xs mr-sm"><i class="fa fa-trash-o"></i></button>
+                        </div><!-- /.btn-group -->
+                        <a href="<?php echo base_url() ?>admin/mailbox/index/compose"
+                           class="btn btn-danger btn-xs mr-sm">Compose +</a>
+                    </div>
+                </div>
+                <div class="table-responsive mailbox-messages">
+                    <table class="table table-striped DataTables mb-mails" id="DataTables" width="100%">
+                        <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th><?= lang('host') ?></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                        <script type="text/javascript">
+                            list = base_url + "admin/mailbox/inboxList/<?= $action; ?>";
+                        </script>
+                    </table>
+                </div>
+            </div><!-- /.box-body -->
+    </div><!-- /. box -->
+    </form>
+</div><!-- /.content-wrapper -->
+<?php else: ?>
 <div class="row">
     <div class="col-md-12">
         <form method="post" action="<?php echo base_url() ?>admin/mailbox/delete_mail/<?= $action ?>">
@@ -825,17 +874,15 @@ $mb_is_sent = ($action == 'sent');
                 <div class="rows">
                     <?php if (!empty($mb_rows)): foreach ($mb_rows as $v_inbox_msg): ?>
                         <?php
-                        if ($mb_is_draft) {
-                            $mb_to = @unserialize($v_inbox_msg->to);
+                        if ($mb_is_draft || $mb_is_sent) {
+                            $mb_to = @unserialize($v_inbox_msg->to, array('allowed_classes' => false));
                             if (!is_array($mb_to)) {
                                 $mb_to = array((string) $v_inbox_msg->to);
                             }
-                            $string = $mb_to[0];
+                            $string = $mb_is_sent ? 'To: ' . ($mb_to[0] ?? '') : ($mb_to[0] ?? '');
                             if (count($mb_to) > 1) {
                                 $string .= ' , (' . (count($mb_to) - 1) . ')';
                             }
-                        } elseif ($mb_is_sent) {
-                            $string = 'To: ' . $v_inbox_msg->to;
                         } else {
                             $string = $v_inbox_msg->from;
                         }
@@ -844,7 +891,7 @@ $mb_is_sent = ($action == 'sent');
                         }
                         $subject = (strlen($v_inbox_msg->subject) > 50) ? strip_html_tags(mb_substr($v_inbox_msg->subject, 0, 50)) . '...' : $v_inbox_msg->subject;
                         $preview = (strlen($v_inbox_msg->message_body) > 100) ? strip_html_tags(mb_substr($v_inbox_msg->message_body, 0, 100)) . '...' : $v_inbox_msg->message_body;
-                        $uploaded_file = json_decode($v_inbox_msg->attach_file);
+                        $uploaded_file = $v_inbox_msg->attach_file ? json_decode($v_inbox_msg->attach_file) : null;
                         $parts = preg_split('/[\s@.]+/', trim($string), -1, PREG_SPLIT_NO_EMPTY);
                         $ini = mb_strtoupper(implode('', array_slice($parts, 0, 2)));
                         $av = ['#0d9488', '#2563eb', '#8b5cf6', '#f59e0b', '#dc2626', '#0ea5e9', '#10b981', '#e11d48'][abs(crc32((string) $v_inbox_msg->inbox_id)) % 8];
@@ -855,7 +902,7 @@ $mb_is_sent = ($action == 'sent');
                         <div class="mrow<?php echo $v_inbox_msg->view_status == 1 ? '' : ' unread'; ?>">
                             <span class="udot"></span>
                             <input class="child_present tb-check" type="checkbox" name="selected_id[]" value="<?php echo $v_inbox_msg->inbox_id; ?>"/>
-                            <span class="mb-av" style="background:<?php echo $av; ?>"><?php echo $ini; ?></span>
+                            <span class="mb-av" style="background:<?php echo $av; ?>"><?php echo html_escape($ini); ?></span>
                             <div class="m-main">
                                 <div class="m-top">
                                     <span class="m-from"><?php echo $string; ?></span>
@@ -887,9 +934,10 @@ $mb_is_sent = ($action == 'sent');
         </form>
     </div>
 </div>
+<?php endif; ?>
 ```
 
-Presentation notes (recorded, behavior-neutral): sent rows show a `To:` prefix (demo parity — legacy showed raw `from`); star and unread-dot rules follow the legacy `inboxList()` (all rows keep both controls).
+Presentation notes (recorded, behavior-neutral): sent rows show `To: ` + the **unserialized** first recipient (data reality: `tbl_inbox.to` is `serialize()`'d for BOTH draft and sent — `modules/mailbox/controllers/Mailbox.php` saves `serialize($all_email)` before the sent/draft branches; legacy showed raw `from`); draft/sent both use `unserialize(…, ['allowed_classes' => false])` with a plain-string fallback + `?? ''` guard; star and unread-dot rules follow the legacy `inboxList()` (all rows keep both controls). No LIMIT by design (full-list render; Design A has no pagination — record as known trade-off).
 
 - [ ] **Step 3: Replace the client inbox view**
 
@@ -912,7 +960,7 @@ Write the content block below to `application/views/client/mailbox/inbox.php` wi
                         $string = (strlen($v_inbox_msg->to) > 50) ? strip_html_tags(mb_substr($v_inbox_msg->to, 0, 50)) . '...' : $v_inbox_msg->to;
                         $subject = (strlen($v_inbox_msg->subject) > 50) ? strip_html_tags(mb_substr($v_inbox_msg->subject, 0, 50)) . '...' : $v_inbox_msg->subject;
                         $preview = (strlen($v_inbox_msg->message_body) > 100) ? strip_html_tags(mb_substr($v_inbox_msg->message_body, 0, 100)) . '...' : $v_inbox_msg->message_body;
-                        $uploaded_file = json_decode($v_inbox_msg->attach_file);
+                        $uploaded_file = $v_inbox_msg->attach_file ? json_decode($v_inbox_msg->attach_file) : null;
                         $parts = preg_split('/[\s@.]+/', trim($string), -1, PREG_SPLIT_NO_EMPTY);
                         $ini = mb_strtoupper(implode('', array_slice($parts, 0, 2)));
                         $av = ['#0d9488', '#2563eb', '#8b5cf6', '#f59e0b', '#dc2626', '#0ea5e9', '#10b981', '#e11d48'][abs(crc32((string) $v_inbox_msg->inbox_id)) % 8];
@@ -920,7 +968,7 @@ Write the content block below to `application/views/client/mailbox/inbox.php` wi
                         <div class="mrow<?php echo $v_inbox_msg->view_status == 1 ? '' : ' unread'; ?>">
                             <span class="udot"></span>
                             <input class="child_present tb-check" type="checkbox" name="selected_id[]" value="<?php echo $v_inbox_msg->inbox_id; ?>"/>
-                            <span class="mb-av" style="background:<?php echo $av; ?>"><?php echo $ini; ?></span>
+                            <span class="mb-av" style="background:<?php echo $av; ?>"><?php echo html_escape($ini); ?></span>
                             <div class="m-main">
                                 <div class="m-top">
                                     <span class="m-from"><?php echo $string; ?></span>
@@ -953,7 +1001,7 @@ Write the content block below to `application/views/client/mailbox/inbox.php` wi
 - [ ] **Step 4: Lint + run test**
 
 Run: `php -l` on the three files → no errors.
-Run: `composer test:mailbox` → **admin folder checks now PASS** (inbox shows fixture row; sent has real rows; draft/favourites/trash show `mb-empty`), `admin inbox shows fixture row` PASSES; client folders still fail `list-card` (Tasks 5–6); read/compose still fail.
+Run: `composer test:mailbox` → **admin folder checks ×5 now PASS** (inbox shows fixture row; sent has real rows; draft/favourites/trash show `mb-empty`), `admin inbox shows fixture row` PASSES, and **client inbox passes too** (Step 3's `list-card` + client fixture row); client sent/draft/favourites/trash still fail `list-card` (Tasks 5–6); read ×2 + compose ×2 still fail. Summary line must be `17 assertions — 9 passed, 8 failed, 0 skipped`, exit 1 (9 = 5 admin folders + client inbox + fixture + 2 leaks; 8 = 4 remaining client folders + read ×2 + compose ×2).
 
 - [ ] **Step 5: Commit**
 
@@ -965,6 +1013,8 @@ git commit -m "feat: server-render admin mailbox lists + restyle client inbox"
 ---
 
 ### Task 5: Client sent + drafts list cards
+
+> **STATUS: COMPLETE** — commit `621bc070`. Spec review ✅ (both blocks byte-faithful to this plan after URL swap; functional elements preserved vs old views; test `11 passed, 6 failed`). Code-quality review: **Yes** (no Critical/Major). Minors noted, no action: row-level code paths untested by fixtures (only `mb-empty` renders — candidate for Task 9 fixture enrichment), draft `unserialize` non-array offset = pre-existing parity (hardened with `allowed_classes`), raw echoes pre-existing posture, uncommitted plan doc, `.mrow` cursor cosmetic.
 
 > Admin sent/draft lists are already covered by Task 4 — `modules/mailbox/views/local_mails.php` serves all five admin folders. This task is client-only.
 
@@ -993,7 +1043,7 @@ Write the content block below to `application/views/client/mailbox/sent.php` wit
                         $string = (strlen($v_sent_msg->to) > 50) ? strip_html_tags(mb_substr($v_sent_msg->to, 0, 50)) . '...' : $v_sent_msg->to;
                         $subject = (strlen($v_sent_msg->subject) > 50) ? strip_html_tags(mb_substr($v_sent_msg->subject, 0, 50)) . '...' : $v_sent_msg->subject;
                         $preview = (strlen($v_sent_msg->message_body) > 100) ? strip_html_tags(mb_substr($v_sent_msg->message_body, 0, 100)) . '...' : $v_sent_msg->message_body;
-                        $uploaded_file = json_decode($v_sent_msg->attach_file);
+                        $uploaded_file = $v_sent_msg->attach_file ? json_decode($v_sent_msg->attach_file) : null;
                         $parts = preg_split('/[\s@.]+/', trim($string), -1, PREG_SPLIT_NO_EMPTY);
                         $ini = mb_strtoupper(implode('', array_slice($parts, 0, 2)));
                         $av = ['#0d9488', '#2563eb', '#8b5cf6', '#f59e0b', '#dc2626', '#0ea5e9', '#10b981', '#e11d48'][abs(crc32((string) $v_sent_msg->sent_id)) % 8];
@@ -1001,7 +1051,7 @@ Write the content block below to `application/views/client/mailbox/sent.php` wit
                         <div class="mrow">
                             <span class="udot"></span>
                             <input class="child_present tb-check" type="checkbox" name="selected_id[]" value="<?php echo $v_sent_msg->sent_id; ?>"/>
-                            <span class="mb-av" style="background:<?php echo $av; ?>"><?php echo $ini; ?></span>
+                            <span class="mb-av" style="background:<?php echo $av; ?>"><?php echo html_escape($ini); ?></span>
                             <div class="m-main">
                                 <div class="m-top">
                                     <span class="m-from">To: <?php echo $string; ?></span>
@@ -1046,7 +1096,7 @@ Write the content block below to `application/views/client/mailbox/draft.php` wi
                 <div class="rows">
                     <?php if (!empty($draft_message)): foreach ($draft_message as $v_draft_msg): ?>
                         <?php
-                        $email_address = unserialize($v_draft_msg->to);
+                        $email_address = unserialize($v_draft_msg->to, array('allowed_classes' => false));
                         $total_email = count(array($email_address));
                         if ($total_email > 1) {
                             $deduct = "$total_email" - 1;
@@ -1056,7 +1106,7 @@ Write the content block below to `application/views/client/mailbox/draft.php` wi
                         }
                         $subject = (strlen($v_draft_msg->subject) > 50) ? strip_html_tags(mb_substr($v_draft_msg->subject, 0, 50)) . '...' : $v_draft_msg->subject;
                         $preview = (strlen($v_draft_msg->message_body) > 100) ? strip_html_tags(mb_substr($v_draft_msg->message_body, 0, 100)) . '...' : $v_draft_msg->message_body;
-                        $uploaded_file = json_decode($v_draft_msg->attach_file);
+                        $uploaded_file = $v_draft_msg->attach_file ? json_decode($v_draft_msg->attach_file) : null;
                         $parts = preg_split('/[\s@.]+/', trim((string) $string), -1, PREG_SPLIT_NO_EMPTY);
                         $ini = mb_strtoupper(implode('', array_slice($parts, 0, 2)));
                         $av = ['#0d9488', '#2563eb', '#8b5cf6', '#f59e0b', '#dc2626', '#0ea5e9', '#10b981', '#e11d48'][abs(crc32((string) $v_draft_msg->draft_id)) % 8];
@@ -1064,7 +1114,7 @@ Write the content block below to `application/views/client/mailbox/draft.php` wi
                         <div class="mrow">
                             <span class="udot"></span>
                             <input class="child_present tb-check" type="checkbox" name="selected_id[]" value="<?php echo $v_draft_msg->draft_id; ?>"/>
-                            <span class="mb-av" style="background:<?php echo $av; ?>"><?php echo $ini; ?></span>
+                            <span class="mb-av" style="background:<?php echo $av; ?>"><?php echo html_escape($ini); ?></span>
                             <div class="m-main">
                                 <div class="m-top">
                                     <span class="m-from"><?php echo $string; ?></span>
@@ -1107,6 +1157,10 @@ git commit -m "feat: restyle client mailbox sent + drafts lists"
 
 ### Task 6: Client favourites + trash (tabs + 3 sublists)
 
+> **STATUS: COMPLETE** — commit `abb29fab`. Spec review ✅ (all 5 blocks byte-match this plan post-swap; preservation + swap verified; test `13 passed, 4 failed`). Code-quality review: **Yes** (no Critical/Major). Minors recorded: trash/draft `unserialize` offset warning = pre-existing parity (harden with the `is_array` fallback if fixtures ever seed a raw `to` AND the gate fetches `/trash/draft`); favourites bulk-delete no-op = pre-existing controller dead-end (`delete_inbox_mail` reads URL `$id` only — backlog, same in old file); trash/sent gains the Design-A `To:` prefix (main `sent.php` already had it); dead `count(array())` branch = verbatim parity. Gate caveat: fixtures seed inbox rows only → favourites/trash render `mb-empty`, trash sublists never fetched by the gate (Task 9 fixture-enrichment candidate).
+
+> **Design note:** `.trash-body` is a **markup-only wrapper — intentionally unstyled** (spacing comes from `.trash-tabs { margin-bottom }`; the old view used an inline-margin div; the class inventory + Task 2 CSS block omit it by design). `.trash-tabs`/`.ttab` DO have rules (mailbox_modern.css:114-122).
+
 > Admin favourites/trash lists are already covered by Task 4 (`modules/mailbox/views/local_mails.php` serves all five admin folders — including the single-list admin trash, per spec §8 deviation). This task is client-only.
 
 **Files:**
@@ -1137,7 +1191,7 @@ Write the content block below to `application/views/client/mailbox/favourites.ph
                         $string = (strlen($v_inbox_msg->to) > 50) ? strip_html_tags(mb_substr($v_inbox_msg->to, 0, 50)) . '...' : $v_inbox_msg->to;
                         $subject = (strlen($v_inbox_msg->subject) > 50) ? strip_html_tags(mb_substr($v_inbox_msg->subject, 0, 50)) . '...' : $v_inbox_msg->subject;
                         $preview = (strlen($v_inbox_msg->message_body) > 100) ? strip_html_tags(mb_substr($v_inbox_msg->message_body, 0, 100)) . '...' : $v_inbox_msg->message_body;
-                        $uploaded_file = json_decode($v_inbox_msg->attach_file);
+                        $uploaded_file = $v_inbox_msg->attach_file ? json_decode($v_inbox_msg->attach_file) : null;
                         $parts = preg_split('/[\s@.]+/', trim($string), -1, PREG_SPLIT_NO_EMPTY);
                         $ini = mb_strtoupper(implode('', array_slice($parts, 0, 2)));
                         $av = ['#0d9488', '#2563eb', '#8b5cf6', '#f59e0b', '#dc2626', '#0ea5e9', '#10b981', '#e11d48'][abs(crc32((string) $v_inbox_msg->inbox_id)) % 8];
@@ -1145,7 +1199,7 @@ Write the content block below to `application/views/client/mailbox/favourites.ph
                         <div class="mrow<?php echo $v_inbox_msg->view_status == 1 ? '' : ' unread'; ?>">
                             <span class="udot"></span>
                             <input class="child_present tb-check" type="checkbox" name="selected_id[]" value="<?php echo $v_inbox_msg->inbox_id; ?>"/>
-                            <span class="mb-av" style="background:<?php echo $av; ?>"><?php echo $ini; ?></span>
+                            <span class="mb-av" style="background:<?php echo $av; ?>"><?php echo html_escape($ini); ?></span>
                             <div class="m-main">
                                 <div class="m-top">
                                     <span class="m-from"><?php echo $string; ?></span>
@@ -1210,7 +1264,7 @@ Write the content block below to `application/views/client/mailbox/trash/inbox.p
                         $string = (strlen($v_inbox_msg->to) > 50) ? strip_html_tags(mb_substr($v_inbox_msg->to, 0, 50)) . '...' : $v_inbox_msg->to;
                         $subject = (strlen($v_inbox_msg->subject) > 50) ? strip_html_tags(mb_substr($v_inbox_msg->subject, 0, 50)) . '...' : $v_inbox_msg->subject;
                         $preview = (strlen($v_inbox_msg->message_body) > 100) ? strip_html_tags(mb_substr($v_inbox_msg->message_body, 0, 100)) . '...' : $v_inbox_msg->message_body;
-                        $uploaded_file = json_decode($v_inbox_msg->attach_file);
+                        $uploaded_file = $v_inbox_msg->attach_file ? json_decode($v_inbox_msg->attach_file) : null;
                         $parts = preg_split('/[\s@.]+/', trim($string), -1, PREG_SPLIT_NO_EMPTY);
                         $ini = mb_strtoupper(implode('', array_slice($parts, 0, 2)));
                         $av = ['#0d9488', '#2563eb', '#8b5cf6', '#f59e0b', '#dc2626', '#0ea5e9', '#10b981', '#e11d48'][abs(crc32((string) $v_inbox_msg->inbox_id)) % 8];
@@ -1218,7 +1272,7 @@ Write the content block below to `application/views/client/mailbox/trash/inbox.p
                         <div class="mrow<?php echo $v_inbox_msg->view_status == 1 ? '' : ' unread'; ?>">
                             <span class="udot"></span>
                             <input class="child_present tb-check" type="checkbox" name="selected_id[]" value="<?php echo $v_inbox_msg->inbox_id; ?>"/>
-                            <span class="mb-av" style="background:<?php echo $av; ?>"><?php echo $ini; ?></span>
+                            <span class="mb-av" style="background:<?php echo $av; ?>"><?php echo html_escape($ini); ?></span>
                             <div class="m-main">
                                 <div class="m-top">
                                     <span class="m-from"><?php echo $string; ?></span>
@@ -1272,7 +1326,7 @@ Write the content block below to `application/views/client/mailbox/trash/sent.ph
                         $string = (strlen($v_sent_msg->to) > 50) ? strip_html_tags(mb_substr($v_sent_msg->to, 0, 50)) . '...' : $v_sent_msg->to;
                         $subject = (strlen($v_sent_msg->subject) > 50) ? strip_html_tags(mb_substr($v_sent_msg->subject, 0, 50)) . '...' : $v_sent_msg->subject;
                         $preview = (strlen($v_sent_msg->message_body) > 100) ? strip_html_tags(mb_substr($v_sent_msg->message_body, 0, 100)) . '...' : $v_sent_msg->message_body;
-                        $uploaded_file = json_decode($v_sent_msg->attach_file);
+                        $uploaded_file = $v_sent_msg->attach_file ? json_decode($v_sent_msg->attach_file) : null;
                         $parts = preg_split('/[\s@.]+/', trim($string), -1, PREG_SPLIT_NO_EMPTY);
                         $ini = mb_strtoupper(implode('', array_slice($parts, 0, 2)));
                         $av = ['#0d9488', '#2563eb', '#8b5cf6', '#f59e0b', '#dc2626', '#0ea5e9', '#10b981', '#e11d48'][abs(crc32((string) $v_sent_msg->sent_id)) % 8];
@@ -1280,7 +1334,7 @@ Write the content block below to `application/views/client/mailbox/trash/sent.ph
                         <div class="mrow">
                             <span class="udot"></span>
                             <input class="child_present tb-check" type="checkbox" name="selected_id[]" value="<?php echo $v_sent_msg->sent_id; ?>"/>
-                            <span class="mb-av" style="background:<?php echo $av; ?>"><?php echo $ini; ?></span>
+                            <span class="mb-av" style="background:<?php echo $av; ?>"><?php echo html_escape($ini); ?></span>
                             <div class="m-main">
                                 <div class="m-top">
                                     <span class="m-from">To: <?php echo $string; ?></span>
@@ -1328,7 +1382,7 @@ Write the content block below to `application/views/client/mailbox/trash/draft.p
                 <div class="rows">
                     <?php if (!empty($draft_message)): foreach ($draft_message as $v_draft_msg): ?>
                         <?php
-                        $email_address = unserialize($v_draft_msg->to);
+                        $email_address = unserialize($v_draft_msg->to, array('allowed_classes' => false));
                         $total_email = count(array($email_address));
                         if ($total_email > 1) {
                             $deduct = "$total_email" - 1;
@@ -1338,7 +1392,7 @@ Write the content block below to `application/views/client/mailbox/trash/draft.p
                         }
                         $subject = (strlen($v_draft_msg->subject) > 50) ? strip_html_tags(mb_substr($v_draft_msg->subject, 0, 50)) . '...' : $v_draft_msg->subject;
                         $preview = (strlen($v_draft_msg->message_body) > 100) ? strip_html_tags(mb_substr($v_draft_msg->message_body, 0, 100)) . '...' : $v_draft_msg->message_body;
-                        $uploaded_file = json_decode($v_draft_msg->attach_file);
+                        $uploaded_file = $v_draft_msg->attach_file ? json_decode($v_draft_msg->attach_file) : null;
                         $parts = preg_split('/[\s@.]+/', trim((string) $string), -1, PREG_SPLIT_NO_EMPTY);
                         $ini = mb_strtoupper(implode('', array_slice($parts, 0, 2)));
                         $av = ['#0d9488', '#2563eb', '#8b5cf6', '#f59e0b', '#dc2626', '#0ea5e9', '#10b981', '#e11d48'][abs(crc32((string) $v_draft_msg->draft_id)) % 8];
@@ -1346,7 +1400,7 @@ Write the content block below to `application/views/client/mailbox/trash/draft.p
                         <div class="mrow">
                             <span class="udot"></span>
                             <input class="child_present tb-check" type="checkbox" name="selected_id[]" value="<?php echo $v_draft_msg->draft_id; ?>"/>
-                            <span class="mb-av" style="background:<?php echo $av; ?>"><?php echo $ini; ?></span>
+                            <span class="mb-av" style="background:<?php echo $av; ?>"><?php echo html_escape($ini); ?></span>
                             <div class="m-main">
                                 <div class="m-top">
                                     <span class="m-from"><?php echo $string; ?></span>
@@ -1397,7 +1451,7 @@ git commit -m "feat: restyle client mailbox favourites + trash tabs/sublists"
 - Modify: `modules/mailbox/views/read_mail.php`
 - Modify: `application/views/client/mailbox/read_mail.php`
 
-> Spec rule "keep every existing control" governs both blocks. Client specifics (verified against `application/controllers/client/Mailbox.php`): the mark-read/unread toggle is omitted — the client controller has **no `change_view` action** (a link to it would fall through to the inbox); reply/replyall/forward render only when `$reply` is set (inbox reads) because client `compose/<id>/<status>` looks the message up in `tbl_inbox` by `inbox_id`. Delete renders whenever an id is detected (client `delete_mail/<action>/NULL/<id>` handles all three folders). Both recorded in Task 9.
+> Spec rule "keep every existing control" governs both blocks. Client specifics (verified against `application/controllers/client/Mailbox.php` + the old view at `79e889dc^`): the mark-read/unread toggle is omitted — the client controller has **no `change_view` action** (a link to it would fall through to the inbox); reply/replyall/forward AND delete all render only inside `if (!empty($reply))` (inbox reads — the old view's exact guard; `$data['reply'] = 1` is set only by `read_inbox_mail` at controller line 84) because client `compose/<id>/<status>` looks the message up in `tbl_inbox` by `inbox_id`. Delete uses the old view's **soft** path `client/mailbox/delete_inbox_mail/<inbox_id>` (sets `deleted='Yes'` → appears in trash, controller lines 123-130) — the single-id branch of `delete_mail` (controller line 163) is **permanent**, so `delete_mail/<action>/NULL/<id>` must NOT be used from the client read page; sent/draft reads show no delete link (the old view had none — its delete sat inside the same `$reply` guard). replyall/forward are Design-A additions to the old single reply button (identical links to the admin read page); because client `compose_mail.php` has no `$method` handling yet, their compose-mode branch (to/subject prefill per reply|replyall|forward) is added in **Task 8 Step 2b** so the controls behave as labeled. The read page shows a **single identity line** (`From:` in reply mode, `To:` otherwise) per Design A — the old admin view showed both From and To in reply mode (recorded in Task 9). The favourite star renders whenever `inbox_id` is present, computed as `$favs = favourites == 1 ? 0 : 1` with an `isset($favs)` guard (post-review fix — the old `!empty($favs)` logic hid the toggle in every real state; sent/draft reads show no star because `added_favourites` acts on `tbl_inbox` only). All recorded in Task 9.
 
 - [ ] **Step 1: Replace the admin module read view**
 
@@ -1406,21 +1460,15 @@ Full content of `modules/mailbox/views/read_mail.php` (Design A `read-card`; fav
 ```php
 <?php
 $read_label = !empty($reply) ? 'From' : 'To';
-$read_from = $read_mail->from;
+$read_from = !empty($reply) ? ($read_mail->from ?? '') : '';
 if (empty($reply)) {
-    $read_to = @unserialize($read_mail->to);
+    $read_to = @unserialize($read_mail->to, array('allowed_classes' => false));
     $read_from = is_array($read_to) ? implode(', ', $read_to) : $read_mail->to;
 }
-if (!empty($read_mail->favourites)) {
-    if ($read_mail->favourites == 1) {
-        $favs = 0;
-        $fav_icon = 'fa-star';
-        $fav_title = lang('remove_from_favourites');
-    } else {
-        $fav_icon = 'fa-star-o';
-        $favs = 1;
-        $fav_title = lang('added_into_favourites');
-    }
+if (!empty($read_mail->inbox_id)) {
+    $favs = (!empty($read_mail->favourites) && $read_mail->favourites == 1) ? 0 : 1;
+    $fav_icon = $favs == 0 ? 'fa-star' : 'fa-star-o';
+    $fav_title = $favs == 0 ? lang('remove_from_favourites') : lang('added_into_favourites');
 }
 if (!empty($read_mail->view_status)) {
     if ($read_mail->view_status == 1) {
@@ -1455,7 +1503,7 @@ $av = ['#0d9488', '#2563eb', '#8b5cf6', '#f59e0b', '#dc2626', '#0ea5e9', '#10b98
                 <div class="rh-top">
                     <button class="mb-back" onclick="history.go(-1)"><i class="fa fa-arrow-left"></i> Back</button>
                     <div class="rh-tools">
-                        <?php if (!empty($favs)) { ?>
+                        <?php if (isset($favs)) { ?>
                             <a href="<?= base_url() ?>admin/mailbox/index/added_favourites/<?= $read_mail->inbox_id . '/' . $favs ?>"
                                class="tbtn" title="<?= $fav_title ?>"><i class="fa <?= $fav_icon ?>"></i></a>
                         <?php } ?>
@@ -1475,7 +1523,7 @@ $av = ['#0d9488', '#2563eb', '#8b5cf6', '#f59e0b', '#dc2626', '#0ea5e9', '#10b98
                 </div>
                 <h2 class="r-subj"><?php echo html_escape($read_mail->subject); ?></h2>
                 <div class="r-who">
-                    <span class="mb-av" style="background:<?php echo $av; ?>"><?php echo $ini; ?></span>
+                    <span class="mb-av" style="background:<?php echo $av; ?>"><?php echo html_escape($ini); ?></span>
                     <div>
                         <div class="who"><?php echo $read_label ?>: <?php echo html_escape($read_from); ?></div>
                         <?php if (!empty($read_mail->cc)) { ?>
@@ -1490,7 +1538,7 @@ $av = ['#0d9488', '#2563eb', '#8b5cf6', '#f59e0b', '#dc2626', '#0ea5e9', '#10b98
                 <p><?php echo $read_mail->message_body; ?></p>
             </div>
             <?php
-            $uploaded_file = json_decode($read_mail->attach_file);
+            $uploaded_file = $read_mail->attach_file ? json_decode($read_mail->attach_file) : null;
             if (!empty($uploaded_file)):
                 ?>
                 <ul class="att-strip">
@@ -1527,31 +1575,22 @@ Full content of `application/views/client/mailbox/read_mail.php` (the old inline
 ```php
 <?php
 $read_label = !empty($reply) ? 'From' : 'To';
-$read_from = $read_mail->from;
+$read_from = !empty($reply) ? ($read_mail->from ?? '') : '';
 if (empty($reply)) {
-    $read_to = @unserialize($read_mail->to);
+    $read_to = @unserialize($read_mail->to, array('allowed_classes' => false));
     $read_from = is_array($read_to) ? implode(', ', $read_to) : $read_mail->to;
 }
-if (!empty($read_mail->favourites)) {
-    if ($read_mail->favourites == 1) {
-        $favs = 0;
-        $fav_icon = 'fa-star';
-        $fav_title = lang('remove_from_favourites');
-    } else {
-        $fav_icon = 'fa-star-o';
-        $favs = 1;
-        $fav_title = lang('added_into_favourites');
-    }
+if (!empty($read_mail->inbox_id)) {
+    $favs = (!empty($read_mail->favourites) && $read_mail->favourites == 1) ? 0 : 1;
+    $fav_icon = $favs == 0 ? 'fa-star' : 'fa-star-o';
+    $fav_title = $favs == 0 ? lang('remove_from_favourites') : lang('added_into_favourites');
 }
 if (!empty($read_mail->inbox_id)) {
     $id = $read_mail->inbox_id;
-    $delete = 'delete_mail/inbox/NULL';
 } else if (!empty($read_mail->sent_id)) {
     $id = $read_mail->sent_id;
-    $delete = 'delete_mail/sent/NULL';
 } else if (!empty($read_mail->draft_id)) {
     $id = $read_mail->draft_id;
-    $delete = 'delete_mail/draft/NULL';
 }
 $parts = preg_split('/[\s@.]+/', trim((string) $read_from), -1, PREG_SPLIT_NO_EMPTY);
 $ini = mb_strtoupper(implode('', array_slice($parts, 0, 2)));
@@ -1565,7 +1604,7 @@ $av = ['#0d9488', '#2563eb', '#8b5cf6', '#f59e0b', '#dc2626', '#0ea5e9', '#10b98
                 <div class="rh-top">
                     <button class="mb-back" onclick="history.go(-1)"><i class="fa fa-arrow-left"></i> Back</button>
                     <div class="rh-tools">
-                        <?php if (!empty($favs)) { ?>
+                        <?php if (isset($favs)) { ?>
                             <a href="<?= base_url() ?>client/mailbox/index/added_favourites/<?= $read_mail->inbox_id . '/' . $favs ?>"
                                class="tbtn" title="<?= $fav_title ?>"><i class="fa <?= $fav_icon ?>"></i></a>
                         <?php } ?>
@@ -1576,16 +1615,14 @@ $av = ['#0d9488', '#2563eb', '#8b5cf6', '#f59e0b', '#dc2626', '#0ea5e9', '#10b98
                                title="<?= lang('reply_all') ?>"><i class="fa fa-reply-all"></i></a>
                             <a href="<?= base_url() ?>client/mailbox/index/compose/<?= $id ?>/forward" class="tbtn"
                                title="<?= lang('forward') ?>"><i class="fa fa-mail-forward"></i></a>
-                        <?php } ?>
-                        <?php if (!empty($id)) { ?>
-                            <a href="<?= base_url() ?>client/mailbox/<?= $delete . '/' . $id ?>" class="tbtn danger"
-                               title="<?= lang('delete') ?>"><i class="fa fa-trash-o"></i></a>
+                            <a href="<?= base_url() ?>client/mailbox/delete_inbox_mail/<?= $read_mail->inbox_id ?>"
+                               class="tbtn danger" title="<?= lang('delete') ?>"><i class="fa fa-trash-o"></i></a>
                         <?php } ?>
                     </div>
                 </div>
                 <h2 class="r-subj"><?php echo html_escape($read_mail->subject); ?></h2>
                 <div class="r-who">
-                    <span class="mb-av" style="background:<?php echo $av; ?>"><?php echo $ini; ?></span>
+                    <span class="mb-av" style="background:<?php echo $av; ?>"><?php echo html_escape($ini); ?></span>
                     <div>
                         <div class="who"><?php echo $read_label ?>: <?php echo html_escape($read_from); ?></div>
                         <?php if (!empty($read_mail->cc)) { ?>
@@ -1600,7 +1637,7 @@ $av = ['#0d9488', '#2563eb', '#8b5cf6', '#f59e0b', '#dc2626', '#0ea5e9', '#10b98
                 <p><?php echo $read_mail->message_body; ?></p>
             </div>
             <?php
-            $uploaded_file = json_decode($read_mail->attach_file);
+            $uploaded_file = $read_mail->attach_file ? json_decode($read_mail->attach_file) : null;
             if (!empty($uploaded_file)):
                 ?>
                 <ul class="att-strip">
@@ -1631,7 +1668,7 @@ $av = ['#0d9488', '#2563eb', '#8b5cf6', '#f59e0b', '#dc2626', '#0ea5e9', '#10b98
 - [ ] **Step 3: Lint + run test**
 
 Run: `php -l` on both files → no errors.
-Run: `composer test:mailbox` → both read assertions PASS; only compose remains FAIL.
+Run: `composer test:mailbox` → both inbox read assertions PASS **and the 2 new sent-read assertions PASS** (section 2b, added with this task: admin `read_send_mail/900001`, client `read_send_mail/900003` against the new `tbl_sent` fixture — exercises the non-reply path incl. the guarded `from` line); only compose remains FAIL. Summary line must be `19 assertions — 17 passed, 2 failed, 0 skipped`, exit 1.
 
 - [ ] **Step 4: Commit**
 
@@ -1645,8 +1682,8 @@ git commit -m "feat: restyle mailbox read page (admin module + client)"
 ### Task 8: Compose page (`compose_mail.php`)
 
 **Files:**
-- Modify: `modules/mailbox/views/compose_mail.php` (4 container-class edits only — all select2/dropzone/JS blocks untouched)
-- Modify: `application/views/client/mailbox/compose_mail.php` (same 4 edits)
+- Modify: `modules/mailbox/views/compose_mail.php` (Step 1: 4 container-class edits only — all select2/dropzone/JS blocks untouched)
+- Modify: `application/views/client/mailbox/compose_mail.php` (Step 2: same 4 class edits; Step 2b: compose-mode branch for the read page's reply/replyall/forward links — PHP/HTML only, no JS/select2/dropzone changes)
 
 - [ ] **Step 1: Admin module compose — 4 class edits**
 
@@ -1670,15 +1707,110 @@ In `application/views/client/mailbox/compose_mail.php`:
 
 Do NOT touch the `admin/common/upload_file` and `admin/common/validate_project_file` URLs (client lines 141/157) — they must stay `admin/`.
 
+- [ ] **Step 2b: Client compose — reply/replyall/forward mode branch**
+
+Task 7's client read page links `compose/<id>/reply|replyall|forward`; the controller loads `$inbox_info` whenever `$status` is non-empty (client `Mailbox.php:105-106`), but the view has no `$method` handling — today all three links behave like plain reply. Admin module compose reads `$method = $this->uri->segment(6)` at its line 13; the segment position is identical for client URLs (`client/mailbox/index/compose/<id>/<method>` → segment 6 = method). Add the branch (mirror of the module's lines 9-43, adapted: no `$cc` field exists client-side; `!empty($inbox_info)` replaces `$action_type == 'inbox'`):
+
+1. Insert between the `<!-- Content Header (Page header) -->` comment and `<div class="col-md-12">`:
+
+```php
+    <?php
+    $method = $this->uri->segment(6);
+    $subject = '';
+    $body = '';
+    $all_to = array();
+    if (!empty($inbox_info)) {
+        if ($method == 'reply') {
+            $subject = 'RE: ' . $inbox_info->subject;
+            $all_to[] = $inbox_info->from;
+        } else if ($method == 'replyall') {
+            $subject = 'RE: ' . $inbox_info->subject;
+            $all_to[] = $inbox_info->from;
+            $to_raw = @unserialize($inbox_info->to, array('allowed_classes' => false));
+            if (is_array($to_raw)) {
+                foreach ($to_raw as $v_to) {
+                    $all_to[] = $v_to;
+                }
+            } else if (!empty($inbox_info->to)) {
+                $all_to[] = $inbox_info->to;
+            }
+        } else {
+            $subject = 'FW: ' . $inbox_info->subject;
+            $body = $inbox_info->message_body;
+        }
+    }
+    ?>
+```
+
+2. Replace the single preselected-from option (current lines 44-47):
+
+```php
+                        if (!empty($inbox_info)) {
+                            ?>
+                            <option value="<?= $inbox_info->from ?>" selected=""><?= $inbox_info->from ?></option>
+                        <?php } ?>
+```
+
+with a loop over `$all_to` (immediately after the existing draft-options loop, still inside the `<select>`):
+
+```php
+                        if (!empty($all_to)) {
+                            foreach ($all_to as $v_email) {
+                                ?>
+                                <option value="<?= html_escape($v_email) ?>" selected=""><?= html_escape($v_email) ?></option>
+                            <?php }
+                        } ?>
+```
+
+3. Draft-attach decode (current lines 93-96) gains an inbox fallback so forward carries attachments:
+
+```php
+                    <?php
+                    if (!empty($get_draft_info->attach_file)) {
+                        $uploaded_file = json_decode($get_draft_info->attach_file);
+                    } else if (!empty($inbox_info->attach_file)) {
+                        $uploaded_file = json_decode($inbox_info->attach_file);
+                    }
+                    if (!empty($uploaded_file)) {
+```
+
+The existing hidden `path[]/fileName[]/fullPath[]/size[]/is_image[]` inputs (view lines 114-123) are consumed by client `send_mail` (controller lines 242-258), and the `.existing_image` remove handler (view line 129) already covers them — no JS changes.
+
+4. Subject input gains an else branch (draft prefill stays first):
+
+```php
+                    <input class="form-control" value="<?php
+                    if (!empty($get_draft_info->subject)) {
+                        echo $get_draft_info->subject;
+                    } else {
+                        echo html_escape($subject);
+                    }
+                    ?>" type="text" required="" name="subject" placeholder="Subject:"/>
+```
+
+5. Body textarea gains an else branch (draft prefill stays first):
+
+```php
+                              style="height: 350px"><?php
+                        if (!empty($get_draft_info->message_body)) {
+                            echo $get_draft_info->message_body;
+                        } else {
+                            echo $body;
+                        }
+                        ?></textarea>
+```
+
+Reply keeps the old behavior (preselect original sender); replyall adds the original `to` recipient(s); forward preselects nobody, prefixes `FW: `, carries body + attachments. No cc field exists client-side (module-only) — recorded in Task 9.
+
 - [ ] **Step 3: Lint + verify no other edits**
 
 Run: `php -l` on both files → no errors.
-Run: `git diff modules/mailbox/views/compose_mail.php application/views/client/mailbox/compose_mail.php` → exactly 8 changed lines (4 per file). No JS/dropzone/select2 lines changed.
+Run: `git diff modules/mailbox/views/compose_mail.php application/views/client/mailbox/compose_mail.php` → admin file: exactly 4 changed lines; client file: the 4 class edits + Step 2b's inserted branch/options/subject/body/attach lines. No JS/dropzone/select2 lines changed in either file.
 
 - [ ] **Step 4: Run the full test — expect ALL GREEN**
 
 Run: `composer test:mailbox`
-Expected: exit 0 — all 17 assertions PASS (0 failed, 0 skipped).
+Expected: exit 0 — all 19 assertions PASS (0 failed, 0 skipped).
 
 - [ ] **Step 5: Commit**
 
@@ -1718,7 +1850,7 @@ composer test:mailbox; "mailbox: $LASTEXITCODE"
 composer test:theme; "theme: $LASTEXITCODE"
 ```
 
-Expected: smoke PASS (22/22), login PASS, menu PASS, mailbox PASS (17/17 — 0 failed, 0 skipped), theme FAIL with the **pre-existing** baseline (`expected 25 !important, got 26`, `--c-accent` undefined — documented in `docs/superpowers/2026-10-01-woocommerce-redesign-verification.md`; must be byte-identical to that baseline, not worse).
+Expected: smoke PASS (22/22), login PASS, menu PASS, mailbox PASS (19/19 — 0 failed, 0 skipped), theme FAIL with the **pre-existing** baseline (`expected 25 !important, got 26`, `--c-accent` undefined — documented in `docs/superpowers/2026-10-01-woocommerce-redesign-verification.md`; must be byte-identical to that baseline, not worse).
 
 - [ ] **Step 3: Playwright visual pass**
 
@@ -1738,19 +1870,20 @@ For each row below open the URL, confirm the listed expectations, and check **0 
 | click any client subject | read page with Back/subject/body/attachments; favourite + reply/replyall/forward + delete tools (inbox reads) |
 | `http://localhost/complete_crm/admin/settings` | **no** mailbox CSS/markup (leak check) |
 
-Interactions to verify: check-all checkbox toggles row checkboxes; starring reloads into Favourites; admin trash restore + permanent-delete work; client trash tabs switch sublists.
+Interactions to verify: check-all checkbox toggles row checkboxes; starring reloads into Favourites; admin trash restore + permanent-delete work; client trash tabs switch sublists; **once on inbox, check the computed `border-style` of `.list-card` is `solid`** (canary for the Task 2 token defect — the marker test cannot see computed styles).
 
 - [ ] **Step 4: Write the verification record**
 
 Create `docs/superpowers/2026-10-03-mailbox-redesign-verification.md` containing:
 
 - gates table (commands + exact outputs) and the Playwright checklist with results;
-- **fixtures note:** `plan/_tools/mailbox-fixtures.sql` (client user `mailbox_client` uid 1790 + 12 menu grants + admin fixture row 900001 + client fixture row 900002) and how to reapply it;
+- **fixtures note:** `plan/_tools/mailbox-fixtures.sql` (client user `mailbox_client` uid 1790 + 12 menu grants + admin fixture row 900001 + client fixture row 900002 + client **sent** fixture row 900003) and how to reapply it;
 - **architecture finding:** the `MX/Router.php` reroute means every `admin/mailbox/*` URL executes `modules/mailbox/controllers/Mailbox.php` + `modules/mailbox/views/*`; `application/controllers/admin/Mailbox.php` + `application/views/admin/mailbox/*` are dead code and were deliberately left untouched;
 - **server-render deviation:** additive `$local_messages` block in the module controller + rows rendered in `local_mails.php`; DataTables AJAX dropped for the five system folders (endpoints `inboxList`/`mailboxList` kept for remote folders);
 - **admin trash = single list** (client trash keeps the tabs + 3 sublists);
 - **incidental fixes:** client favourites view now loops `$favourites_mail` (was `$get_inbox_message` — pre-existing empty-list bug); client read attachment name link now points at `download_file` (old `base_url().attach_file` href opened the raw JSON and 404'd); client read drops its inline `<style>` + outer `<section>` (covered by the wrapper + `mailbox_modern.css`); admin sent rows now show a `To:` prefix (demo parity — legacy showed raw `from`);
-- **spec deviations actually shipped:** client read omits the mark-read/unread toggle (no `change_view` action exists in the client controller); client reply/replyall/forward tools render only on inbox reads (`$reply`) because client `compose/<id>/<status>` resolves messages from `tbl_inbox` only. Record whatever else the visual pass turns up.
+- **spec deviations actually shipped:** client read omits the mark-read/unread toggle (no `change_view` action exists in the client controller); client reply/replyall/forward tools render only on inbox reads (`$reply`) because client `compose/<id>/<status>` resolves messages from `tbl_inbox` only; client delete renders only on inbox reads and uses the **soft** `delete_inbox_mail` path (the single-id `delete_mail` branch is permanent — old view parity); the read page shows a single identity line (`From:` in reply mode / `To:` otherwise) where the old admin view showed From and To in reply mode; sent/draft reads show no delete/favourite tools (old view had none that worked); replyall/forward got a client compose-mode branch in Task 8 Step 2b (subject/to/body/attachment prefill; no cc field exists client-side). Record whatever else the visual pass turns up.
+- **post-review hardening shipped with Task 7:** avatar initials escaped via `html_escape($ini)` in all 10 redesign views (stored-XSS fix — `from` is attacker-controlled); client read `from` access guarded (`!empty($reply) ? ($read_mail->from ?? '') : ''` — `tbl_sent`/`tbl_draft` have no `from` column); favourite-star toggle fixed to render (old `!empty($favs)` logic hid it in every real state) and inbox-guarded; gate grew to 19 assertions with the 2 sent-read fetches (client `tbl_sent` fixture 900003) so the `Undefined property` error-scan covers the sent/draft read path.
 
 - [ ] **Step 5: Commit**
 
@@ -1767,5 +1900,5 @@ git commit -m "docs: mailbox redesign verification notes"
 2. **Placeholder scan:** no TBD/TODO; every code step carries complete file content or exact edit snippets; every run step has command + expected output.
 3. **Type consistency:** class names identical across CSS (Task 2), views (Tasks 3–8), and test markers (Task 1/1b): `list-card`, `f-item`, `mrow`, `mb-empty`, `read-card`, `r-subj`, `mb-compose`, `mailbox_modern.css`. Role-swap rule uniformly `admin/mailbox → client/mailbox` (never `admin/` blanket — protects `admin/common/upload_file`).
 4. **Routing correctness:** no `application/views/admin/mailbox/*` file is ever edited (dead code — MX Router reroutes to the module); no task "regenerates" a client file from an admin file — client content is written directly from its own authored block; the `admin/mailbox → client/mailbox` swap appears only as an instruction inside a block whose links are `admin/mailbox` by construction.
-5. **Delta chain:** Task 1b's folder marker order (`css → f-item → list-card → rows`) makes each task's contribution observable: RED baseline 17 = 2 pass/15 fail → Task 3 flips failures to `list-card` → Tasks 4–6 flip folder checks green → Task 7 read green → Task 8 all 17 green.
+5. **Delta chain:** Task 1b's folder marker order (`css → f-item → list-card → rows`) makes each task's contribution observable: RED baseline as measured at Task 1b was 17 = 2 pass/15 fail → Task 3 flips failures to `list-card` → Tasks 4–6 flip folder checks green (13/4 at Task 6) → Task 7 read green **and adds section 2b (2 sent-read assertions + `tbl_sent` fixture 900003) for a 19-assertion gate: 17 passed/2 failed** → Task 8 flips the last 2 (compose) → all 19 green.
 6. **Control preservation (§6.3):** admin keeps every control of the current module views (list toolbar, star, restore/permanent-delete, favourite/view/reply/replyall/forward/delete, form actions, `selected_id[]`); client keeps its existing ones (reply, delete, favourite, attachments). The single omission is the client mark-read/unread toggle (no `change_view` action in the client controller) — recorded in Task 9, not silently dropped.
