@@ -2,11 +2,37 @@
 if (!empty($get_draft_info->draft_id)) {
     echo $get_draft_info->draft_id;
 }
-?>" method="post" class="form-horizontal form-groups-bordered">
+?>" method="post" class="form-horizontal form-groups-bordered mb-compose">
     <!-- Content Header (Page header) -->
+    <?php
+    $method = $this->uri->segment(6);
+    $subject = '';
+    $body = '';
+    $all_to = array();
+    if (!empty($inbox_info)) {
+        if ($method == 'reply') {
+            $subject = 'RE: ' . $inbox_info->subject;
+            $all_to[] = $inbox_info->from;
+        } else if ($method == 'replyall') {
+            $subject = 'RE: ' . $inbox_info->subject;
+            $all_to[] = $inbox_info->from;
+            $to_raw = @unserialize($inbox_info->to, array('allowed_classes' => false));
+            if (is_array($to_raw)) {
+                foreach ($to_raw as $v_to) {
+                    $all_to[] = $v_to;
+                }
+            } else if (!empty($inbox_info->to)) {
+                $all_to[] = $inbox_info->to;
+            }
+        } else {
+            $subject = 'FW: ' . $inbox_info->subject;
+            $body = $inbox_info->message_body;
+        }
+    }
+    ?>
     <div class="col-md-12">
-        <div class="box box-primary">
-            <div class="box-body">
+        <div class="compose-card">
+            <div class="cc-body">
                 <div class="form-group col-md-12">
                     <select multiple="multiple" required="" placeholder="<?= lang('to') ?>" name="to[]"
                             style="width: 100%"
@@ -41,17 +67,20 @@ if (!empty($get_draft_info->draft_id)) {
                                 <?php
                             }
                         }
-                        if (!empty($inbox_info)) {
-                            ?>
-                            <option value="<?= $inbox_info->from ?>" selected=""><?= $inbox_info->from ?></option>
-                        <?php }
-                        ?>
+                        if (!empty($all_to)) {
+                            foreach ($all_to as $v_email) {
+                                ?>
+                                <option value="<?= html_escape($v_email) ?>" selected=""><?= html_escape($v_email) ?></option>
+                            <?php }
+                        } ?>
                     </select>
                 </div>
                 <div class="form-group col-md-12">
                     <input class="form-control" value="<?php
                     if (!empty($get_draft_info->subject)) {
                         echo $get_draft_info->subject;
+                    } else {
+                        echo html_escape($subject);
                     }
                     ?>" type="text" required="" name="subject" placeholder="Subject:"/>
                 </div>
@@ -60,6 +89,8 @@ if (!empty($get_draft_info->draft_id)) {
                               style="height: 350px"><?php
                         if (!empty($get_draft_info->message_body)) {
                             echo $get_draft_info->message_body;
+                        } else {
+                            echo $body;
                         }
                         ?></textarea>
                 </div>
@@ -93,6 +124,8 @@ if (!empty($get_draft_info->draft_id)) {
                     <?php
                     if (!empty($get_draft_info->attach_file)) {
                         $uploaded_file = json_decode($get_draft_info->attach_file);
+                    } else if ($method == 'forward' && !empty($inbox_info->attach_file)) {
+                        $uploaded_file = json_decode($inbox_info->attach_file);
                     }
                     if (!empty($uploaded_file)) {
                         foreach ($uploaded_file as $v_files_image) { ?>
@@ -212,7 +245,7 @@ if (!empty($get_draft_info->draft_id)) {
                     </script>
                 </div>
             </div><!-- /.box-body -->
-            <div class="box-footer">
+            <div class="cc-foot">
                 <div class="pull-right">
                     <button name="draf" value="1" class="btn btn-default"><i
                                 class="fa fa-pencil"></i> <?= lang('draft') ?></button>

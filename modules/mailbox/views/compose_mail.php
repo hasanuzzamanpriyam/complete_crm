@@ -4,7 +4,7 @@
 if (!empty($get_draft_info->draft_id)) {
     echo $get_draft_info->draft_id;
 }
-?>" method="post" class="form-horizontal form-groups-bordered" data-parsley-validate novalidate>
+?>" method="post" class="form-horizontal form-groups-bordered mb-compose" data-parsley-validate novalidate>
     <!-- Content Header (Page header) -->
     <?php
     $to = '';
@@ -43,8 +43,8 @@ if (!empty($get_draft_info->draft_id)) {
     }
     ?>
     <div class="col-md-12">
-        <div class="box box-primary">
-            <div class="box-body">
+        <div class="compose-card">
+            <div class="cc-body">
                 <div class="form-group col-md-12">
                     <select multiple="multiple" required="" placeholder="<?= lang('to') ?>" name="to[]"
                             data-width="100%" class="select_2_to">
@@ -226,7 +226,7 @@ if (!empty($get_draft_info->draft_id)) {
                     </script>
                 </div>
             </div><!-- /.box-body -->
-            <div class="box-footer">
+            <div class="cc-foot">
                 <div class="pull-right">
                     <button name="draf" value="1" class="btn btn-default"><i
                                 class="fa fa-pencil"></i> <?= lang('draft') ?></button>
