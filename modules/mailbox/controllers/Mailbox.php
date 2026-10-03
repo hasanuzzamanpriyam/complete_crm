@@ -138,6 +138,24 @@ class Mailbox extends Admin_Controller
             $data['menu_active'] = $action;
             $data['view'] = 'local_mails';
         }
+        // Mailbox redesign (additive): server-render system-folder rows for local_mails.php
+        // Filters/order mirror inboxList() verbatim.
+        $local_messages = array();
+        if (in_array($action, array('inbox', 'sent', 'draft', 'favourites', 'trash'), true)) {
+            $mb_where = array('user_id' => $this->session->userdata('user_id'));
+            if ($action == 'trash') {
+                $mb_where += array('deleted' => 'Yes');
+            } elseif ($action == 'favourites') {
+                $mb_where += array('favourites' => 1, 'deleted !=' => 'Yes');
+            } else {
+                $mb_where += array('mail_folder' => $action, 'deleted !=' => 'Yes', 'smtp_host_name' => 'system');
+            }
+            $this->db->where($mb_where);
+            $this->db->order_by('view_status', 'DESC');
+            $this->db->order_by('message_time', 'DESC');
+            $local_messages = $this->db->get('tbl_inbox')->result();
+        }
+        $data['local_messages'] = $local_messages;
         $data['subview'] = $this->load->view('mailbox', $data, TRUE);
         $this->load->view($this->view . '_layout_main', $data);
     }
