@@ -14,7 +14,7 @@
                         $string = (strlen($v_inbox_msg->to) > 50) ? strip_html_tags(mb_substr($v_inbox_msg->to, 0, 50)) . '...' : $v_inbox_msg->to;
                         $subject = (strlen($v_inbox_msg->subject) > 50) ? strip_html_tags(mb_substr($v_inbox_msg->subject, 0, 50)) . '...' : $v_inbox_msg->subject;
                         $preview = (strlen($v_inbox_msg->message_body) > 100) ? strip_html_tags(mb_substr($v_inbox_msg->message_body, 0, 100)) . '...' : $v_inbox_msg->message_body;
-                        $uploaded_file = json_decode($v_inbox_msg->attach_file);
+                        $uploaded_file = $v_inbox_msg->attach_file ? json_decode($v_inbox_msg->attach_file) : null;
                         $parts = preg_split('/[\s@.]+/', trim($string), -1, PREG_SPLIT_NO_EMPTY);
                         $ini = mb_strtoupper(implode('', array_slice($parts, 0, 2)));
                         $av = ['#0d9488', '#2563eb', '#8b5cf6', '#f59e0b', '#dc2626', '#0ea5e9', '#10b981', '#e11d48'][abs(crc32((string) $v_inbox_msg->inbox_id)) % 8];

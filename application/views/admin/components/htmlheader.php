@@ -47,7 +47,7 @@
         <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/app.css?v=23" id="maincss">
     <?php } ?>
     <?php if (strpos(uri_string(), 'mailbox') !== false) { ?>
-        <link rel="stylesheet" type="text/css" href="<?= base_url() ?>assets/css/mailbox_modern.css?v=2">
+        <link rel="stylesheet" type="text/css" href="<?= base_url() ?>assets/css/mailbox_modern.css?v=3">
     <?php } ?>
     <?php
     $custom_color = config_item('active_custom_color');

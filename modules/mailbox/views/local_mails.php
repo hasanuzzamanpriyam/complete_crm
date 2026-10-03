@@ -70,17 +70,15 @@ if (!$mb_system):
                 <div class="rows">
                     <?php if (!empty($mb_rows)): foreach ($mb_rows as $v_inbox_msg): ?>
                         <?php
-                        if ($mb_is_draft) {
-                            $mb_to = @unserialize($v_inbox_msg->to);
+                        if ($mb_is_draft || $mb_is_sent) {
+                            $mb_to = @unserialize($v_inbox_msg->to, array('allowed_classes' => false));
                             if (!is_array($mb_to)) {
                                 $mb_to = array((string) $v_inbox_msg->to);
                             }
-                            $string = $mb_to[0];
+                            $string = $mb_is_sent ? 'To: ' . ($mb_to[0] ?? '') : ($mb_to[0] ?? '');
                             if (count($mb_to) > 1) {
                                 $string .= ' , (' . (count($mb_to) - 1) . ')';
                             }
-                        } elseif ($mb_is_sent) {
-                            $string = 'To: ' . $v_inbox_msg->to;
                         } else {
                             $string = $v_inbox_msg->from;
                         }
@@ -89,7 +87,7 @@ if (!$mb_system):
                         }
                         $subject = (strlen($v_inbox_msg->subject) > 50) ? strip_html_tags(mb_substr($v_inbox_msg->subject, 0, 50)) . '...' : $v_inbox_msg->subject;
                         $preview = (strlen($v_inbox_msg->message_body) > 100) ? strip_html_tags(mb_substr($v_inbox_msg->message_body, 0, 100)) . '...' : $v_inbox_msg->message_body;
-                        $uploaded_file = json_decode($v_inbox_msg->attach_file);
+                        $uploaded_file = $v_inbox_msg->attach_file ? json_decode($v_inbox_msg->attach_file) : null;
                         $parts = preg_split('/[\s@.]+/', trim($string), -1, PREG_SPLIT_NO_EMPTY);
                         $ini = mb_strtoupper(implode('', array_slice($parts, 0, 2)));
                         $av = ['#0d9488', '#2563eb', '#8b5cf6', '#f59e0b', '#dc2626', '#0ea5e9', '#10b981', '#e11d48'][abs(crc32((string) $v_inbox_msg->inbox_id)) % 8];

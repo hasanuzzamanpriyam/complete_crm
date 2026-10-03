@@ -96,6 +96,10 @@
 .mb-star { margin-left: auto; color: #cbd5e1; font-size: 14px; flex: 0 0 auto; text-decoration: none; align-self: center; }
 .mb-star:hover { color: var(--c-amber); }
 .mb-star.on { color: var(--c-amber); }
+.f-tag {
+  display: inline-block; padding: 1px 6px; border-radius: 6px;
+  font-size: 10px; font-weight: 700; vertical-align: 1px;
+}
 
 /* ---------- status + empty ---------- */
 .list-status {
