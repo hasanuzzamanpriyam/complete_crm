@@ -98,7 +98,7 @@ if (!$mb_system):
                         <div class="mrow<?php echo $v_inbox_msg->view_status == 1 ? '' : ' unread'; ?>">
                             <span class="udot"></span>
                             <input class="child_present tb-check" type="checkbox" name="selected_id[]" value="<?php echo $v_inbox_msg->inbox_id; ?>"/>
-                            <span class="mb-av" style="background:<?php echo $av; ?>"><?php echo $ini; ?></span>
+                            <span class="mb-av" style="background:<?php echo $av; ?>"><?php echo html_escape($ini); ?></span>
                             <div class="m-main">
                                 <div class="m-top">
                                     <span class="m-from"><?php echo $string; ?></span>

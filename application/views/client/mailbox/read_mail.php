@@ -1,20 +1,14 @@
 <?php
 $read_label = !empty($reply) ? 'From' : 'To';
-$read_from = $read_mail->from;
+$read_from = !empty($reply) ? ($read_mail->from ?? '') : '';
 if (empty($reply)) {
     $read_to = @unserialize($read_mail->to, array('allowed_classes' => false));
     $read_from = is_array($read_to) ? implode(', ', $read_to) : $read_mail->to;
 }
-if (!empty($read_mail->favourites)) {
-    if ($read_mail->favourites == 1) {
-        $favs = 0;
-        $fav_icon = 'fa-star';
-        $fav_title = lang('remove_from_favourites');
-    } else {
-        $fav_icon = 'fa-star-o';
-        $favs = 1;
-        $fav_title = lang('added_into_favourites');
-    }
+if (!empty($read_mail->inbox_id)) {
+    $favs = (!empty($read_mail->favourites) && $read_mail->favourites == 1) ? 0 : 1;
+    $fav_icon = $favs == 0 ? 'fa-star' : 'fa-star-o';
+    $fav_title = $favs == 0 ? lang('remove_from_favourites') : lang('added_into_favourites');
 }
 if (!empty($read_mail->inbox_id)) {
     $id = $read_mail->inbox_id;
@@ -35,7 +29,7 @@ $av = ['#0d9488', '#2563eb', '#8b5cf6', '#f59e0b', '#dc2626', '#0ea5e9', '#10b98
                 <div class="rh-top">
                     <button class="mb-back" onclick="history.go(-1)"><i class="fa fa-arrow-left"></i> Back</button>
                     <div class="rh-tools">
-                        <?php if (!empty($favs)) { ?>
+                        <?php if (isset($favs)) { ?>
                             <a href="<?= base_url() ?>client/mailbox/index/added_favourites/<?= $read_mail->inbox_id . '/' . $favs ?>"
                                class="tbtn" title="<?= $fav_title ?>"><i class="fa <?= $fav_icon ?>"></i></a>
                         <?php } ?>
@@ -53,7 +47,7 @@ $av = ['#0d9488', '#2563eb', '#8b5cf6', '#f59e0b', '#dc2626', '#0ea5e9', '#10b98
                 </div>
                 <h2 class="r-subj"><?php echo html_escape($read_mail->subject); ?></h2>
                 <div class="r-who">
-                    <span class="mb-av" style="background:<?php echo $av; ?>"><?php echo $ini; ?></span>
+                    <span class="mb-av" style="background:<?php echo $av; ?>"><?php echo html_escape($ini); ?></span>
                     <div>
                         <div class="who"><?php echo $read_label ?>: <?php echo html_escape($read_from); ?></div>
                         <?php if (!empty($read_mail->cc)) { ?>
