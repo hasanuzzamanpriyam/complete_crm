@@ -127,6 +127,9 @@ $login = request('POST', $baseUrl . '/login', [
     'lat'       => '0.000000',
     'long'      => '0.000000',
 ]);
+if (strpos($login['body'], 'name="user_name"') !== false) {
+    fatal('admin login failed — login page returned (check credentials / server).');
+}
 if (empty($login['cookie']['uniquecoder']) || strlen($login['cookie']['uniquecoder']) < 10) {
     fatal('admin login produced no session cookie.');
 }
@@ -138,6 +141,9 @@ $clientLogin = request('POST', $baseUrl . '/login', [
     'lat'       => '0.000000',
     'long'      => '0.000000',
 ], [], $jarClient);
+if (strpos($clientLogin['body'], 'name="user_name"') !== false) {
+    fatal('client login failed — login page returned (check mailbox_client credentials / fixtures).');
+}
 $clientSession = $clientLogin['cookie']['uniquecoder'] ?? null;
 if ($clientSession === null) {
     foreach ($clientLogin['cookie'] as $name => $value) {
