@@ -1,58 +1,42 @@
-<div class="row">
-    <div class="col-md-3">
-        <div class="panel panel-custom">
-            <div class="panel-heading">
-                <h3 class="panel-title"><?= lang('all_messages') ?>
-
-                </h3>
-            </div>
-
-            <div class="panel-body ">
-                <ul class="nav nav-pills nav-stacked">
-                    <li class="<?php echo ($menu_active == 'inbox') ? 'active' : ''; ?>">
-                        <a href="<?= base_url() ?>client/mailbox/index/inbox"> <i class="fa fa-inbox"></i>
-                            <?= lang('inbox') ?>
-                            <span class="label label-primary pull-right"><?php
-                                if (!empty($unread_mail)) {
-                                    echo $unread_mail;
-                                } else {
-                                    echo '0';
-                                }
-                                ?></span>
-                        </a>
-                    </li>
-                    <li class="<?php echo ($menu_active == 'sent') ? 'active' : ''; ?>">
-                        <a href="<?= base_url() ?>client/mailbox/index/sent"> <i class="fa fa-envelope-o"></i>
-                            <?= lang('sent') ?>
-                        </a>
-                    </li>
-                    <li class="<?php echo ($menu_active == 'draft') ? 'active' : ''; ?>"><a
-                            href="<?= base_url() ?>client/mailbox/index/draft"><i class="fa fa-file-text-o"></i>
-                            Drafts</a></li>
-                    <li class="<?php echo ($menu_active == 'favourites') ? 'active' : ''; ?>">
-                        <a href="<?= base_url() ?>client/mailbox/index/favourites"> <i
-                                class="fa fa-star text-yellow"></i>
-                            <?= lang('favourites') ?>
-                        </a>
-                    </li>
-                    <li class="<?php echo ($menu_active == 'trash') ? 'active' : ''; ?>">
-                        <a href="<?= base_url() ?>client/mailbox/index/trash"> <i class="fa fa-trash-o"></i>
-                            <?= lang('trash') ?><span class="label label-warning pull-right"><?php
-                                $inbox_query = $this->db->where(array('to' => $this->session->userdata('email'), 'deleted' => 'Yes'))->get('tbl_inbox');
-                                $totat_inbox = $inbox_query->num_rows();
-                                $sent_query = $this->db->where(array('user_id' => $this->session->userdata('user_id'), 'deleted' => 'Yes'))->get('tbl_sent');
-                                $totat_sent = $sent_query->num_rows();
-                                $draft_query = $this->db->where(array('user_id' => $this->session->userdata('user_id'), 'deleted' => 'Yes'))->get('tbl_draft');
-                                $tatal_draft = $draft_query->num_rows();
-                                echo $totat_inbox + $totat_sent + $tatal_draft;
-                                ?></span></a></li>
-
-                </ul>
-            </div><!-- /.box-body -->
-        </div><!-- /. box -->
-    </div><!-- /.col -->
-    <div class="col-md-9">
+<div class="mbflex">
+    <div class="folders">
+        <div class="sec"><?= lang('all_messages') ?></div>
+        <a class="<?php echo ($menu_active == 'inbox') ? 'on f-item' : 'f-item'; ?>"
+           href="<?= base_url() ?>client/mailbox/index/inbox">
+            <span class="fi"><i class="fa fa-inbox"></i></span><?= lang('inbox') ?>
+            <span class="fc<?php echo (!empty($unread_mail) && $unread_mail > 0) ? ' hot' : ''; ?>"><?php
+                echo !empty($unread_mail) ? $unread_mail : 0;
+            ?></span>
+        </a>
+        <a class="<?php echo ($menu_active == 'sent') ? 'on f-item' : 'f-item'; ?>"
+           href="<?= base_url() ?>client/mailbox/index/sent">
+            <span class="fi"><i class="fa fa-paper-plane"></i></span><?= lang('sent') ?>
+        </a>
+        <a class="<?php echo ($menu_active == 'draft') ? 'on f-item' : 'f-item'; ?>"
+           href="<?= base_url() ?>client/mailbox/index/draft">
+            <span class="fi"><i class="fa fa-pencil"></i></span>Drafts
+        </a>
+        <a class="<?php echo ($menu_active == 'favourites') ? 'on f-item' : 'f-item'; ?>"
+           href="<?= base_url() ?>client/mailbox/index/favourites">
+            <span class="fi"><i class="fa fa-star"></i></span><?= lang('favourites') ?>
+        </a>
+        <a class="<?php echo ($menu_active == 'trash') ? 'on f-item' : 'f-item'; ?>"
+           href="<?= base_url() ?>client/mailbox/index/trash">
+            <span class="fi"><i class="fa fa-trash-o"></i></span><?= lang('trash') ?>
+            <span class="fc"><?php
+                $inbox_query = $this->db->where(array('to' => $this->session->userdata('email'), 'deleted' => 'Yes'))->get('tbl_inbox');
+                $totat_inbox = $inbox_query->num_rows();
+                $sent_query = $this->db->where(array('user_id' => $this->session->userdata('user_id'), 'deleted' => 'Yes'))->get('tbl_sent');
+                $totat_sent = $sent_query->num_rows();
+                $draft_query = $this->db->where(array('user_id' => $this->session->userdata('user_id'), 'deleted' => 'Yes'))->get('tbl_draft');
+                $tatal_draft = $draft_query->num_rows();
+                echo $totat_inbox + $totat_sent + $tatal_draft;
+            ?></span>
+        </a>
+    </div>
+    <div class="list-col">
         <?php echo message_box('success'); ?>
         <?php echo message_box('error'); ?>
         <?php $this->load->view('client/mailbox/' . $view) ?>
-    </div><!-- /.col -->
+    </div>
+</div>
