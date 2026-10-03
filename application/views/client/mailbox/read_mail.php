@@ -18,13 +18,10 @@ if (!empty($read_mail->favourites)) {
 }
 if (!empty($read_mail->inbox_id)) {
     $id = $read_mail->inbox_id;
-    $delete = 'delete_mail/inbox/NULL';
 } else if (!empty($read_mail->sent_id)) {
     $id = $read_mail->sent_id;
-    $delete = 'delete_mail/sent/NULL';
 } else if (!empty($read_mail->draft_id)) {
     $id = $read_mail->draft_id;
-    $delete = 'delete_mail/draft/NULL';
 }
 $parts = preg_split('/[\s@.]+/', trim((string) $read_from), -1, PREG_SPLIT_NO_EMPTY);
 $ini = mb_strtoupper(implode('', array_slice($parts, 0, 2)));
@@ -49,10 +46,8 @@ $av = ['#0d9488', '#2563eb', '#8b5cf6', '#f59e0b', '#dc2626', '#0ea5e9', '#10b98
                                title="<?= lang('reply_all') ?>"><i class="fa fa-reply-all"></i></a>
                             <a href="<?= base_url() ?>client/mailbox/index/compose/<?= $id ?>/forward" class="tbtn"
                                title="<?= lang('forward') ?>"><i class="fa fa-mail-forward"></i></a>
-                        <?php } ?>
-                        <?php if (!empty($id)) { ?>
-                            <a href="<?= base_url() ?>client/mailbox/<?= $delete . '/' . $id ?>" class="tbtn danger"
-                               title="<?= lang('delete') ?>"><i class="fa fa-trash-o"></i></a>
+                            <a href="<?= base_url() ?>client/mailbox/delete_inbox_mail/<?= $read_mail->inbox_id ?>"
+                               class="tbtn danger" title="<?= lang('delete') ?>"><i class="fa fa-trash-o"></i></a>
                         <?php } ?>
                     </div>
                 </div>
