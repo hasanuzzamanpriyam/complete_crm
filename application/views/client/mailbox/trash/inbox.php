@@ -1,105 +1,55 @@
 <div class="row">
     <div class="col-md-12">
         <form method="post" action="<?php echo base_url() ?>client/mailbox/delete_mail/inbox/trash">
-            <!-- Main content -->
-            <div class="panel panel-custom">
-                <div class="panel-heading">
-                    <div class="mailbox-controls">
-
-                        <!-- Check all button -->
-                        <div class="mail_checkbox mr-sm">
-                            <input type="checkbox" id="parent_present">
+            <div class="list-card">
+                <div class="list-toolbar">
+                    <input type="checkbox" id="parent_present" class="tb-check" title="Select all">
+                    <button class="tbtn danger" title="Delete selected"><i class="fa fa-trash-o"></i></button>
+                    <a href="#" onClick="history.go(0)" class="tbtn" title="Refresh"><i class="fa fa-refresh"></i></a>
+                </div>
+                <div class="rows">
+                    <?php if (!empty($get_inbox_message)): foreach ($get_inbox_message as $v_inbox_msg): ?>
+                        <?php
+                        $string = (strlen($v_inbox_msg->to) > 50) ? strip_html_tags(mb_substr($v_inbox_msg->to, 0, 50)) . '...' : $v_inbox_msg->to;
+                        $subject = (strlen($v_inbox_msg->subject) > 50) ? strip_html_tags(mb_substr($v_inbox_msg->subject, 0, 50)) . '...' : $v_inbox_msg->subject;
+                        $preview = (strlen($v_inbox_msg->message_body) > 100) ? strip_html_tags(mb_substr($v_inbox_msg->message_body, 0, 100)) . '...' : $v_inbox_msg->message_body;
+                        $uploaded_file = $v_inbox_msg->attach_file ? json_decode($v_inbox_msg->attach_file) : null;
+                        $parts = preg_split('/[\s@.]+/', trim($string), -1, PREG_SPLIT_NO_EMPTY);
+                        $ini = mb_strtoupper(implode('', array_slice($parts, 0, 2)));
+                        $av = ['#0d9488', '#2563eb', '#8b5cf6', '#f59e0b', '#dc2626', '#0ea5e9', '#10b981', '#e11d48'][abs(crc32((string) $v_inbox_msg->inbox_id)) % 8];
+                        ?>
+                        <div class="mrow<?php echo $v_inbox_msg->view_status == 1 ? '' : ' unread'; ?>">
+                            <span class="udot"></span>
+                            <input class="child_present tb-check" type="checkbox" name="selected_id[]" value="<?php echo $v_inbox_msg->inbox_id; ?>"/>
+                            <span class="mb-av" style="background:<?php echo $av; ?>"><?php echo $ini; ?></span>
+                            <div class="m-main">
+                                <div class="m-top">
+                                    <span class="m-from"><?php echo $string; ?></span>
+                                    <span class="m-time"><?php echo time_ago($v_inbox_msg->message_time); ?>
+                                        <a class="tbtn" href="<?php echo base_url() ?>client/mailbox/restore/inbox/<?php echo $v_inbox_msg->inbox_id ?>" title="Restore"><i class="fa fa-retweet"></i></a>
+                                        <a class="tbtn danger" href="<?php echo base_url() ?>client/mailbox/delete_mail/inbox/deleted/<?php echo $v_inbox_msg->inbox_id ?>"
+                                           onclick="return confirm('You are about to delete a record. This cannot be undone. Are you sure?');" title="Permanent Delete"><i class="fa fa-trash-o"></i></a>
+                                    </span>
+                                </div>
+                                <div class="m-subj"><a href="<?php echo base_url() ?>client/mailbox/index/read_inbox_mail/<?php echo $v_inbox_msg->inbox_id ?>"><?php echo $subject; ?></a></div>
+                                <div class="m-prev"><?php echo $preview; ?><?php if (!empty($uploaded_file)): ?> <i class="fa fa-paperclip"></i><?php endif; ?></div>
+                            </div>
+                            <a class="mb-star<?php echo $v_inbox_msg->favourites == 1 ? ' on' : ''; ?>"
+                               href="<?php echo base_url() ?>client/mailbox/index/added_favourites/<?php echo $v_inbox_msg->inbox_id ?>/<?php echo $v_inbox_msg->favourites == 1 ? 0 : 1; ?>"
+                               title="Favourite"><i class="fa fa-star"></i></a>
                         </div>
-                        <div class="btn-group">
-                            <button class="btn btn-default btn-xs mr-sm"><i class="fa fa-trash-o"></i></button>
-                        </div><!-- /.btn-group -->
-                        <a href="#" onClick="history.go(0)" class="btn btn-default btn-xs mr-sm"><i
-                                class="fa fa-refresh"></i></a>
-                        <a href="<?php echo base_url() ?>client/mailbox/index/compose"
-                           class="btn btn-danger btn-xs mr-sm">Compose
-                            +</a>
-                    </div>
+                    <?php endforeach; ?>
+                    <?php else: ?>
+                        <div class="mb-empty">
+                            <div class="big"><i class="fa fa-trash-o"></i></div>
+                            <b>There is no email to display</b>
+                        </div>
+                    <?php endif; ?>
                 </div>
-
-                <div class="panel-body">
-                    <div class="table-responsive mailbox-messages">
-                        <!-- p.lead.text-centerNo mails here-->
-                        <table class="table table-hover mb-mails">
-                            <tbody>
-                            <?php if (!empty($get_inbox_message)):foreach ($get_inbox_message as $v_inbox_msg): ?>
-                                <tr>
-                                    <td>
-                                        <div class="checkbox c-checkbox">
-                                            <label>
-                                                <input class="child_present" type="checkbox" name="selected_id[]"
-                                                       value="<?php echo $v_inbox_msg->inbox_id; ?>"/>
-                                                <span class="fa fa-check"></span>
-                                            </label>
-                                        </div>
-                                    </td>
-                                    <td class="text-center">
-                                        <?php if ($v_inbox_msg->favourites == 1) { ?>
-                                            <a href="<?php echo base_url() ?>client/mailbox/index/added_favourites/<?php echo $v_inbox_msg->inbox_id ?>/0"><i
-                                                    class="fa fa-lg fa-star text-yellow"></i></a>
-                                        <?php } else { ?>
-                                            <a href="<?php echo base_url() ?>client/mailbox/index/added_favourites/<?php echo $v_inbox_msg->inbox_id ?>/1"><i
-                                                    class="fa fa-lg fa-star-o text-yellow"></i></a>
-                                        <?php } ?>
-                                    </td>
-                                    <td>
-                                        <div
-                                            class="mb-mail-date pull-right"><?= time_ago($v_inbox_msg->message_time); ?>
-                                            <a class="btn btn-primary btn-xs"
-                                               href="<?php echo base_url() ?>client/mailbox/restore/inbox/<?php echo $v_inbox_msg->inbox_id ?>"
-                                               data-toggle="tooltip" data-placement="top" title="Restore"><i
-                                                    class="fa fa-retweet"></i></a>
-                                            <a class="btn btn-danger btn-xs"
-                                               href="<?php echo base_url() ?>client/mailbox/delete_mail/inbox/deleted/<?php echo $v_inbox_msg->inbox_id ?>"
-                                               onclick="return confirm('You are about to delete a record. This cannot be undone. Are you sure?');"
-                                               data-toggle="tooltip" data-placement="top" title="Permanent&nbsp;Delete"><i
-                                                    class="fa fa-trash-o"></i></a>
-                                        </div>
-                                        <?php $subject = (strlen($v_inbox_msg->subject) > 50) ? strip_html_tags(mb_substr($v_inbox_msg->subject, 0, 50)) . '...' : $v_inbox_msg->subject; ?>
-                                        <div class="mb-mail-meta">
-                                            <div class="pull-left">
-                                                <div class="mb-mail-subject"><a
-                                                        href="<?php echo base_url() ?>client/mailbox/index/read_inbox_mail/<?php echo $v_inbox_msg->inbox_id ?>"><?= $subject ?></a>
-                                                </div>
-                                                <div class="mb-mail-from"><?php
-                                                    $string = (strlen($v_inbox_msg->to) > 50) ? strip_html_tags(mb_substr($v_inbox_msg->to, 0, 50)) . '...' : $v_inbox_msg->to;
-                                                    if ($v_inbox_msg->view_status == 1) {
-                                                        echo '<span style="color:#000">' . $string . '</span>';
-                                                    } else {
-                                                        echo '<b style="color:#000;font-size:13px;">' . $string . '</b>';
-                                                    }
-                                                    ?></div>
-                                            </div>
-                                            <div class="mb-mail-preview">
-                                                <?php
-                                                $body = (strlen($v_inbox_msg->message_body) > 100) ? strip_html_tags(mb_substr($v_inbox_msg->message_body, 0, 100)) . '...' : $v_inbox_msg->message_body;
-                                                echo $body;
-                                                $uploaded_file = json_decode($v_inbox_msg->attach_file);
-                                                if (!empty($uploaded_file)):
-                                                    ?>
-                                                    <small class="block"><i class="fa fa-paperclip"></i></small>
-                                                    <?php
-                                                endif;
-                                                ?>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                            <?php else: ?>
-                                <tr>
-                                    <td><strong>There is no email to display</strong></td>
-                                </tr>
-                            <?php endif; ?>
-                            </tbody>
-                        </table><!-- /.table -->
-                    </div><!-- /.mail-box-messages -->
+                <div class="list-status">
+                    <span><?php echo !empty($get_inbox_message) ? count($get_inbox_message) : 0; ?> deleted messages &middot; Inbox</span>
                 </div>
-            </div><!-- /. box -->
+            </div>
         </form>
-    </div><!-- /.content-wrapper -->
-</div><!-- /.content-wrapper -->
+    </div>
+</div>

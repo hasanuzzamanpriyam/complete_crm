@@ -1,8 +1,8 @@
-<div class="btn-group">
-    <a class="btn btn-primary <?php echo ($trash_view == 'inbox') ? 'active' : ''; ?>" href="<?= base_url() ?>client/mailbox/index/trash/inbox" data-toggle="tooltip" data-placement="top" title="<?= lang('inbox') ?>"><i class="fa fa-inbox "></i> <span class="hidden-xs"><?= lang('inbox') ?></span></a>
-    <a class="btn btn-primary <?php echo ($trash_view == 'sent') ? 'active' : ''; ?>" href="<?= base_url() ?>client/mailbox/index/trash/sent" data-toggle="tooltip" data-placement="top" title="<?= lang('sent') ?>"><i class="fa fa-envelope-o "></i> <span class="hidden-xs"><?= lang('sent') ?></span></a>
-    <a class="btn btn-primary <?php echo ($trash_view == 'draft') ? 'active' : ''; ?>"href="<?= base_url() ?>client/mailbox/index/trash/draft" data-toggle="tooltip" data-placement="top" title="<?= lang('draft') ?>"><i class="fa fa-file-text-o"></i> <span class="hidden-xs"><?= lang('draft') ?></span></a>
+<div class="trash-tabs">
+    <a class="ttab<?php echo ($trash_view == 'inbox') ? ' on' : ''; ?>" href="<?= base_url() ?>client/mailbox/index/trash/inbox"><i class="fa fa-inbox"></i> <?= lang('inbox') ?></a>
+    <a class="ttab<?php echo ($trash_view == 'sent') ? ' on' : ''; ?>" href="<?= base_url() ?>client/mailbox/index/trash/sent"><i class="fa fa-envelope-o"></i> <?= lang('sent') ?></a>
+    <a class="ttab<?php echo ($trash_view == 'draft') ? ' on' : ''; ?>" href="<?= base_url() ?>client/mailbox/index/trash/draft"><i class="fa fa-file-text-o"></i> <?= lang('draft') ?></a>
 </div>
-<div style="margin-top: 5px;">
+<div class="trash-body">
     <?php $this->load->view('client/mailbox/trash/' . $trash_view) ?>
 </div>
