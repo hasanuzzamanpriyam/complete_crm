@@ -36,6 +36,9 @@
   --c-surface-3:       #e9ecef;
   --c-border:          #e3e6ea;
   --c-border-strong:   #d0d5dd;
+  --c-border-2:        #e3e6ea;
+  --c-slate:           #94a3b8;
+  --c-amber:           var(--ac-amber);
   --c-overlay:         rgb(16 24 40 / 55%);
 
   /* ---------- text ---------- */
