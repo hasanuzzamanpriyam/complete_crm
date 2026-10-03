@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Reskin all 7 mailbox screens (Inbox, Sent, Drafts, Favourites, Trash, Read, Compose) for admin + client to the approved Design A using a new `mailbox_modern.css` and in-place view edits — zero controller/model/URL changes.
+**Goal:** Reskin all 7 mailbox screens (Inbox, Sent, Drafts, Favourites, Trash, Read, Compose) for admin + client to the approved Design A using a new `mailbox_modern.css` and in-place view edits — **no changes to existing controller/model/URL logic, plus one additive row-fetch block in the admin module controller** (amended spec §2, user decision 2026-10-03).
 
-**Architecture:** New `assets/css/mailbox_modern.css` is loaded via a URI-conditional `<link>` in the shared head component (`admin/components/htmlheader.php`, used by BOTH roles). View files are restructured from Bootstrap-3 tables/panels to the demo's card/row markup; all PHP logic, form actions, `lang()` calls, and JS hooks (`#parent_present`, `.child_present`, dropzone, select2) stay verbatim. The client view set is regenerated from the admin set with an `admin/mailbox → client/mailbox` prefix swap (they are identical modulo that prefix).
+**Architecture (amended 2026-10-03 after live-routing discovery):** `application/third_party/MX/Router.php:110-115` reroutes every `admin/<module>` URL into the module — **admin mailbox screens live in `modules/mailbox/`** (controller + views), while `application/controllers/admin/Mailbox.php` and `application/views/admin/mailbox/*` are unreachable dead code (never edited). Client screens live in `application/controllers/client/Mailbox.php` + `application/views/client/mailbox/*` (no reroute). New `assets/css/mailbox_modern.css` is loaded via a URI-conditional `<link>` in the shared head component (`admin/components/htmlheader.php`, loaded by BOTH `_layout_main` layouts). Admin folder lists are **server-rendered** from a controller-passed `$local_messages` array (single `local_mails.php` for all 5 folders; AJAX `inboxList` retained for remote/Gmail folders); client folder views keep their per-folder server-rendered foreach structure. All PHP logic, form actions, `lang()` calls, and JS hooks (`#parent_present`, `.child_present`, dropzone, select2) stay verbatim.
 
 **Tech Stack:** CodeIgniter 3 PHP views, Bootstrap 3 (reskinned), Font Awesome 4, global `tokens.css`, PHP 8.3, curl-based e2e test + Playwright visual pass.
 
@@ -17,23 +17,25 @@
 
 | Action | File | Responsibility |
 |---|---|---|
-| Create | `plan/_tools/mailbox-redesign-test.php` | e2e gate (`composer test:mailbox`) |
-| Create | `assets/css/mailbox_modern.css` | all mailbox component styles |
-| Modify | `application/views/admin/components/htmlheader.php` | URI-conditional CSS link (shared by admin + client) |
-| Modify | `application/views/admin/mailbox/mailbox.php` | folder panel wrapper + `$view` slot |
-| Modify | `application/views/admin/mailbox/inbox.php` | inbox list card |
-| Modify | `application/views/admin/mailbox/sent.php` | sent list card |
-| Modify | `application/views/admin/mailbox/draft.php` | drafts list card |
-| Modify | `application/views/admin/mailbox/favourites.php` | favourites list card |
-| Modify | `application/views/admin/mailbox/trash.php` | trash tabs + sublist loader |
-| Modify | `application/views/admin/mailbox/trash/inbox.php` | trash sublist (inbox) |
-| Modify | `application/views/admin/mailbox/trash/sent.php` | trash sublist (sent) |
-| Modify | `application/views/admin/mailbox/trash/draft.php` | trash sublist (draft) |
-| Modify | `application/views/admin/mailbox/read_mail.php` | full-page read card |
-| Modify | `application/views/admin/mailbox/compose_mail.php` | container-class reskin (JS/dropzone untouched) |
-| Regenerate | `application/views/client/mailbox/**` (10 files) | prefix-swap mirror of admin set |
-| Modify | `composer.json` | add `test:mailbox` script |
+| Create (done) | `plan/_tools/mailbox-redesign-test.php` | e2e gate (`composer test:mailbox`) — amended in Task 1b |
+| Modify (done) | `composer.json` | `test:mailbox` script |
+| Create (done) | `assets/css/mailbox_modern.css` | all mailbox component styles |
+| Modify (done) | `application/views/admin/components/htmlheader.php` | URI-conditional CSS link (shared by admin + client) |
+| Create | `plan/_tools/mailbox-fixtures.sql` | idempotent e2e fixtures (client user/rows + admin inbox row 900001) |
+| Modify | `modules/mailbox/controllers/Mailbox.php` | **additive** `$local_messages` row-fetch block in `index()` only |
+| Modify | `modules/mailbox/views/mailbox.php` | admin folder-panel wrapper + `$view` slot (col-2/col-10) |
+| Modify | `modules/mailbox/views/local_mails.php` | admin server-rendered list card (all 5 folders; DataTables removed) |
+| Modify | `modules/mailbox/views/read_mail.php` | admin full-page read card |
+| Modify | `modules/mailbox/views/compose_mail.php` | admin compose container-class reskin (JS/dropzone untouched) |
+| Modify | `application/views/client/mailbox/mailbox.php` | client folder-panel wrapper |
+| Modify | `application/views/client/mailbox/inbox.php` | client inbox list card |
+| Modify | `application/views/client/mailbox/sent.php`, `draft.php` | client sent + drafts list cards |
+| Modify | `application/views/client/mailbox/favourites.php`, `trash.php`, `trash/{inbox,sent,draft}.php` | client favourites + trash tabs/sublists |
+| Modify | `application/views/client/mailbox/read_mail.php` | client full-page read card |
+| Modify | `application/views/client/mailbox/compose_mail.php` | client compose container-class reskin |
 | Create | `docs/superpowers/2026-10-03-mailbox-redesign-verification.md` | Task 9 record |
+
+**Dead code (never edited):** `application/controllers/admin/Mailbox.php`, `application/views/admin/mailbox/**` (11 files) — loaded only by the unreachable application admin controller. **Untouched module files:** `modules/mailbox/views/inbox.php` (unreachable branch), `mail_box_menu.php` (remote-folder AJAX menu — out of scope), `settings.php`, `send_email.php`, `local_mails` AJAX endpoints (`inboxList`/`mailboxList`) kept for remote folders.
 
 **Canonical class names** (used identically by CSS, views, and test markers):
 `.mbflex`, `.folders`, `.f-item`, `.fc`, `.list-card`, `.list-toolbar`, `.tbtn`, `.tb-check`, `.tb-compose`, `.rows`, `.mrow`, `.udot`, `.mb-av`, `.m-main`, `.m-top`, `.m-from`, `.m-time`, `.m-subj`, `.m-prev`, `.f-tag`, `.mb-star`, `.list-status`, `.mb-empty`, `.read-card`, `.read-head`, `.rh-top`, `.mb-back`, `.rh-tools`, `.r-subj`, `.r-who`, `.read-body`, `.att-strip`, `.att-file`, `.mb-compose`, `.compose-card`, `.cc-body`, `.cc-foot`, `.trash-tabs`, `.ttab`.
@@ -41,16 +43,12 @@
 ## Conventions used by every task
 
 - PHP binary: `C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe` (call as `php` if on PATH; otherwise substitute).
-- **Client mirror step** (run after every admin view edit — replaces ONLY the mailbox role prefix; `admin/common/...` URLs inside compose must stay `admin/`):
+- **No mirror/regenerate steps (amended):** module admin files and client files are independent lineages — client files are **written directly** from the content blocks in this plan (apply `admin/mailbox` → `client/mailbox` when writing to a client path; `admin/common/...` and `admin/global_controller/...` URLs must stay `admin/`). Guard after every client write:
 
 ```powershell
-$src = 'application\views\admin\mailbox\inbox.php'   # ← file for this task
-$dst = 'application\views\client\mailbox\inbox.php'  # ← same path under client
-$c = [System.IO.File]::ReadAllText((Resolve-Path $src))
-$c = $c.Replace('admin/mailbox', 'client/mailbox')
-[System.IO.File]::WriteAllText((Resolve-Path $dst), $c)
-if (Select-String -Path $dst -Pattern 'admin/mailbox' -Quiet) { throw 'role swap failed' }
-& C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe -l $dst
+if (Select-String -Path <client-file> -Pattern 'admin/mailbox' -Quiet) { throw 'role swap failed' }
+if (-not (Select-String -Path <client-file> -Pattern 'admin/(common|global_controller)/' -Quiet) -and <file-is-compose>) { throw 'shared admin URL was wrongly swapped' }
+& C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe -l <client-file>
 ```
 
 - Test command: `composer test:mailbox` (exits 0 green, 1 red).
@@ -59,6 +57,8 @@ if (Select-String -Path $dst -Pattern 'admin/mailbox' -Quiet) { throw 'role swap
 ---
 
 ### Task 1: e2e test harness (`test:mailbox`)
+
+> **STATUS: COMPLETE** — commit `6bbcfd05`. Spec review passed (byte-identical); code-quality review approved with one Important follow-up (read-page SKIP) — closed by Task 1b below.
 
 **Files:**
 - Create: `plan/_tools/mailbox-redesign-test.php`
@@ -293,7 +293,67 @@ git commit -m "test: add mailbox redesign e2e test"
 
 ---
 
+### Task 1b: Amend e2e test for live verification (fixtures + two sessions + fixed read IDs)
+
+> Added 2026-10-03 (user-approved "Full live verification"): the original test could not see client pages (role redirect) or admin read pages (AJAX list rows), leaving 2 permanent SKIPs. This task seeds deterministic fixtures, logs in twice, and pins read URLs to fixed fixture IDs so **every assertion executes — zero SKIPs**.
+
+**Files:**
+- Modify: `plan/_tools/mailbox-redesign-test.php`
+- Create: `plan/_tools/mailbox-fixtures.sql` (content already authored — commit the file as-is)
+
+- [ ] **Step 1: Commit the fixture SQL + apply it**
+
+The full SQL is authored in this repo at `plan/_tools/mailbox-fixtures.sql` (write it exactly as specified there — client user `mailbox_client`, profile, menu grants copied from user 13, admin fixture `inbox_id=900001`, client fixture `inbox_id=900002`, verification SELECT). Apply:
+
+```powershell
+Get-Content plan\_tools\mailbox-fixtures.sql -Raw | & C:\laragon\bin\mysql\mariadb-12.2.2-winx64\bin\mysql.exe -u root tic_crm
+```
+
+Expected: verification row shows `client_uid=1790, client_menus=12, admin_fixture=1, client_fixture=1` (client_uid may differ on a fresh DB; menu count 12; both fixtures 1).
+
+- [ ] **Step 2: Amend `plan/_tools/mailbox-redesign-test.php`**
+
+Behavioral requirements (edit the current file; keep its structure, helpers, error pattern, reporting):
+
+1. **Two sessions.** Parameterize `request()` with a cookie-jar path (or run two jars). After the existing admin login (`forid`/`Admin@123`, jar A), add a second login POST to `/login` with `user_name=mailbox_client`, `password=ClientMail@123` (jar B). Fatal-exit if jar B gets no `uniquecoder` cookie. Admin requests (folders, read, compose, `/admin/settings` leak) use jar A; **all client requests use jar B**.
+2. **Folder loop (section 1).** Markers reordered to `['mailbox_modern.css', 'f-item', 'list-card', 'mrow'|'mb-empty']` — the first-missing-marker is then a per-task delta: after Task 2 it reports `f-item`, after Task 3 it reports `list-card`, after the task that adds rows it PASSES. (The Task 1 order `css, list-card, f-item` hid Task 3's `f-item` behind `list-card`.) Client iterations must hit the server with the client session (fixes the role-redirect false failures).
+3. **New check — admin fixture row visible:** `admin inbox shows fixture row` → GET `/admin/mailbox/index/inbox` (admin session), assert markers `['Mailbox redesign fixture', 'read_inbox_mail/900001']`. FAILS until Task 4 (server-rendered list), then PASSES.
+4. **Read (section 2) — no SKIP path.** Replace dynamic-ID extraction with fixed fixture IDs: admin → `900001`, client → `900002`. For each: GET `/{role}/mailbox/index/read_inbox_mail/{id}` with the role's session; assert HTTP 200, no PHP error, and markers `['mailbox_modern.css', 'Mailbox redesign fixture', 'read-card', 'r-subj']` (subject marker passes immediately as a routing/fixture canary; `read-card`/`r-subj` FAIL until Task 7). Delete the SKIP branch entirely; update the file-header comment (no SKIPs).
+5. **Compose (section 3).** Unchanged (`mailbox_modern.css`, `mb-compose`, `send_mail`) with the correct session per role.
+6. **Leak (section 4).** `/admin/settings` via admin session; `/client/dashboard` via **client** session.
+7. Keep the summary line format; total assertions becomes **17** (10 folders + 1 fixture-row + 2 read + 2 compose + 2 leak).
+
+- [ ] **Step 3: Apply fixtures + run — expect RED with zero SKIPs**
+
+Run: `composer test:mailbox` → exit 1. Expected shape (regression baseline for Tasks 3–8):
+
+```
+FAIL  admin mailbox/inbox has CSS + card markup      -> missing marker: f-item
+... (all 10 folder checks FAIL on `missing marker: f-item`)
+FAIL  admin inbox shows fixture row                 -> missing marker: Mailbox redesign fixture
+FAIL  admin read page has read-card markup          -> missing marker: read-card
+FAIL  client read page has read-card markup         -> missing marker: read-card
+FAIL  admin compose has mb-compose markup            -> missing marker: mb-compose
+FAIL  client compose has mb-compose markup           -> missing marker: mb-compose
+PASS  no leak on /admin/settings
+PASS  no leak on /client/dashboard
+17 assertions — 2 passed, 15 failed, 0 skipped
+```
+
+If ANY check reports `HTTP 302`/login page or a PHP error — fix the fixture/session wiring first (do not proceed). If client inbox does not contain `mrow`/fixture data, re-check `plan/_tools/mailbox-fixtures.sql` was applied.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add plan/_tools/mailbox-redesign-test.php plan/_tools/mailbox-fixtures.sql
+git commit -m "test: mailbox e2e - two sessions, fixtures, fixed read IDs"
+```
+
+---
+
 ### Task 2: `mailbox_modern.css` + conditional stylesheet link
+
+> **STATUS: COMPLETE** — commit `b4d5c886`. Approved deviation: the `<link>` was inserted **after** the RTL/LTR branch closes (before `$custom_color`), so RTL also loads it. Spec + code-quality reviews still to be dispatched (tracked outside this plan).
 
 **Files:**
 - Create: `assets/css/mailbox_modern.css`
@@ -533,15 +593,112 @@ git commit -m "feat: add mailbox modern stylesheet + conditional link"
 
 ---
 
-### Task 3: Wrapper folder panel (`mailbox.php`)
+### Task 3: Wrapper folder panel (admin module + client)
 
 **Files:**
-- Modify: `application/views/admin/mailbox/mailbox.php`
-- Regenerate: `application/views/client/mailbox/mailbox.php`
+- Modify: `modules/mailbox/views/mailbox.php` (live admin wrapper — col-2 folder panel + col-10 `$view` slot)
+- Modify: `application/views/client/mailbox/mailbox.php` (live client wrapper)
 
-- [ ] **Step 1: Replace the admin wrapper**
+- [ ] **Step 1: Replace the admin wrapper (`modules/mailbox/views/mailbox.php`)**
 
-Full content of `application/views/admin/mailbox/mailbox.php` (PHP logic — unread var, trash inline count, `message_box()` flashes, `$view` load — preserved verbatim):
+Full content (preserves verbatim: `$smtp_syn_time` sync button, settings link, `$system_mail_count` counts, `#mail_box_menu` AJAX container, `message_box()` flashes, `$rata`/`$view` load, and the whole sync-`<script>` block including `mail_box_menu/<?= $folder ?>` + `fetch_remote_mails`):
+
+```php
+<div class="mbflex">
+    <div class="folders">
+        <div class="sec">
+            <?= lang('all_messages') ?>
+            <div class="fr">
+                <button id="syn_bar" title="<?php echo $smtp_syn_time; ?>" class="tbtn" data-toggle="tooltip"><i class="fa fa-refresh"></i></button>
+                <a href="<?= base_url() ?>admin/mailbox/settings" class="tbtn" title="Settings"><i class="fa fa-cogs"></i></a>
+            </div>
+        </div>
+        <div class="sec sub"><?= lang('system_mails') ?></div>
+        <?php
+        $mb_folders = array(
+            'inbox'      => array('label' => lang('inbox'), 'icon' => 'fa-inbox'),
+            'sent'       => array('label' => lang('sent'), 'icon' => 'fa-envelope-o'),
+            'draft'      => array('label' => 'Drafts', 'icon' => 'fa-file-text-o'),
+            'favourites' => array('label' => lang('favourites'), 'icon' => 'fa-star'),
+            'trash'      => array('label' => lang('trash'), 'icon' => 'fa-trash-o'),
+        );
+        foreach ($mb_folders as $mb_key => $mb_def): ?>
+            <a class="<?php echo ($menu_active == $mb_key) ? 'on f-item' : 'f-item'; ?>"
+               href="<?= base_url() ?>admin/mailbox/index/<?php echo $mb_key; ?>">
+                <span class="fi"><i class="fa <?php echo $mb_def['icon']; ?>"></i></span><?= $mb_def['label'] ?>
+                <span class="fc<?php echo (in_array($mb_key, array('inbox', 'sent', 'draft'), true) && !empty($system_mail_count[$mb_key]) && $system_mail_count[$mb_key] > 0) ? ' hot' : ''; ?>"><?php echo isset($system_mail_count[$mb_key]) ? $system_mail_count[$mb_key] : 0; ?></span>
+            </a>
+        <?php endforeach; ?>
+        <ul id="mail_box_menu" class="fsub"></ul>
+    </div>
+    <div class="list-col">
+        <?php echo message_box('success'); ?>
+        <?php echo message_box('error'); ?>
+        <?php $rata['folder'] = $folder;
+        $rata['action'] = $action;
+        $rata['menu_active'] = $action;
+        $this->load->view($view, $rata); ?>
+    </div>
+</div>
+<script>
+    <?php
+    $mailboxes_last_sync_time = time();
+    $this->session->set_userdata('mailboxes_last_sync_time', $mailboxes_last_sync_time);
+    if (empty($this->session->userdata('mailboxes_sync_time')) || $mailboxes_last_sync_time > $this->session->userdata('mailboxes_sync_time')) {
+    $five_mins_after = time() + (5 * 60);
+    $this->session->set_userdata('mailboxes_sync_time', $five_mins_after);
+    $mailboxes_sync_time = $this->session->userdata('mailboxes_sync_time');
+    ?>
+    <?php } ?>
+    $(function () {
+        'use strict';
+        var syn_bar = $("#syn_bar");
+        syn_bar.on("click", ajax_req_send);
+        ins_data(base_url + "admin/mailbox/mail_box_menu/<?= $folder; ?>");
+        function ins_data(url, datastring = '') {
+            $.ajax({
+                async: false,
+                url: url,
+                type: 'post',
+                data: datastring,
+                dataType: "json",
+                success: function (data) {
+                    $.each(data, function (index, value) {
+                        $('#' + index).empty().html(value);
+                    });
+                }
+            });
+        }
+
+        function ajax_req_send() {
+            syn_bar.css({color: "red"});
+            $('#syn_bar i').addClass('fa-spin');
+            var send_url = base_url + 'admin/mailbox/fetch_remote_mails';
+            $.ajax({
+                async: false,
+                type: 'POST',
+                url: send_url,
+                dataType: 'json',
+                encode: true,
+                success: function (res) {
+                    if (res.success == true) {
+                        $('#syn_bar i').removeClass('fa-spin');
+                        syn_bar.css({color: ""});
+                        syn_bar.attr('title') == '';
+                        ins_data(base_url + 'admin/mailbox/mail_box_menu/<?= $folder; ?>');
+                    } else {
+                        alert('There was a problem with AJAX');
+                    }
+                }
+            })
+        }
+    });
+</script>
+```
+
+- [ ] **Step 2: Replace the client wrapper**
+
+Write the **original plan wrapper content below** to `application/views/client/mailbox/mailbox.php` with every `admin/mailbox` replaced by `client/mailbox` (client URLs only; the content's inline trash-count queries, `$unread_mail` badge, and `client/mailbox/' . $view` load are preserved verbatim from the current file):
 
 ```php
 <div class="mbflex">
@@ -588,43 +745,155 @@ Full content of `application/views/admin/mailbox/mailbox.php` (PHP logic — unr
 </div>
 ```
 
-- [ ] **Step 2: Regenerate the client wrapper**
+(The final load line must read `'client/mailbox/' . $view` after the swap.)
 
-```powershell
-$src = 'application\views\admin\mailbox\mailbox.php'
-$dst = 'application\views\client\mailbox\mailbox.php'
-$c = [System.IO.File]::ReadAllText((Resolve-Path $src))
-$c = $c.Replace('admin/mailbox', 'client/mailbox')
-[System.IO.File]::WriteAllText((Resolve-Path $dst), $c)
-if (Select-String -Path $dst -Pattern 'admin/mailbox' -Quiet) { throw 'role swap failed' }
-& C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe -l $dst
-```
+- [ ] **Step 3: Lint both + run test**
 
-Expected: `No syntax errors detected`
-
-- [ ] **Step 3: Lint admin + run test**
-
-Run: `php -l application/views/admin/mailbox/mailbox.php` → no errors.
-Run: `composer test:mailbox` → `f-item` marker now present on all folder routes; `list-card` etc. still FAIL (Tasks 4–6).
+Run: `php -l modules/mailbox/views/mailbox.php` and `php -l application/views/client/mailbox/mailbox.php` → no errors.
+Run: `composer test:mailbox` → folder checks now fail on `missing marker: list-card` (f-item present on all 10); everything else unchanged.
 
 - [ ] **Step 4: Commit**
 
 ```bash
-git add application/views/admin/mailbox/mailbox.php application/views/client/mailbox/mailbox.php
+git add modules/mailbox/views/mailbox.php application/views/client/mailbox/mailbox.php
 git commit -m "feat: restyle mailbox folder panel wrapper"
 ```
 
 ---
 
-### Task 4: Inbox list card
+### Task 4: Admin server-rendered list (`local_mails.php` + controller block) + client inbox
 
 **Files:**
-- Modify: `application/views/admin/mailbox/inbox.php`
-- Regenerate: `application/views/client/mailbox/inbox.php`
+- Modify: `modules/mailbox/controllers/Mailbox.php` (**additive block only** — inserted immediately before `$data['subview'] = $this->load->view('mailbox', $data, TRUE);`, currently line 141)
+- Modify: `modules/mailbox/views/local_mails.php`
+- Modify: `application/views/client/mailbox/inbox.php`
 
-- [ ] **Step 1: Replace the admin inbox view**
+- [ ] **Step 1: Add the row-fetch block to the module controller**
 
-Full content of `application/views/admin/mailbox/inbox.php`:
+Insert exactly this block (no existing line is modified or moved):
+
+```php
+        // Mailbox redesign (additive): server-render system-folder rows for local_mails.php
+        // Filters/order mirror inboxList() verbatim.
+        $local_messages = array();
+        if (in_array($action, array('inbox', 'sent', 'draft', 'favourites', 'trash'), true)) {
+            $mb_where = array('user_id' => $this->session->userdata('user_id'));
+            if ($action == 'trash') {
+                $mb_where += array('deleted' => 'Yes');
+            } elseif ($action == 'favourites') {
+                $mb_where += array('favourites' => 1, 'deleted !=' => 'Yes');
+            } else {
+                $mb_where += array('mail_folder' => $action, 'deleted !=' => 'Yes', 'smtp_host_name' => 'system');
+            }
+            $this->db->where($mb_where);
+            $this->db->order_by('view_status', 'DESC');
+            $this->db->order_by('message_time', 'DESC');
+            $local_messages = $this->db->get('tbl_inbox')->result();
+        }
+        $data['local_messages'] = $local_messages;
+```
+
+- [ ] **Step 2: Replace `modules/mailbox/views/local_mails.php`**
+
+Full content (preserves verbatim: form `method/post` + action `admin/mailbox/delete_mail/<?= $action ?>`, `#parent_present`, `.child_present` + `name="selected_id[]"` values, star URL `admin/mailbox/index/added_favourites/<id>/<flag>`, read link `admin/mailbox/index/read_inbox_mail/<id>`, draft link `admin/mailbox/index/compose/<id>`, trash restore `admin/mailbox/restore/remote_host/<id>` + permanent delete `admin/mailbox/delete_mail/remote_host/deleted/<id>`, `time_ago()`, attachment `json_decode(attach_file)` flag. The `list` global + DataTables table are removed — the guarded bootstrap at `assets/plugins/dataTables/js/dataTables.php:188` then skips, and `inboxList`/`mailboxList` remain untouched for remote folders):
+
+```php
+<?php
+$mb_label = array(
+    'inbox'      => lang('inbox'),
+    'sent'       => lang('sent'),
+    'draft'      => 'Drafts',
+    'favourites' => lang('favourites'),
+    'trash'      => lang('trash'),
+);
+$mb_title = isset($mb_label[$action]) ? $mb_label[$action] : $action;
+$mb_rows = isset($local_messages) ? $local_messages : array();
+$mb_is_draft = ($action == 'draft');
+$mb_is_trash = ($action == 'trash');
+$mb_is_sent = ($action == 'sent');
+?>
+<div class="row">
+    <div class="col-md-12">
+        <form method="post" action="<?php echo base_url() ?>admin/mailbox/delete_mail/<?= $action ?>">
+            <div class="list-card">
+                <div class="list-toolbar">
+                    <input type="checkbox" id="parent_present" class="tb-check" title="Select all">
+                    <button class="tbtn danger" title="Delete selected"><i class="fa fa-trash-o"></i></button>
+                    <a href="#" onClick="history.go(0)" class="tbtn" title="Refresh"><i class="fa fa-refresh"></i></a>
+                    <a href="<?php echo base_url() ?>admin/mailbox/index/compose" class="tb-compose"><i class="fa fa-pencil"></i> Compose</a>
+                </div>
+                <div class="rows">
+                    <?php if (!empty($mb_rows)): foreach ($mb_rows as $v_inbox_msg): ?>
+                        <?php
+                        if ($mb_is_draft) {
+                            $mb_to = @unserialize($v_inbox_msg->to);
+                            if (!is_array($mb_to)) {
+                                $mb_to = array((string) $v_inbox_msg->to);
+                            }
+                            $string = $mb_to[0];
+                            if (count($mb_to) > 1) {
+                                $string .= ' , (' . (count($mb_to) - 1) . ')';
+                            }
+                        } elseif ($mb_is_sent) {
+                            $string = 'To: ' . $v_inbox_msg->to;
+                        } else {
+                            $string = $v_inbox_msg->from;
+                        }
+                        if (strlen($string) > 50) {
+                            $string = strip_html_tags(mb_substr($string, 0, 50)) . '...';
+                        }
+                        $subject = (strlen($v_inbox_msg->subject) > 50) ? strip_html_tags(mb_substr($v_inbox_msg->subject, 0, 50)) . '...' : $v_inbox_msg->subject;
+                        $preview = (strlen($v_inbox_msg->message_body) > 100) ? strip_html_tags(mb_substr($v_inbox_msg->message_body, 0, 100)) . '...' : $v_inbox_msg->message_body;
+                        $uploaded_file = json_decode($v_inbox_msg->attach_file);
+                        $parts = preg_split('/[\s@.]+/', trim($string), -1, PREG_SPLIT_NO_EMPTY);
+                        $ini = mb_strtoupper(implode('', array_slice($parts, 0, 2)));
+                        $av = ['#0d9488', '#2563eb', '#8b5cf6', '#f59e0b', '#dc2626', '#0ea5e9', '#10b981', '#e11d48'][abs(crc32((string) $v_inbox_msg->inbox_id)) % 8];
+                        $mb_href = $mb_is_draft
+                            ? base_url('admin/mailbox/index/compose/' . $v_inbox_msg->inbox_id)
+                            : base_url('admin/mailbox/index/read_inbox_mail/' . $v_inbox_msg->inbox_id);
+                        ?>
+                        <div class="mrow<?php echo $v_inbox_msg->view_status == 1 ? '' : ' unread'; ?>">
+                            <span class="udot"></span>
+                            <input class="child_present tb-check" type="checkbox" name="selected_id[]" value="<?php echo $v_inbox_msg->inbox_id; ?>"/>
+                            <span class="mb-av" style="background:<?php echo $av; ?>"><?php echo $ini; ?></span>
+                            <div class="m-main">
+                                <div class="m-top">
+                                    <span class="m-from"><?php echo $string; ?></span>
+                                    <span class="m-time"><?php echo time_ago($v_inbox_msg->message_time); ?><?php if ($mb_is_trash) { ?>
+                                        <a class="tbtn" href="<?php echo base_url() ?>admin/mailbox/restore/remote_host/<?php echo $v_inbox_msg->inbox_id ?>" title="Restore"><i class="fa fa-retweet"></i></a>
+                                        <a class="tbtn danger" href="<?php echo base_url() ?>admin/mailbox/delete_mail/remote_host/deleted/<?php echo $v_inbox_msg->inbox_id ?>"
+                                           onclick="return confirm('<?php echo lang('alert_delete') ?>');" title="Permanent Delete"><i class="fa fa-trash-o"></i></a><?php } ?>
+                                    </span>
+                                </div>
+                                <div class="m-subj"><a href="<?php echo $mb_href ?>"><?php echo $subject; ?></a></div>
+                                <div class="m-prev"><?php echo $preview; ?><?php if (!empty($uploaded_file)): ?> <i class="fa fa-paperclip"></i><?php endif; ?><?php if ($mb_is_draft): ?> <span class="f-tag" style="background:#fffbeb;color:#b45309">Draft</span><?php endif; ?></div>
+                            </div>
+                            <a class="mb-star<?php echo $v_inbox_msg->favourites == 1 ? ' on' : ''; ?>"
+                               href="<?php echo base_url() ?>admin/mailbox/index/added_favourites/<?php echo $v_inbox_msg->inbox_id ?>/<?php echo $v_inbox_msg->favourites == 1 ? 0 : 1; ?>"
+                               title="Favourite"><i class="fa fa-star"></i></a>
+                        </div>
+                    <?php endforeach; ?>
+                    <?php else: ?>
+                        <div class="mb-empty">
+                            <div class="big"><i class="fa <?php echo $mb_is_trash ? 'fa-trash-o' : ($mb_is_sent ? 'fa-envelope-o' : ($mb_is_draft ? 'fa-pencil' : ($action == 'favourites' ? 'fa-star' : 'fa-inbox'))); ?>"></i></div>
+                            <b>There is no email to display</b>
+                        </div>
+                    <?php endif; ?>
+                </div>
+                <div class="list-status">
+                    <span><?php echo count($mb_rows); ?> messages &middot; <?php echo $mb_title; ?></span>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+```
+
+Presentation notes (recorded, behavior-neutral): sent rows show a `To:` prefix (demo parity — legacy showed raw `from`); star and unread-dot rules follow the legacy `inboxList()` (all rows keep both controls).
+
+- [ ] **Step 3: Replace the client inbox view**
+
+Write the content block below to `application/views/client/mailbox/inbox.php` with `admin/mailbox` → `client/mailbox` (client's `$get_inbox_message` loop, star/read URLs, and `delete_mail/inbox` form action preserved — this is the original plan content, retargeted):
 
 ```php
 <div class="row">
@@ -681,42 +950,31 @@ Full content of `application/views/admin/mailbox/inbox.php`:
 </div>
 ```
 
-- [ ] **Step 2: Regenerate the client inbox view**
+- [ ] **Step 4: Lint + run test**
 
-```powershell
-$src = 'application\views\admin\mailbox\inbox.php'
-$dst = 'application\views\client\mailbox\inbox.php'
-$c = [System.IO.File]::ReadAllText((Resolve-Path $src))
-$c = $c.Replace('admin/mailbox', 'client/mailbox')
-[System.IO.File]::WriteAllText((Resolve-Path $dst), $c)
-if (Select-String -Path $dst -Pattern 'admin/mailbox' -Quiet) { throw 'role swap failed' }
-& C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe -l $dst
-```
+Run: `php -l` on the three files → no errors.
+Run: `composer test:mailbox` → **admin folder checks now PASS** (inbox shows fixture row; sent has real rows; draft/favourites/trash show `mb-empty`), `admin inbox shows fixture row` PASSES; client folders still fail `list-card` (Tasks 5–6); read/compose still fail.
 
-- [ ] **Step 3: Lint + run test**
-
-Run: `php -l application/views/admin/mailbox/inbox.php` → no errors.
-Run: `composer test:mailbox` → both inbox assertions (admin + client) now PASS; sent/draft/favourites/trash/read/compose still FAIL.
-
-- [ ] **Step 4: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
-git add application/views/admin/mailbox/inbox.php application/views/client/mailbox/inbox.php
-git commit -m "feat: restyle mailbox inbox list"
+git add modules/mailbox/controllers/Mailbox.php modules/mailbox/views/local_mails.php application/views/client/mailbox/inbox.php
+git commit -m "feat: server-render admin mailbox lists + restyle client inbox"
 ```
 
 ---
 
-### Task 5: Sent + Drafts list cards
+### Task 5: Client sent + drafts list cards
+
+> Admin sent/draft lists are already covered by Task 4 — `modules/mailbox/views/local_mails.php` serves all five admin folders. This task is client-only.
 
 **Files:**
-- Modify: `application/views/admin/mailbox/sent.php`
-- Modify: `application/views/admin/mailbox/draft.php`
-- Regenerate: `application/views/client/mailbox/sent.php`, `application/views/client/mailbox/draft.php`
+- Modify: `application/views/client/mailbox/sent.php`
+- Modify: `application/views/client/mailbox/draft.php`
 
-- [ ] **Step 1: Replace the admin sent view**
+- [ ] **Step 1: Replace the client sent view**
 
-Full content of `application/views/admin/mailbox/sent.php`:
+Write the content block below to `application/views/client/mailbox/sent.php` with `admin/mailbox` → `client/mailbox` (client's `$get_sent_message` loop, `sent_id` checkboxes and `read_send_mail` links, and `delete_mail/sent` form action preserved):
 
 ```php
 <div class="row">
@@ -770,9 +1028,9 @@ Full content of `application/views/admin/mailbox/sent.php`:
 </div>
 ```
 
-- [ ] **Step 2: Replace the admin draft view**
+- [ ] **Step 2: Replace the client draft view**
 
-Full content of `application/views/admin/mailbox/draft.php`:
+Write the content block below to `application/views/client/mailbox/draft.php` with `admin/mailbox` → `client/mailbox` (client's `$draft_message` loop, `unserialize(to)` display, `draft_id` checkboxes and `compose/<id>` links, and `delete_mail/draft` form action preserved):
 
 ```php
 <div class="row">
@@ -833,49 +1091,34 @@ Full content of `application/views/admin/mailbox/draft.php`:
 </div>
 ```
 
-- [ ] **Step 3: Regenerate both client views**
+- [ ] **Step 3: Lint + run test**
 
-```powershell
-foreach ($f in @('sent.php', 'draft.php')) {
-  $src = "application\views\admin\mailbox\$f"
-  $dst = "application\views\client\mailbox\$f"
-  $c = [System.IO.File]::ReadAllText((Resolve-Path $src))
-  $c = $c.Replace('admin/mailbox', 'client/mailbox')
-  [System.IO.File]::WriteAllText((Resolve-Path $dst), $c)
-  if (Select-String -Path $dst -Pattern 'admin/mailbox' -Quiet) { throw "role swap failed: $f" }
-  & C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe -l $dst
-}
-```
+Run: `php -l application/views/client/mailbox/sent.php` and `php -l application/views/client/mailbox/draft.php` → no errors.
+Run: `composer test:mailbox` → client sent + client draft folder checks now PASS; client favourites/trash still FAIL (`missing marker: list-card`); admin 5 folders + fixture-row unchanged (PASS); read/compose still FAIL.
 
-Expected: two `No syntax errors detected` lines.
-
-- [ ] **Step 4: Lint + run test**
-
-Run: `php -l application/views/admin/mailbox/sent.php` and `php -l application/views/admin/mailbox/draft.php` → no errors.
-Run: `composer test:mailbox` → sent + draft assertions PASS (admin + client); favourites/trash/read/compose still FAIL.
-
-- [ ] **Step 5: Commit**
+- [ ] **Step 4: Commit**
 
 ```bash
-git add application/views/admin/mailbox/sent.php application/views/admin/mailbox/draft.php application/views/client/mailbox/sent.php application/views/client/mailbox/draft.php
-git commit -m "feat: restyle mailbox sent + drafts lists"
+git add application/views/client/mailbox/sent.php application/views/client/mailbox/draft.php
+git commit -m "feat: restyle client mailbox sent + drafts lists"
 ```
 
 ---
 
-### Task 6: Favourites + Trash (tabs + 3 sublists)
+### Task 6: Client favourites + trash (tabs + 3 sublists)
+
+> Admin favourites/trash lists are already covered by Task 4 (`modules/mailbox/views/local_mails.php` serves all five admin folders — including the single-list admin trash, per spec §8 deviation). This task is client-only.
 
 **Files:**
-- Modify: `application/views/admin/mailbox/favourites.php`
-- Modify: `application/views/admin/mailbox/trash.php`
-- Modify: `application/views/admin/mailbox/trash/inbox.php`
-- Modify: `application/views/admin/mailbox/trash/sent.php`
-- Modify: `application/views/admin/mailbox/trash/draft.php`
-- Regenerate: same 5 paths under `application/views/client/mailbox/`
+- Modify: `application/views/client/mailbox/favourites.php`
+- Modify: `application/views/client/mailbox/trash.php`
+- Modify: `application/views/client/mailbox/trash/inbox.php`
+- Modify: `application/views/client/mailbox/trash/sent.php`
+- Modify: `application/views/client/mailbox/trash/draft.php`
 
-- [ ] **Step 1: Replace the admin favourites view**
+- [ ] **Step 1: Replace the client favourites view**
 
-Full content of `application/views/admin/mailbox/favourites.php` (same row recipe as Task 4; form action `delete_inbox_mail` kept verbatim; the old preview line's undefined `$v_sent_msg` reference is corrected to `$v_inbox_msg` — see verification doc):
+Write the content block below to `application/views/client/mailbox/favourites.php` with `admin/mailbox` → `client/mailbox`. Loop variable is **`$favourites_mail`** (the client controller passes `favourites_mail`, not `get_inbox_message` — fixes the pre-existing empty-favourites bug). Form action `delete_inbox_mail` kept verbatim:
 
 ```php
 <div class="row">
@@ -889,7 +1132,7 @@ Full content of `application/views/admin/mailbox/favourites.php` (same row recip
                     <a href="<?php echo base_url() ?>admin/mailbox/index/compose" class="tb-compose"><i class="fa fa-pencil"></i> Compose</a>
                 </div>
                 <div class="rows">
-                    <?php if (!empty($get_inbox_message)): foreach ($get_inbox_message as $v_inbox_msg): ?>
+                    <?php if (!empty($favourites_mail)): foreach ($favourites_mail as $v_inbox_msg): ?>
                         <?php
                         $string = (strlen($v_inbox_msg->to) > 50) ? strip_html_tags(mb_substr($v_inbox_msg->to, 0, 50)) . '...' : $v_inbox_msg->to;
                         $subject = (strlen($v_inbox_msg->subject) > 50) ? strip_html_tags(mb_substr($v_inbox_msg->subject, 0, 50)) . '...' : $v_inbox_msg->subject;
@@ -924,7 +1167,7 @@ Full content of `application/views/admin/mailbox/favourites.php` (same row recip
                     <?php endif; ?>
                 </div>
                 <div class="list-status">
-                    <span><?php echo !empty($get_inbox_message) ? count($get_inbox_message) : 0; ?> messages &middot; Favourites</span>
+                    <span><?php echo !empty($favourites_mail) ? count($favourites_mail) : 0; ?> messages &middot; Favourites</span>
                 </div>
             </div>
         </form>
@@ -932,9 +1175,9 @@ Full content of `application/views/admin/mailbox/favourites.php` (same row recip
 </div>
 ```
 
-- [ ] **Step 2: Replace the admin trash tabs view**
+- [ ] **Step 2: Replace the client trash tabs view**
 
-Full content of `application/views/admin/mailbox/trash.php`:
+Write the content block below to `application/views/client/mailbox/trash.php` with `admin/mailbox` → `client/mailbox` (the `$trash_view` variable and the three `trash/{inbox,sent,draft}` sub-view loads preserved; the swapped load path becomes `client/mailbox/trash/`):
 
 ```php
 <div class="trash-tabs">
@@ -947,9 +1190,9 @@ Full content of `application/views/admin/mailbox/trash.php`:
 </div>
 ```
 
-- [ ] **Step 3: Replace the admin trash/inbox sublist**
+- [ ] **Step 3: Replace the client trash/inbox sublist**
 
-Full content of `application/views/admin/mailbox/trash/inbox.php` (restore + permanent-delete controls kept in the time slot; preview uses the correct `$v_inbox_msg` field):
+Write the content block below to `application/views/client/mailbox/trash/inbox.php` with `admin/mailbox` → `client/mailbox` (client's `$get_inbox_message` loop, `restore/inbox/<id>` + `delete_mail/inbox/deleted/<id>` controls, and `delete_mail/inbox/trash` form action preserved):
 
 ```php
 <div class="row">
@@ -1009,9 +1252,9 @@ Full content of `application/views/admin/mailbox/trash/inbox.php` (restore + per
 </div>
 ```
 
-- [ ] **Step 4: Replace the admin trash/sent sublist**
+- [ ] **Step 4: Replace the client trash/sent sublist**
 
-Full content of `application/views/admin/mailbox/trash/sent.php`:
+Write the content block below to `application/views/client/mailbox/trash/sent.php` with `admin/mailbox` → `client/mailbox` (client's `$get_sent_message` loop, `sent_id` controls, and `delete_mail/sent/trash` form action preserved):
 
 ```php
 <div class="row">
@@ -1068,9 +1311,9 @@ Full content of `application/views/admin/mailbox/trash/sent.php`:
 </div>
 ```
 
-- [ ] **Step 5: Replace the admin trash/draft sublist**
+- [ ] **Step 5: Replace the client trash/draft sublist**
 
-Full content of `application/views/admin/mailbox/trash/draft.php`:
+Write the content block below to `application/views/client/mailbox/trash/draft.php` with `admin/mailbox` → `client/mailbox` (client's `$draft_message` loop, `unserialize(to)` display, `draft_id` controls, and `delete_mail/draft/trash` form action preserved):
 
 ```php
 <div class="row">
@@ -1134,37 +1377,16 @@ Full content of `application/views/admin/mailbox/trash/draft.php`:
 </div>
 ```
 
-- [ ] **Step 6: Regenerate all 5 client views**
+- [ ] **Step 6: Lint + run test**
 
-```powershell
-$files = @(
-  @{ s = 'application\views\admin\mailbox\favourites.php';     d = 'application\views\client\mailbox\favourites.php' },
-  @{ s = 'application\views\admin\mailbox\trash.php';          d = 'application\views\client\mailbox\trash.php' },
-  @{ s = 'application\views\admin\mailbox\trash\inbox.php';    d = 'application\views\client\mailbox\trash\inbox.php' },
-  @{ s = 'application\views\admin\mailbox\trash\sent.php';     d = 'application\views\client\mailbox\trash\sent.php' },
-  @{ s = 'application\views\admin\mailbox\trash\draft.php';    d = 'application\views\client\mailbox\trash\draft.php' }
-)
-foreach ($f in $files) {
-  $c = [System.IO.File]::ReadAllText((Resolve-Path $f.s))
-  $c = $c.Replace('admin/mailbox', 'client/mailbox')
-  [System.IO.File]::WriteAllText((Resolve-Path $f.d), $c)
-  if (Select-String -Path $f.d -Pattern 'admin/mailbox' -Quiet) { throw "role swap failed: $($f.s)" }
-  & C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe -l $f.d
-}
-```
+Run: `php -l` on the 5 client files → no errors.
+Run: `composer test:mailbox` → **all 10 folder checks PASS** (admin 5 from Task 4; client inbox/sent/draft from Tasks 4–5; client favourites/trash from this task); fixture-row + leak PASS; read + compose still FAIL.
 
-Expected: five `No syntax errors detected` lines.
-
-- [ ] **Step 7: Lint + run test**
-
-Run: `php -l` on the 5 admin files → no errors.
-Run: `composer test:mailbox` → favourites + trash assertions PASS; read + compose remain FAIL.
-
-- [ ] **Step 8: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
-git add application/views/admin/mailbox/favourites.php application/views/admin/mailbox/trash.php application/views/admin/mailbox/trash/ application/views/client/mailbox/favourites.php application/views/client/mailbox/trash.php application/views/client/mailbox/trash/
-git commit -m "feat: restyle mailbox favourites + trash tabs/sublists"
+git add application/views/client/mailbox/favourites.php application/views/client/mailbox/trash.php application/views/client/mailbox/trash/
+git commit -m "feat: restyle client mailbox favourites + trash tabs/sublists"
 ```
 
 ---
@@ -1172,20 +1394,59 @@ git commit -m "feat: restyle mailbox favourites + trash tabs/sublists"
 ### Task 7: Read page (`read_mail.php`)
 
 **Files:**
-- Modify: `application/views/admin/mailbox/read_mail.php`
-- Regenerate: `application/views/client/mailbox/read_mail.php`
+- Modify: `modules/mailbox/views/read_mail.php`
+- Modify: `application/views/client/mailbox/read_mail.php`
 
-- [ ] **Step 1: Replace the admin read view**
+> Spec rule "keep every existing control" governs both blocks. Client specifics (verified against `application/controllers/client/Mailbox.php`): the mark-read/unread toggle is omitted — the client controller has **no `change_view` action** (a link to it would fall through to the inbox); reply/replyall/forward render only when `$reply` is set (inbox reads) because client `compose/<id>/<status>` looks the message up in `tbl_inbox` by `inbox_id`. Delete renders whenever an id is detected (client `delete_mail/<action>/NULL/<id>` handles all three folders). Both recorded in Task 9.
 
-Full content of `application/views/admin/mailbox/read_mail.php` (the old inline `<style>` block is deleted — replaced by `mailbox_modern.css`; reply/delete actions, `$reply` branch, date format, and attachment logic all preserved):
+- [ ] **Step 1: Replace the admin module read view**
+
+Full content of `modules/mailbox/views/read_mail.php` (Design A `read-card`; favourite/view toggles, id detection → `$delete` paths, reply/replyall/forward/delete, cc line, unserialize-To display, `d M , Y h:i:A` date, and the `modules/mailbox/uploads` + `mailbox/download_file` attachment paths all preserved from the current view):
 
 ```php
 <?php
-$read_from = !empty($reply) ? $read_mail->from : $read_mail->to;
 $read_label = !empty($reply) ? 'From' : 'To';
+$read_from = $read_mail->from;
+if (empty($reply)) {
+    $read_to = @unserialize($read_mail->to);
+    $read_from = is_array($read_to) ? implode(', ', $read_to) : $read_mail->to;
+}
+if (!empty($read_mail->favourites)) {
+    if ($read_mail->favourites == 1) {
+        $favs = 0;
+        $fav_icon = 'fa-star';
+        $fav_title = lang('remove_from_favourites');
+    } else {
+        $fav_icon = 'fa-star-o';
+        $favs = 1;
+        $fav_title = lang('added_into_favourites');
+    }
+}
+if (!empty($read_mail->view_status)) {
+    if ($read_mail->view_status == 1) {
+        $views = 2;
+        $view_icon = 'fa-envelope';
+        $view_title = lang('mark_as_unread');
+    } else {
+        $view_icon = 'fa-envelope-o';
+        $views = 1;
+        $view_title = lang('mark_as_read');
+    }
+}
+if (!empty($read_mail->inbox_id)) {
+    $id = $read_mail->inbox_id;
+    $delete = 'delete_mail/inbox/NULL';
+} else if (!empty($read_mail->sent_id)) {
+    $id = $read_mail->sent_id;
+    $delete = 'delete_mail/sent/NULL';
+} else if (!empty($read_mail->draft_id)) {
+    $id = $read_mail->draft_id;
+    $delete = 'delete_mail/draft/NULL';
+}
 $parts = preg_split('/[\s@.]+/', trim((string) $read_from), -1, PREG_SPLIT_NO_EMPTY);
 $ini = mb_strtoupper(implode('', array_slice($parts, 0, 2)));
-$av = ['#0d9488', '#2563eb', '#8b5cf6', '#f59e0b', '#dc2626', '#0ea5e9', '#10b981', '#e11d48'][abs(crc32((string) $read_mail->inbox_id)) % 8];
+$row_key = $read_mail->inbox_id ?? $read_mail->sent_id ?? $read_mail->draft_id ?? '';
+$av = ['#0d9488', '#2563eb', '#8b5cf6', '#f59e0b', '#dc2626', '#0ea5e9', '#10b981', '#e11d48'][abs(crc32((string) $row_key)) % 8];
 ?>
 <div class="row">
     <div class="col-md-12">
@@ -1194,19 +1455,142 @@ $av = ['#0d9488', '#2563eb', '#8b5cf6', '#f59e0b', '#dc2626', '#0ea5e9', '#10b98
                 <div class="rh-top">
                     <button class="mb-back" onclick="history.go(-1)"><i class="fa fa-arrow-left"></i> Back</button>
                     <div class="rh-tools">
-                        <?php if (!empty($reply)) { ?>
-                            <a href="<?= base_url() ?>admin/mailbox/index/compose/<?= $read_mail->inbox_id ?>/reply"
-                               class="tbtn" title="Reply"><i class="fa fa-reply"></i></a>
-                            <a href="<?= base_url() ?>admin/mailbox/delete_inbox_mail/<?= $read_mail->inbox_id ?>"
-                               class="tbtn danger" title="Delete"><i class="fa fa-trash-o"></i></a>
+                        <?php if (!empty($favs)) { ?>
+                            <a href="<?= base_url() ?>admin/mailbox/index/added_favourites/<?= $read_mail->inbox_id . '/' . $favs ?>"
+                               class="tbtn" title="<?= $fav_title ?>"><i class="fa <?= $fav_icon ?>"></i></a>
                         <?php } ?>
+                        <?php if (!empty($views)) { ?>
+                            <a href="<?= base_url() ?>admin/mailbox/index/change_view/<?= $read_mail->inbox_id . '/' . $views ?>"
+                               class="tbtn" title="<?= $view_title ?>"><i class="fa <?= $view_icon ?>"></i></a>
+                        <?php } ?>
+                        <a href="<?= base_url() ?>admin/mailbox/index/compose/<?= $id ?>/reply" class="tbtn"
+                           title="<?= lang('reply') ?>"><i class="fa fa-reply"></i></a>
+                        <a href="<?= base_url() ?>admin/mailbox/index/compose/<?= $id ?>/replyall" class="tbtn"
+                           title="<?= lang('reply_all') ?>"><i class="fa fa-reply-all"></i></a>
+                        <a href="<?= base_url() ?>admin/mailbox/index/compose/<?= $id ?>/forward" class="tbtn"
+                           title="<?= lang('forward') ?>"><i class="fa fa-mail-forward"></i></a>
+                        <a href="<?= base_url() ?>admin/mailbox/<?= $delete . '/' . $id ?>" class="tbtn danger"
+                           title="<?= lang('delete') ?>"><i class="fa fa-trash-o"></i></a>
                     </div>
                 </div>
-                <h2 class="r-subj"><?php echo $read_mail->subject; ?></h2>
+                <h2 class="r-subj"><?php echo html_escape($read_mail->subject); ?></h2>
                 <div class="r-who">
                     <span class="mb-av" style="background:<?php echo $av; ?>"><?php echo $ini; ?></span>
                     <div>
-                        <div class="who"><?php echo $read_label ?>: <?php echo $read_from; ?></div>
+                        <div class="who"><?php echo $read_label ?>: <?php echo html_escape($read_from); ?></div>
+                        <?php if (!empty($read_mail->cc)) { ?>
+                            <div class="who">Cc: <?php echo html_escape($read_mail->cc); ?></div>
+                        <?php } ?>
+                        <div class="em"><?php echo date('d M , Y h:i:A', strtotime($read_mail->message_time)) ?></div>
+                    </div>
+                    <div class="when"><?php echo date('d M , Y', strtotime($read_mail->message_time)) ?></div>
+                </div>
+            </div>
+            <div class="read-body">
+                <p><?php echo $read_mail->message_body; ?></p>
+            </div>
+            <?php
+            $uploaded_file = json_decode($read_mail->attach_file);
+            if (!empty($uploaded_file)):
+                ?>
+                <ul class="att-strip">
+                    <?php foreach ($uploaded_file as $v_files): ?>
+                        <?php if (!empty($v_files)): ?>
+                            <li class="att-file">
+                                <?php if (!empty($v_files->is_image) && $v_files->is_image == 1): ?>
+                                    <img class="att-thumb"
+                                         src="<?= base_url('modules/mailbox/uploads/' . html_escape($v_files->fileName)) ?>"
+                                         alt="Attachment">
+                                <?php else: ?>
+                                    <span class="ic"><i class="fa fa-file-pdf-o"></i></span>
+                                <?php endif; ?>
+                                <a target="_blank"
+                                   href="<?= base_url() ?>mailbox/download_file/<?= html_escape($v_files->fileName) ?>"
+                                   class="att-name"><i class="fa fa-paperclip"></i> <?= html_escape($v_files->fileName) ?></a>
+                                <span class="sz"><?= $v_files->size ?> <?= lang('kb') ?></span>
+                                <a href="<?= base_url() ?>mailbox/download_file/<?= html_escape($v_files->fileName) ?>"
+                                   class="att-dl" title="Download"><i class="fa fa-cloud-download"></i></a>
+                            </li>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </ul>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+```
+
+- [ ] **Step 2: Replace the client read view**
+
+Full content of `application/views/client/mailbox/read_mail.php` (the old inline `<style>` block and outer `<section class="content">` are dropped — the wrapper provides layout and `mailbox_modern.css` provides styling; client attachment paths `base_url().$v_files->path` + `client/mailbox/download_file/<fileName>` preserved; the attachment name link is pointed at `download_file` like the admin one — the old `base_url().attach_file` href opened the raw JSON and 404'd):
+
+```php
+<?php
+$read_label = !empty($reply) ? 'From' : 'To';
+$read_from = $read_mail->from;
+if (empty($reply)) {
+    $read_to = @unserialize($read_mail->to);
+    $read_from = is_array($read_to) ? implode(', ', $read_to) : $read_mail->to;
+}
+if (!empty($read_mail->favourites)) {
+    if ($read_mail->favourites == 1) {
+        $favs = 0;
+        $fav_icon = 'fa-star';
+        $fav_title = lang('remove_from_favourites');
+    } else {
+        $fav_icon = 'fa-star-o';
+        $favs = 1;
+        $fav_title = lang('added_into_favourites');
+    }
+}
+if (!empty($read_mail->inbox_id)) {
+    $id = $read_mail->inbox_id;
+    $delete = 'delete_mail/inbox/NULL';
+} else if (!empty($read_mail->sent_id)) {
+    $id = $read_mail->sent_id;
+    $delete = 'delete_mail/sent/NULL';
+} else if (!empty($read_mail->draft_id)) {
+    $id = $read_mail->draft_id;
+    $delete = 'delete_mail/draft/NULL';
+}
+$parts = preg_split('/[\s@.]+/', trim((string) $read_from), -1, PREG_SPLIT_NO_EMPTY);
+$ini = mb_strtoupper(implode('', array_slice($parts, 0, 2)));
+$row_key = $read_mail->inbox_id ?? $read_mail->sent_id ?? $read_mail->draft_id ?? '';
+$av = ['#0d9488', '#2563eb', '#8b5cf6', '#f59e0b', '#dc2626', '#0ea5e9', '#10b981', '#e11d48'][abs(crc32((string) $row_key)) % 8];
+?>
+<div class="row">
+    <div class="col-md-12">
+        <div class="read-card">
+            <div class="read-head">
+                <div class="rh-top">
+                    <button class="mb-back" onclick="history.go(-1)"><i class="fa fa-arrow-left"></i> Back</button>
+                    <div class="rh-tools">
+                        <?php if (!empty($favs)) { ?>
+                            <a href="<?= base_url() ?>client/mailbox/index/added_favourites/<?= $read_mail->inbox_id . '/' . $favs ?>"
+                               class="tbtn" title="<?= $fav_title ?>"><i class="fa <?= $fav_icon ?>"></i></a>
+                        <?php } ?>
+                        <?php if (!empty($reply)) { ?>
+                            <a href="<?= base_url() ?>client/mailbox/index/compose/<?= $id ?>/reply" class="tbtn"
+                               title="<?= lang('reply') ?>"><i class="fa fa-reply"></i></a>
+                            <a href="<?= base_url() ?>client/mailbox/index/compose/<?= $id ?>/replyall" class="tbtn"
+                               title="<?= lang('reply_all') ?>"><i class="fa fa-reply-all"></i></a>
+                            <a href="<?= base_url() ?>client/mailbox/index/compose/<?= $id ?>/forward" class="tbtn"
+                               title="<?= lang('forward') ?>"><i class="fa fa-mail-forward"></i></a>
+                        <?php } ?>
+                        <?php if (!empty($id)) { ?>
+                            <a href="<?= base_url() ?>client/mailbox/<?= $delete . '/' . $id ?>" class="tbtn danger"
+                               title="<?= lang('delete') ?>"><i class="fa fa-trash-o"></i></a>
+                        <?php } ?>
+                    </div>
+                </div>
+                <h2 class="r-subj"><?php echo html_escape($read_mail->subject); ?></h2>
+                <div class="r-who">
+                    <span class="mb-av" style="background:<?php echo $av; ?>"><?php echo $ini; ?></span>
+                    <div>
+                        <div class="who"><?php echo $read_label ?>: <?php echo html_escape($read_from); ?></div>
+                        <?php if (!empty($read_mail->cc)) { ?>
+                            <div class="who">Cc: <?php echo html_escape($read_mail->cc); ?></div>
+                        <?php } ?>
                         <div class="em"><?php echo date('d M , Y h:i:A', strtotime($read_mail->message_time)) ?></div>
                     </div>
                     <div class="when"><?php echo date('d M , Y', strtotime($read_mail->message_time)) ?></div>
@@ -1228,10 +1612,11 @@ $av = ['#0d9488', '#2563eb', '#8b5cf6', '#f59e0b', '#dc2626', '#0ea5e9', '#10b98
                                 <?php else: ?>
                                     <span class="ic"><i class="fa fa-file-pdf-o"></i></span>
                                 <?php endif; ?>
-                                <a target="_blank" href="<?php echo base_url() . $read_mail->attach_file; ?>"
-                                   class="att-name"><?= $v_files->fileName ?></a>
+                                <a target="_blank"
+                                   href="<?= base_url() ?>client/mailbox/download_file/<?= html_escape($v_files->fileName) ?>"
+                                   class="att-name"><i class="fa fa-paperclip"></i> <?= html_escape($v_files->fileName) ?></a>
                                 <span class="sz"><?= $v_files->size ?> <?= lang('kb') ?></span>
-                                <a href="<?= base_url() ?>admin/mailbox/download_file/<?= $v_files->fileName ?>"
+                                <a href="<?= base_url() ?>client/mailbox/download_file/<?= html_escape($v_files->fileName) ?>"
                                    class="att-dl" title="Download"><i class="fa fa-cloud-download"></i></a>
                             </li>
                         <?php endif; ?>
@@ -1243,28 +1628,16 @@ $av = ['#0d9488', '#2563eb', '#8b5cf6', '#f59e0b', '#dc2626', '#0ea5e9', '#10b98
 </div>
 ```
 
-- [ ] **Step 2: Regenerate the client read view**
-
-```powershell
-$src = 'application\views\admin\mailbox\read_mail.php'
-$dst = 'application\views\client\mailbox\read_mail.php'
-$c = [System.IO.File]::ReadAllText((Resolve-Path $src))
-$c = $c.Replace('admin/mailbox', 'client/mailbox')
-[System.IO.File]::WriteAllText((Resolve-Path $dst), $c)
-if (Select-String -Path $dst -Pattern 'admin/mailbox' -Quiet) { throw 'role swap failed' }
-& C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe -l $dst
-```
-
 - [ ] **Step 3: Lint + run test**
 
-Run: `php -l application/views/admin/mailbox/read_mail.php` → no errors.
-Run: `composer test:mailbox` → read assertions PASS; only compose remains FAIL.
+Run: `php -l` on both files → no errors.
+Run: `composer test:mailbox` → both read assertions PASS; only compose remains FAIL.
 
 - [ ] **Step 4: Commit**
 
 ```bash
-git add application/views/admin/mailbox/read_mail.php application/views/client/mailbox/read_mail.php
-git commit -m "feat: restyle mailbox read page"
+git add modules/mailbox/views/read_mail.php application/views/client/mailbox/read_mail.php
+git commit -m "feat: restyle mailbox read page (admin module + client)"
 ```
 
 ---
@@ -1272,83 +1645,46 @@ git commit -m "feat: restyle mailbox read page"
 ### Task 8: Compose page (`compose_mail.php`)
 
 **Files:**
-- Modify: `application/views/admin/mailbox/compose_mail.php` (4 container-class edits only — all select2/dropzone/JS blocks untouched)
-- Regenerate: `application/views/client/mailbox/compose_mail.php`
+- Modify: `modules/mailbox/views/compose_mail.php` (4 container-class edits only — all select2/dropzone/JS blocks untouched)
+- Modify: `application/views/client/mailbox/compose_mail.php` (same 4 edits)
 
-- [ ] **Step 1: Add the `mb-compose` class to the form tag**
+- [ ] **Step 1: Admin module compose — 4 class edits**
 
-In `application/views/admin/mailbox/compose_mail.php` line 5, change:
+In `modules/mailbox/views/compose_mail.php`:
 
-```php
-?>" method="post" class="form-horizontal form-groups-bordered">
-```
-
-to:
-
-```php
-?>" method="post" class="form-horizontal form-groups-bordered mb-compose">
-```
-
-- [ ] **Step 2: Swap the box container classes**
-
-Same file, change:
-
-```html
-        <div class="box box-primary">
-            <div class="box-body">
-```
-
-to:
-
-```html
-        <div class="compose-card">
-            <div class="cc-body">
-```
-
-And change:
-
-```html
-            <div class="box-footer">
-```
-
-to:
-
-```html
-            <div class="cc-foot">
-```
+1. Line 7 — form tag: `class="form-horizontal form-groups-bordered"` → `class="form-horizontal form-groups-bordered mb-compose"` (the trailing `data-parsley-validate novalidate` attributes stay outside the class).
+2. Line 46 — `<div class="box box-primary">` → `<div class="compose-card">`
+3. Line 47 — `<div class="box-body">` → `<div class="cc-body">`
+4. Line 229 — `<div class="box-footer">` → `<div class="cc-foot">`
 
 (Leave the comment lines `<!-- /.box-body -->` and `<!-- /. box -->` as-is — comments are inert.)
 
+- [ ] **Step 2: Client compose — same 4 class edits**
+
+In `application/views/client/mailbox/compose_mail.php`:
+
+1. Line 5 — form tag: `class="form-horizontal form-groups-bordered"` → `class="form-horizontal form-groups-bordered mb-compose"` (this file has no parsley attributes on the form).
+2. Line 8 — `<div class="box box-primary">` → `<div class="compose-card">`
+3. Line 9 — `<div class="box-body">` → `<div class="cc-body">`
+4. Line 215 — `<div class="box-footer">` → `<div class="cc-foot">`
+
+Do NOT touch the `admin/common/upload_file` and `admin/common/validate_project_file` URLs (client lines 141/157) — they must stay `admin/`.
+
 - [ ] **Step 3: Lint + verify no other edits**
 
-Run: `php -l application/views/admin/mailbox/compose_mail.php` → no errors.
-Run: `git diff application/views/admin/mailbox/compose_mail.php` → exactly 4 changed lines (form class, box→compose-card, box-body→cc-body, box-footer→cc-foot). No JS/dropzone/select2 lines changed.
+Run: `php -l` on both files → no errors.
+Run: `git diff modules/mailbox/views/compose_mail.php application/views/client/mailbox/compose_mail.php` → exactly 8 changed lines (4 per file). No JS/dropzone/select2 lines changed.
 
-- [ ] **Step 4: Regenerate the client compose view**
-
-```powershell
-$src = 'application\views\admin\mailbox\compose_mail.php'
-$dst = 'application\views\client\mailbox\compose_mail.php'
-$c = [System.IO.File]::ReadAllText((Resolve-Path $src))
-$c = $c.Replace('admin/mailbox', 'client/mailbox')
-[System.IO.File]::WriteAllText((Resolve-Path $dst), $c)
-if (Select-String -Path $dst -Pattern 'admin/mailbox' -Quiet) { throw 'role swap failed' }
-if (-not (Select-String -Path $dst -Pattern 'admin/common/upload_file' -Quiet)) { throw 'admin/common URL was wrongly swapped' }
-& C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe -l $dst
-```
-
-Expected: `No syntax errors detected` (the second guard confirms `admin/common/...` survived — it must stay `admin/`).
-
-- [ ] **Step 5: Run the full test — expect ALL GREEN**
+- [ ] **Step 4: Run the full test — expect ALL GREEN**
 
 Run: `composer test:mailbox`
-Expected: exit 0 — every assertion PASS (SKIPs allowed only for "no inbox message to open").
+Expected: exit 0 — all 17 assertions PASS (0 failed, 0 skipped).
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
-git add application/views/admin/mailbox/compose_mail.php application/views/client/mailbox/compose_mail.php
-git commit -m "feat: restyle mailbox compose page"
+git add modules/mailbox/views/compose_mail.php application/views/client/mailbox/compose_mail.php
+git commit -m "feat: restyle mailbox compose page (admin module + client)"
 ```
 
 ---
@@ -1363,8 +1699,9 @@ git commit -m "feat: restyle mailbox compose page"
 Run:
 
 ```powershell
-& C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe -l application/views/admin/components/htmlheader.php
-Get-ChildItem application\views\admin\mailbox, application\views\client\mailbox -Recurse -Filter *.php | ForEach-Object { & C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe -l $_.FullName }
+& C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe -l application\views\admin\components\htmlheader.php
+& C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe -l modules\mailbox\controllers\Mailbox.php
+Get-ChildItem modules\mailbox\views, application\views\client\mailbox -Recurse -Filter *.php | ForEach-Object { & C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe -l $_.FullName }
 ```
 
 Expected: every file reports `No syntax errors detected`.
@@ -1381,7 +1718,7 @@ composer test:mailbox; "mailbox: $LASTEXITCODE"
 composer test:theme; "theme: $LASTEXITCODE"
 ```
 
-Expected: smoke PASS (22/22), login PASS, menu PASS, mailbox PASS (0 failed), theme FAIL with the **pre-existing** baseline (`expected 25 !important, got 26`, `--c-accent` undefined — documented in `docs/superpowers/2026-10-01-woocommerce-redesign-verification.md`; must be byte-identical to that baseline, not worse).
+Expected: smoke PASS (22/22), login PASS, menu PASS, mailbox PASS (17/17 — 0 failed, 0 skipped), theme FAIL with the **pre-existing** baseline (`expected 25 !important, got 26`, `--c-accent` undefined — documented in `docs/superpowers/2026-10-01-woocommerce-redesign-verification.md`; must be byte-identical to that baseline, not worse).
 
 - [ ] **Step 3: Playwright visual pass**
 
@@ -1389,22 +1726,31 @@ For each row below open the URL, confirm the listed expectations, and check **0 
 
 | URL | Expect |
 |---|---|
-| `http://localhost/complete_crm/admin/mailbox/index/inbox` | folders card (Inbox active, unread badge), list-card rows with avatars/unread dots/stars, Compose button |
-| `.../index/sent` | rows show `To:` prefix, no star column |
+| `http://localhost/complete_crm/admin/mailbox/index/inbox` | Design A folder panel (Inbox active) + list-card rows with avatars/unread dots/stars + Compose; **fixture row `Mailbox redesign fixture` visible** |
+| `.../index/sent` | rows show `To:` prefix, star shown for all rows (or `mb-empty` if none) |
 | `.../index/draft` | Draft tag on rows; subject opens compose |
-| `.../index/favourites` | starred rows with amber stars |
-| `.../index/trash` | pill tabs (Inbox active), sublist rows with restore/delete buttons |
-| `.../index/trash/sent` then `.../trash/draft` | tabs switch, sublist restyles |
-| click any subject on inbox | read page: Back button, subject, sender block, body, reply/delete tools |
-| `.../index/compose` | compose card: To select2, subject, textarea, dropzone area, Draft/Send/Discard footer |
-| `http://localhost/complete_crm/client/mailbox/index/inbox` | same design under client sidebar |
+| `.../index/favourites` | starred rows with amber stars (or `mb-empty`) |
+| `.../index/trash` | **single list** (admin trash has no tabs — spec §8 deviation) with restore + permanent-delete buttons per row |
+| click any subject on inbox | read page: Back, subject, sender/avatar block, cc (if any), body, attachment strip, favourite/view/reply/replyall/forward/delete tools |
+| `.../index/compose` | compose card: To select2, subject, editor, dropzone area, Draft/Send/Discard footer (`mb-compose`, `compose-card`) |
+| `http://localhost/complete_crm/client/mailbox/index/inbox` | same design under the client sidebar |
+| `http://localhost/complete_crm/client/mailbox/index/trash` | pill tabs (Inbox active) + sublist rows with restore/delete buttons; tabs switch to sent/draft |
+| click any client subject | read page with Back/subject/body/attachments; favourite + reply/replyall/forward + delete tools (inbox reads) |
 | `http://localhost/complete_crm/admin/settings` | **no** mailbox CSS/markup (leak check) |
 
-Interactions to verify: check-all checkbox toggles row checkboxes; starring reloads into Favourites; folder counts update after opening unread mail.
+Interactions to verify: check-all checkbox toggles row checkboxes; starring reloads into Favourites; admin trash restore + permanent-delete work; client trash tabs switch sublists.
 
 - [ ] **Step 4: Write the verification record**
 
-Create `docs/superpowers/2026-10-03-mailbox-redesign-verification.md` containing: gates table (commands + exact outputs), Playwright pass checklist with results, the two incidental fixes made during reskin (undefined `$v_sent_msg` preview refs in `favourites.php` and `trash/inbox.php` corrected to `$v_inbox_msg`), and deviations from the demo/spec (compose full-page not modal; storage footer omitted — no data source; read reply footer reduced to existing Reply/Delete actions; trash sublists keep controls but drop the original Compose button which pointed at an odd context — record whatever was actually shipped).
+Create `docs/superpowers/2026-10-03-mailbox-redesign-verification.md` containing:
+
+- gates table (commands + exact outputs) and the Playwright checklist with results;
+- **fixtures note:** `plan/_tools/mailbox-fixtures.sql` (client user `mailbox_client` uid 1790 + 12 menu grants + admin fixture row 900001 + client fixture row 900002) and how to reapply it;
+- **architecture finding:** the `MX/Router.php` reroute means every `admin/mailbox/*` URL executes `modules/mailbox/controllers/Mailbox.php` + `modules/mailbox/views/*`; `application/controllers/admin/Mailbox.php` + `application/views/admin/mailbox/*` are dead code and were deliberately left untouched;
+- **server-render deviation:** additive `$local_messages` block in the module controller + rows rendered in `local_mails.php`; DataTables AJAX dropped for the five system folders (endpoints `inboxList`/`mailboxList` kept for remote folders);
+- **admin trash = single list** (client trash keeps the tabs + 3 sublists);
+- **incidental fixes:** client favourites view now loops `$favourites_mail` (was `$get_inbox_message` — pre-existing empty-list bug); client read attachment name link now points at `download_file` (old `base_url().attach_file` href opened the raw JSON and 404'd); client read drops its inline `<style>` + outer `<section>` (covered by the wrapper + `mailbox_modern.css`); admin sent rows now show a `To:` prefix (demo parity — legacy showed raw `from`);
+- **spec deviations actually shipped:** client read omits the mark-read/unread toggle (no `change_view` action exists in the client controller); client reply/replyall/forward tools render only on inbox reads (`$reply`) because client `compose/<id>/<status>` resolves messages from `tbl_inbox` only. Record whatever else the visual pass turns up.
 
 - [ ] **Step 5: Commit**
 
@@ -1417,6 +1763,9 @@ git commit -m "docs: mailbox redesign verification notes"
 
 ## Self-review (plan → spec)
 
-1. **Spec coverage:** §2 all 7 screens × both roles → Tasks 3–8; conditional CSS delivery → Task 2 (single shared `htmlheader` instead of two layouts — same coverage, fewer touch points); §5 design system → Task 2 CSS uses canonical class list; §7 gates → Tasks 1 + 9; §8 deviations (compose full page, real counts, no switcher) → Tasks 8 + 9 record; §3 non-goals respected (no AJAX, no new endpoints, controls kept: `#parent_present`, `.child_present`, all form actions/hrefs).
+1. **Spec coverage:** §2 all 7 screens × both roles → Tasks 3–8 (admin = `modules/mailbox/views/*`, client = `application/views/client/mailbox/*`); §6.4 server-render → Task 4's additive controller block + `local_mails.php`; conditional CSS delivery → Task 2 (single shared `htmlheader` instead of two layouts — same coverage, fewer touch points); §5 design system → Task 2 CSS uses canonical class list; §7 gates → Tasks 1 + 1b + 9; §8 deviations (compose full page, real counts, no switcher, module routing, server-render, admin trash single-list) → Tasks 4 + 9 record; §3 non-goals respected (no AJAX/modal compose, no new endpoints, DataTables endpoints kept, controls kept: `#parent_present`, `.child_present`, all form actions/hrefs).
 2. **Placeholder scan:** no TBD/TODO; every code step carries complete file content or exact edit snippets; every run step has command + expected output.
-3. **Type consistency:** class names identical across CSS (Task 2), views (Tasks 3–8), and test markers (Task 1): `list-card`, `f-item`, `mrow`, `mb-empty`, `read-card`, `r-subj`, `mb-compose`, `mailbox_modern.css`. Role-swap rule uniformly `admin/mailbox → client/mailbox` (never `admin/` blanket — protects `admin/common/upload_file`).
+3. **Type consistency:** class names identical across CSS (Task 2), views (Tasks 3–8), and test markers (Task 1/1b): `list-card`, `f-item`, `mrow`, `mb-empty`, `read-card`, `r-subj`, `mb-compose`, `mailbox_modern.css`. Role-swap rule uniformly `admin/mailbox → client/mailbox` (never `admin/` blanket — protects `admin/common/upload_file`).
+4. **Routing correctness:** no `application/views/admin/mailbox/*` file is ever edited (dead code — MX Router reroutes to the module); no task "regenerates" a client file from an admin file — client content is written directly from its own authored block; the `admin/mailbox → client/mailbox` swap appears only as an instruction inside a block whose links are `admin/mailbox` by construction.
+5. **Delta chain:** Task 1b's folder marker order (`css → f-item → list-card → rows`) makes each task's contribution observable: RED baseline 17 = 2 pass/15 fail → Task 3 flips failures to `list-card` → Tasks 4–6 flip folder checks green → Task 7 read green → Task 8 all 17 green.
+6. **Control preservation (§6.3):** admin keeps every control of the current module views (list toolbar, star, restore/permanent-delete, favourite/view/reply/replyall/forward/delete, form actions, `selected_id[]`); client keeps its existing ones (reply, delete, favourite, attachments). The single omission is the client mark-read/unread toggle (no `change_view` action in the client controller) — recorded in Task 9, not silently dropped.
