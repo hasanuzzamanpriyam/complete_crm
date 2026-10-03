@@ -16,6 +16,7 @@
         "test:login": "php plan/_tools/login-test.php",
         "test:theme": "php plan/_tools/bg-custom-test.php normal && php plan/_tools/bg-custom-test.php theme",
         "test:menu": "php plan/_tools/menu-group-test.php all",
-        "test:woo": "php plan/_tools/woocommerce-redesign-test.php"
+        "test:woo": "php plan/_tools/woocommerce-redesign-test.php",
+        "test:mailbox": "php plan/_tools/mailbox-redesign-test.php"
     }
 }
