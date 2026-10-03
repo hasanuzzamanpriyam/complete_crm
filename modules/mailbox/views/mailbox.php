@@ -23,7 +23,7 @@
                 <span class="fc<?php echo (in_array($mb_key, array('inbox', 'sent', 'draft'), true) && !empty($system_mail_count[$mb_key]) && $system_mail_count[$mb_key] > 0) ? ' hot' : ''; ?>"><?php echo isset($system_mail_count[$mb_key]) ? $system_mail_count[$mb_key] : 0; ?></span>
             </a>
         <?php endforeach; ?>
-        <ul id="mail_box_menu" class="fsub"></ul>
+        <ul id="mail_box_menu" class="nav nav-pills nav-stacked fsub"></ul>
     </div>
     <div class="list-col">
         <?php echo message_box('success'); ?>
