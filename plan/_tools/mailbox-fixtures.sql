@@ -38,8 +38,14 @@ INSERT INTO tbl_inbox (inbox_id, user_id, `to`, `from`, subject, message_body, a
 SELECT 900002, @uid, 'mailbox_client@tic.test', 'Mailbox Fixtures <fixtures@tic.test>', 'Mailbox redesign fixture (client)', 'Seeded client message so the client read-page assertion executes.', '[]', NOW(), 2, 0, 1, 'No', 'inbox', 'system'
 WHERE NOT EXISTS (SELECT 1 FROM (SELECT inbox_id FROM tbl_inbox WHERE inbox_id = 900002) AS b);
 
+-- 6) client sent fixture (sent_id 900003) ------------------------------------
+INSERT INTO tbl_sent (sent_id, user_id, `to`, subject, message_body, attach_file, message_time, deleted)
+SELECT 900003, @uid, 'someone@example.test', 'Mailbox redesign fixture (client sent)', 'Seeded sent message so the client sent-read assertion exercises the non-reply read path (tbl_sent has no from column).', '[]', NOW(), 'No'
+WHERE NOT EXISTS (SELECT 1 FROM (SELECT sent_id FROM tbl_sent WHERE sent_id = 900003) AS c);
+
 -- verification ---------------------------------------------------------------
 SELECT (SELECT user_id FROM tbl_users WHERE username = 'mailbox_client') AS client_uid,
        (SELECT COUNT(*) FROM tbl_client_role WHERE user_id = (SELECT user_id FROM tbl_users WHERE username = 'mailbox_client')) AS client_menus,
        (SELECT COUNT(*) FROM tbl_inbox WHERE inbox_id = 900001) AS admin_fixture,
-       (SELECT COUNT(*) FROM tbl_inbox WHERE inbox_id = 900002) AS client_fixture;
+       (SELECT COUNT(*) FROM tbl_inbox WHERE inbox_id = 900002) AS client_fixture,
+       (SELECT COUNT(*) FROM tbl_sent WHERE sent_id = 900003) AS client_sent_fixture;

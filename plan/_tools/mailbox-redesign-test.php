@@ -212,6 +212,25 @@ foreach ($readIds as $role => $id) {
     $checks[$name] = $reason;
 }
 
+/* ---------- 2b. sent read page (non-reply path: tbl_sent has no `from` column) ---------- */
+$sentReads = [
+    'admin' => ['url' => "$baseUrl/admin/mailbox/index/read_send_mail/900001", 'subject' => 'Mailbox redesign fixture'],
+    'client' => ['url' => "$baseUrl/client/mailbox/index/read_send_mail/900003", 'subject' => 'Mailbox redesign fixture (client sent)'],
+];
+foreach ($sentReads as $role => $spec) {
+    $name = "$role sent read page has read-card markup";
+    $page = request('GET', $spec['url'], [], [], jar_for($role));
+    $reason = null;
+    if ($page['status'] !== 200) {
+        $reason = 'HTTP ' . $page['status'];
+    } elseif (preg_match($errorPattern, $page['body'], $m)) {
+        $reason = 'PHP error: ' . $m[0];
+    } else {
+        $reason = markers_in($page['body'], ['mailbox_modern.css', $spec['subject'], 'read-card', 'r-subj']);
+    }
+    $checks[$name] = $reason;
+}
+
 /* ---------- 3. compose (admin + client) ---------- */
 foreach (['admin', 'client'] as $role) {
     $name = "$role compose has mb-compose markup";
