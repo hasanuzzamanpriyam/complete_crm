@@ -108,7 +108,7 @@
 
 /* ---- list card: table -> card rows ---- */
 .list-card { background: var(--c-surface); border: 1px solid var(--c-border-2); border-radius: var(--r-xl); box-shadow: var(--sh-1); overflow: hidden; }
-#spreadsheet-advanced { display: block; width: 100%; border: 0; margin: 0; }
+table#spreadsheet-advanced { display: block; width: 100%; border: 0; margin: 0; background: transparent; }
 #spreadsheet-advanced thead { display: block; }
 #spreadsheet-advanced tbody { display: block; }
 #spreadsheet-advanced thead tr,
