@@ -11,12 +11,13 @@ if (!function_exists('apply_user_scope')) {
         // Never show super admin or other admins
         $CI->db->where('tbl_users.is_super_admin', 0);
         $CI->db->where('(tbl_users.role_id != 1 OR tbl_users.user_id = ' . $admin_id . ')');
-        // Scope to users created by this admin (or the admin themselves)
-        if ($exclude_self) {
-            $CI->db->where('tbl_users.created_by', $admin_id);
-        } else {
-            $CI->db->where('(tbl_users.created_by = ' . $admin_id . ' OR tbl_users.user_id = ' . $admin_id . ')');
-        }
+        // The historical created_by clause filtered on a column that exists in
+        // no migration (SHOW COLUMNS tbl_users verified 2026-10-10), so it made
+        // every non-super-admin query fatal. Removed per spec 2026-10-10 S6.5;
+        // $exclude_self is kept for signature compatibility and no longer
+        // narrows the query. The filters above (is_super_admin = 0,
+        // role_id != 1 OR user_id = self) and the super-admin early return
+        // stay as written.
     }
 }
 
