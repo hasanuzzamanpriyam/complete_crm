@@ -111,6 +111,21 @@ Both read pages render `title="added_into_favourites"` — the lang key is missi
 - The shared page header shows breadcrumb `Mailbox / Overview` with H1 `Dashboard` on mailbox pages — layout-header behavior outside the mailbox views; out of scope here.
 - Inbox folder badge counts read 0 while rows exist (counts derive from unread/`view_status`, and fixtures sit at `view_status=1` after reads — consistent with the allowed drift).
 
+### 5.5 Whole-implementation review findings (final pass, closed)
+The final cross-task review of `cd36f7e0..490ea4fd` returned **WITH FIXES** (3 Important + 5 Minor, 0 Critical). Closure:
+
+- **Compose + restored in client trash sublists — FIXED `c9d08fe2`:** legacy `trash/{inbox,sent,draft}.php` each had a toolbar `Compose +` button (spec §6.3 "keep every existing control, add none"); the redesign's toolbars dropped it. Re-added in all three using the new `.tb-compose` control mirrored from the current client inbox toolbar.
+- **List-row display fields escaped — FIXED `acc58f05`:** row-level `from`/`to`/`subject`/preview were echoed raw (verified legacy parity against `cd36f7e0`), inconsistent with Task 7's initials escaping of the same field. All 24 display sites across the 8 list views now call `html_escape()` at echo (truncate/decode first, escape last; `unserialize` hardening untouched). Read pages and compose textareas keep the recorded raw posture. Gate re-run: mailbox 22/22.
+- **Spec §4/§5 components not shipped — recorded deviations (were missing from plan AND record):**
+  - *search pill (`.tsearch`)* — not built. Related: the legacy system-folder table carried the `DataTables` class (client-side search/filter/pagination) which §6.4 server-rendering also dropped → **system folders currently have no search/filter UI** (remote folders keep DataTables + their endpoints). Functional gap; follow-up candidate, not a regression introduced by a shipped component.
+  - *storage footer (`.f-foot`)* — no backend storage metric exists → no data source; not built.
+  - *read reply footer + reply box (`.read-foot`/`.reply-box`)* — reply/replyall/forward ship in the header toolbar (module-parity destinations, working); the inline reply box was not built.
+  - *archive action* — no archive endpoint exists pre- or post-redesign (grep: 0 matches); spec §3 "no new endpoints" forbids creating one → spec-internal conflict (§4 vs §3), resolved as a deviation.
+  - *compose `.c-field`/`.c-tools`* — kept Bootstrap form markup; fields and editor toolbar present under different class names.
+- **Refresh control added to admin system lists (`local_mails.php`)** — deliberate client-parity addition; technically beyond §6.3's "add none" → recorded here as an intentional deviation.
+- **Client read favourite toggle is an addition** (the old client read had no star). Task 7 both *fixed* the admin star logic (old `!empty($favs)` hid it in every real state) and *added* the control client-side — clarifies the hardening bullet in §4.
+- **Minor closed without code:** plan gained the missing Task 1b STATUS note; spec §6.2's file count corrected 10 → 11; `mb-in-tabs` was a review-checklist typo (repo uses `trash-tabs`/`ttab`, both defined); gate asserts a canonical-class subset by design (full contract scan passed 39/39).
+
 ## 6. Notes for this file (record-for-this-file bullets)
 
 - `tbl_inbox.to` holds BOTH plain strings and serialized flat arrays in real data (the unserialize paths are live — verified against DB).
@@ -120,4 +135,4 @@ Both read pages render `title="added_into_favourites"` — the lang key is missi
 
 ## 7. Gate summary vs plan expectations
 
-All Step 2 expectations met: smoke PASS 22/22, login PASS, menu PASS, mailbox PASS 22/22 (0 failed, 0 skipped), theme FAIL byte-identical to the documented pre-existing baseline. Every Step 1 file lint-clean. Playwright: 11/11 rows meet their expectations; the admin star action failed during the pass (pre-existing, §5.1) and was fixed afterwards in `407a009f` with live verification (§5.1) — mailbox gate re-run green.
+All Step 2 expectations met: smoke PASS 22/22, login PASS, menu PASS, mailbox PASS 22/22 (0 failed, 0 skipped), theme FAIL byte-identical to the documented pre-existing baseline. Every Step 1 file lint-clean. Playwright: 11/11 rows meet their expectations; the admin star action failed during the pass (pre-existing, §5.1) and was fixed afterwards in `407a009f` with live verification (§5.1) — mailbox gate re-run green. The final whole-implementation review (`WITH FIXES` → closed, §5.5) re-ran all five gates green; its code fixes `c9d08fe2` + `acc58f05` re-verified at mailbox 22/22.

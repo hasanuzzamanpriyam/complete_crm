@@ -295,6 +295,8 @@ git commit -m "test: add mailbox redesign e2e test"
 
 ### Task 1b: Amend e2e test for live verification (fixtures + two sessions + fixed read IDs)
 
+> **STATUS: COMPLETE** — commits `a7bdb6b1` (two-session test rewrite: admin+client cookie jars, fixture seeding, fixed read IDs — RED baseline `17 assertions — 2 passed, 15 failed` = the delta-chain start per Self-review 5) + `54c89a10` (login-success assertions after each session login). Spec ✅ / quality ✅ at the time.
+
 > Added 2026-10-03 (user-approved "Full live verification"): the original test could not see client pages (role redirect) or admin read pages (AJAX list rows), leaving 2 permanent SKIPs. This task seeds deterministic fixtures, logs in twice, and pins read URLs to fixed fixture IDs so **every assertion executes — zero SKIPs**.
 
 **Files:**
