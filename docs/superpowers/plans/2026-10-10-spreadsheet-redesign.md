@@ -586,11 +586,11 @@ In `modules/spreadsheet/helpers/spreadsheet_helper.php`, immediately before the 
 
 ```php
     if (strpos($viewuri, '/spreadsheet') !== false) {
-        echo '<link href="' . module_dir_url(SPREADSHEET_MODULE, 'assets/css/spreadsheet_modern.css') . '?v=1" rel="stylesheet" type="text/css" />';
+        echo '<link href="' . module_dir_url(SPREADSHEET_MODULE, 'assets/css/spreadsheet_modern.css') . '?v=2" rel="stylesheet" type="text/css" />';
     }
 ```
 
-`$viewuri` is defined at line 31. Position = after every existing `<link>` (including `manage_style.css` at line 36) → wins cascade ties per spec §6.1. `?v=1` per spec §6.6 (do **not** bump `VERSION_SREADSHEET`).
+`$viewuri` is defined at line 31. Position = after every existing `<link>` (including `manage_style.css` at line 36) → wins cascade ties per spec §6.1. Cache key: initially `?v=1`; bumped to `?v=2` by the Task 4 review fix (`b8b95dce`) when the specificity fix changed the file — per spec §6.6 the version lives in the query string only, `VERSION_SREADSHEET` stays untouched.
 
 ### 4b. Extract demo CSS
 
@@ -692,7 +692,7 @@ Set-Content -Path 'modules\spreadsheet\assets\css\spreadsheet_modern.css' -Value
 
 /* ---- list card: table -> card rows ---- */
 .list-card { background: var(--c-surface); border: 1px solid var(--c-border-2); border-radius: var(--r-xl); box-shadow: var(--sh-1); overflow: hidden; }
-#spreadsheet-advanced { display: block; width: 100%; border: 0; margin: 0; }
+table#spreadsheet-advanced { display: block; width: 100%; border: 0; margin: 0; background: transparent; } /* review fix b8b95dce: `table` prefix outranks manage_style.css:1's `table#spreadsheet-advanced` (1,0,1) so border:0 + background:transparent actually win; without it the legacy #f1f8ee fill + #839E99 border survive */
 #spreadsheet-advanced thead { display: block; }
 #spreadsheet-advanced tbody { display: block; }
 #spreadsheet-advanced thead tr,
@@ -804,7 +804,7 @@ $jar="$env:TEMP\ss_css.txt"
 curl.exe -s -c $jar -b $jar -d "user_name=forid&password=Admin@123&lat=0.000000&long=0.000000" -e "http://localhost/complete_crm/" http://localhost/complete_crm/login -o NUL
 curl.exe -s -c $jar -b $jar -o "$env:TEMP\ss_css_body.html" -w "manage=%{http_code}`n" http://localhost/complete_crm/admin/spreadsheet/manage/my_folder
 $body = Get-Content "$env:TEMP\ss_css_body.html" -Raw
-if ($body -notmatch 'spreadsheet_modern\.css\?v=1') { throw 'spreadsheet_modern.css link missing' }
+if ($body -notmatch 'spreadsheet_modern\.css\?v=') { throw 'spreadsheet_modern.css link missing' }
 if ($body.IndexOf('spreadsheet_modern.css') -lt $body.IndexOf('manage_style.css')) { throw 'modern CSS emitted BEFORE manage_style.css (cascade order wrong)' }
 'css delivery order OK'
 ```
@@ -1389,7 +1389,11 @@ Use the browser tools on `http://localhost/complete_crm`:
 3. **Editor** `/admin/spreadsheet/new_file_view/910001/910002` → `ed-head` chrome + untouched Luckysheet; **share link** `/admin/spreadsheet/file_view_share/ssfixturehash910002` → card + role chip.
 4. **Client** login (`mailbox_client` / `ClientMail@123`) → client sidebar menu link `spreadsheet` (R1: bare URL → lands on `spreadsheet/manage`, **client layout** — `client/dashboard` in sidebar, no admin `set_clocking` bar) → My Folder shows `SS Redesign Client Folder` (drill → `SS Redesign Client File`), Share Folder shows the shared tree, kebab + modals work, panel roots/crumb/counters behave as admin. If a share-row "view" action lands on an error page, note it — the child rows join the parent's hash (existing app behavior), the gate only asserts the explicit admin hash URL.
 5. **Console:** `playwright_browser_console_messages level=error` → must be empty on every screen (zero new errors).
-6. Iterate CSS in `spreadsheet_modern.css` (`?v=1` → `?v=2` if cache bites) until visual match; re-run `composer test:spreadsheet` after any edit.
+6. **Computed-style spot checks** (marker gates can't see these — Task 4 review proved a specificity loss slipped past both):
+   - `getComputedStyle(document.querySelector('table#spreadsheet-advanced')).backgroundColor` must NOT be `rgb(241, 248, 238)` (legacy `#f1f8ee` fill) and `borderWidth` must be `0px` (the `table#...` + `background:transparent` fix, `b8b95dce`);
+   - `getComputedStyle(document.querySelector('#context-menu')).display` === `'none'` when inactive;
+   - `getComputedStyle(document.querySelector('.ss-btn')).borderRadius` !== `'0px'`.
+7. Iterate CSS in `spreadsheet_modern.css` (cache key is `?v=2`; bump to `?v=3` etc. if cache bites) until visual match; re-run `composer test:spreadsheet` after any edit.
 
 **Commit:** `fix: spreadsheet redesign visual pass adjustments` (only if files changed).
 
@@ -1402,7 +1406,7 @@ Create `docs/superpowers/2026-10-10-spreadsheet-redesign-verification.md` (mailb
 1. Summary + gate table (`smoke / test:login / test:menu / test:mailbox / test:woo` green, `test:theme` = pre-existing baseline FAIL, `test:spreadsheet` = N/N).
 2. Screenshots table (4 screens × admin/client).
 3. **Reachability proof:** before → after (`menu link client/spreadsheet 404 → spreadsheet 200` — both `tic_crm` and `tic_crm_demo`; `client bare manage 500 Unknown column created_by → 200`; `admin-prefixed client URL 500 → 200`; `GET /spreadsheet 307 → admin/spreadsheet/manage (admin layout, company NULL) → 307 → spreadsheet/manage (client layout) after the company fixture`).
-4. Deviations/hardening: `shareModal.php`/`RelatedModal.php` needed no markup change (restyled wholesale by the `.modal-content` block — spec §6.2 candidate list achieved without markup churn); R1b `install.php` link fix (both `modules/` and the `demo/modules/` mirror); `mrow` added at view level (model untouched); `.panel`/`.btn`/`.crumb` collision-safe scoping; **fixture links `mailbox_client` to `tbl_client.client_id=1` via `tbl_account_details.company`** — the account shipped with `company=NULL`, so `client_id()` was empty and `manage()` served the ADMIN layout (verified live via `index()` redirect); spec §7's client-layout requirement needs a non-empty `client_id`; side effects audited (mailbox gate layout is unconditional; only the mailbox test touches mailbox_client; login redirect order unchanged); demo `.av`/`.pill` rules have no live markup counterparts (rows use `td.qcont` pill styling); **third bug fix forced by the fixture: `client/main_content.php:190` PHP 8 fatal guard** (`77458846`) — `company=1` exposed the recently-paid widget's undefined-`$payment_method` assignment, which 500'd `/client/dashboard` and failed BOTH e2e gates' leak checks; repo has no `demo/modules` runtime conflict (MODULES_PATH is root `modules/`).
+4. Deviations/hardening: `shareModal.php`/`RelatedModal.php` needed no markup change (restyled wholesale by the `.modal-content` block — spec §6.2 candidate list achieved without markup churn); R1b `install.php` link fix (both `modules/` and the `demo/modules/` mirror); `mrow` added at view level (model untouched); `.panel`/`.btn`/`.crumb` collision-safe scoping; **fixture links `mailbox_client` to `tbl_client.client_id=1` via `tbl_account_details.company`** — the account shipped with `company=NULL`, so `client_id()` was empty and `manage()` served the ADMIN layout (verified live via `index()` redirect); spec §7's client-layout requirement needs a non-empty `client_id`; side effects audited (mailbox gate layout is unconditional; only the mailbox test touches mailbox_client; login redirect order unchanged); demo `.av`/`.pill` rules have no live markup counterparts (rows use `td.qcont` pill styling); **third bug fix forced by the fixture: `client/main_content.php:190` PHP 8 fatal guard** (`77458846`) — `company=1` exposed the recently-paid widget's undefined-`$payment_method` assignment, which 500'd `/client/dashboard` and failed BOTH e2e gates' leak checks; repo has no `demo/modules` runtime conflict (MODULES_PATH is root `modules/`); **Task 4 review cascade fix** (`b8b95dce`): `#spreadsheet-advanced` → `table#spreadsheet-advanced` + `background:transparent` (outranks `manage_style.css:1` (1,0,1) — without it the legacy `#f1f8ee` fill/`#839E99` border survived the redesign and no marker gate could see it) and cache key `?v=1 → ?v=2`; **review minors backlog** (non-blocking): test `db()` should `mysqli_report(MYSQLI_REPORT_OFF)` so MySQL-down hits `fatal()` instead of an uncaught exception (plan-authored test hygiene), `client/main_content.php:185` null-`$invoices_info` guard (pre-existing, not triggered by current data), CSS `.ss-sub` dead rule + unscoped `.kebab` absolute positioning (leave — additions block is plan-canonical, no live node matches), `strpos($viewuri,'/spreadsheet')` query-string false positive (accepted: tightening to `/spreadsheet/` would risk bare-URL misses).
 5. Follow-ups (non-blocking): panel-root drag-and-drop targets, per-row "edited …" secondary line (needs `updated_at` in row attrs → data layer change, out of scope), i18n for new keys beyond English.
 
 **Commit:** `docs: spreadsheet redesign verification record`
