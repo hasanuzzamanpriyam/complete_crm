@@ -103,11 +103,13 @@ class Mailbox extends Admin_Controller
             $this->mailbox_model->save($updata, $id);
         } elseif ($action == 'change_view') {
             $favdata['view_status'] = $status;
+            $this->mailbox_model->_table_name = 'tbl_inbox';
             $this->mailbox_model->_primary_key = 'inbox_id';
             $this->mailbox_model->save($favdata, $id);
             redirect('admin/mailbox/index/inbox');
         } elseif ($action == 'added_favourites') {
             $favdata['favourites'] = $status;
+            $this->mailbox_model->_table_name = 'tbl_inbox';
             $this->mailbox_model->_primary_key = 'inbox_id';
             $this->mailbox_model->save($favdata, $id);
             redirect('admin/mailbox/index/favourites');
