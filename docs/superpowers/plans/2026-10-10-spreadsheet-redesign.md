@@ -827,7 +827,7 @@ $lang['ss_empty_hint'] = 'New files and folders you create will show up here.';
 $lang['new_file'] = 'New file';
 ```
 
-(`new_file` already referenced by the controller at `Spreadsheet.php:314` (`$data['title']`) and by Task 7b's title fallback — the key never existed, so both rendered empty; adding it makes the existing call resolve.)
+(`new_file` was already defined at lang line 28 as `'New File'` — plan's earlier "never existed" note was wrong: the custom `lang()` returns the key string on miss, so titles rendered `new_file`... correction: they rendered `'New File'`. The append re-defines it as `'New file'` (appended-last wins) — cosmetic casing only; consumers are titles at `Spreadsheet.php:314/575` + Task 7b's fallback. Recorded in Task 12; line-28 cleanup deferred.)
 
 ### 5b. `spreadsheet_load_js()` — manage branch (after line 77's `echo '</script>';`, before line 78's jquery-ui script echo) add:
 
