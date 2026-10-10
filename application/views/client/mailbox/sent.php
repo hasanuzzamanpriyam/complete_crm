@@ -25,11 +25,11 @@
                             <span class="mb-av" style="background:<?php echo $av; ?>"><?php echo html_escape($ini); ?></span>
                             <div class="m-main">
                                 <div class="m-top">
-                                    <span class="m-from">To: <?php echo $string; ?></span>
+                                    <span class="m-from">To: <?php echo html_escape($string); ?></span>
                                     <span class="m-time"><?php echo time_ago($v_sent_msg->message_time); ?></span>
                                 </div>
-                                <div class="m-subj"><a href="<?php echo base_url() ?>client/mailbox/index/read_send_mail/<?php echo $v_sent_msg->sent_id ?>"><?php echo $subject; ?></a></div>
-                                <div class="m-prev"><?php echo $preview; ?><?php if (!empty($uploaded_file)): ?> <i class="fa fa-paperclip"></i><?php endif; ?></div>
+                                <div class="m-subj"><a href="<?php echo base_url() ?>client/mailbox/index/read_send_mail/<?php echo $v_sent_msg->sent_id ?>"><?php echo html_escape($subject); ?></a></div>
+                                <div class="m-prev"><?php echo html_escape($preview); ?><?php if (!empty($uploaded_file)): ?> <i class="fa fa-paperclip"></i><?php endif; ?></div>
                             </div>
                         </div>
                     <?php endforeach; ?>

@@ -101,15 +101,15 @@ if (!$mb_system):
                             <span class="mb-av" style="background:<?php echo $av; ?>"><?php echo html_escape($ini); ?></span>
                             <div class="m-main">
                                 <div class="m-top">
-                                    <span class="m-from"><?php echo $string; ?></span>
+                                    <span class="m-from"><?php echo html_escape($string); ?></span>
                                     <span class="m-time"><?php echo time_ago($v_inbox_msg->message_time); ?><?php if ($mb_is_trash) { ?>
                                         <a class="tbtn" href="<?php echo base_url() ?>admin/mailbox/restore/remote_host/<?php echo $v_inbox_msg->inbox_id ?>" title="Restore"><i class="fa fa-retweet"></i></a>
                                         <a class="tbtn danger" href="<?php echo base_url() ?>admin/mailbox/delete_mail/remote_host/deleted/<?php echo $v_inbox_msg->inbox_id ?>"
                                            onclick="return confirm('<?php echo lang('alert_delete') ?>');" title="Permanent Delete"><i class="fa fa-trash-o"></i></a><?php } ?>
                                     </span>
                                 </div>
-                                <div class="m-subj"><a href="<?php echo $mb_href ?>"><?php echo $subject; ?></a></div>
-                                <div class="m-prev"><?php echo $preview; ?><?php if (!empty($uploaded_file)): ?> <i class="fa fa-paperclip"></i><?php endif; ?><?php if ($mb_is_draft): ?> <span class="f-tag" style="background:#fffbeb;color:#b45309">Draft</span><?php endif; ?></div>
+                                <div class="m-subj"><a href="<?php echo $mb_href ?>"><?php echo html_escape($subject); ?></a></div>
+                                <div class="m-prev"><?php echo html_escape($preview); ?><?php if (!empty($uploaded_file)): ?> <i class="fa fa-paperclip"></i><?php endif; ?><?php if ($mb_is_draft): ?> <span class="f-tag" style="background:#fffbeb;color:#b45309">Draft</span><?php endif; ?></div>
                             </div>
                             <a class="mb-star<?php echo $v_inbox_msg->favourites == 1 ? ' on' : ''; ?>"
                                href="<?php echo base_url() ?>admin/mailbox/index/added_favourites/<?php echo $v_inbox_msg->inbox_id ?>/<?php echo $v_inbox_msg->favourites == 1 ? 0 : 1; ?>"
