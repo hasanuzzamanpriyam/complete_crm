@@ -14,12 +14,13 @@
 .f-item.on::before{content:"";position:absolute;left:-14px;top:7px;bottom:7px;width:3px;border-radius:0 3px 3px 0;background:var(--c-accent)}
 .f-item .ico{width:18px;text-align:center;font-size:14px}
 .f-item .cnt{margin-left:auto;font-size:10.5px;font-weight:700;background:#eef2f5;color:var(--c-text-3);border-radius:var(--r-full);padding:2px 7px}
+.f-item .cnt:empty{display:none}
 .f-item.on .cnt{background:var(--c-accent);color:#fff}
 .f-item.sub{margin-left:18px;height:32px;font-size:13px;font-weight:400}
 .f-item.sub.on{font-weight:700}
 .p-sep{height:1px;background:var(--c-border-2);margin:8px 6px}
 .p-foot{margin-top:auto;background:#f8fafb;border:1px solid var(--c-border-2);border-radius:var(--r-lg);padding:12px 14px;font-size:12px;color:var(--c-text-3)}
-.p-foot .row{display:flex;justify-content:space-between;margin-bottom:6px}
+.p-foot .row{display:flex;justify-content:space-between;margin:0 0 6px}
 .p-foot b{color:var(--c-text-2)}
 
 /* ============ main ============ */
