@@ -108,17 +108,20 @@ class Migration_add_spreadsheet_client_menu_link extends CI_Migration {
 
 (Pattern matches `644_add_ai_pending_action.php`: no constructor, `$this->db` provided by `CI_Migration`.)
 
-### 2b. Apply to dev DB directly (do NOT run the migrate CLI — `migration_type=sequential` would replay all 644 historical migrations)
+### 2b. Apply to BOTH dev DBs directly (do NOT run the migrate CLI)
 
 ```powershell
 mysql -u root tic_crm -e "UPDATE tbl_client_menu SET link='spreadsheet' WHERE menu_id=24 AND label='spreadsheet' AND link='client/spreadsheet'; SELECT menu_id, label, link FROM tbl_client_menu WHERE menu_id=24;"
+mysql -u root tic_crm_demo -e "UPDATE tbl_client_menu SET link='spreadsheet' WHERE menu_id=24 AND label='spreadsheet' AND link='client/spreadsheet'; SELECT menu_id, label, link FROM tbl_client_menu WHERE menu_id=24;"
 ```
 
-Expected: `link = spreadsheet`.
+Expected from both: `link = spreadsheet`. (`tic_crm_demo` is the demo site's DB — `demo/index.php` defines `DEMO_MODE` → `database.php` serves `tic_crm_demo`; precedent: `2026-09-27-header-sidebar-redesign.md` applied its SQL to both.)
+
+Why hand-apply, not migrate CLI: `migration_version` is pinned at 643 (`application/config/migration.php:70`) so 645 wouldn't run anyway, and `migration_auto_latest=TRUE` (`:59`) makes loading the migrator auto-run `latest()` → re-running 644's `up()` against the already-existing `pending_action` column (duplicate-column failure). Project convention is hand-applied SQL for data fixes.
 
 ### 2c. R1b — same bad link in the module installer (fresh installs)
 
-`modules/spreadsheet/install.php:10`: `'client/spreadsheet'` → `'spreadsheet'`.
+`modules/spreadsheet/install.php:10`: `'client/spreadsheet'` → `'spreadsheet'`. Also `demo/modules/spreadsheet/install.php:10` (tracked mirror copy — same one-line change, else repo-wide greps stay dirty and a fresh DB built from `demo/` re-breaks).
 
 ### 2d. Verify menu URL serves the client session (self-contained — do not rely on Task 1's `$jar`)
 
@@ -1398,8 +1401,8 @@ Create `docs/superpowers/2026-10-10-spreadsheet-redesign-verification.md` (mailb
 
 1. Summary + gate table (`smoke / test:login / test:menu / test:mailbox / test:woo` green, `test:theme` = pre-existing baseline FAIL, `test:spreadsheet` = N/N).
 2. Screenshots table (4 screens × admin/client).
-3. **Reachability proof:** before → after (`menu link client/spreadsheet 404 → spreadsheet 200`; `client bare manage 500 Unknown column created_by → 200`; `admin-prefixed client URL 500 → 200`; `GET /spreadsheet 307 → admin/spreadsheet/manage (admin layout, company NULL) → 307 → spreadsheet/manage (client layout) after the company fixture`).
-4. Deviations/hardening: `shareModal.php`/`RelatedModal.php` needed no markup change (restyled wholesale by the `.modal-content` block — spec §6.2 candidate list achieved without markup churn); R1b `install.php` link fix; `mrow` added at view level (model untouched); `.panel`/`.btn`/`.crumb` collision-safe scoping; **fixture links `mailbox_client` to `tbl_client.client_id=1` via `tbl_account_details.company`** — the account shipped with `company=NULL`, so `client_id()` was empty and `manage()` served the ADMIN layout (verified live via `index()` redirect); spec §7's client-layout requirement needs a non-empty `client_id`; side effects audited (mailbox gate layout is unconditional; only the mailbox test touches mailbox_client; login redirect order unchanged); demo `.av`/`.pill` rules have no live markup counterparts (rows use `td.qcont` pill styling).
+3. **Reachability proof:** before → after (`menu link client/spreadsheet 404 → spreadsheet 200` — both `tic_crm` and `tic_crm_demo`; `client bare manage 500 Unknown column created_by → 200`; `admin-prefixed client URL 500 → 200`; `GET /spreadsheet 307 → admin/spreadsheet/manage (admin layout, company NULL) → 307 → spreadsheet/manage (client layout) after the company fixture`).
+4. Deviations/hardening: `shareModal.php`/`RelatedModal.php` needed no markup change (restyled wholesale by the `.modal-content` block — spec §6.2 candidate list achieved without markup churn); R1b `install.php` link fix (both `modules/` and the `demo/modules/` mirror); `mrow` added at view level (model untouched); `.panel`/`.btn`/`.crumb` collision-safe scoping; **fixture links `mailbox_client` to `tbl_client.client_id=1` via `tbl_account_details.company`** — the account shipped with `company=NULL`, so `client_id()` was empty and `manage()` served the ADMIN layout (verified live via `index()` redirect); spec §7's client-layout requirement needs a non-empty `client_id`; side effects audited (mailbox gate layout is unconditional; only the mailbox test touches mailbox_client; login redirect order unchanged); demo `.av`/`.pill` rules have no live markup counterparts (rows use `td.qcont` pill styling).
 5. Follow-ups (non-blocking): panel-root drag-and-drop targets, per-row "edited …" secondary line (needs `updated_at` in row attrs → data layer change, out of scope), i18n for new keys beyond English.
 
 **Commit:** `docs: spreadsheet redesign verification record`
