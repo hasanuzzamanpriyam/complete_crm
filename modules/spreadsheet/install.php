@@ -7,7 +7,7 @@ $CI->db->query(
 
 $CI->db->query(
   "INSERT INTO `tbl_client_menu` (`menu_id`, `label`, `link`, `icon`, `parent`, `sort`, `time`, `status`) 
-  VALUES (NULL, 'spreadsheet', 'client/spreadsheet', 'fa fa-file-excel-o', '0', '2', CURRENT_TIMESTAMP, '1');"
+  VALUES (NULL, 'spreadsheet', 'spreadsheet', 'fa fa-file-excel-o', '0', '2', CURRENT_TIMESTAMP, '1');"
 );
 
 $CI->db->query("CREATE TABLE IF NOT EXISTS `tbl_spreadsheet_hash_share` (
