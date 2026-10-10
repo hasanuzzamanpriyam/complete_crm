@@ -1,37 +1,36 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed'); ?>
 <?php spreadsheet_add_head_component(); ?>
-<div class="row">
-    <div class="col-md-12">
-        <div class="nav-tabs-custom">
-            <!-- Tabs within a box -->
-            <ul class="nav nav-tabs">
-                <li role="presentation" class="tab_cart <?php if ($tab == 'my_folder') {
-                    echo 'active';
-                } ?>">
-                    <a href="<?php echo admin_url('/spreadsheet/manage/my_folder'); ?>" aria-controls="tab_config"
-                       role="tab" aria-controls="tab_config">
-                        <?php echo lang('my_folder'); ?>
-                    
-                    </a>
-                </li>
-                
-                <li role="presentation" class="tab_cart <?php if ($tab == 'share_folder') {
-                    echo 'active';
-                } ?>">
-                    <a href="<?php echo admin_url('spreadsheet/manage/share_folder'); ?>" aria-controls="tab_config"
-                       role="tab" aria-controls="tab_config">
-                        <?php echo lang('share_folder'); ?>
-                    </a>
-                </li>
-            </ul>
-            <div class="p">
-                <?php $this->load->view('spreadsheet/' . $tab); ?>
-            </div>
+<?php
+$ss_active = ($tab == 'share_folder') ? 'share' : 'my';
+$ss_root_label = ($ss_active == 'share') ? lang('share_folder') : lang('my_folder');
+?>
+<div class="ss-layout">
+    <aside class="ss-panel" id="ss-panel" data-active="<?php echo $ss_active ?>">
+        <div class="p-head"><b><?php echo lang('spreadsheet') ?></b><span class="badge" data-ss-total>0</span></div>
+        <a class="f-item <?php echo ($ss_active == 'my') ? 'on' : ''; ?>"
+           href="<?php echo admin_url('spreadsheet/manage/my_folder') ?>" data-root="my">
+            <span class="ico fa fa-file-excel-o"></span><?php echo lang('my_folder'); ?><span class="cnt" data-ss-count="my"></span>
+        </a>
+        <div class="ss-subtree" data-subtree="my"></div>
+        <a class="f-item <?php echo ($ss_active == 'share') ? 'on' : ''; ?>"
+           href="<?php echo admin_url('spreadsheet/manage/share_folder') ?>" data-root="share">
+            <span class="ico fa fa-share-square-o"></span><?php echo lang('share_folder'); ?><span class="cnt" data-ss-count="share"></span>
+        </a>
+        <div class="ss-subtree" data-subtree="share"></div>
+        <div class="p-sep"></div>
+        <div class="p-foot">
+            <div class="row"><span><?php echo lang('files') ?></span><b data-ss-files>0</b></div>
+            <div class="row"><span><?php echo lang('folders') ?></span><b data-ss-folders>0</b></div>
+            <div class="row"><span><?php echo lang('shared') ?></span><b data-ss-shared>0</b></div>
         </div>
-    
-    
+    </aside>
+    <div class="ss-main">
+        <div class="crumb" id="ss-crumb" data-root-label="<?php echo $ss_root_label ?>"></div>
+        <div class="p ss-content">
+            <?php $this->load->view('spreadsheet/' . $tab); ?>
+        </div>
     </div>
-    
+</div>
     
     <div class="modal fade" id="setting-sent-notifications" role="dialog">
         <div class="modal-dialog">
@@ -77,7 +76,6 @@
             <?php echo form_close(); ?>
         </div>
     </div>
-</div>
 <?php
 spreadsheet_load_js();
 ?>

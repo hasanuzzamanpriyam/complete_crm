@@ -78,10 +78,21 @@ function spreadsheet_load_js()
         echo 'var create_folder = "' . lang('create_folder') . '";';
         echo 'var edit = "' . lang('edit') . '";';
         echo '</script>';
+        echo '<script>';
+        echo 'var ss_lang = ' . json_encode(array(
+            'folder' => lang('folder'),
+            'items' => lang('ss_items'),
+            'edit' => lang('edit'),
+            'view' => lang('view'),
+            'empty_title' => lang('ss_empty_title'),
+            'empty_hint' => lang('ss_empty_hint'),
+        )) . ';';
+        echo '</script>';
         echo '<script src="' . module_dir_url(SPREADSHEET_MODULE, 'assets/plugins/ludo-jquery-treetable/jquery-ui.min.js') . '?v=' . VERSION_SREADSHEET . '"></script>';
         echo '<script src="' . module_dir_url(SPREADSHEET_MODULE, 'assets/plugins/ludo-jquery-treetable/jquery.treetable.js') . '?v=' . VERSION_SREADSHEET . '"></script>';
         echo '<script src="' . module_dir_url(SPREADSHEET_MODULE, 'assets/js/manage.js') . '?v=' . VERSION_SREADSHEET . '"></script>';
         echo '<script src="' . module_dir_url(SPREADSHEET_MODULE, 'assets/js/context_menu.js') . '?v=' . VERSION_SREADSHEET . '"></script>';
+        echo '<script src="' . module_dir_url(SPREADSHEET_MODULE, 'assets/js/spreadsheet_shell.js') . '?v=' . VERSION_SREADSHEET . '"></script>';
         echo '<script src="' . module_dir_url(SPREADSHEET_MODULE, 'assets/plugins/luckysheet/js/luckysheet.umd.js') . '?v=' . VERSION_SREADSHEET . '"></script>';
         
         echo '<script type="module" src="' . module_dir_url(SPREADSHEET_MODULE, 'assets/plugins/excel.js') . '?v=' . VERSION_SREADSHEET . '"></script>';
