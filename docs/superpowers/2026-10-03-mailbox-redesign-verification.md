@@ -44,7 +44,7 @@ Console-error counts are per page load; "0" means zero errors observed (occasion
 |---|---|
 | check-all toggles row checkboxes | **PASS** — `#parent_present` click: row box `false → true → false` |
 | computed `border-style` of `.list-card` = `solid` (Task 2 token canary) | **PASS** — `solid` on admin inbox **and** client inbox (0.74px computed width) |
-| starring reloads into Favourites | **ADMIN FAIL (pre-existing, §5.1)** — `added_favourites/900006/1` → HTTP 500 `A Database Error Occurred` `Error Number: 1064 … near 'SET favourites = 1' … UPDATE SET …` (missing table name). **CLIENT PASS** — star on non-fixture row 60 persisted `favourites=1` and redirected to inbox; row then renders amber in `client/mailbox/index/favourites`; flagged back to `favourites=0` after |
+| starring reloads into Favourites | **ADMIN FAIL during pass (pre-existing, §5.1 — fixed later in `407a009f`)** — `added_favourites/900006/1` → HTTP 500 `A Database Error Occurred` `Error Number: 1064 … near 'SET favourites = 1' … UPDATE SET …` (missing table name). **CLIENT PASS** — star on non-fixture row 60 persisted `favourites=1` and redirected to inbox; row then renders amber in `client/mailbox/index/favourites`; flagged back to `favourites=0` after |
 | admin trash restore | **PASS** — `restore/remote_host/900004` → `deleted: Yes → No` (SQL-verified), row leaves trash list (`mb-empty`) |
 | admin trash permanent-delete | **PASS** — `delete_mail/remote_host/deleted/900004` → row gone (`COUNT(*) = 0`) |
 | client trash tabs switch sublists | **PASS** — Inbox/Sent/Draft each render their own `.ttab on` |
@@ -92,10 +92,12 @@ Get-Content plan\_tools\mailbox-fixtures.sql -Raw | mysql -u root tic_crm
 
 ## 5. Findings from the visual pass
 
-### 5.1 Admin favourite-star action is broken (pre-existing)
+### 5.1 Admin favourite-star action is broken (pre-existing) — FIXED `407a009f`
 `admin/mailbox/index/added_favourites/<id>/<favs>` returns **HTTP 500** with `UPDATE SET favourites = … WHERE inbox_id = …` (SQL 1064 — missing table name). Root cause: `modules/mailbox/controllers/Mailbox.php:109-113` sets only `_primary_key` before `mailbox_model->save()`; `MY_Model::save()` updates `$this->_table_name`, which is never set on this request path (default `''`; `Mailbox_Model` even redeclares `public $_table_name;`). The `change_view` branch (lines 104-108) has the same latent defect.
 
 **Pre-existing, not a redesign regression:** `git show c77d09f4 -- modules/mailbox/controllers/Mailbox.php` contains a single hunk at line 138 with **zero removed lines** (purely additive `$local_messages` block); the branch, `MY_Model`, and `Mailbox_Model` are untouched since before the redesign; and the legacy DataTables row builder (line 195) emitted the *same* `added_favourites` URL unconditionally, so the path was equally reachable (and broken) pre-redesign. The client-side star works because the client controller flow has `_table_name` set before `save()` — verified live (row 60 → `favourites=1`, redirect to client inbox, amber star in client favourites; reset to 0 after).
+
+**Fix (commit `407a009f`, post-record):** set `_table_name = 'tbl_inbox'` in both branches (mirrors `read_inbox_mail`, line 100). Coordinator-verified live on scratch row 900008: `added_favourites/900008/1` → HTTP 200 + `favourites=1`; `/900008/0` → `favourites=0`; `change_view/900008/0` → HTTP 200 + `view_status=0`; scratch row removed, fixtures 900001/900002 intact (`0/1/No`). `composer test:mailbox` still 22/22 after the fix.
 
 ### 5.2 Compose pages log 4 pre-existing console errors
 Both admin compose URLs (plain and `compose/<id>`) log `Error: Dropzone already attached.` ×4. Cause: `application/views/admin/_layout_main.php` loads `components/footer` (dropzone #1) **plus all four `_layout_modal*` layouts (lines 326-329)**, each including `dropzone.min.js` — 5 copies register autoDiscover handlers that race the single `#comments_file-dropzone` instance (the view sets `Dropzone.autoDiscover = false` too late for copies 2-5). These shared-layout files are outside the redesign (`git diff a201a2d9..HEAD -- application/views/admin/` is empty); every `_layout_main` page with a dropzone element shows this. Non-compose pages: 0 errors.
@@ -104,7 +106,7 @@ Both admin compose URLs (plain and `compose/<id>`) log `Error: Dropzone already 
 Both read pages render `title="added_into_favourites"` — the lang key is missing from `application/language/english/*`, so the raw key shows as the tooltip. Cosmetic; pre-existing key gap (Task 7 only re-rendered the control).
 
 ### 5.4 Other observations
-- Client star redirect targets **inbox**, while the admin branch intends `admin/mailbox/index/favourites` (currently unreachable due to §5.1). Not covered by the spec; noted only.
+- Client star redirect targets **inbox**, while the admin branch intends `admin/mailbox/index/favourites` (reachable since the §5.1 fix). Not covered by the spec; noted only.
 - The shared page header shows breadcrumb `Mailbox / Overview` with H1 `Dashboard` on mailbox pages — layout-header behavior outside the mailbox views; out of scope here.
 - Inbox folder badge counts read 0 while rows exist (counts derive from unread/`view_status`, and fixtures sit at `view_status=1` after reads — consistent with the allowed drift).
 
@@ -117,4 +119,4 @@ Both read pages render `title="added_into_favourites"` — the lang key is missi
 
 ## 7. Gate summary vs plan expectations
 
-All Step 2 expectations met: smoke PASS 22/22, login PASS, menu PASS, mailbox PASS 22/22 (0 failed, 0 skipped), theme FAIL byte-identical to the documented pre-existing baseline. Every Step 1 file lint-clean. Playwright: 11/11 rows meet their expectations; interactions pass except the **pre-existing admin star action** (§5.1), which is recorded, not fixed (out of Task 9 scope).
+All Step 2 expectations met: smoke PASS 22/22, login PASS, menu PASS, mailbox PASS 22/22 (0 failed, 0 skipped), theme FAIL byte-identical to the documented pre-existing baseline. Every Step 1 file lint-clean. Playwright: 11/11 rows meet their expectations; the admin star action failed during the pass (pre-existing, §5.1) and was fixed afterwards in `407a009f` with live verification (§5.1) — mailbox gate re-run green.
