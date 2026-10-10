@@ -1,24 +1,20 @@
-<div class="row">
-    <div class="col-sm-12">
-        <table id="spreadsheet-advanced">
-            <caption>
-                <a href="#" class="btn btn-info caption-a"
-                   onclick="jQuery('#spreadsheet-advanced').treetable('expandAll'); return false;"><span
-                            class="expand-all"></span><?php echo lang('expand_all') ?></a>
-                <a href="#" class="btn btn-info caption-a"
-                   onclick="jQuery('#spreadsheet-advanced').treetable('collapseAll'); return false;"><span
-                            class="collapse-all"></span><?php echo lang('collapse_all') ?></a>
-            </caption>
-            <thead>
-            <tr>
-                <th><?php echo lang('name') ?></th>
-                <th><?php echo lang('kind') ?></th>
-                <th><?php echo lang('size') ?></th>
-            </tr>
-            </thead>
-            <?php echo html_entity_decode($folder_my_share_tree); ?>
-        </table>
-    </div>
+<div class="list-card">
+    <table id="spreadsheet-advanced">
+        <thead>
+        <tr class="lhead">
+            <th><?php echo lang('name') ?></th>
+            <th><?php echo lang('kind') ?></th>
+            <th><?php echo lang('size') ?></th>
+        </tr>
+        </thead>
+        <?php
+        echo str_replace(
+            '<tr class="right-menu-position"',
+            '<tr class="mrow right-menu-position"',
+            html_entity_decode($folder_my_share_tree)
+        );
+        ?>
+    </table>
 </div>
 
 <div class="modal fade" id="AddFolderModal" role="dialog">

@@ -107,53 +107,41 @@ $this->load->view('RelatedModal');
 </div>
 
 
-<a href="#" data-toggle="modal" class="btn add_file_button btn-info">
-    <i class="fa fa-plus-circle"></i> <?php echo lang('add_file'); ?>
-</a>
-<a href="#AddFolderModal" data-toggle="modal" class="btn add_folder_button btn-info">
-    <i class="fa fa-plus-square-o"></i> <?php echo lang('add_folder'); ?>
-</a>
-<a href="#ShareModal" data-toggle="modal" class="btn add_share_button btn-info">
-    <i class="fa fa-share-square-o"></i> <?php echo lang('share'); ?>
-</a>
-<a href="#RelatedModal" data-toggle="modal" class="btn add_related_button btn-info">
-    <i class="fa fa-paw"></i> <?php echo lang('related'); ?>
-</a>
+<div class="toolbar">
+    <a href="#" data-toggle="modal" class="ss-btn accent add_file_button btn-info">
+        <i class="fa fa-plus-circle"></i> <?php echo lang('add_file'); ?>
+    </a>
+    <a href="#AddFolderModal" data-toggle="modal" class="ss-btn ghost add_folder_button btn-info">
+        <i class="fa fa-plus-square-o"></i> <?php echo lang('add_folder'); ?>
+    </a>
+    <a href="#ShareModal" data-toggle="modal" class="ss-btn ghost add_share_button btn-info">
+        <i class="fa fa-share-square-o"></i> <?php echo lang('share'); ?>
+    </a>
+    <a href="#RelatedModal" data-toggle="modal" class="ss-btn ghost add_related_button btn-info">
+        <i class="fa fa-paw"></i> <?php echo lang('related'); ?>
+    </a>
+    <span class="ss-spacer"></span>
+    <span class="chipstat" data-ss-chip>0 <?php echo lang('ss_items'); ?></span>
+</div>
 
 
-<div class="row">
-    <div class="col-sm-12">
-        <table id="spreadsheet-advanced">
-            <caption>
-                <a href="#" class="btn btn-info caption-a"
-                   onclick="jQuery('#spreadsheet-advanced').treetable('expandAll'); return false;"><span
-                            class="expand-all"></span><?php echo lang('expand_all') ?></a>
-                <a href="#" class="btn btn-info caption-a"
-                   onclick="jQuery('#spreadsheet-advanced').treetable('collapseAll'); return false;"><span
-                            class="collapse-all"></span><?php echo lang('collapse_all') ?></a>
-            
-            </caption>
-            
-            <thead>
-            
-            <tr>
-                
-                <th><?php echo lang('name') ?></th>
-                
-                <th><?php echo lang('kind') ?></th>
-                
-                <th><?php echo lang('related_to') ?></th>
-            
-            </tr>
-            
-            </thead>
-            
-            <?php echo html_entity_decode($folder_my_tree); ?>
-        
-        </table>
-    
-    </div>
-
+<div class="list-card">
+    <table id="spreadsheet-advanced">
+        <thead>
+        <tr class="lhead">
+            <th><?php echo lang('name') ?></th>
+            <th><?php echo lang('kind') ?></th>
+            <th><?php echo lang('related_to') ?></th>
+        </tr>
+        </thead>
+        <?php
+        echo str_replace(
+            '<tr class="right-menu-position"',
+            '<tr class="mrow right-menu-position"',
+            html_entity_decode($folder_my_tree)
+        );
+        ?>
+    </table>
 </div>
 
 
