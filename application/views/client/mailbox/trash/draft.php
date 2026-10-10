@@ -6,6 +6,7 @@
                     <input type="checkbox" id="parent_present" class="tb-check" title="Select all">
                     <button class="tbtn danger" title="Delete selected"><i class="fa fa-trash-o"></i></button>
                     <a href="#" onClick="history.go(0)" class="tbtn" title="Refresh"><i class="fa fa-refresh"></i></a>
+                    <a href="<?php echo base_url() ?>client/mailbox/index/compose" class="tb-compose"><i class="fa fa-pencil"></i> Compose +</a>
                 </div>
                 <div class="rows">
                     <?php if (!empty($draft_message)): foreach ($draft_message as $v_draft_msg): ?>
