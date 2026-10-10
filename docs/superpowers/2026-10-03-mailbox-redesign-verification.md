@@ -1,6 +1,6 @@
 # Mailbox redesign — verification notes
 
-Date: 2026-10-10 · Branch `sakib` · HEAD `881493f7` · Plan `docs/superpowers/plans/2026-10-03-mailbox-redesign.md` · Spec `docs/superpowers/specs/2026-10-03-mailbox-redesign-design.md`
+Date: 2026-10-10 · Branch `sakib` · Verification base `881493f7` (post-record follow-ups: `407a009f` star fix, `83912135` + this correction) · Plan `docs/superpowers/plans/2026-10-03-mailbox-redesign.md` · Spec `docs/superpowers/specs/2026-10-03-mailbox-redesign-design.md`
 
 Task 9 (full verification) record. Tasks 1–8 committed individually:
 `6bbcfd05` · `b4d5c886` · `a7bdb6b1` · `b6da678e` · `c77d09f4` · `621bc070` · `abb29fab` · `79e889dc` · `a689bbbd`,
@@ -16,7 +16,7 @@ plus review fixes `765b2282` · `5c3c7912` · `1b09f42a` · `ba79922a` · `4a8ee
 | mailbox | `composer test:mailbox` | `22 assertions — 22 passed, 0 failed, 0 skipped` — exit **0** |
 | theme | `composer test:theme` | **FAIL — pre-existing baseline**, exit **1** |
 
-Lint (Step 1): `php -l` on `application/views/admin/components/htmlheader.php`, `modules/mailbox/controllers/Mailbox.php`, and every `*.php` under `modules/mailbox/views` + `application/views/client/mailbox` (25 files) — every file reports `No syntax errors detected`.
+Lint (Step 1): `php -l` on `application/views/admin/components/htmlheader.php`, `modules/mailbox/controllers/Mailbox.php`, and every `*.php` under `modules/mailbox/views` + `application/views/client/mailbox` (23 files) — every file reports `No syntax errors detected`.
 
 **theme baseline-diff statement:** `FAIL: mode normal: expected 25 !important, got 26; undefined vars: --c-accent, --c-sidebar-text-hi, --c-on-accent` — byte-identical to the documented pre-existing baseline in `docs/superpowers/2026-10-01-woocommerce-redesign-verification.md` (lines 22–24), which notes it fails identically on a clean tree. Unrelated to mailbox work — not worse, not fixed here.
 
@@ -93,9 +93,9 @@ Get-Content plan\_tools\mailbox-fixtures.sql -Raw | mysql -u root tic_crm
 ## 5. Findings from the visual pass
 
 ### 5.1 Admin favourite-star action is broken (pre-existing) — FIXED `407a009f`
-`admin/mailbox/index/added_favourites/<id>/<favs>` returns **HTTP 500** with `UPDATE SET favourites = … WHERE inbox_id = …` (SQL 1064 — missing table name). Root cause: `modules/mailbox/controllers/Mailbox.php:109-113` sets only `_primary_key` before `mailbox_model->save()`; `MY_Model::save()` updates `$this->_table_name`, which is never set on this request path (default `''`; `Mailbox_Model` even redeclares `public $_table_name;`). The `change_view` branch (lines 104-108) has the same latent defect.
+`admin/mailbox/index/added_favourites/<id>/<favs>` returns **HTTP 500** with `UPDATE SET favourites = … WHERE inbox_id = …` (SQL 1064 — missing table name). Root cause: the `added_favourites` branch (pre-fix lines 109-113; now 110-115) sets only `_primary_key` before `mailbox_model->save()`; `MY_Model::save()` updates `$this->_table_name`, which is never set on this request path (default `''`; `Mailbox_Model` even redeclares `public $_table_name;`). The `change_view` branch (pre-fix lines 104-108; now 104-109) has the same latent defect.
 
-**Pre-existing, not a redesign regression:** `git show c77d09f4 -- modules/mailbox/controllers/Mailbox.php` contains a single hunk at line 138 with **zero removed lines** (purely additive `$local_messages` block); the branch, `MY_Model`, and `Mailbox_Model` are untouched since before the redesign; and the legacy DataTables row builder (line 195) emitted the *same* `added_favourites` URL unconditionally, so the path was equally reachable (and broken) pre-redesign. The client-side star works because the client controller flow has `_table_name` set before `save()` — verified live (row 60 → `favourites=1`, redirect to client inbox, amber star in client favourites; reset to 0 after).
+**Pre-existing, not a redesign regression:** `git show c77d09f4 -- modules/mailbox/controllers/Mailbox.php` contains a single hunk at line 138 with **zero removed lines** (purely additive `$local_messages` block); the branch, `MY_Model`, and `Mailbox_Model` are untouched since before the redesign; and the legacy DataTables row builder (line 197) emitted the *same* `added_favourites` URL unconditionally, so the path was equally reachable (and broken) pre-redesign. The client-side star works because the client controller flow has `_table_name` set before `save()` — verified live (row 60 → `favourites=1`, redirect to client inbox, amber star in client favourites; reset to 0 after).
 
 **Fix (commit `407a009f`, post-record):** set `_table_name = 'tbl_inbox'` in both branches (mirrors `read_inbox_mail`, line 100). Coordinator-verified live on scratch row 900008: `added_favourites/900008/1` → HTTP 200 + `favourites=1`; `/900008/0` → `favourites=0`; `change_view/900008/0` → HTTP 200 + `view_status=0`; scratch row removed, fixtures 900001/900002 intact (`0/1/No`). `composer test:mailbox` still 22/22 after the fix.
 
@@ -107,6 +107,7 @@ Both read pages render `title="added_into_favourites"` — the lang key is missi
 
 ### 5.4 Other observations
 - Client star redirect targets **inbox**, while the admin branch intends `admin/mailbox/index/favourites` (reachable since the §5.1 fix). Not covered by the spec; noted only.
+- **Ownership/status guards absent (pre-existing, backlog hardening):** with the 500 removed, `added_favourites` and `change_view` still accept any logged-in user with mailbox menu access and any `<status>` value — constructor auth (`Mailbox.php:11-44`) is session/menu-level only, no per-row `user_id` check, `$status` unvalidated. The client mirror (`client/Mailbox.php:88-92`) has identical posture. The missing-guard structure predates the redesign (legacy row builder emitted the same URL); suggested hardening = ownership filter + status whitelist.
 - The shared page header shows breadcrumb `Mailbox / Overview` with H1 `Dashboard` on mailbox pages — layout-header behavior outside the mailbox views; out of scope here.
 - Inbox folder badge counts read 0 while rows exist (counts derive from unread/`view_status`, and fixtures sit at `view_status=1` after reads — consistent with the allowed drift).
 
