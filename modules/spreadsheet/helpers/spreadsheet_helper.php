@@ -62,6 +62,9 @@ function spreadsheet_add_head_component()
         echo '<link href="' . module_dir_url(SPREADSHEET_MODULE, 'assets/plugins/luckysheet/css/spectrum.min.css') . '?v=' . VERSION_SREADSHEET . '"  rel="stylesheet" type="text/css" />';
         echo '<link href="' . module_dir_url(SPREADSHEET_MODULE, 'assets/plugins/luckysheet/css/chartmix.css') . '?v=' . VERSION_SREADSHEET . '"  rel="stylesheet" type="text/css" />';
     }
+    if (strpos($viewuri, '/spreadsheet') !== false) {
+        echo '<link href="' . module_dir_url(SPREADSHEET_MODULE, 'assets/css/spreadsheet_modern.css') . '?v=1" rel="stylesheet" type="text/css" />';
+    }
 }
 
 
