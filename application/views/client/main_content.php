@@ -187,7 +187,7 @@ $all_order_data = $this->db->where('report', 3)->order_by('order_no', 'ASC')->ge
                                             if (is_numeric($v_paid->payment_method)) {
                                                 $payment_method = get_row('tbl_payment_methods', array('payment_methods_id' => $v_paid->payment_method));
                                             } else {
-                                                $payment_method->method_name = $v_paid->payment_method;
+                                                $payment_method = (object) array('method_name' => $v_paid->payment_method);
                                             }
 
                                             if ($v_paid->payment_method == '1') {
