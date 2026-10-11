@@ -24,6 +24,7 @@
                     var droppedEl = ui.draggable.parents("tr");
                     $("#spreadsheet-advanced").treetable("move", droppedEl.data("ttId"), $(this).data("ttId"));
                     $.post(admin_url + 'spreadsheet/droppable_event/' + droppedEl.data("ttId") + '/' + $(this).data("ttId")).done(function (response) {
+                        if (window.ssApplyFilter) { window.ssApplyFilter(); }
                         response = JSON.parse(response);
                     })
                 },
