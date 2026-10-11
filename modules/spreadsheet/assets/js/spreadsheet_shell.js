@@ -30,8 +30,12 @@
         childIndex = {};
         $table.find('tbody tr.right-menu-position').each(function () {
             var $tr = $(this);
-            var id = String($tr.data('tt-id'));
-            var parent = $tr.attr('data-tt-parent-id');
+            var rawId = $tr.data('tt-id');
+            if (rawId === undefined || rawId === null || rawId === '') {
+                return;
+            }
+            var id = String(rawId);
+            var parent = $tr.data('tt-parent-id');
             parent = (parent === undefined || parent === null || parent === '') ? '0' : String(parent);
             nodes[id] = {
                 id: id,
@@ -56,8 +60,10 @@
 
     function pathOf(id) {
         var path = [];
+        var seen = {};
         var cur = id;
-        while (cur && cur !== '0' && nodes[cur]) {
+        while (cur && cur !== '0' && nodes[cur] && !seen[cur]) {
+            seen[cur] = true;
             path.unshift(cur);
             cur = nodes[cur].parent;
         }
@@ -67,7 +73,7 @@
     function applyFilter() {
         $table.find('tbody tr.right-menu-position').each(function () {
             var $tr = $(this);
-            var parent = $tr.attr('data-tt-parent-id');
+            var parent = $tr.data('tt-parent-id');
             parent = (parent === undefined || parent === null || parent === '') ? '0' : String(parent);
             if (parent === currentId) {
                 $tr.removeClass('ss-hidden').css('display', '');
@@ -85,7 +91,11 @@
             $sub.find('[data-drill="' + currentId + '"]').addClass('on');
         }
     }
-    window.ssApplyFilter = applyFilter;
+    window.ssApplyFilter = function () {
+        collect();
+        refreshFolderCounts();
+        applyFilter();
+    };
 
     function drill(id) {
         if (id !== '0' && !nodes[id]) {
@@ -221,22 +231,61 @@
         });
     }
 
-    /* kebab -> synthetic contextmenu (context_menu.js owns the menu; its
-       document click listener runs first — registered earlier — closing any
-       stale menu before this opens a fresh one at the pointer). */
+    /* re-sync folder descendant displays after a tree mutation (drag-move):
+       row sublines and panel subtree count pills are init-only renders, so
+       the ssApplyFilter hook refreshes their texts from the fresh childIndex */
+    function refreshFolderCounts() {
+        $table.find('tbody tr.right-menu-position').each(function () {
+            var $tr = $(this);
+            var n = nodes[String($tr.data('tt-id'))];
+            if (n && n.type === 'folder') {
+                $tr.find('.ss-sub').first().text(ss_lang.folder + ' · ' + descendantCount(n.id) + ' ' + ss_lang.items);
+            }
+        });
+        $panel.find('.ss-tf[data-drill]').each(function () {
+            var count = descendantCount($(this).attr('data-drill'));
+            var $cnt = $(this).find('.cnt');
+            if (count) {
+                if ($cnt.length) { $cnt.text(count); } else { $(this).append('<span class="cnt">' + count + '</span>'); }
+            } else {
+                $cnt.remove();
+            }
+        });
+    }
+
+    /* kebab -> synthetic contextmenu (context_menu.js owns the menu). The
+       native document click listener runs after jQuery's within the same
+       dispatch and would toggleMenuOff() the menu we just opened, so the
+       synthetic contextmenu is deferred to the next tick — after the real
+       click's dispatch completes. clientX/Y=0 fallback (keyboard activation)
+       positions the menu at the kebab's bottom-left instead of off-screen. */
     $(document).on('click', '.ss-kebab', function (e) {
         e.preventDefault();
-        this.dispatchEvent(new MouseEvent('contextmenu', {
-            bubbles: true, cancelable: true, view: window,
-            clientX: e.clientX, clientY: e.clientY, button: 2
-        }));
+        var el = this;
+        var x = e.clientX;
+        var y = e.clientY;
+        if (!x && !y) {
+            var r = el.getBoundingClientRect();
+            x = r.left;
+            y = r.bottom;
+        }
+        window.setTimeout(function () {
+            el.dispatchEvent(new MouseEvent('contextmenu', {
+                bubbles: true, cancelable: true, view: window,
+                clientX: x, clientY: y, button: 2
+            }));
+        }, 0);
     });
 
-    /* folder name click = drill, debounced so double-click (rename) wins */
-    $(document).on('click', '#spreadsheet-advanced .tr-pointer.folder', function () {
-        var id = String($(this).closest('tr').data('tt-id'));
+    /* folder name click = drill; 450ms delay (< OS dblclick interval) plus
+       detail>1 skip and per-click timer clear so double-click (rename) wins */
+    $(document).on('click', '#spreadsheet-advanced .tr-pointer.folder', function (e) {
         window.clearTimeout(drillTimer);
-        drillTimer = window.setTimeout(function () { drill(id); }, 260);
+        if (e.originalEvent && e.originalEvent.detail > 1) {
+            return;
+        }
+        var id = String($(this).closest('tr').data('tt-id'));
+        drillTimer = window.setTimeout(function () { drill(id); }, 450);
     });
     $(document).on('dblclick', '#spreadsheet-advanced .tr-pointer', function () {
         window.clearTimeout(drillTimer);
