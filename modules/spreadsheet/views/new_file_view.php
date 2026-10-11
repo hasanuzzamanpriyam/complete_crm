@@ -11,7 +11,7 @@
     </style>
     
     
-    <div class="upload_file_class">
+    <div class="upload_file_class ed-head">
         <a href="#" id="file-link" class="btn btn-info"><i class="fa fa-upload" aria-hidden="true"></i> Upload</a>
         <input type="file" id="Luckyexcel-demo-file" name="Luckyexcel-demo-file" change="demoHandler">
         

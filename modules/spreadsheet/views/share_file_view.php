@@ -10,15 +10,26 @@
     }
 </style>
 
-<div class="col-sm-12">
-    <?php
-    echo form_hidden('type', 2); ?>
-    <?php echo form_hidden('role', $role); ?>
-    <?php echo form_open_multipart(admin_url('spreadsheet/file_view_share'), array('id' => 'spreadsheet-test-form')); ?>
-    <div id="luckysheet"></div>
-    <?php echo form_hidden('parent_id', $parent_id); ?>
-    <?php echo form_hidden('id', isset($id) ? $id : ""); ?>
-    <?php echo form_close(); ?>
+<div class="col-sm-12 ss-share-view">
+    <div class="sv-card">
+        <div class="sv-top">
+            <div>
+                <b><?php echo (isset($file_excel) && !empty($file_excel->name)) ? $file_excel->name : lang('new_file') ?></b>
+                <span><?php echo lang('share_detail') ?></span>
+            </div>
+            <span class="chipstat sv-role-chip"><?php echo ((int) $role === 2) ? lang('edit') : lang('view') ?></span>
+        </div>
+        <div class="sv-body">
+        <?php
+        echo form_hidden('type', 2); ?>
+        <?php echo form_hidden('role', $role); ?>
+        <?php echo form_open_multipart(admin_url('spreadsheet/file_view_share'), array('id' => 'spreadsheet-test-form')); ?>
+        <div id="luckysheet"></div>
+        <?php echo form_hidden('parent_id', $parent_id); ?>
+        <?php echo form_hidden('id', isset($id) ? $id : ""); ?>
+        <?php echo form_close(); ?>
+        </div>
+    </div>
 </div>
 
 
