@@ -266,3 +266,191 @@ table#spreadsheet-advanced { display: block; width: 100%; border: 0; margin: 0; 
     margin-left: 4px;
     font-size: 10px;
 }
+/* Spreadsheet Editor - Luckysheet Frame */
+.ss-frame {
+    border: 1px solid #dfe5ec; /* light gray */
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    margin-top: 6px; /* gap from command bar */
+}
+
+/* Internal layout: vertical stack */
+.ss-frame > * {
+    width: 100%;
+}
+
+/* Toolbar */
+.ss-frame .ss-toolbar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    background: #f7f9fb; /* very light gray */
+    border-bottom: 1px solid #e8edf3;
+    padding: 7px 10px;
+    color: #5b6b80; /* medium gray */
+    flex-wrap: wrap;
+}
+
+.ss-frame .ss-toolbar .sep {
+    margin: 0 4px;
+    color: #adb5bd;
+}
+
+/* Toolbutton buttons */
+.ss-frame .ss-toolbar .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+}
+
+.ss-frame .ss-toolbar .btn-undo { content: "&#x21A9;"; }
+.ss-frame .ss-toolbar .btn-redo { content: "&#x21AA;"; }
+.ss-frame .ss-toolbar .btn-bold { font-weight: 700; }
+.ss-frame .ss-toolbar .btn-italic { font-style: italic; }
+.ss-frame .ss-toolbar .btn-underline { text-decoration: underline; }
+
+/* Dropdowns */
+.ss-frame .ss-toolbar .dropdown {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.ss-frame .ss-toolbar .dropdown::after {
+    content: "&#x25BE;";
+    font-size: 10px;
+    margin-left: 4px;
+}
+
+.ss-frame .ss-toolbar .dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #fff;
+    border: 1px solid #dfe5ec;
+    border-radius: 4px;
+    padding: 4px 0;
+    min-width: 120px;
+    z-index: 1000;
+}
+
+.ss-frame .ss-toolbar .dropdown-menu.show {
+    display: block;
+}
+
+.ss-frame .ss-toolbar .dropdown-item {
+    padding: 6px 12px;
+    color: #3d4c61;
+}
+
+.ss-frame .ss-toolbar .dropdown-item:hover {
+    background: #f8f9fa;
+}
+
+/* Formula bar */
+.ss-frame .ss-formula {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    border-bottom: 1px solid #e8edf3;
+    padding: 5px 10px;
+    background: #fff;
+}
+
+.ss-frame .ss-formula .cell-ref {
+    font-weight: 700;
+    color: #0e9384;
+}
+
+.ss-frame .ss-formula .formula-preview {
+    color: #9fb0c5;
+}
+
+.ss-frame .ss-formula .action-group {
+    color: #9fb0c5;
+}
+
+.ss-frame .ss-formula .fx-btn {
+    background: #fff;
+    border: 1px solid #dfe5ec;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-family: monospace;
+}
+
+.ss-frame .ss-formula .fx-spacer {
+    flex: 1;
+}
+
+.ss-frame .ss-formula .cell-value {
+    color: #3d4c61;
+}
+
+/* Grid styling (visual accommodations) */
+.ss-frame .ss-grid-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10px;
+}
+
+.ss-frame .ss-grid-table th.rn,
+.ss-frame .ss-grid-table td.rn {
+    width: 22px;
+    text-align: center;
+    padding: 3px 5px;
+    border: 1px solid #e8edf3;
+}
+
+.ss-frame .ss-grid-table th.rn {
+    background: #e8f5f3; /* header */
+    color: #0e9384;
+    font-weight: 700;
+}
+
+.ss-frame .ss-grid-table td.rn {
+    background: #eef2f6; /* alt rows */
+    color: #9fb0c5;
+}
+
+/* Data cells */
+.ss-frame .ss-grid-table td {
+    padding: 3px 5px;
+    border: 1px solid #e8edf3;
+    background: #fff;
+    color: #3d4c61;
+}
+
+/* Alternate row background */
+.ss-frame .ss-grid-table tr:nth-child(even) td {
+    background: #eef2f6;
+}
+
+/* Header row */
+.ss-frame .ss-grid-table tr:first-child td {
+    background: #e8f5f3;
+    color: #0e9384;
+    font-weight: 700;
+}
+
+/* Internal footer strip (sheet names + zoom) */
+.ss-frame .ss-footer {
+    display: flex;
+    justify-content: space-between;
+    background: #f7f9fb;
+    border-top: 1px solid #e8edf3;
+    padding: 4px 10px;
+    color: #9fb0c5;
+    font-size: 13px;
+}
+
+.ss-frame .ss-footer .sheet-names {
+    /* sheet names list */
+}
+
+.ss-frame .ss-footer .zoom {
+    /* zoom percentage */
+}
