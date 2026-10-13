@@ -164,6 +164,16 @@ handlers) — no behavior change, left as-is; `.ss-hidden-table` dead class (set
 (`spreadsheet_shell.js:288`, plan-canonical, deliberately under the OS dblclick
 interval) against the 500 ms debounce window cited in review.
 
+*From the final whole-delta review:* crumb root is a non-clickable `<b>` at depth 1
+(`renderCrumb`, `spreadsheet_shell.js:109` — plan-canonical fence, so an implementation
+deviation only vs the plan's Task 11 wording "crumb segment click → back to root" and
+spec §4 "segments navigate back"): clicking `<b>My Folder</b>` does not return to root;
+up-navigation requires the panel root link (full reload). One-line fix if ever desired:
+`<b><a data-drill="0">…</a></b>` + `#ss-crumb b a` styling. The final review also
+re-confirmed the `share_file_view.php:17` unescaped `echo $file_excel->name` as the
+only unescaped DB echo in the delta (same audience as the frozen model's row names —
+widens nothing; fix with `htmlspecialchars(..., ENT_QUOTES)` when convenient).
+
 ## 6. Follow-ups (non-blocking)
 
 1. Panel-root drag-and-drop targets (drag currently resolves to row targets only).
