@@ -103,6 +103,11 @@ document.addEventListener('DOMContentLoaded', function () {
         splitMenu.addEventListener('click', function (e) {
             e.stopPropagation();
         });
+        Array.prototype.forEach.call(splitMenu.querySelectorAll('.split-item'), function (item) {
+            item.addEventListener('click', function () {
+                splitMenu.classList.remove('show');
+            });
+        });
     }
 
     var saveBtn = document.getElementById('save-btn');
@@ -137,28 +142,31 @@ document.addEventListener('DOMContentLoaded', function () {
                 data: formData,
                 contentType: false,
                 success: function (response, status, xhr) {
-                    try { response = JSON.parse(response); } catch (err) { return; }
+                    try { response = JSON.parse(response); } catch (err) {
+                        toastr['error']('Save failed: unexpected server response.');
+                        return;
+                    }
                     if (response.success == true) {
                         toastr['success'](response.message);
                         var badge = document.getElementById('saved-badge');
                         if (badge) { badge.style.display = 'inline-block'; }
+                        if (response.id && saveForm.querySelector('[name="id"]')) {
+                            saveForm.querySelector('[name="id"]').value = response.id;
+                        }
+                        if (response.name_excel) {
+                            var fname = document.getElementById('file-name');
+                            if (fname) { fname.textContent = response.name_excel; }
+                        }
                     } else {
                         toastr['warning'](response.message);
                     }
                 },
+                error: function () {
+                    toastr['error']('Save failed. Please try again.');
+                },
                 cache: false,
                 processData: false
             });
-        });
-    }
-
-    var fileInput = document.querySelector('input[name="Luckyexcel-demo-file"]');
-    if (fileInput) {
-        fileInput.addEventListener('change', function (e) {
-            if (e.target.files.length > 0) {
-                toastr['warning']('File replacement is not yet implemented.');
-                e.target.value = '';
-            }
         });
     }
 });

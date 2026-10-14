@@ -257,6 +257,10 @@ table#spreadsheet-advanced { display: block; width: 100%; border: 0; margin: 0; 
     background: #0b7d74;
 }
 
+.ed-head-dark .cmd-btn.saved {
+    display: none;
+}
+
 /* Split button for download/replace */
 .ed-head-dark .cmd-btn.split-btn {
     position: relative;

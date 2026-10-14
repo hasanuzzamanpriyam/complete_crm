@@ -104,7 +104,7 @@ class Spreadsheet extends MY_Controller
                     if (is_numeric($success)) {
                         $message = lang('added_successfully');
                         $file_excel = $this->spreadsheet_model->get_file_sheet($success);
-                        echo json_encode(['success' => true, 'message' => $message, 'name_excel' => $file_excel->name]);
+                        echo json_encode(['success' => true, 'message' => $message, 'name_excel' => $file_excel->name, 'id' => $success]);
                         exit();
                     } else {
                         $message = lang('added_fail');
