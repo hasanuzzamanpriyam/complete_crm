@@ -248,21 +248,21 @@ table#spreadsheet-advanced { display: block; width: 100%; border: 0; margin: 0; 
     padding: 0;
 }
 
-.ed-head-dark .cmd-btn.save {
+.ed-head-dark .cmd-btn.save-btn {
     background: #0e9384; /* teal */
     color: #fff;
 }
 
-.ed-head-dark .cmd-btn.save:hover {
+.ed-head-dark .cmd-btn.save-btn:hover {
     background: #0b7d74;
 }
 
 /* Split button for download/replace */
-.ed-head-dark .cmd-btn.split {
+.ed-head-dark .cmd-btn.split-btn {
     position: relative;
 }
 
-.ed-head-dark .cmd-btn.split .split-arrow {
+.ed-head-dark .cmd-btn.split-btn .split-arrow {
     margin-left: 4px;
     font-size: 10px;
 }
@@ -294,8 +294,11 @@ table#spreadsheet-advanced { display: block; width: 100%; border: 0; margin: 0; 
 }
 
 .ss-frame .ss-toolbar .sep {
+    width: 1px;
+    height: 16px;
     margin: 0 4px;
-    color: #adb5bd;
+    background: currentColor;
+    opacity: 0.35;
 }
 
 /* Toolbar buttons */
@@ -306,8 +309,6 @@ table#spreadsheet-advanced { display: block; width: 100%; border: 0; margin: 0; 
     font-size: 13px;
 }
 
-.ss-frame .ss-toolbar .btn-undo { content: "&#x21A9;"; }
-.ss-frame .ss-toolbar .btn-redo { content: "&#x21AA;"; }
 .ss-frame .ss-toolbar .btn-bold { font-weight: 700; }
 .ss-frame .ss-toolbar .btn-italic { font-style: italic; }
 .ss-frame .ss-toolbar .btn-underline { text-decoration: underline; }
@@ -320,7 +321,7 @@ table#spreadsheet-advanced { display: block; width: 100%; border: 0; margin: 0; 
 }
 
 .ss-frame .ss-toolbar .dropdown::after {
-    content: "&#x25BE;";
+    content: "\25BE";
     font-size: 10px;
     margin-left: 4px;
 }
@@ -374,15 +375,7 @@ table#spreadsheet-advanced { display: block; width: 100%; border: 0; margin: 0; 
     color: #9fb0c5;
 }
 
-.ss-frame .ss-formula .fx-btn {
-    background: #fff;
-    border: 1px solid #dfe5ec;
-    border-radius: 4px;
-    padding: 2px 6px;
-    font-family: monospace;
-}
-
-.ss-frame .ss-formula .fx-spacer {
+.ss-frame .ss-formula .flex-spacer {
     flex: 1;
 }
 
