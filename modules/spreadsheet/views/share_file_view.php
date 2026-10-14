@@ -11,7 +11,7 @@
         &#x2190;
     </div>
     <div class="file-info">
-        <b class="file-name" id="file-name"><?php echo isset($file_excel) ? htmlspecialchars($file_excel->name, ENT_QUOTES) : ''; ?></b>
+        <b class="file-name" id="file-name"><?php echo (isset($file_excel) && !empty($file_excel->name)) ? htmlspecialchars($file_excel->name, ENT_QUOTES) : lang('new_file'); ?></b>
         <div class="file-path" id="file-path">
             <?php
             $path = isset($file_path) ? $file_path : '';

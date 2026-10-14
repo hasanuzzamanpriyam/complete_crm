@@ -266,6 +266,70 @@ table#spreadsheet-advanced { display: block; width: 100%; border: 0; margin: 0; 
     margin-left: 4px;
     font-size: 10px;
 }
+
+/* Command bar layout helpers */
+.ed-head-dark .spacer {
+    flex: 1;
+}
+
+.ed-head-dark .file-info {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+    min-width: 0;
+}
+
+.ed-head-dark .file-info .file-name {
+    font-size: 13px;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ed-head-dark .file-info .file-path {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Split menu dropdown */
+.ed-head-dark .split-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 4px;
+    background: #fff;
+    border: 1px solid #dfe5ec;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    padding: 4px 0;
+    min-width: 140px;
+    z-index: 1050;
+}
+
+.ed-head-dark .split-menu.show {
+    display: block;
+}
+
+.ed-head-dark .split-item {
+    padding: 7px 12px;
+    color: #3d4c61;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.ed-head-dark .split-item:hover {
+    background: #f8f9fa;
+}
+
+/* Disabled toolbar buttons (view-only mode) */
+.ss-frame .ss-toolbar .btn[disabled] {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+}
 /* Spreadsheet Editor - Luckysheet Frame */
 .ss-frame {
     border: 1px solid #dfe5ec; /* light gray */
