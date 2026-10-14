@@ -1,35 +1,97 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed'); ?>
 <?php spreadsheet_add_head_component(); ?>
 <style>
-    .luckysheet_info_detail {
-        width: 82% !important;
-    }
-
     .luckysheet-wa-calculate {
         margin-left: 10px;
     }
 </style>
 
-<div class="col-sm-12 ss-share-view">
-    <div class="sv-card">
-        <div class="sv-top">
-            <div>
-                <b><?php echo (isset($file_excel) && !empty($file_excel->name)) ? $file_excel->name : lang('new_file') ?></b>
-                <span><?php echo lang('share_detail') ?></span>
-            </div>
-            <span class="chipstat sv-role-chip"><?php echo ((int) $role === 2) ? lang('edit') : lang('view') ?></span>
-        </div>
-        <div class="sv-body">
-        <?php
-        echo form_hidden('type', 2); ?>
-        <?php echo form_hidden('role', $role); ?>
-        <?php echo form_open_multipart(admin_url('spreadsheet/file_view_share'), array('id' => 'spreadsheet-test-form')); ?>
-        <div id="luckysheet"></div>
-        <?php echo form_hidden('parent_id', $parent_id); ?>
-        <?php echo form_hidden('id', isset($id) ? $id : ""); ?>
-        <?php echo form_close(); ?>
+<div class="ed-head-dark">
+    <div class="cmd-btn back" onclick="window.history.back();">
+        &#x2190;
+    </div>
+    <div class="file-info">
+        <b class="file-name" id="file-name"><?php echo isset($file_excel) ? htmlspecialchars($file_excel->name, ENT_QUOTES) : ''; ?></b>
+        <div class="file-path" id="file-path">
+            <?php
+            $path = isset($file_path) ? $file_path : '';
+            echo htmlspecialchars($path, ENT_QUOTES);
+            ?>
         </div>
     </div>
+    <div class="spacer"></div>
+    <span class="cmd-btn saved" id="saved-badge">&#x2713; Saved</span>
+    <div class="cmd-btn share-btn" onclick="openShareModal();">
+        &#x1F517; Share
+    </div>
+    <div class="cmd-btn related-btn" onclick="openRelatedModal();">
+        &#x1F4C4; Related
+    </div>
+    <div class="cmd-btn split-btn">
+        <span class="split-text">View</span>
+        <span class="split-arrow">&#x25BE;</span>
+        <div class="split-menu" id="split-menu">
+            <div class="split-item">Export</div>
+        </div>
+    </div>
+    <!-- Save button hidden in view-only mode -->
+    <!-- <div class="cmd-btn save-btn" id="save-btn" disabled>&#x1F4BE; Save</div> -->
+</div>
+
+<div class="col-sm-12">
+    <?php echo form_hidden('type', 2); ?>
+    <?php echo form_hidden('role', $role); ?>
+    <?php echo form_open_multipart(admin_url('spreadsheet/file_view_share'), array('id' => 'spreadsheet-test-form')); ?>
+    <div class="ss-frame">
+        <div class="ss-toolbar">
+            <div class="btn btn-undo" disabled>&#x21A9;</div>
+            <div class="btn btn-redo" disabled>&#x21AA;</div>
+            <div class="sep"></div>
+            <div class="btn btn-bold">B</div>
+            <div class="btn btn-italic">I</div>
+            <div class="btn btn-underline">U</div>
+            <div class="sep"></div>
+            <div class="dropdown">
+                Automatic
+                <div class="dropdown-menu">
+                    <div class="dropdown-item">Automatic</div>
+                    <div class="dropdown-item">Manual</div>
+                </div>
+            </div>
+            <div class="dropdown">
+                Times N...
+                <div class="dropdown-menu">
+                    <div class="dropdown-item">0</div>
+                    <div class="dropdown-item">100</div>
+                    <div class="dropdown-item">1000</div>
+                </div>
+            </div>
+            <div class="sep"></div>
+            <div class="fx-container">
+                <input type="text" class="fx-input" id="fx-input" readonly>
+            </div>
+        </div>
+
+        <div class="ss-formula">
+            <div class="cell-ref" id="cell-ref">A1</div>
+            <span></span>
+            <div class="formula-preview" id="formula-preview"></div>
+            <span></span>
+            <div class="action-group" id="action-group"></div>
+            <div class="flex-spacer"></div>
+            <div class="cell-value" id="cell-value"></div>
+        </div>
+
+        <div id="luckysheet"></div>
+
+        <div class="ss-footer">
+            <div class="sheet-names" id="sheet-names">Sheet1</div>
+            <div class="zoom" id="zoom">100%</div>
+        </div>
+    </div>
+    <?php echo form_hidden('parent_id', $parent_id); ?>
+    <?php echo form_hidden('id', isset($id) ? $id : ""); ?>
+    <?php echo form_close(); ?>
 </div>
 
 
@@ -40,7 +102,7 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title add-new"><?php echo lang('save_as') ?></h4>
             </div>
-            
+
             <div class="modal-body">
                 <?php echo render_select('folder', $folder, array('id', 'name'), '', '', array()); ?>
             </div>
