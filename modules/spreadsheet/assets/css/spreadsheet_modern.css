@@ -447,3 +447,25 @@ table#spreadsheet-advanced { display: block; width: 100%; border: 0; margin: 0; 
 .ss-frame .ss-footer .zoom {
     /* zoom percentage */
 }
+
+/* Shared Fixes */
+
+/* Hide Luckysheet's built-in info bar (title + Close/Save As/Download/Save) */
+.luckysheet_info_detail {
+    display: none !important;
+}
+
+/* Ensure Luckysheet container sizes naturally (remove legacy positioning) */
+#luckysheet {
+    position: static !important;
+    width: 100% !important;
+    height: 100% !important;
+    left: auto !important;
+    top: auto !important;
+}
+
+/* Ensure the real page footer is not overlapped (no special CSS needed if frame is in normal flow) */
+/* The frame's margin-top and natural flow will push the footer down */
+
+/* Hide floating chat widget from sheet area (optional - may need JS/z-index) */
+/* We'll handle this via z-index in JS if needed */
