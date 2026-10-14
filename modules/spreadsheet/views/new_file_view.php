@@ -11,25 +11,92 @@
     </style>
     
     
-    <div class="upload_file_class ed-head">
-        <a href="#" id="file-link" class="btn btn-info"><i class="fa fa-upload" aria-hidden="true"></i> Upload</a>
-        <input type="file" id="Luckyexcel-demo-file" name="Luckyexcel-demo-file" change="demoHandler">
-        
-        <?php if (isset($id)) { ?>
-            <a href="#ShareModal" data-toggle="modal" class="btn add_share_button btn-info new_file_margin">
-                <i class="fa fa-share-square-o"></i> <?php echo lang('share'); ?>
-            </a>
-            
-            <a href="#RelatedModal" data-toggle="modal" class="btn add_related_button btn-info new_file_margin">
-                <i class="fa fa-paw"></i> <?php echo lang('related'); ?>
-            </a>
-        <?php } ?>
+    <div class="ed-head-dark">
+        <div class="cmd-btn back" onclick="window.history.back();">
+            &#x2190;
+        </div>
+        <div class="file-info">
+            <b class="file-name" id="file-name"><?php echo isset($file_excel) ? htmlspecialchars($file_excel->name, ENT_QUOTES) : ''; ?></b>
+            <div class="file-path" id="file-path">
+                <?php 
+                $path = isset($file_path) ? $file_path : '';
+                echo htmlspecialchars($path, ENT_QUOTES);
+                ?>
+            </div>
+        </div>
+        <div class="spacer"></div>
+        <span class="cmd-btn saved" id="saved-badge">&#x2713; Saved</span>
+        <div class="cmd-btn share-btn" onclick="openShareModal();">
+            &#x1F517; Share
+        </div>
+        <div class="cmd-btn related-btn" onclick="openRelatedModal();">
+            &#x1F4C4; Related
+        </div>
+        <div class="cmd-btn split-btn">
+            <span class="split-text">Download</span>
+            <span class="split-arrow">&#x25BE;</span>
+            <div class="split-menu" id="split-menu">
+                <div class="split-item" onclick="triggerFilePicker();">
+                    Replace file
+                </div>
+            </div>
+        </div>
+        <div class="cmd-btn save-btn" id="save-btn">
+            &#x1F4BE; Save
+        </div>
+        <input type="file" id="Luckyexcel-demo-file" name="Luckyexcel-demo-file" style="display:none">
     </div>
     
     <div class="col-sm-12">
         <?php echo form_open_multipart(base_url() . 'admin/spreadsheet/new_file_view/' . $parent_id, array('id' => 'spreadsheet-test-form')); ?>
         
-        <div id="luckysheet"></div>
+        <div class="ss-frame">
+            <div class="ss-toolbar">
+                <div class="btn btn-undo" onclick="luckysheet.undo();">&#x21A9;</div>
+                <div class="btn btn-redo" onclick="luckysheet.redo();">&#x21AA;</div>
+                <div class="sep"></div>
+                <div class="btn btn-bold">B</div>
+                <div class="btn btn-italic">I</div>
+                <div class="btn btn-underline">U</div>
+                <div class="sep"></div>
+                <div class="dropdown">
+                    Automatic
+                    <div class="dropdown-menu">
+                        <div class="dropdown-item">Automatic</div>
+                        <div class="dropdown-item">Manual</div>
+                    </div>
+                </div>
+                <div class="dropdown">
+                    Times N...
+                    <div class="dropdown-menu">
+                        <div class="dropdown-item">0</div>
+                        <div class="dropdown-item">100</div>
+                        <div class="dropdown-item">1000</div>
+                    </div>
+                </div>
+                <div class="sep"></div>
+                <div class="fx-container">
+                    <input type="text" class="fx-input" id="fx-input" readonly>
+                </div>
+            </div>
+
+            <div class="ss-formula">
+                <div class="cell-ref" id="cell-ref">A1</div>
+                <span></span>
+                <div class="formula-preview" id="formula-preview"></div>
+                <span></span>
+                <div class="action-group" id="action-group"></div>
+                <div class="flex-spacer"></div>
+                <div class="cell-value" id="cell-value"></div>
+            </div>
+
+            <div id="luckysheet"></div>
+
+            <div class="ss-footer">
+                <div class="sheet-names" id="sheet-names">Sheet1</div>
+                <div class="zoom" id="zoom">100%</div>
+            </div>
+        </div>
         
         <?php echo form_hidden('name'); ?>
         <?php echo form_hidden('parent_id', $parent_id); ?>
