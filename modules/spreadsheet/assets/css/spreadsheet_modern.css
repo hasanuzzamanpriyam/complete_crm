@@ -199,7 +199,7 @@ table#spreadsheet-advanced { display: block; width: 100%; border: 0; margin: 0; 
 .upload_file_class.ed-head .btn-info:hover { background: #0b7d74; border-color: #0b7d74; color: #fff; }
 .upload_file_class.ed-head #file-link { margin: 0; }
 .upload_file_class.ed-head .new_file_margin { margin-left: 0; }
-#luckysheet { border: 1px solid var(--c-border-2); border-radius: var(--r-xl); overflow: hidden; box-shadow: var(--sh-1); background: var(--c-surface); top: auto !important; /* neutralize manage.css:930/936 legacy fixed positioning (position:fixed; left:210px; top:113px) — with the chrome (ed-head/sv-card) now in flow, the sheet takes its static position below the card */ }
+#luckysheet { top: auto !important; /* neutralize manage.css:930/936 legacy fixed positioning (position:fixed; left:210px; top:113px) — with the chrome (ed-head/sv-card) now in flow, the sheet takes its static position below the card */ }
 
 /* ---- share-by-link view card ---- */
 .ss-share-view { max-width: 920px; margin: 0 auto; }
@@ -232,6 +232,15 @@ table#spreadsheet-advanced { display: block; width: 100%; border: 0; margin: 0; 
     font-weight: 600;
     border: none;
     cursor: pointer;
+    /* Neutralize legacy manage.css .share-btn rules (position:absolute; width/height:49%; overflow:hidden) that leak in via the shared class name — without these the Share button becomes a giant overlay covering the toolbar */
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    flex: 0 0 auto;
+    box-sizing: border-box;
+    white-space: nowrap;
+    line-height: 1.4; /* also neutralize manage.css:1682 .share-btn{line-height:50px} */
 }
 
 .ed-head-dark .cmd-btn:hover {
@@ -328,12 +337,6 @@ table#spreadsheet-advanced { display: block; width: 100%; border: 0; margin: 0; 
     background: #f8f9fa;
 }
 
-/* Disabled toolbar buttons (view-only mode) */
-.ss-frame .ss-toolbar .btn[disabled] {
-    opacity: 0.45;
-    cursor: not-allowed;
-    pointer-events: none;
-}
 /* Spreadsheet Editor - Luckysheet Frame */
 .ss-frame {
     border: 1px solid #dfe5ec; /* light gray */
@@ -349,173 +352,6 @@ table#spreadsheet-advanced { display: block; width: 100%; border: 0; margin: 0; 
     width: 100%;
 }
 
-/* Toolbar */
-.ss-frame .ss-toolbar {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    background: #f7f9fb; /* very light gray */
-    border-bottom: 1px solid #e8edf3;
-    padding: 7px 10px;
-    color: #5b6b80; /* medium gray */
-    flex-wrap: wrap;
-}
-
-.ss-frame .ss-toolbar .sep {
-    width: 1px;
-    height: 16px;
-    margin: 0 4px;
-    background: currentColor;
-    opacity: 0.35;
-}
-
-/* Toolbar buttons */
-.ss-frame .ss-toolbar .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 13px;
-}
-
-.ss-frame .ss-toolbar .btn-bold { font-weight: 700; }
-.ss-frame .ss-toolbar .btn-italic { font-style: italic; }
-.ss-frame .ss-toolbar .btn-underline { text-decoration: underline; }
-
-/* Dropdowns */
-.ss-frame .ss-toolbar .dropdown {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-}
-
-.ss-frame .ss-toolbar .dropdown::after {
-    content: "\25BE";
-    font-size: 10px;
-    margin-left: 4px;
-}
-
-.ss-frame .ss-toolbar .dropdown-menu {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background: #fff;
-    border: 1px solid #dfe5ec;
-    border-radius: 4px;
-    padding: 4px 0;
-    min-width: 120px;
-    z-index: 1000;
-}
-
-.ss-frame .ss-toolbar .dropdown-menu.show {
-    display: block;
-}
-
-.ss-frame .ss-toolbar .dropdown-item {
-    padding: 6px 12px;
-    color: #3d4c61;
-}
-
-.ss-frame .ss-toolbar .dropdown-item:hover {
-    background: #f8f9fa;
-}
-
-/* Formula bar */
-.ss-frame .ss-formula {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    border-bottom: 1px solid #e8edf3;
-    padding: 5px 10px;
-    background: #fff;
-}
-
-.ss-frame .ss-formula .cell-ref {
-    font-weight: 700;
-    color: #0e9384;
-}
-
-.ss-frame .ss-formula .formula-preview {
-    color: #9fb0c5;
-}
-
-.ss-frame .ss-formula .action-group {
-    color: #9fb0c5;
-}
-
-.ss-frame .ss-formula .flex-spacer {
-    flex: 1;
-}
-
-.ss-frame .ss-formula .cell-value {
-    color: #3d4c61;
-}
-
-/* Grid styling (visual accommodations) */
-.ss-frame .ss-grid-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 10px;
-}
-
-.ss-frame .ss-grid-table th.rn,
-.ss-frame .ss-grid-table td.rn {
-    width: 22px;
-    text-align: center;
-    padding: 3px 5px;
-    border: 1px solid #e8edf3;
-}
-
-.ss-frame .ss-grid-table th.rn {
-    background: #e8f5f3; /* header */
-    color: #0e9384;
-    font-weight: 700;
-}
-
-.ss-frame .ss-grid-table td.rn {
-    background: #eef2f6; /* alt rows */
-    color: #9fb0c5;
-}
-
-/* Data cells */
-.ss-frame .ss-grid-table td {
-    padding: 3px 5px;
-    border: 1px solid #e8edf3;
-    background: #fff;
-    color: #3d4c61;
-}
-
-/* Alternate row background */
-.ss-frame .ss-grid-table tr:nth-child(even) td {
-    background: #eef2f6;
-}
-
-/* Header row */
-.ss-frame .ss-grid-table tr:first-child td {
-    background: #e8f5f3;
-    color: #0e9384;
-    font-weight: 700;
-}
-
-/* Internal footer strip (sheet names + zoom) */
-.ss-frame .ss-footer {
-    display: flex;
-    justify-content: space-between;
-    background: #f7f9fb;
-    border-top: 1px solid #e8edf3;
-    padding: 4px 10px;
-    color: #9fb0c5;
-    font-size: 13px;
-}
-
-.ss-frame .ss-footer .sheet-names {
-    /* sheet names list */
-}
-
-.ss-frame .ss-footer .zoom {
-    /* zoom percentage */
-}
-
 /* Shared Fixes */
 
 /* Hide Luckysheet's built-in info bar (title + Close/Save As/Download/Save) */
@@ -527,8 +363,9 @@ table#spreadsheet-advanced { display: block; width: 100%; border: 0; margin: 0; 
 #luckysheet {
     position: relative !important;
     width: 100% !important;
-    height: calc(100vh - 230px) !important;
-    min-height: 480px !important;
+    /* Chrome above the frame: admin header (~66) + page header (~63) + ed-head (~47) + frame margin/border (~8) + bottom breathing (~11). Old 230px assumed the removed decorative toolbar/formula/footer rows (~103px) — that pushed the frame below the viewport where body{overflow:hidden} made it unreachable. */
+    height: calc(100vh - 215px) !important;
+    min-height: 360px !important;
     left: auto !important;
     top: auto !important;
 }

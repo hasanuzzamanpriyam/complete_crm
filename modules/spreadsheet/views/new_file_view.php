@@ -49,51 +49,7 @@
         <?php echo form_open_multipart(base_url() . 'admin/spreadsheet/new_file_view/' . $parent_id, array('id' => 'spreadsheet-test-form')); ?>
         
         <div class="ss-frame">
-            <div class="ss-toolbar">
-                <div class="btn btn-undo" onclick="luckysheet.undo();">&#x21A9;</div>
-                <div class="btn btn-redo" onclick="luckysheet.redo();">&#x21AA;</div>
-                <div class="sep"></div>
-                <div class="btn btn-bold">B</div>
-                <div class="btn btn-italic">I</div>
-                <div class="btn btn-underline">U</div>
-                <div class="sep"></div>
-                <div class="dropdown">
-                    Automatic
-                    <div class="dropdown-menu">
-                        <div class="dropdown-item">Automatic</div>
-                        <div class="dropdown-item">Manual</div>
-                    </div>
-                </div>
-                <div class="dropdown">
-                    Times N...
-                    <div class="dropdown-menu">
-                        <div class="dropdown-item">0</div>
-                        <div class="dropdown-item">100</div>
-                        <div class="dropdown-item">1000</div>
-                    </div>
-                </div>
-                <div class="sep"></div>
-                <div class="fx-container">
-                    <input type="text" class="fx-input" id="fx-input" readonly>
-                </div>
-            </div>
-
-            <div class="ss-formula">
-                <div class="cell-ref" id="cell-ref">A1</div>
-                <span></span>
-                <div class="formula-preview" id="formula-preview"></div>
-                <span></span>
-                <div class="action-group" id="action-group"></div>
-                <div class="flex-spacer"></div>
-                <div class="cell-value" id="cell-value"></div>
-            </div>
-
             <div id="luckysheet"></div>
-
-            <div class="ss-footer">
-                <div class="sheet-names" id="sheet-names">Sheet1</div>
-                <div class="zoom" id="zoom">100%</div>
-            </div>
         </div>
         
         <?php echo form_hidden('name'); ?>
