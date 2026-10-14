@@ -1,10 +1,6 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed'); ?>
 <?php spreadsheet_add_head_component(); ?>
     <style>
-        .luckysheet_info_detail {
-            width: 82% !important;
-        }
-
         .luckysheet-wa-calculate {
             margin-left: 10px;
         }
@@ -26,12 +22,14 @@
         </div>
         <div class="spacer"></div>
         <span class="cmd-btn saved" id="saved-badge">&#x2713; Saved</span>
-        <div class="cmd-btn share-btn" onclick="openShareModal();">
-            &#x1F517; Share
-        </div>
-        <div class="cmd-btn related-btn" onclick="openRelatedModal();">
-            &#x1F4C4; Related
-        </div>
+        <?php if (isset($id)) { ?>
+            <div class="cmd-btn share-btn" onclick="openShareModal();">
+                &#x1F517; Share
+            </div>
+            <div class="cmd-btn related-btn" onclick="openRelatedModal();">
+                &#x1F4C4; Related
+            </div>
+        <?php } ?>
         <div class="cmd-btn split-btn">
             <span class="split-text">Download</span>
             <span class="split-arrow">&#x25BE;</span>
