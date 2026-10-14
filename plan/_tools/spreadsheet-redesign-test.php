@@ -206,7 +206,7 @@ check_page('admin editor has chrome + luckysheet',
 /* ---------- 4. admin: share-by-link view (fixture hash) ---------- */
 check_page('admin share-by-link view has card chrome',
     "$baseUrl/admin/spreadsheet/file_view_share/ssfixturehash910002", $jarAdmin,
-    [$css, 'ss-share-view', 'id="luckysheet"']);
+    [$css, 'ed-head-dark', 'ss-frame', 'id="luckysheet"']);
 
 /* ---------- 5. client: bare URLs prove R1+R2 (client layout via company fixture) ---------- */
 $clientShell = [$css, 'id="ss-panel"', 'list-card', 'mrow', 'client/dashboard'];
