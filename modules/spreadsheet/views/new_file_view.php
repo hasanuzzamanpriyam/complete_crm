@@ -103,6 +103,10 @@
     </div>
     
     
+    <!-- Hidden helpers: reuse manage.js pre-population handlers + Bootstrap modal trigger -->
+    <a href="#ShareModal" data-toggle="modal" class="add_share_button" style="display:none"></a>
+    <a href="#RelatedModal" data-toggle="modal" class="add_related_button" style="display:none"></a>
+
     <div class="modal fade" id="SaveAsModal" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">

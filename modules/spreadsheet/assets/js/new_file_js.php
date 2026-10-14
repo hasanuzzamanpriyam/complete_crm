@@ -70,4 +70,96 @@
         }
 
     })(jQuery);
+
+// ---- Spreadsheet editor command bar actions ----
+function openShareModal() {
+    if (!$('#ShareModal').length) { return; }
+    $('.add_share_button').first().trigger('click');
+}
+
+function openRelatedModal() {
+    if (!$('#RelatedModal').length) { return; }
+    $('.add_related_button').first().trigger('click');
+}
+
+function triggerFilePicker() {
+    var fi = document.getElementById('Luckyexcel-demo-file');
+    if (fi) { fi.click(); }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    var splitBtn = document.querySelector('.split-btn');
+    var splitMenu = document.getElementById('split-menu');
+    if (splitBtn && splitMenu) {
+        splitBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            splitMenu.classList.toggle('show');
+        });
+        document.addEventListener('click', function (e) {
+            if (!splitBtn.contains(e.target) && !splitMenu.contains(e.target)) {
+                splitMenu.classList.remove('show');
+            }
+        });
+        splitMenu.addEventListener('click', function (e) {
+            e.stopPropagation();
+        });
+    }
+
+    var saveBtn = document.getElementById('save-btn');
+    var saveForm = document.getElementById('spreadsheet-test-form');
+    if (saveBtn && saveForm && typeof luckysheet !== 'undefined') {
+        saveBtn.addEventListener('click', function () {
+            var rawData = luckysheet.getLuckysheetfile();
+            var image_flag = 'false';
+            for (var i = 0; i < rawData.length; i++) {
+                var rawCelldata = luckysheet.transToCellData(rawData[i].data);
+                rawData[i].celldata = rawCelldata;
+                if (rawData[i].images != undefined) {
+                    if (image_flag == 'false') { image_flag = 'true'; }
+                    if (Object.keys(rawData[i].images).length > 0) {
+                        $.each(rawData[i].images, function (key, value) {
+                            rawData[i].images[key].src = 'imga$imga' + rawData[i].images[key].src + 'imga$imga';
+                        });
+                    }
+                }
+            }
+            var finalData = JSON.stringify(rawData);
+            var formData = new FormData(saveForm);
+            var nameInput = document.getElementById('luckysheet_info_detail_input');
+            var name = nameInput ? nameInput.value : (document.getElementById('file-name') ? document.getElementById('file-name').textContent.trim() : '');
+            formData.append('data_form', finalData);
+            formData.append('name', name);
+            formData.append('id', $("input[name='id']").val());
+            formData.append('image_flag', image_flag);
+            $.ajax({
+                url: $(saveForm).attr('action'),
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                success: function (response, status, xhr) {
+                    try { response = JSON.parse(response); } catch (err) { return; }
+                    if (response.success == true) {
+                        toastr['success'](response.message);
+                        var badge = document.getElementById('saved-badge');
+                        if (badge) { badge.style.display = 'inline-block'; }
+                    } else {
+                        toastr['warning'](response.message);
+                    }
+                },
+                cache: false,
+                processData: false
+            });
+        });
+    }
+
+    var fileInput = document.querySelector('input[name="Luckyexcel-demo-file"]');
+    if (fileInput) {
+        fileInput.addEventListener('change', function (e) {
+            if (e.target.files.length > 0) {
+                toastr['warning']('File replacement is not yet implemented.');
+                e.target.value = '';
+            }
+        });
+    }
+});
 </script>
