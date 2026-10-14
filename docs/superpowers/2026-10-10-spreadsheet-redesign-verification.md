@@ -185,3 +185,59 @@ widens nothing; fix with `htmlspecialchars(..., ENT_QUOTES)` when convenient).
 ---
 
 **Commit:** `docs: spreadsheet redesign verification record`
+
+---
+
+# Spreadsheet editor redesign — verification addendum
+
+Date: 2026-10-14 · Branch `sakib` · Plan `docs/superpowers/plans/2026-10-13-spreadsheet-editor-redesign.md` (amended; Task 8 amendment section is authoritative) · Spec `docs/superpowers/specs/2026-10-13-spreadsheet-editor-design.md` (Dark command bar)
+
+Editor/excel view redesign (Tasks 1–10) complete via subagent-driven development,
+two-stage review (spec + code-quality) per task. Commits: `4eb33779` (T1 baseline
+screenshot) · `331adf8d` (T2 command-bar CSS, after first-attempt rejection) ·
+`c7954131` + `b002c74e`/`eac47fb6`/`fbd858b3` (T3 frame CSS + fixes) ·
+`39195a0e` + `85d6d332` (T4 shared CSS + `#luckysheet` height fix) ·
+`a71f065c` + `6359e078` (T5 legacy positioning removal) · `21b9f347` + `548f7b50`
+(T6 editor markup) · `a978da3f` + `37e2fb11` (T7 share-view markup) ·
+`92eeea76` + `c4bb4107` (T8 button wiring + critical import/save fixes) ·
+`278c70a9` (T9 cache bust `?v=4`) · `054a905b` (T10 gate marker + after-screenshots).
+Frozen-file exception: one reviewed line in `Spreadsheet.php:107` (`'id' => $success`
+in save JSON, needed by T8 save flow).
+
+## A. Gates (re-run 2026-10-14, fresh)
+
+| Gate | Result | Exit |
+|---|---|---|
+| `plan/_tools/spreadsheet-redesign-test.php` | `15 assertions — 15 passed, 0 failed, 0 skipped` (line ~209 markers updated `ss-share-view` → `ed-head-dark`,`ss-frame`) | 0 |
+| `composer test:spreadsheet` | `15 assertions — 15 passed, 0 failed, 0 skipped` | 0 |
+| `composer smoke` | `22 routes — 22 passed, 0 failed` | 0 |
+| `php -l` × 6 (`new_file_view`, `share_file_view`, `new_file_js`, `manage_js`, `spreadsheet_helper`, `Spreadsheet`) | `No syntax errors detected` all six | 0 |
+
+## B. Browser verification (Playwright, 2026-10-14)
+
+**Editor** (`/admin/spreadsheet/new_file_view/0/7` real file; Save exercised on fixture
+`910002` to avoid mutating user data): footer no longer overlaps grid (footer y=800 vs
+grid bottom y=732); info bar hidden; command bar complete (← back with
+`window.history.back()`, file name, Share, Related, Download/Replace split, teal Save);
+split menu opens → "Replace file" fires hidden file input (filechooser event observed;
+cancel triggers luckyexcel's `No files wait for import` alert — import wiring alive);
+Share/Related modals open; Save POSTs → `200 {"success":true,"message":"updated_successfully"}`
+with saved-badge appearing; zero console errors. Screenshot:
+`docs/superpowers/2026-10-13-spreadsheet-editor-after.png`.
+
+**Share view** (`file_view_share/ssfixturehash910002`): view-only chrome (Related +
+"View ▾", no Save); undo/redo disabled; guarded no-op Share (no throw, no modal —
+modals not loaded on this page); badge present in DOM hidden-by-default per approved
+fence (plan Step 2 "Saved badge visible" is checklist wording — fence never inlines
+visibility); zero console errors. Screenshot:
+`docs/superpowers/2026-10-13-spreadsheet-share-after.png`.
+
+## C. Minor notes (non-blocking)
+
+- Decorative `.ss-toolbar` B/I/U duplicates Luckysheet's own visible toolbar (plan
+  doesn't hide the internal one).
+- Tawk.to widget floats over the grid's right edge (fixed-position widget; plan noted
+  optional z-index handling).
+- Share-view Share/Related buttons are guarded no-ops (modals not loaded there).
+- Download split item has no download handler wired (menu label only).
+- Orphaned `.sv-*` CSS rules from the pre-redesign share chrome remain unused.
