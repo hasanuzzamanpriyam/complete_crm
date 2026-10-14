@@ -2,10 +2,6 @@
     (function () {
         "use strict";
 
-        $('#luckysheet').css({
-            'left': '220px',
-            'top': '162px'
-        });
         $('#luckysheet').parents('.container').css({
             'width': 'unset',
             'padding': '0'
