@@ -199,7 +199,7 @@ table#spreadsheet-advanced { display: block; width: 100%; border: 0; margin: 0; 
 .upload_file_class.ed-head .btn-info:hover { background: #0b7d74; border-color: #0b7d74; color: #fff; }
 .upload_file_class.ed-head #file-link { margin: 0; }
 .upload_file_class.ed-head .new_file_margin { margin-left: 0; }
-#luckysheet { border: 1px solid var(--c-border-2); border-radius: var(--r-xl); overflow: hidden; box-shadow: var(--sh-1); background: var(--c-surface); top: auto !important; /* Task 11: neutralize new_file_js.php's legacy inline top:162px — with the chrome (ed-head/sv-card) now in flow, the fixed sheet must take its static position below the card instead of covering its lower half */ }
+#luckysheet { border: 1px solid var(--c-border-2); border-radius: var(--r-xl); overflow: hidden; box-shadow: var(--sh-1); background: var(--c-surface); top: auto !important; /* neutralize manage.css:930/936 legacy fixed positioning (position:fixed; left:210px; top:113px) — with the chrome (ed-head/sv-card) now in flow, the sheet takes its static position below the card */ }
 
 /* ---- share-by-link view card ---- */
 .ss-share-view { max-width: 920px; margin: 0 auto; }
