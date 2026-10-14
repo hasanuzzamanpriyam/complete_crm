@@ -234,10 +234,47 @@ visibility); zero console errors. Screenshot:
 
 ## C. Minor notes (non-blocking)
 
-- Decorative `.ss-toolbar` B/I/U duplicates Luckysheet's own visible toolbar (plan
-  doesn't hide the internal one).
+- ~~Decorative `.ss-toolbar` B/I/U duplicates Luckysheet's own visible toolbar~~ —
+  resolved in post-delivery fixes (see §D; decorative chrome removed from both views).
 - Tawk.to widget floats over the grid's right edge (fixed-position widget; plan noted
   optional z-index handling).
 - Share-view Share/Related buttons are guarded no-ops (modals not loaded there).
 - Download split item has no download handler wired (menu label only).
 - Orphaned `.sv-*` CSS rules from the pre-redesign share chrome remain unused.
+
+## D. Post-delivery fixes (user bug report, 2026-10-14)
+
+User reported garbled command bar, stacked/duplicate toolbars, and broken scrolling
+("aktar upor arekta uthe geche"). Root-caused via systematic debugging:
+
+1. **Command bar garbled** — frozen legacy `manage.css:1588` `.share-btn
+   {position:absolute;width/height:49%;overflow:hidden;font-size:0}` (and `:1682`
+   `line-height:50px`) collided with our `.cmd-btn.share-btn`: Share rendered 631×380px
+   overlaying the toolbar. Fixed: `.ed-head-dark .cmd-btn` now resets
+   `position:static;width:auto;height:auto;overflow:visible;flex:0 0 box;
+   white-space:nowrap;line-height:1.4` (+ comment citing the collision).
+2. **Duplicate/stacked chrome** — our decorative `.ss-toolbar`/`.ss-formula`/`.ss-footer`
+   rows duplicated Luckysheet's own functional toolbar/fx-bar/sheet-tabs inside
+   `#luckysheet`. Fixed: decorative markup removed from `new_file_view.php` and
+   `share_file_view.php` (`.ss-frame > #luckysheet` only); decorative CSS blocks
+   deleted from `spreadsheet_modern.css`.
+3. **Scrolling broken** — frame bottom at y=904 > viewport 853 with theme-level
+   `body{overflow:hidden}` clipped the grid; giant Share overlay also swallowed wheel
+   events. Fixed: `#luckysheet` height `calc(100vh - 230px)` → `calc(100vh - 215px)`,
+   `min-height:480px` → `360px`; border/radius removed from `#luckysheet` (frame owns
+   chrome). Cache bust `?v=4` → `?v=7` (`spreadsheet_helper.php:66`).
+
+**Post-fix verification (fresh):**
+
+- Gates: `plan/_tools/spreadsheet-redesign-test.php` 15/15 · `composer test:spreadsheet`
+  15/15 · `composer smoke` 22/22 · `php -l` clean on both views + helper.
+- Browser (editor 1518×853): all cmd-btns uniform 24px static (`shareBtn.position:
+  static`); single functional Luckysheet toolbar (28 buttons); `frameFits:true`
+  (bottom 847 ≤ 853); **wheel scroll confirmed** — canvas visibly advanced vertically
+  and horizontally (grid screenshots); zero console errors. Share view same: static
+  Share 74×24, decorative gone, frame fits, no save-btn.
+- Screenshot: `docs/superpowers/2026-10-14-spreadsheet-editor-fixes.png`.
+- Note: Luckysheet does not use native `scrollTop` for live scroll — canvas redraw is
+  the proof metric. Share-view disabled undo/redo markup left with the decorative
+  removal; `allowEdit:true` on shared `new_file_js.php` is pre-existing (hidden
+  info-bar save gating unchanged) — not a regression.
