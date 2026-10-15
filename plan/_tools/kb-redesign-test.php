@@ -74,6 +74,12 @@ $ok(strpos($kb_articles_src, 'kb-tbl') !== false, 'admin kb articles view has kb
 $ok(strpos($kb_controller_src, 'kb-toggle') !== false, 'kb controller list rows use kb-toggle');
 $ok(strpos($kb_controller_src, 'kb-tag') !== false, 'kb controller list rows use kb-tag');
 
+/* =====================================================================
+ * Task 6: Admin new/edit article form (new_articles.php)
+ * ===================================================================== */
+$kb_new_article_src = file_get_contents(ROOTPATH . 'application/views/admin/kb/new_articles.php');
+$ok(strpos($kb_new_article_src, 'kb-form') !== false, 'admin kb new_articles has kb-form');
+
 /* ---------------------------------------------------------------------
  * Later tasks append their assertions ABOVE this line, e.g.:
  *   $en = ROOTPATH . 'application/language/english/utilities_lang.php';
