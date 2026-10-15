@@ -7,7 +7,8 @@ echo form_input(array(
     "name" => "search",
     "value" => "",
     "autocomplete" => "false",
-    "class" => "form-control search-icon",
+    "class" => "kb-search",
+    "style" => "width:100%;background-repeat:no-repeat;background-position:right 12px center",
     "placeholder" => lang('search_your_question')
 ));
 ?>

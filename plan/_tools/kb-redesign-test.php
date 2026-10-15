@@ -88,6 +88,13 @@ $ok(strpos($kb_new_article_src, 'kb-fin select_box') !== false, 'admin kb new_ar
 $kb_new_category_src = file_get_contents(ROOTPATH . 'application/views/admin/kb/new_categories.php');
 $ok(strpos($kb_new_category_src, 'kb-modal') !== false, 'admin kb new_categories has kb-modal');
 
+/* =====================================================================
+ * Task 8: Admin search box restyle (search_box.php)
+ * ===================================================================== */
+$kb_search_box_src = file_get_contents(ROOTPATH . 'application/views/admin/kb/search_box.php');
+$ok(preg_match('/"class"\s*=>\s*"kb-search/', $kb_search_box_src) === 1,
+    'admin search box input uses kb-search marker class');
+
 /* ---------------------------------------------------------------------
  * Later tasks append their assertions ABOVE this line, e.g.:
  *   $en = ROOTPATH . 'application/language/english/utilities_lang.php';
