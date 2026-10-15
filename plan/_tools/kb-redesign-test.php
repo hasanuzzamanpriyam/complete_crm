@@ -82,6 +82,12 @@ $ok(strpos($kb_new_article_src, 'kb-form') !== false, 'admin kb new_articles has
 $ok(strpos($kb_new_article_src, '.summernote(') !== false, 'admin kb new_articles inits summernote on description');
 $ok(strpos($kb_new_article_src, 'kb-fin select_box') !== false, 'admin kb new_articles category select keeps select_box');
 
+/* =====================================================================
+ * Task 7: Admin new/edit category modal (new_categories.php)
+ * ===================================================================== */
+$kb_new_category_src = file_get_contents(ROOTPATH . 'application/views/admin/kb/new_categories.php');
+$ok(strpos($kb_new_category_src, 'kb-modal') !== false, 'admin kb new_categories has kb-modal');
+
 /* ---------------------------------------------------------------------
  * Later tasks append their assertions ABOVE this line, e.g.:
  *   $en = ROOTPATH . 'application/language/english/utilities_lang.php';
