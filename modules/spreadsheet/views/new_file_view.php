@@ -7,8 +7,9 @@
     </style>
     
     
+    <?php $back_url = base_url((!empty(client_id()) ? '' : 'admin/') . 'spreadsheet/manage'); ?>
     <div class="ed-head-dark">
-        <div class="cmd-btn back" onclick="window.history.back();">
+        <div class="cmd-btn back" onclick="window.location.href='<?php echo $back_url; ?>';">
             &#x2190;
         </div>
         <div class="file-info">
