@@ -48,6 +48,14 @@ $ok(file_get_contents($partial, true) !== false && strpos(file_get_contents($par
 $en = ROOTPATH . 'application/language/english/utilities_lang.php';
 $ok(strpos(file_get_contents($en), "kb_how_can_we_help") !== false, 'kb lang keys added');
 
+/* =====================================================================
+ * Task 3: Admin overview view (kb_list.php)
+ * ===================================================================== */
+$kb_list = ROOTPATH . 'application/views/admin/kb/kb_list.php';
+$kb_list_src = file_get_contents($kb_list);
+$ok(strpos($kb_list_src, 'kb-overview') !== false, 'admin kb_list has kb-overview root');
+$ok(strpos($kb_list_src, 'kb-hero') !== false, 'admin kb_list has kb-hero');
+
 /* ---------------------------------------------------------------------
  * Later tasks append their assertions ABOVE this line, e.g.:
  *   $en = ROOTPATH . 'application/language/english/utilities_lang.php';
