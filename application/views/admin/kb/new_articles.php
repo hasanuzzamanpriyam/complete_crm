@@ -35,6 +35,35 @@ if (!empty($created) || !empty($edited)) {
 
         .kb-editor .note-editable { background: var(--c-surface); }
 
+        /* select2 (select_box) replaces the native select inside .kb-select-wrap;
+           mirror the kb-fin frame on its rendered box so it still matches the field. */
+        .kb-select-wrap .select2-container { display: block; }
+
+        .kb-select-wrap .select2-container .select2-selection--single {
+            height: 38px; /* aligns with .kb-fin inputs + the inline "+" button */
+            border: 1px solid var(--c-border);
+            border-radius: var(--r-md);
+            background: var(--c-surface);
+        }
+
+        .kb-select-wrap .select2-container .select2-selection--single .select2-selection__rendered {
+            line-height: 36px;
+            padding: 0 32px 0 var(--sp-3);
+            color: var(--c-text);
+            font-size: var(--fs-base);
+        }
+
+        .kb-select-wrap .select2-container .select2-selection--single .select2-selection__arrow {
+            height: 36px;
+            right: 10px;
+        }
+
+        .kb-select-wrap .select2-container.select2-container--focus .select2-selection--single,
+        .kb-select-wrap .select2-container--open .select2-selection--single {
+            border-color: var(--c-accent);
+            box-shadow: 0 0 0 3px var(--c-accent-subtle);
+        }
+
         .kb-form .kb-head-acts {
             display: flex;
             gap: var(--sp-2);
@@ -143,7 +172,7 @@ if (!empty($created) || !empty($edited)) {
                         <div class="kb-fcell">
                             <div class="kb-cat-select-row">
                                 <div class="kb-select-wrap">
-                                    <select class="kb-fin" name="kb_category_id" required>
+                                    <select class="kb-fin select_box" name="kb_category_id" required>
                                         <option value=""><?= lang('select') . ' ' . lang('categories') ?></option>
                                         <?php
                                         $kb_category_info = get_result('tbl_kb_category', array('status' => 1));
@@ -202,7 +231,7 @@ if (!empty($created) || !empty($edited)) {
                         <div class="kb-flabel"><?= lang('description') ?></div>
                         <div class="kb-fcell">
                             <div class="kb-editor">
-                                <textarea class="form-control textarea_lg"
+                                <textarea class="form-control textarea_lg kb-desc"
                                           name="description"><?php if (!empty($articles_info->description)) {
                                     echo $articles_info->description;
                                 } ?></textarea>
@@ -284,6 +313,23 @@ if (!empty($created) || !empty($edited)) {
                                     $('.gen_slug').change(function (e) {
                                         getSlug($(this).val());
                                     });
+
+                                    // Summernote WYSIWYG on the description — the library is
+                                    // loaded globally by admin/components/footer.php, so only
+                                    // the in-view init is needed (same pattern as search_box.php).
+                                    if (typeof $.fn.summernote === 'function') {
+                                        $('.kb-editor .kb-desc').summernote({
+                                            height: 260,
+                                            airMode: false,
+                                            toolbar: [
+                                                ['style', ['bold', 'italic', 'underline', 'clear']],
+                                                ['para', ['ul', 'ol']],
+                                                ['table', ['table']],
+                                                ['link', ['link']],
+                                                ['view', ['fullscreen', 'codeview']]
+                                            ]
+                                        });
+                                    }
 
                                     $('input[name="status"]').on("change", function () {
                                         $(this).closest("label").addClass("on").siblings("label").removeClass("on");

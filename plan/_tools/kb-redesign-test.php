@@ -79,6 +79,8 @@ $ok(strpos($kb_controller_src, 'kb-tag') !== false, 'kb controller list rows use
  * ===================================================================== */
 $kb_new_article_src = file_get_contents(ROOTPATH . 'application/views/admin/kb/new_articles.php');
 $ok(strpos($kb_new_article_src, 'kb-form') !== false, 'admin kb new_articles has kb-form');
+$ok(strpos($kb_new_article_src, '.summernote(') !== false, 'admin kb new_articles inits summernote on description');
+$ok(strpos($kb_new_article_src, 'kb-fin select_box') !== false, 'admin kb new_articles category select keeps select_box');
 
 /* ---------------------------------------------------------------------
  * Later tasks append their assertions ABOVE this line, e.g.:
