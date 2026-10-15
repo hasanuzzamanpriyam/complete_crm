@@ -49,7 +49,7 @@ class Knowledgebase extends Admin_Controller
         if ($this->input->is_ajax_request()) {
             $this->load->model('datatables');
             $this->datatables->table = 'tbl_kb_category';
-            $this->datatables->column_order = array('category', 'description', 'type', 'sort', 'status');
+            $this->datatables->column_order = array('category', 'description', 'kb_category_id', 'status', 'sort', 'kb_category_id');
             $this->datatables->column_search = array('category', 'description', 'type', 'sort', 'status');
             $this->datatables->order = array('kb_category_id' => 'desc');
 
@@ -58,34 +58,43 @@ class Knowledgebase extends Admin_Controller
 
             $data = array();
 
+            // Deterministic icon + accent cycling keyed off the category's sort
+            // order (same sets as the kb_list overview — view-layer sugar only).
+            $kb_icons = array('🖥️', '🧩', '☁️', '🔐', '📚', '🛠️', '🚀', '🌐');
+            $kb_accents = array('kb-tag-mint', 'kb-tag-cyan', 'kb-tag-amber', 'kb-tag-purple');
+
             $edited = can_action('142', 'edited');
             $deleted = can_action('142', 'deleted');
             foreach ($fetch_data as $_key => $v_kb_category) {
                 $action = null;
 
+                $kb_accent = $kb_accents[abs((int)$v_kb_category->sort) % count($kb_accents)];
+                $kb_icon = $kb_icons[abs((int)$v_kb_category->sort) % count($kb_icons)];
+                // Active article count for the badge (same status=1 scope as the details page).
+                $kb_total = $this->db->where(array('kb_category_id' => $v_kb_category->kb_category_id, 'status' => 1))->count_all_results('tbl_knowledgebase');
 
                 $sub_array = array();
 
-                $sub_array[] = $v_kb_category->category;;
+                $sub_array[] = '<div class="kb-cell-title"><div class="kb-art-badge ' . $kb_accent . '">' . $kb_icon . '</div><b>' . $v_kb_category->category . '</b></div>';
                 $sub_array[] = $v_kb_category->description;
+                $sub_array[] = '<span class="kb-tag kb-tag-slate">' . $kb_total . '</span>';
                 $sub_array[] = '<div class="change_kb_category">
-                            <input data-id="' . $v_kb_category->kb_category_id . '" data-toggle="toggle"
-                                   name="active" value="1" ' . ((!empty($v_kb_category->status) && $v_kb_category->status == '1') ? 'checked' : '') . ' data-on="' . lang("yes") . '" data-off="' . lang("no") . '" data-onstyle="success btn-xs" data-offstyle="danger btn-xs" type="checkbox"></div>';
+                            <input data-id="' . $v_kb_category->kb_category_id . '" name="active" value="1" ' . ((!empty($v_kb_category->status) && $v_kb_category->status == '1') ? 'checked' : '') . ' type="checkbox" hidden><span class="kb-toggle' . ((!empty($v_kb_category->status) && $v_kb_category->status == '1') ? ' on' : '') . '"></span></div>';
                 $sub_array[] = $v_kb_category->sort;
 
                 if (!empty($edited)) {
                     $action .= '<span data-toggle="tooltip"
                            data-placement="top"  title="' . lang('edit') . '">
                         <a data-toggle="modal" data-target="#myModal" href="' . base_url() . 'admin/knowledgebase/new_categories/' . $v_kb_category->kb_category_id . '"
-                           class="btn btn-primary btn-xs">
+                           class="kb-iact edit">
                             <i class="fa fa-pencil-square-o"></i> </a>
                             </span>' . ' ';
                 }
                 if (!empty($deleted)) {
-                    $action .= ajax_anchor(base_url("admin/knowledgebase/delete_categories/$v_kb_category->kb_category_id"), "<i class='btn btn-xs btn-danger fa fa-trash-o'></i>", array("class" => "", "title" => lang('delete'), "data-fade-out-on-success" => "#table_" . $_key)) . ' ';
+                    $action .= ajax_anchor(base_url("admin/knowledgebase/delete_categories/$v_kb_category->kb_category_id"), "<i class='fa fa-trash-o'></i>", array("class" => "kb-iact del", "title" => lang('delete'), "data-fade-out-on-success" => "#table_" . $_key)) . ' ';
                 }
 
-                $sub_array[] = $action;
+                $sub_array[] = '<div class="kb-acts">' . $action . '</div>';
                 $data[] = $sub_array;
             }
 
@@ -254,6 +263,7 @@ class Knowledgebase extends Admin_Controller
         if ($this->input->is_ajax_request()) {
             $this->load->model('datatables');
             $this->datatables->table = 'tbl_knowledgebase';
+            $this->datatables->select = array('tbl_knowledgebase.*', 'tbl_kb_category.category', 'tbl_kb_category.sort AS cat_sort');
             $this->datatables->join_table = array('tbl_kb_category');
             $this->datatables->join_where = array('tbl_knowledgebase.kb_category_id=tbl_kb_category.kb_category_id');
             $this->datatables->column_order = array('title', 'slug', 'tbl_kb_category.category', 'tbl_knowledgebase.description', 'for_all', 'tbl_knowledgebase.status');
@@ -265,34 +275,46 @@ class Knowledgebase extends Admin_Controller
 
             $data = array();
 
+            // Deterministic icon + accent cycling keyed off the category's sort
+            // order (same sets as the kb_list overview — view-layer sugar only).
+            $kb_icons = array('🖥️', '🧩', '☁️', '🔐', '📚', '🛠️', '🚀', '🌐');
+            $kb_accents = array('kb-tag-mint', 'kb-tag-cyan', 'kb-tag-amber', 'kb-tag-purple');
+
             $edited = can_action('143', 'edited');
             $deleted = can_action('143', 'deleted');
             foreach ($fetch_data as $_key => $v_kb) {
                 $action = null;
                 $sub_array = array();
-                $title = null;
-                $title .= '<a class="text-info" href="' . base_url() . 'admin/knowledgebase/details/articles/' . $v_kb->kb_id . '">' . $v_kb->title . '</a>';
-                $sub_array[] = $title;
-                $sub_array[] = (!empty($v_kb->category) ? '<span class="tags">' . $v_kb->category . '</span>' : '-');
 
-                $sub_array[] = $v_kb->total_view;
+                $kb_accent = $kb_accents[abs((int)$v_kb->cat_sort) % count($kb_accents)];
+                $kb_icon = $kb_icons[abs((int)$v_kb->cat_sort) % count($kb_icons)];
+
+                $title = null;
+                $title .= '<div class="kb-cell-title"><div class="kb-art-badge ' . $kb_accent . '">' . $kb_icon . '</div><a href="' . base_url() . 'admin/knowledgebase/details/articles/' . $v_kb->kb_id . '"><b>' . $v_kb->title . '</b></a></div>';
+                $sub_array[] = $title;
+                $sub_array[] = (!empty($v_kb->category) ? '<span class="kb-tag ' . $kb_accent . '">' . $v_kb->category . '</span>' : '-');
+
+                $sub_array[] = '<div class="kb-art-views">👁 ' . $v_kb->total_view . '</div>';
                 $sub_array[] = '<div class="change_kb">
-                            <input data-id="' . $v_kb->kb_id . '" data-toggle="toggle"
-                                   name="active" value="1" ' . ((!empty($v_kb->status) && $v_kb->status == '1') ? 'checked' : '') . ' data-on="' . lang("yes") . '" data-off="' . lang("no") . '" data-onstyle="success btn-xs" data-offstyle="danger btn-xs" type="checkbox"></div>';
+                            <input data-id="' . $v_kb->kb_id . '" name="active" value="1" ' . ((!empty($v_kb->status) && $v_kb->status == '1') ? 'checked' : '') . ' type="checkbox" hidden><span class="kb-toggle' . ((!empty($v_kb->status) && $v_kb->status == '1') ? ' on' : '') . '"></span></div>';
 
                 if (!empty($edited)) {
-                    $action .= btn_view('admin/knowledgebase/details/articles/' . $v_kb->kb_id) . ' ';
+                    $action .= '<span data-toggle="tooltip" data-placement="top" title="' . lang('view') . '">
+                        <a href="' . base_url() . 'admin/knowledgebase/details/articles/' . $v_kb->kb_id . '"
+                           class="kb-iact">
+                            <i class="fa fa-eye"></i> </a>
+                            </span>' . ' ';
                     $action .= '<span data-toggle="tooltip" data-placement="top" title="' . lang('edit') . '">
                         <a href="' . base_url() . 'admin/knowledgebase/new_articles/' . $v_kb->kb_id . '"
-                           class="btn btn-primary btn-xs">
+                           class="kb-iact edit">
                             <i class="fa fa-pencil-square-o"></i> </a>
                             </span>' . ' ';
                 }
                 if (!empty($deleted)) {
-                    $action .= ajax_anchor(base_url("admin/knowledgebase/delete_articles/$v_kb->kb_id"), "<i class='btn btn-xs btn-danger fa fa-trash-o'></i>", array("class" => "", "title" => lang('delete'), "data-fade-out-on-success" => "#table_" . $_key)) . ' ';
+                    $action .= ajax_anchor(base_url("admin/knowledgebase/delete_articles/$v_kb->kb_id"), "<i class='fa fa-trash-o'></i>", array("class" => "kb-iact del", "title" => lang('delete'), "data-fade-out-on-success" => "#table_" . $_key)) . ' ';
                 }
 
-                $sub_array[] = $action;
+                $sub_array[] = '<div class="kb-acts">' . $action . '</div>';
                 $data[] = $sub_array;
             }
 

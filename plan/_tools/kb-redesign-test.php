@@ -63,6 +63,17 @@ $kb_details_src = file_get_contents(ROOTPATH . 'application/views/admin/kb/artic
 $ok(strpos($kb_details_src, 'kb-details') !== false && strpos($kb_details_src, 'kb-article') !== false,
     'admin kb articles_details has kb-details + kb-article');
 
+/* =====================================================================
+ * Task 5: Admin manage tables + controller row markup
+ * ===================================================================== */
+$kb_categories_src = file_get_contents(ROOTPATH . 'application/views/admin/kb/categories.php');
+$kb_articles_src = file_get_contents(ROOTPATH . 'application/views/admin/kb/articles.php');
+$kb_controller_src = file_get_contents(ROOTPATH . 'application/controllers/admin/Knowledgebase.php');
+$ok(strpos($kb_categories_src, 'kb-tbl') !== false, 'admin kb categories view has kb-tbl');
+$ok(strpos($kb_articles_src, 'kb-tbl') !== false, 'admin kb articles view has kb-tbl');
+$ok(strpos($kb_controller_src, 'kb-toggle') !== false, 'kb controller list rows use kb-toggle');
+$ok(strpos($kb_controller_src, 'kb-tag') !== false, 'kb controller list rows use kb-tag');
+
 /* ---------------------------------------------------------------------
  * Later tasks append their assertions ABOVE this line, e.g.:
  *   $en = ROOTPATH . 'application/language/english/utilities_lang.php';
