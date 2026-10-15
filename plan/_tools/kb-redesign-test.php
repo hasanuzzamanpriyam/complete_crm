@@ -56,6 +56,13 @@ $kb_list_src = file_get_contents($kb_list);
 $ok(strpos($kb_list_src, 'kb-overview') !== false, 'admin kb_list has kb-overview root');
 $ok(strpos($kb_list_src, 'kb-hero') !== false, 'admin kb_list has kb-hero');
 
+/* =====================================================================
+ * Task 4: Admin category + article details view (articles_details.php)
+ * ===================================================================== */
+$kb_details_src = file_get_contents(ROOTPATH . 'application/views/admin/kb/articles_details.php');
+$ok(strpos($kb_details_src, 'kb-details') !== false && strpos($kb_details_src, 'kb-article') !== false,
+    'admin kb articles_details has kb-details + kb-article');
+
 /* ---------------------------------------------------------------------
  * Later tasks append their assertions ABOVE this line, e.g.:
  *   $en = ROOTPATH . 'application/language/english/utilities_lang.php';

@@ -1,128 +1,281 @@
-<div class="row">
-    <div class="col-sm-3">
-        <?php $this->load->view("admin/kb/search_box"); ?>
-        <div class="mt">
-            <ul class="nav nav-pills nav-stacked">
-                <?php
-                if (!empty($all_kb_category)) {
-                    foreach ($all_kb_category as $kb_category) {
-                        if (!empty($articles_info->kb_category_id)) {
-                            $category_id = $articles_info->kb_category_id;
-                        } else {
-                            $category_id = $this->uri->segment(5);
-                        }
-                        $total_kb = count(array($this->db->where(array('kb_category_id' => $kb_category->kb_category_id, 'status' => 1))->get('tbl_knowledgebase')->result()));
-                        ?>
-                        <li class="<?= !empty($category_id) && $category_id == $kb_category->kb_category_id ? 'sub-active' : '' ?>">
-                            <a href="<?= base_url('admin/knowledgebase/details/kb_category/' . $kb_category->kb_category_id) ?>">
-                                <?= $kb_category->category ?> <span
-                                        class="label label-primary pull-right mt-sm"><?= (!empty($total_kb) && $total_kb != 0 ? $total_kb : '') ?></span>
-                            </a>
-                        </li>
-                    <?php }
-                }
-                ?>
-            </ul>
+<?php
+// Shared KB asset pipeline (kb_modern.css) — must come first.
+$this->load->view('kb_shared/_kb_assets');
+
+/* -------------------------------------------------------------------------
+ * Resolve the active category exactly as the old view did: the article's
+ * category when reading an article, otherwise the category id from the URL.
+ * ---------------------------------------------------------------------- */
+$category_id = !empty($articles_info->kb_category_id) ? $articles_info->kb_category_id : $this->uri->segment(5);
+
+// Deterministic icon + accent cycling keyed off the category's sort order
+// (categories have no icon/color columns — same view-layer sugar as kb_list.php).
+$kb_icons = ['🖥️', '🧩', '☁️', '🔐', '📚', '🛠️', '🚀', '🌐'];
+$kb_accents = ['kb-tag-mint', 'kb-tag-cyan', 'kb-tag-amber', 'kb-tag-purple'];
+
+// The current category's sort drives its icon/accent, so this view stays
+// visually consistent with the overview grid ($all_kb_category = controller list).
+$kb_cat_sort = 0;
+if (!empty($all_kb_category)) {
+    foreach ($all_kb_category as $kb_nav_category) {
+        if ($kb_nav_category->kb_category_id == $category_id) {
+            $kb_cat_sort = abs((int)$kb_nav_category->sort);
+            break;
+        }
+    }
+}
+$kb_icon = $kb_icons[$kb_cat_sort % count($kb_icons)];
+$kb_accent = $kb_accents[$kb_cat_sort % count($kb_accents)];
+?>
+<div class="kb-root kb-details">
+    <?php
+    $category = $this->uri->segment(4);
+    if ($category == 'kb_category') {
+        $category_info = get_row('tbl_kb_category', array('kb_category_id' => $category_id, 'status' => 1));
+        ?>
+        <!-- ===== Category view: header + in-category search + article rows ===== -->
+        <div class="kb-crumb">
+            <a href="<?= base_url('admin/knowledgebase') ?>"><?= lang('knowledgebase') ?></a>
+            <span class="kb-sep">/</span>
+            <b><?= $category_info->category ?></b>
         </div>
-    </div>
-    <div class="col-sm-9 ">
-        <div class="panel panel-custom" style="border: none;" data-collapsed="0">
-            <div class="panel-heading m0" style="border-bottom-width: 1px ">
-                <div class="panel-title">
-                    <?php
-                    $category = $this->uri->segment(4);
-                    if ($category == 'kb_category') {
-                        $category_info = get_row('tbl_kb_category', array('kb_category_id' => $category_id, 'status' => 1));
-                        echo $category_info->category;
-                        echo '<small class="block" style="font-size: 12px">' . $category_info->description . '</small>';
-                    } else {
-                        if (!empty($articles_info)) {
-                            echo $articles_info->title;
-                        }
-                    } ?>
-                </div>
+        <div class="kb-cat-hero">
+            <div class="kb-cat-icon <?= $kb_accent ?>"><?= $kb_icon ?></div>
+            <div>
+                <h2><?= $category_info->category ?></h2>
+                <p><?= $category_info->description ?></p>
             </div>
-            <!-- Table -->
-            <div class="p">
-                <?php
-               
-                if (!empty($articles_by_category)) {
-                    foreach ($articles_by_category as $key => $by_category) {
-                        ?>
-                        <div class="panel-group" style="margin:8px 0px;" role="tablist"
-                             aria-multiselectable="true">
-                            <div class="box box-info" style="border-radius: 0px ">
-                                <div class="p pb-sm" role="tab" id="headingOne">
-                                    <h4 class="panel-title">
-                                        <a data-toggle="collapse" data-parent="#accordion"
-                                           href="#<?php echo $key ?>" aria-expanded="true"
-                                           aria-controls="collapseOne">
-                                            <strong
-                                                    class="text-alpha-inverse"><i
-                                                        class="fa fa-hand-o-right"></i> <?php echo $by_category->title; ?>
-                                            </strong>
-                                        </a>
-                                    </h4>
-                                </div>
-                                <div id="<?php echo $key ?>" class="panel-collapse collapse" role="tabpanel"
-                                     aria-labelledby="headingOne">
-                                    <div class="content p">
-                                        <?php
-                                        $attachments = null;
-                                        $uploaded_file = json_decode($by_category->attachments);
-                                        if (!empty($uploaded_file)) {
-                                            $attachments = true;
-                                        }
-                                        echo read_more($by_category->description, 500, 'admin/knowledgebase/details/articles/' . $by_category->kb_id, $attachments);
-                                        ?>
-                                    </div>
-                                </div>
-                            </div>
+            <div class="kb-count">
+                <b><?= count($articles_by_category) ?></b>
+                <span><?= lang('kb_articles_count') ?></span>
+            </div>
+        </div>
+        <div class="kb-toolbar">
+            <div class="kb-search-in">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <?php $this->load->view("admin/kb/search_box"); ?>
+            </div>
+        </div>
+        <div class="kb-panel">
+            <?php
+            if (!empty($articles_by_category)) {
+                // Popular = most viewed in this category; Updated = newest row
+                // (tables only store created_at, so it shows under the "Updated" wording).
+                $kb_max_view = 0;
+                $kb_newest = '';
+                foreach ($articles_by_category as $by_category) {
+                    $kb_max_view = max($kb_max_view, (int)$by_category->total_view);
+                    $kb_newest = max($kb_newest, $by_category->created_at);
+                }
+                foreach ($articles_by_category as $by_category) {
+                    $kb_row_files = json_decode($by_category->attachments);
+                    ?>
+                    <a class="kb-art-row" href="<?= base_url('admin/knowledgebase/details/articles/' . $by_category->kb_id) ?>">
+                        <div class="kb-art-badge <?= $kb_accent ?>"><?= $kb_icon ?></div>
+                        <div class="kb-art-main">
+                            <b><?= $by_category->title ?></b>
+                            <span><?= lang('kb_updated') . ' ' . time_ago($by_category->created_at) ?></span>
                         </div>
-                    <?php }
-                } else {
-                    if (!empty($articles_info)) {
-                        echo html_entity_decode($articles_info->description);
-                        $uploaded_file = json_decode($articles_info->attachments);
-                        if (!empty($uploaded_file)):
-                            ?>
-                            <hr/>
-                            <ul class="mailbox-attachments clearfix mt">
+                        <?php if ($by_category->created_at == $kb_newest) { ?>
+                            <span class="kb-tag kb-tag-amber"><?= lang('kb_updated') ?></span>
+                        <?php } elseif ((int)$by_category->total_view == $kb_max_view && $kb_max_view > 0) { ?>
+                            <span class="kb-tag kb-tag-mint"><?= lang('kb_popular') ?></span>
+                        <?php } ?>
+                        <?php if (!empty($kb_row_files)) { ?>
+                            <span class="kb-tag kb-tag-slate"><i class="fa fa-paperclip"></i></span>
+                        <?php } ?>
+                        <div class="kb-art-views">👁 <?= (int)$by_category->total_view ?></div>
+                    </a>
+                <?php }
+            } else { ?>
+                <div class="kb-art-row"><div class="kb-art-main"><span><?= lang('kb_no_articles') ?></span></div></div>
+            <?php } ?>
+        </div>
+    <?php } else {
+        if (!empty($articles_info)) {
+            // ===== Article view: breadcrumbs, article card + sticky sidebar =====
+            $kb_category_row = get_row('tbl_kb_category', array('kb_category_id' => $category_id, 'status' => 1));
+            $kb_category_name = !empty($kb_category_row->category) ? $kb_category_row->category : '';
+
+            // Byline: author (created_by user), "Updated" date, read time, views.
+            $kb_author = get_staff_details($articles_info->created_by);
+            $kb_author_name = !empty($kb_author->fullname) ? $kb_author->fullname : lang('admin');
+            $kb_initials = '';
+            foreach (preg_split('/\s+/', trim($kb_author_name)) as $kb_word) {
+                if ($kb_word !== '') {
+                    $kb_initials .= mb_strtoupper(mb_substr($kb_word, 0, 1));
+                    if (mb_strlen($kb_initials) == 2) {
+                        break;
+                    }
+                }
+            }
+            $kb_read_min = max(1, (int)ceil(str_word_count(html_entity_decode(strip_tags($articles_info->description))) / 200));
+
+            // Related: other active articles in the same category, newest first.
+            $kb_related = $this->db
+                ->select('tbl_knowledgebase.kb_id, tbl_knowledgebase.title')
+                ->from('tbl_knowledgebase')
+                ->where('tbl_knowledgebase.kb_category_id', $articles_info->kb_category_id)
+                ->where('tbl_knowledgebase.status', 1)
+                ->where('tbl_knowledgebase.kb_id !=', $articles_info->kb_id)
+                ->order_by('tbl_knowledgebase.created_at', 'DESC')
+                ->limit(5)
+                ->get()
+                ->result();
+            ?>
+            <div class="kb-crumb">
+                <a href="<?= base_url('admin/knowledgebase') ?>"><?= lang('knowledgebase') ?></a>
+                <span class="kb-sep">/</span>
+                <?php if (!empty($kb_category_name)) { ?>
+                    <a href="<?= base_url('admin/knowledgebase/details/kb_category/' . $category_id) ?>"><?= $kb_category_name ?></a>
+                    <span class="kb-sep">/</span>
+                <?php } ?>
+                <b><?= $articles_info->title ?></b>
+            </div>
+            <div class="kb-read">
+                <article class="kb-article">
+                    <div class="kb-a-tags">
+                        <span class="kb-tag kb-tag-slate"><?= $kb_icon ?> <?= $kb_category_name ?></span>
+                    </div>
+                    <h1><?= $articles_info->title ?></h1>
+                    <div class="kb-byline">
+                        <div class="kb-avatar"><?= $kb_initials ?></div>
+                        <div>
+                            <b><?= $kb_author_name ?></b><br>
+                            <?= lang('kb_updated') . ' ' . time_ago($articles_info->created_at) ?>
+                            &middot; ⏱ <?= $kb_read_min . lang('minutes') ?>
+                            &middot; 👁 <?= (int)$articles_info->total_view ?>
+                        </div>
+                    </div>
+                    <div class="kb-content">
+                        <?= html_entity_decode($articles_info->description) ?>
+                    </div>
+                    <?php
+                    $uploaded_file = json_decode($articles_info->attachments);
+                    if (!empty($uploaded_file)):
+                        ?>
+                        <div class="kb-panel" style="margin-top:var(--sp-5)">
+                            <div class="kb-panel-head">
+                                <h3><i class="fa fa-paperclip"></i> <?= lang('kb_attachments') ?></h3>
+                            </div>
+                            <div class="kb-file-chips" style="padding:0 var(--sp-5) var(--sp-4)">
                                 <?php
                                 foreach ($uploaded_file as $fKey => $v_files):
-            
+
                                     if (!empty($v_files)):
-                
+
                                         ?>
-                                        <li>
+                                        <a class="kb-file-chip"
+                                           href="<?= base_url() ?>admin/knowledgebase/download/<?= $articles_info->kb_id . '/' . $fKey ?>">
                                             <?php if ($v_files->is_image == 1) : ?>
-                                                <span class="mailbox-attachment-icon has-img"><img
-                                                            src="<?= base_url() . $v_files->path ?>"
-                                                            alt="Attachment"></span>
+                                                <img class="kb-fi" src="<?= base_url() . $v_files->path ?>" alt=""
+                                                     style="width:22px;height:22px;object-fit:cover;border-radius:4px">
                                             <?php else : ?>
-                                                <span class="mailbox-attachment-icon"><i
-                                                            class="fa fa-file-pdf-o"></i></span>
+                                                <i class="fa fa-file-pdf-o"></i>
                                             <?php endif; ?>
-                                            <div class="mailbox-attachment-info">
-                                                <a href="<?= base_url() ?>admin/knowledgebase/download/<?= $articles_info->kb_id . '/' . $fKey ?>"
-                                                   class="mailbox-attachment-name"><i class="fa fa-paperclip"></i>
-                                                    <?= $v_files->fileName ?></a>
-                                                <span class="mailbox-attachment-size">
-                          <?= $v_files->size ?> <?= lang('kb') ?>
-                            <a href="<?= base_url() ?>admin/knowledgebase/download/<?= $articles_info->kb_id . '/' . $fKey ?>"
-                               class="btn btn-default btn-xs pull-right"><i class="fa fa-cloud-download"></i></a>
-                        </span>
-                                            </div>
-                                        </li>
+                                            <?= $v_files->fileName ?>
+                                            <span style="color:var(--c-text-3)"><?= $v_files->size ?> <?= lang('kb') ?></span>
+                                        </a>
                                     <?php
                                     endif;
                                 endforeach;
                                 ?>
-                            </ul>
-                        <?php endif;
-                    }
-                } ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                </article>
+                <aside class="kb-toc">
+                    <div id="kb-toc-page">
+                        <h3><?= lang('kb_on_this_page') ?></h3>
+                        <div id="kb-toc-links"></div>
+                    </div>
+                    <div style="margin-top:var(--sp-5);padding-top:var(--sp-4);border-top:1px solid var(--c-border)">
+                        <h3><?= lang('kb_related') ?></h3>
+                        <?php if (!empty($kb_related)) {
+                            foreach ($kb_related as $kb_related_article) { ?>
+                                <a href="<?= base_url('admin/knowledgebase/details/articles/' . $kb_related_article->kb_id) ?>"
+                                   style="border:none;padding-left:0"><?= $kb_related_article->title ?></a>
+                            <?php }
+                        } else { ?>
+                            <span style="font-size:var(--fs-sm);color:var(--c-text-3)"><?= lang('kb_no_articles') ?></span>
+                        <?php } ?>
+                    </div>
+                    <div class="kb-feedback">
+                        <p><?= lang('kb_was_this_helpful') ?></p>
+                        <div class="kb-fb-btns">
+                            <button type="button" class="kb-fb-btn">👍 <?= lang('kb_yes') ?></button>
+                            <button type="button" class="kb-fb-btn">👎 <?= lang('kb_no') ?></button>
+                        </div>
+                    </div>
+                </aside>
             </div>
-        </div>
-    </div>
+            <script>
+                (function () {
+                    var KB_FEEDBACK_THANKS = <?= json_encode(lang('kb_thanks_feedback')) ?>;
+
+                    /* ----- Client-side heading TOC ----- */
+                    var content = document.querySelector('.kb-details .kb-content');
+                    var tocPage = document.getElementById('kb-toc-page');
+                    var tocLinks = document.getElementById('kb-toc-links');
+                    if (content && tocPage && tocLinks) {
+                        var heads = content.querySelectorAll('h1, h2, h3, h4');
+                        if (!heads.length) {
+                            tocPage.style.display = 'none';
+                        } else {
+                            var links = [];
+                            heads.forEach(function (h, i) {
+                                if (!h.id) {
+                                    h.id = 'kb-h-' + i;
+                                }
+                                var a = document.createElement('a');
+                                a.href = '#' + h.id;
+                                a.textContent = (h.textContent || '').trim();
+                                if (i === 0) {
+                                    a.className = 'on';
+                                }
+                                tocLinks.appendChild(a);
+                                links.push(a);
+                            });
+                            tocLinks.addEventListener('click', function (e) {
+                                var a = e.target.closest('a');
+                                if (!a) {
+                                    return;
+                                }
+                                var target = document.getElementById(a.getAttribute('href').slice(1));
+                                if (target) {
+                                    e.preventDefault();
+                                    window.scrollTo({
+                                        top: target.getBoundingClientRect().top + window.pageYOffset - 90,
+                                        behavior: 'smooth'
+                                    });
+                                }
+                            });
+                            window.addEventListener('scroll', function () {
+                                var probe = window.pageYOffset + 120;
+                                var current = 0;
+                                heads.forEach(function (h, i) {
+                                    if (h.getBoundingClientRect().top + window.pageYOffset <= probe) {
+                                        current = i;
+                                    }
+                                });
+                                links.forEach(function (l, i) {
+                                    l.classList.toggle('on', i === current);
+                                });
+                            }, {passive: true});
+                        }
+                    }
+
+                    /* ----- "Was this helpful?" — inert, client-side only ----- */
+                    var fbBtns = document.querySelector('.kb-details .kb-fb-btns');
+                    if (fbBtns) {
+                        fbBtns.addEventListener('click', function (e) {
+                            if (e.target.closest('.kb-fb-btn')) {
+                                fbBtns.textContent = KB_FEEDBACK_THANKS;
+                            }
+                        });
+                    }
+                })();
+            </script>
+        <?php }
+    } ?>
 </div>
