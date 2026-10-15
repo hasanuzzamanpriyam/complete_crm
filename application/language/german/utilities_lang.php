@@ -223,6 +223,37 @@ $lang['overdue_opportunities'] = 'Überfällige Möglichkeiten';
 $lang['overdue_report'] = 'Überfälliger Bericht';
 $lang['todo_list'] = 'Aufgaben Liste';
 $lang['update_settings'] = 'Einstellung altualisiert';
+
+$lang['kb_how_can_we_help'] = 'How can we help?';
+$lang['kb_browse_by_category'] = 'Browse by category';
+$lang['kb_popular_articles'] = 'Popular articles';
+$lang['kb_recently_updated'] = 'Recently updated';
+$lang['kb_total_views'] = 'Total views';
+$lang['kb_articles_count'] = 'Articles';
+$lang['kb_updated_ago'] = 'Last updated';
+$lang['kb_on_this_page'] = 'On this page';
+$lang['kb_related'] = 'Related';
+$lang['kb_was_this_helpful'] = 'Was this helpful?';
+$lang['kb_yes'] = 'Yes';
+$lang['kb_no'] = 'No';
+$lang['kb_thanks_feedback'] = 'Thanks for your feedback!';
+$lang['kb_search_articles'] = 'Search articles';
+$lang['kb_view_all'] = 'View all';
+$lang['kb_browse'] = 'Browse';
+$lang['kb_new_category'] = 'New category';
+$lang['kb_new_article'] = 'New article';
+$lang['kb_save_article'] = 'Save article';
+$lang['kb_save_category'] = 'Save category';
+$lang['kb_drag_drop_files'] = 'Drag & drop files here';
+$lang['kb_browse_files'] = 'Browse files';
+$lang['kb_attachments'] = 'Attachments';
+$lang['kb_sort_most_viewed'] = 'Most viewed';
+$lang['kb_all_categories'] = 'All categories';
+$lang['kb_visibility'] = 'Visibility';
+$lang['kb_show_clients'] = 'Show to clients';
+$lang['kb_popular'] = 'Popular';
+$lang['kb_updated'] = 'Updated';
+$lang['kb_no_articles'] = 'No articles found';
 
 
 /* End of file utilities_lang.php */

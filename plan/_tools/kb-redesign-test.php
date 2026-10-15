@@ -45,6 +45,9 @@ $ok(strpos(file_get_contents($css), '--c-accent') !== false, 'kb css consumes to
 $partial = ROOTPATH . 'application/views/kb_shared/_kb_assets.php';
 $ok(file_get_contents($partial, true) !== false && strpos(file_get_contents($partial), 'kb_modern.css') !== false, 'asset partial links css');
 
+$en = ROOTPATH . 'application/language/english/utilities_lang.php';
+$ok(strpos(file_get_contents($en), "kb_how_can_we_help") !== false, 'kb lang keys added');
+
 /* ---------------------------------------------------------------------
  * Later tasks append their assertions ABOVE this line, e.g.:
  *   $en = ROOTPATH . 'application/language/english/utilities_lang.php';
