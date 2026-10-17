@@ -155,6 +155,19 @@ foreach (['kb-hero', 'kb-tbl', 'kb-form', 'kb-modal', 'kb-search'] as $kb_css_ma
 $ok($kb_css_missing === [], 'kb css styles every marker surface (hero/tbl/form/modal/search)');
 
 /* ---------------------------------------------------------------------
+ * Final fixes: category-view sort control (?sort= re-sorts the already
+ * scoped $articles_by_category array in the view) — both category views.
+ * --------------------------------------------------------------------- */
+$kb_sort_control_ok = true;
+foreach (['admin', 'frontend'] as $kb_sort_side) {
+    $kb_sort_view_src = file_get_contents(ROOTPATH . 'application/views/' . $kb_sort_side . '/kb/articles_details.php');
+    if (strpos($kb_sort_view_src, 'kb-sort') === false || strpos($kb_sort_view_src, 'usort') === false) {
+        $kb_sort_control_ok = false;
+    }
+}
+$ok($kb_sort_control_ok, 'category sort control (kb-sort + usort) in admin + public details views');
+
+/* ---------------------------------------------------------------------
  * Later tasks append their assertions ABOVE this line, e.g.:
  *   $en = ROOTPATH . 'application/language/english/utilities_lang.php';
  *   $ok(strpos(file_get_contents($en), 'kb_how_can_we_help') !== false, 'kb lang keys added');

@@ -72,13 +72,17 @@
   text-align: center;
   box-shadow: var(--sh-3);
   position: relative;
-  overflow: hidden;
+  /* NO overflow:hidden here — it clipped the Awesomplete suggestion <ul>
+     (dropdown) rendered by .kb-hero-search after 2-4 rows. The decorative
+     sheen below clips itself via border-radius: inherit instead. */
 }
 .kb-hero::after {
   content: "";
   position: absolute;
   inset: 0;
   background: var(--kb-sheen);
+  /* Matches the hero's rounded corners so the sheen never bleeds square. */
+  border-radius: inherit;
 }
 .kb-hero h1 {
   font-size: var(--fs-2xl);

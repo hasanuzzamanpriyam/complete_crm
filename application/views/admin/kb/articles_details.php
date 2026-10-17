@@ -32,6 +32,38 @@ $kb_accent = $kb_accents[$kb_cat_sort % count($kb_accents)];
     $category = $this->uri->segment(4);
     if ($category == 'kb_category') {
         $category_info = get_row('tbl_kb_category', array('kb_category_id' => $category_id, 'status' => 1));
+
+        /* ------------------------------------------------------------------
+         * Category sort — VIEW LAYER ONLY. The controller details() and the
+         * model are frozen, so ?sort= re-orders the already-fetched
+         * $articles_by_category array with usort() before the rows render.
+         * Membership is never touched, so the model's scoping (status = 1,
+         * and for_all = 'No' on the public side) stays exactly as-is.
+         * No ?sort= param (or an unknown one) = the original controller order.
+         * ---------------------------------------------------------------- */
+        $kb_sort_options = array(
+            'default' => lang('kb_sort_default'),
+            'views' => lang('kb_sort_most_viewed'),
+            'newest' => lang('kb_sort_newest'),
+            'title' => lang('kb_sort_title'),
+        );
+        $kb_sort = $this->input->get('sort', true);
+        $kb_sort = is_string($kb_sort) && array_key_exists($kb_sort, $kb_sort_options) ? $kb_sort : 'default';
+        if ($kb_sort !== 'default' && is_array($articles_by_category) && count($articles_by_category) > 1) {
+            // created_at may be a timestamp or a datetime string — normalise both.
+            $kb_sort_time = function ($value) {
+                return is_numeric($value) ? (float) $value : (int) strtotime((string) $value);
+            };
+            usort($articles_by_category, function ($a, $b) use ($kb_sort, $kb_sort_time) {
+                if ($kb_sort === 'views') {
+                    return (int) $b->total_view <=> (int) $a->total_view;
+                }
+                if ($kb_sort === 'newest') {
+                    return $kb_sort_time($b->created_at) <=> $kb_sort_time($a->created_at);
+                }
+                return strcasecmp((string) $a->title, (string) $b->title); // A-Z
+            });
+        }
         ?>
         <!-- ===== Category view: header + in-category search + article rows ===== -->
         <div class="kb-crumb">
@@ -50,11 +82,34 @@ $kb_accent = $kb_accents[$kb_cat_sort % count($kb_accents)];
                 <span><?= lang('kb_articles_count') ?></span>
             </div>
         </div>
+        <style>
+            /* Scoped to this category view's sort control — token-driven, no raw hex. */
+            .kb-sort { display: flex; align-items: center; gap: var(--sp-2); }
+            .kb-sort .kb-sort-label { font-size: var(--fs-sm); font-weight: 600; color: var(--c-text-3); white-space: nowrap; }
+            .kb-sort .kb-select-wrap { display: inline-block; }
+            .kb-sort .kb-select-wrap select.kb-fin { width: auto; min-width: 158px; }
+            .kb-sort .kb-sort-go { padding: 9px 11px; }
+        </style>
         <div class="kb-toolbar">
             <div class="kb-search-in">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                 <?php $this->load->view("admin/kb/search_box"); ?>
             </div>
+            <div class="kb-grow"></div>
+            <!-- Sort: GET param re-sorts the already-scoped array in this view (see above). -->
+            <form class="kb-sort" method="get" action="<?= current_url() ?>">
+                <label class="kb-sort-label" for="kb-sort-select-admin"><?= lang('kb_sort') ?></label>
+                <span class="kb-select-wrap">
+                    <select class="kb-fin" id="kb-sort-select-admin" name="sort" onchange="this.form.submit()">
+                        <?php foreach ($kb_sort_options as $kb_sort_key => $kb_sort_label) { ?>
+                            <option value="<?= $kb_sort_key ?>"<?= $kb_sort === $kb_sort_key ? ' selected="selected"' : '' ?>><?= $kb_sort_label ?></option>
+                        <?php } ?>
+                    </select>
+                </span>
+                <button type="submit" class="kb-btn kb-btn-ghost kb-sort-go" title="<?= lang('kb_sort') ?>" aria-label="<?= lang('kb_sort') ?>">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h11M4 12h7M4 17h4"/><path d="M18 5v14m0 0-3-3m3 3 3-3"/></svg>
+                </button>
+            </form>
         </div>
         <div class="kb-panel">
             <?php

@@ -248,6 +248,11 @@ $lang['kb_drag_drop_files'] = 'Drag & drop files here';
 $lang['kb_browse_files'] = 'Browse files';
 $lang['kb_attachments'] = 'Attachments';
 $lang['kb_sort_most_viewed'] = 'Most viewed';
+// TODO: translate — English fallback (additive keys only, existing keys untouched).
+$lang['kb_sort'] = 'Sort';
+$lang['kb_sort_default'] = 'Default order';
+$lang['kb_sort_newest'] = 'Newest';
+$lang['kb_sort_title'] = 'Title (A-Z)';
 $lang['kb_all_categories'] = 'All categories';
 $lang['kb_visibility'] = 'Visibility';
 $lang['kb_show_clients'] = 'Show to clients';
