@@ -1,3 +1,5 @@
+<?php // Shared KB asset pipeline (kb_modern.css) — must come first. ?>
+<?php $this->load->view('kb_shared/_kb_assets'); ?>
 <link rel="stylesheet" href="<?php echo base_url(); ?>assets/plugins/awesomplete/awesomplete.css">
 <script src="<?= base_url() ?>assets/plugins/awesomplete/awesomplete.min.js"></script>
 <?php
@@ -7,7 +9,8 @@ echo form_input(array(
     "name" => "search",
     "value" => "",
     "autocomplete" => "false",
-    "class" => "form-control search-icon",
+    "class" => "kb-search kb-public",
+    "style" => "width:100%;background-repeat:no-repeat;background-position:right 12px center",
     "placeholder" => lang('search_your_question')
 ));
 ?>
@@ -68,9 +71,9 @@ echo form_input(array(
 
 
         $searchBox.on('awesomplete-selectcomplete', function () {
-            //serch result selected, redirect to the article view
+            //serch result selected, redirect to the public article view
             if (this.value) {
-                window.location.href = "<?php echo  base_url('frontend/kb_details/details/articles'); ?>/" + this.value;
+                window.location.href = "<?php echo base_url('frontend/kb_details/articles'); ?>/" + this.value;
             }
             this.value = "";
         });

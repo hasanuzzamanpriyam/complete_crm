@@ -95,6 +95,15 @@ $kb_search_box_src = file_get_contents(ROOTPATH . 'application/views/admin/kb/se
 $ok(preg_match('/"class"\s*=>\s*"kb-search/', $kb_search_box_src) === 1,
     'admin search box input uses kb-search marker class');
 
+/* =====================================================================
+ * Task 9: Public frontend KB surfaces (frontend/kb/*)
+ * ===================================================================== */
+foreach (['kb_list', 'articles_details', 'search_box'] as $kb_public_view) {
+    $kb_public_src = file_get_contents(ROOTPATH . 'application/views/frontend/kb/' . $kb_public_view . '.php');
+    $ok(strpos($kb_public_src, 'kb-public') !== false,
+        'public kb ' . $kb_public_view . ' has kb-public marker');
+}
+
 /* ---------------------------------------------------------------------
  * Later tasks append their assertions ABOVE this line, e.g.:
  *   $en = ROOTPATH . 'application/language/english/utilities_lang.php';
