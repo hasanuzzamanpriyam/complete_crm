@@ -104,6 +104,56 @@ foreach (['kb_list', 'articles_details', 'search_box'] as $kb_public_view) {
         'public kb ' . $kb_public_view . ' has kb-public marker');
 }
 
+/* =====================================================================
+ * Task 10: Full gate — final coverage assertions
+ * ===================================================================== */
+
+// Language keys present in every shipped locale (english asserted in Task 1).
+foreach (['german', 'portuguese'] as $kb_locale) {
+    $kb_lang_src = file_get_contents(ROOTPATH . 'application/language/' . $kb_locale . '/utilities_lang.php');
+    $ok(strpos($kb_lang_src, 'kb_how_can_we_help') !== false && strpos($kb_lang_src, 'kb_no_articles') !== false,
+        $kb_locale . ' kb lang keys added');
+}
+
+// Every surface-owning view wires the shared asset pipeline (kb_modern.css via _kb_assets).
+// admin/kb/search_box is an embedded partial — its hosts (kb_list, articles_details) load
+// the pipeline, asserted separately below.
+$kb_all_views = [
+    'admin/kb/kb_list', 'admin/kb/articles_details', 'admin/kb/categories', 'admin/kb/articles',
+    'admin/kb/new_articles', 'admin/kb/new_categories',
+    'frontend/kb/kb_list', 'frontend/kb/articles_details', 'frontend/kb/search_box',
+];
+$kb_missing_assets = [];
+foreach ($kb_all_views as $kb_view) {
+    if (strpos(file_get_contents(ROOTPATH . 'application/views/' . $kb_view . '.php'), 'kb_shared/_kb_assets') === false) {
+        $kb_missing_assets[] = $kb_view;
+    }
+}
+$ok($kb_missing_assets === [], 'all surface-owning kb views load shared asset partial');
+$ok(strpos($kb_list_src, "admin/kb/search_box") !== false && strpos($kb_details_src, "admin/kb/search_box") !== false,
+    'admin search box embedded in pipeline-loading hosts');
+
+// Public view marker classes beyond the generic kb-public root.
+$kb_public_list_src = file_get_contents(ROOTPATH . 'application/views/frontend/kb/kb_list.php');
+$ok(strpos($kb_public_list_src, 'kb-overview') !== false && strpos($kb_public_list_src, 'kb-hero') !== false,
+    'public kb kb_list has kb-overview + kb-hero');
+$kb_public_details_src = file_get_contents(ROOTPATH . 'application/views/frontend/kb/articles_details.php');
+$ok(strpos($kb_public_details_src, 'kb-details') !== false && strpos($kb_public_details_src, 'kb-article') !== false,
+    'public kb articles_details has kb-details + kb-article');
+$kb_public_search_src = file_get_contents(ROOTPATH . 'application/views/frontend/kb/search_box.php');
+$ok(preg_match('/"class"\s*=>\s*"kb-search/', $kb_public_search_src) === 1,
+    'public search box input uses kb-search marker class');
+
+// The stylesheet actually defines the marker surfaces the views rely on.
+$kb_css_src = file_get_contents($css);
+$kb_css_missing = [];
+foreach (['kb-hero', 'kb-tbl', 'kb-form', 'kb-modal', 'kb-search'] as $kb_css_marker) {
+    if (strpos($kb_css_src, '.' . $kb_css_marker) === false) {
+        $kb_css_missing[] = $kb_css_marker;
+    }
+}
+$ok($kb_css_missing === [], 'kb css styles every marker surface (hero/tbl/form/modal/search)');
+
 /* ---------------------------------------------------------------------
  * Later tasks append their assertions ABOVE this line, e.g.:
  *   $en = ROOTPATH . 'application/language/english/utilities_lang.php';
