@@ -66,6 +66,15 @@ $ok(strpos(file_get_contents($manage), 'cl-manage') !== false, 'manage view has 
 $ctrl = ROOTPATH . 'application/controllers/admin/Client.php';
 $ok(strpos(file_get_contents($ctrl), 'cl-chip') !== false, 'clientList emits cl-chip markup');
 
+/* =====================================================================
+ * Task 4: Client details shell — KPI cards + client-specific tab rail
+ * ===================================================================== */
+$details_view = ROOTPATH . 'application/views/admin/client/client_details.php';
+$ok(strpos(file_get_contents($details_view), 'cl-details') !== false, 'client details view has cl-details');
+$ok(strpos(file_get_contents($details_view), '_client_tabs') !== false, 'client details view loads _client_tabs');
+$client_tabs = ROOTPATH . 'application/views/admin/client/_client_tabs.php';
+$ok(file_exists($client_tabs) && strpos(file_get_contents($client_tabs), 'cl-side-nav') !== false, 'client tabs partial uses cl-side-nav');
+
 /* ---------- report ---------- */
 $pass = 0; $fail = 0; $skip = 0;
 foreach ($checks as $name => $reason) {

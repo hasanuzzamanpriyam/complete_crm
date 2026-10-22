@@ -72,96 +72,62 @@ $all_proposals_info = $this->db->where(array('module' => 'client', 'module_id' =
 $edited = can_action('4', 'edited');
 $notified_reminder = count(array($this->db->where(array('module' => 'client', 'module_id' => $client_details->client_id, 'notified' => 'No'))->get('tbl_reminders')->result()));
 ?>
-<div class="row">
-    <div class="col-md-3">
-        <div class="panel widget mb0 b0">
-            <div class="row-table row-flush">
-                <div class="col-xs-4 bg-info text-center">
-                    <em class="fa fa-money fa-2x"></em>
-                </div>
-                <div class="col-xs-8">
-                    <div class="text-center">
-                        <h4 class="mb-sm"><?php
+<?php
+// Shared client asset pipeline (client_modern.css) — same pattern as manage_client.
+$this->load->view('admin/client/_client_assets');
+?>
+<div class="cl-root cl-details">
+    <div class="cl-kpi-row" style="grid-column: 1 / -1;">
+        <div class="cl-kpi">
+            <div class="cl-ico cl-ico-mint"><i class="fa fa-money"></i></div>
+            <div class="cl-body">
+                <div class="cl-v"><?php
                                             if (!empty($client_payments)) {
                                                 echo display_money($client_payments, client_currency($client_details->client_id));
                                             } else {
                                                 echo '0.00';
                                             }
-                                            ?></h4>
-                        <p class="mb0 text-muted"><?= lang('paid_amount') ?></p>
-                        <a href="<?= base_url() ?>admin/invoice/all_payments" class="small-box-footer"><?= lang('more_info') ?> <i class="fa fa-arrow-circle-right"></i></a>
-                    </div>
-                </div>
+                ?></div>
+                <div class="cl-l"><?= lang('paid_amount') ?></div>
             </div>
         </div>
-    </div>
-    <div class="col-md-3">
-        <div class="panel widget mb0 b0">
-            <div class="row-table row-flush">
-                <div class="col-xs-4 bg-danger text-center">
-                    <em class="fa fa-usd fa-2x"></em>
-                </div>
-                <div class="col-xs-8">
-                    <div class="text-center">
-                        <h4 class="mb-sm"><?php
+        <div class="cl-kpi">
+            <div class="cl-ico cl-ico-cyan"><i class="fa fa-usd"></i></div>
+            <div class="cl-body">
+                <div class="cl-v"><?php
                                             if ($client_outstanding > 0) {
                                                 echo display_money($client_outstanding, client_currency($client_details->client_id));
                                             } else {
                                                 echo '0.00';
                                             }
-                                            ?></h4>
-                        <p class="mb0 text-muted"><?= lang('due_amount') ?></p>
-                        <a href="<?= base_url() ?>admin/invoice/manage_invoice" class="small-box-footer"><?= lang('more_info') ?>
-                            <i class="fa fa-arrow-circle-right"></i></a>
-                    </div>
-                </div>
+                ?></div>
+                <div class="cl-l"><?= lang('due_amount') ?></div>
             </div>
         </div>
-    </div>
-    <div class="col-md-3">
-        <div class="panel widget mb0 b0">
-            <div class="row-table row-flush">
-                <div class="col-xs-4 bg-inverse text-center">
-                    <em class="fa fa-usd fa-2x"></em>
-                </div>
-                <div class="col-xs-8">
-                    <div class="text-center">
-                        <h4 class="mb-sm">
+        <div class="cl-kpi">
+            <div class="cl-ico cl-ico-amber"><i class="fa fa-file-text-o"></i></div>
+            <div class="cl-body">
+                <div class="cl-v">
                             <?php
                             if ($client_payable > 0) {
                                 echo display_money($client_payable, client_currency($client_details->client_id));
                             } else {
                                 echo '0.00';
                             }
-                            ?></h4>
-                        <p class="mb0 text-muted"><?= lang('invoice_amount') ?></p>
-                        <a href="<?= base_url() ?>admin/invoice/manage_invoice" class="small-box-footer"><?= lang('more_info') ?>
-                            <i class="fa fa-arrow-circle-right"></i></a>
-                    </div>
-                </div>
+                            ?></div>
+                <div class="cl-l"><?= lang('invoice_amount') ?></div>
+            </div>
+        </div>
+        <div class="cl-kpi">
+            <div class="cl-ico cl-ico-purple"><i class="fa fa-percent"></i></div>
+            <div class="cl-body">
+                <div class="cl-v"><?= $perc_paid ?>%</div>
+                <div class="cl-l"><?= lang('paid') . ' ' . lang('percentage') ?></div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="panel widget mb0 b0">
-            <div class="row-table row-flush">
-                <div class="col-xs-4 bg-purple text-center">
-                    <em class="fa fa-usd fa-2x"></em>
-                </div>
-                <div class="col-xs-8">
-                    <div class="text-center">
-                        <h4 class="mb-sm">
-                            <?= $perc_paid ?>%</h4>
-                        <p class="mb0 text-muted"><?= lang('paid') . ' ' . lang('percentage') ?></p>
-                        <a href="<?= base_url() ?>admin/invoice/all_payments"
-                           class="small-box-footer"><?= lang('more_info') ?>
-                            <i class="fa fa-arrow-circle-right"></i></a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <?php
+    // Client-specific rail + pane — replaces admin/common/tabs (shared rail untouched).
+    $this->load->view('admin/client/_client_tabs');
+    ?>
 </div>
-<?php
-$this->load->view('admin/common/tabs');
-?>
