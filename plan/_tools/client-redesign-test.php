@@ -87,6 +87,20 @@ $ok(strpos(file_get_contents($details_tab), 'cl-profile') !== false, 'client det
 $contacts_tab = ROOTPATH . 'application/views/admin/client/details/contacts.php';
 $ok(strpos(file_get_contents($contacts_tab), 'cl-contacts') !== false, 'client contacts tab has cl-contacts');
 
+/* =====================================================================
+ * Task 7: Financial detail tabs (invoices, payments, estimates, proposals, transactions)
+ * ===================================================================== */
+$inv = ROOTPATH . 'application/views/admin/client/details/invoices.php';
+$ok(strpos(file_get_contents($inv), 'cl-tbl') !== false, 'invoices tab has cl-tbl');
+$pay = ROOTPATH . 'application/views/admin/client/details/payments.php';
+$ok(strpos(file_get_contents($pay), 'cl-tbl') !== false, 'payments tab has cl-tbl');
+$est = ROOTPATH . 'application/views/admin/client/details/estimates.php';
+$ok(strpos(file_get_contents($est), 'cl-tbl') !== false, 'estimates tab has cl-tbl');
+$prop = ROOTPATH . 'application/views/admin/client/details/proposals.php';
+$ok(strpos(file_get_contents($prop), 'cl-tbl') !== false, 'proposals tab has cl-tbl');
+$trans = ROOTPATH . 'application/views/admin/client/details/transactions.php';
+$ok(strpos(file_get_contents($trans), 'cl-tbl') !== false, 'transactions tab has cl-tbl');
+
 /* ---------- report ---------- */
 $pass = 0; $fail = 0; $skip = 0;
 foreach ($checks as $name => $reason) {
