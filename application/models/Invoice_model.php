@@ -238,7 +238,7 @@ class Invoice_Model extends MY_Model
 
     function client_outstanding($client_id, $project_id = null)
     {
-        $due[] = array();
+        $due = array();
         if (!empty($project_id)) {
             $invoices_info = $this->db->where(array('project_id' => $project_id, 'status !=' => 'draft'))->get('tbl_invoices')->result();
         } else {
