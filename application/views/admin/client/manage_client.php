@@ -455,4 +455,3 @@ $this->load->view('admin/client/_client_assets');
             });
         }
     </script>
-</div>
