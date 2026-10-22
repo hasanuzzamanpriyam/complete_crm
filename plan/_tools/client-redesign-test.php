@@ -51,6 +51,13 @@ $ok(strpos(file_get_contents($partial), 'client_modern.css') !== false, 'asset p
  *   $ok(strpos(file_get_contents($manage), 'cl-root') !== false, 'admin manage view has cl-root');
  * --------------------------------------------------------------------- */
 
+/* =====================================================================
+ * Task 2: Client redesign language keys
+ * ===================================================================== */
+$en = ROOTPATH . 'application/language/english/client_lang.php';
+$ok(strpos(file_get_contents($en), "client_paid_percentage") !== false, 'client lang keys added');
+$ok(strpos(file_get_contents($en), "client_address_and_hosting") !== false, 'client lang keys added (2)');
+
 /* ---------- report ---------- */
 $pass = 0; $fail = 0; $skip = 0;
 foreach ($checks as $name => $reason) {

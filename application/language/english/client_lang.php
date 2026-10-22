@@ -55,3 +55,20 @@ $lang['zip_payment'] = 'Zip Payment';
 $lang['from_date'] = 'From date';
 $lang['to_date'] = 'To date';
 $lang['undefined_client'] = 'Undefined Client';
+
+// client redesign (2026-10-22)
+$lang['client_paid_amount'] = 'Paid Amount';
+$lang['client_due_amount'] = 'Due Amount';
+$lang['client_invoice_amount'] = 'Invoice Amount';
+$lang['client_paid_percentage'] = 'Paid Percentage';
+$lang['client_contact_details'] = 'Contact Details';
+$lang['client_address_and_hosting'] = 'Address & Hosting';
+$lang['client_outstanding'] = 'Outstanding';
+$lang['client_search_clients'] = 'Search Clients';
+$lang['client_add_contact'] = 'Add Contact';
+$lang['client_save_group'] = 'Save Group';
+$lang['client_overview_status'] = 'Overview & Status';
+$lang['client_profile_info'] = 'Profile Info';
+$lang['client_general_info'] = 'General Info';
+$lang['client_custom_fields'] = 'Custom Fields';
+$lang['client_no_records'] = 'No records found';
