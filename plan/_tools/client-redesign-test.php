@@ -123,6 +123,18 @@ $ok(strpos(file_get_contents($fm), 'cl-embed') !== false, 'filemanager tab has c
 $map = ROOTPATH . 'application/views/admin/client/details/map.php';
 $ok(strpos(file_get_contents($map), 'cl-embed') !== false, 'map tab has cl-embed');
 
+/* =====================================================================
+ * Task 10: Create/Edit form + quick-create modals + customer-group modal
+ * ===================================================================== */
+$create = ROOTPATH . 'application/views/admin/client/create_client.php';
+$ok(strpos(file_get_contents($create), 'cl-form') !== false, 'create_client has cl-form');
+$new = ROOTPATH . 'application/views/admin/client/new_client.php';
+$ok(strpos(file_get_contents($new), 'cl-form') !== false, 'new_client has cl-form');
+$quick = ROOTPATH . 'application/views/admin/client/_modal_quick_add.php';
+$ok(strpos(file_get_contents($quick), 'cl-modal') !== false, 'quick_add modal has cl-modal');
+$cgroup = ROOTPATH . 'application/views/admin/client/customer_group.php';
+$ok(strpos(file_get_contents($cgroup), 'cl-modal') !== false, 'customer_group modal has cl-modal');
+
 /* ---------- report ---------- */
 $pass = 0; $fail = 0; $skip = 0;
 foreach ($checks as $name => $reason) {

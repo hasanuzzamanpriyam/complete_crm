@@ -1,6 +1,4 @@
-<?php $this->load->view('admin/client/_client_assets'); ?>
-<div class="cl-root cl-embed">
-    <div class="cl-card">
+<div class="cl-card">
         <div class="cl-sec-head">
             <h1><?= lang('filemanager') ?></h1>
         </div>
@@ -51,4 +49,3 @@
             <div id="elfinder" style="height: 600px;"></div>
         </div>
     </div>
-</div>

@@ -33,11 +33,8 @@ if ($client_payable > 0 and $client_payments > 0) {
 $edited = can_action('4', 'edited');
 ?>
 
-<div class="cl-root cl-profile">
-    <?php $this->load->view('admin/client/_client_assets'); ?>
-
-    <!-- Profile Hero -->
-    <div class="cl-profile-hero">
+<!-- Profile Hero -->
+<div class="cl-profile-hero">
         <div class="cl-pav cl-av-mint">
             <?php
             // Initials from company name
@@ -57,7 +54,7 @@ $edited = can_action('4', 'edited');
                 // Group + location + email
                 $group_name = '';
                 if (!empty($client_details->customer_group_id)) {
-                    $grp = $this->db->where('customer_group_id', $client_details->customer_group_id)->get('tbl_customer_groups')->row();
+                    $grp = $this->db->where('customer_group_id', $client_details->customer_group_id)->get('tbl_customer_group')->row();
                     if ($grp) $group_name = $grp->name;
                 }
                 $location_parts = array_filter([$client_details->city, $client_details->country], fn($v) => !empty($v));
@@ -252,7 +249,7 @@ $edited = can_action('4', 'edited');
             <span class="cl-v">
                 <div style="display: flex; align-items: center; gap: var(--sp-4);">
                     <strong class="cl-money-pos"><?= display_money($this->client_model->client_paid($client_details->client_id), client_currency($client_details->client_id)) ?></strong>
-                    <div id="easypie3" data-percent="<?= $perc_paid ?>" class="easypie-chart" style="width: 48px; height: 48px; display: grid; place-items: center; font-size: var(--fs-sm); font-weight: 700; color: var(--c-success); border-radius: 50%; background: conic-gradient(var(--c-success) 0 calc(var(--cl-paid-pct, 78) * 1%), var(--c-surface-3) calc(var(--cl-paid-pct, 78) * 1%) 100%);">
+                    <div id="easypie3" data-percent="<?= $perc_paid ?>" class="easypie-chart" style="width: 48px; height: 48px; display: grid; place-items: center; font-size: var(--fs-sm); font-weight: 700; color: var(--c-success); border-radius: 50%; background: conic-gradient(var(--c-success) <?= $perc_paid ?>%, var(--c-surface-3) <?= $perc_paid ?>%);">
                         <span class="h2" style="font-size: var(--fs-sm);"><?= $perc_paid ?>%</span>
                     </div>
                 </div>
@@ -264,4 +261,3 @@ $edited = can_action('4', 'edited');
             <span class="cl-money-neg"><?= lang('outstanding') ?>: <strong><?= display_money($client_outstanding, client_currency($client_details->client_id)) ?></strong></span>
         </div>
     </div>
-</div>

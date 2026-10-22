@@ -1,6 +1,4 @@
-<?php $this->load->view('admin/client/_client_assets'); ?>
-<div class="cl-root cl-tbl">
-    <div class="cl-card">
+<div class="cl-card">
         <div class="cl-sec-head">
             <h1><?= lang('estimates') ?></h1>
             <div class="cl-spacer"></div>
@@ -58,4 +56,3 @@
             <span><?= lang('estimate') . ' ' . lang('amount') ?>: <strong class="cl-tag cl-tag-mint"><?= display_money($total_estimate, client_currency($client_details->client_id)) ?></strong></span>
         </div>
     </div>
-</div>

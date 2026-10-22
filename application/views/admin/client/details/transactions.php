@@ -1,6 +1,4 @@
-<?php $this->load->view('admin/client/_client_assets'); ?>
-<div class="cl-root cl-tbl">
-    <div class="cl-card">
+<div class="cl-card">
         <div class="cl-sec-head">
             <h1><?= lang('transactions') ?></h1>
         </div>
@@ -56,4 +54,3 @@
             <small class="cl-money-neg"><strong><?= lang('total_expense') ?>:</strong> <strong><?= display_money($total_expense, default_currency()) ?></strong></small>
         </div>
     </div>
-</div>

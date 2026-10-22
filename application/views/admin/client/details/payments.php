@@ -1,6 +1,4 @@
-<?php $this->load->view('admin/client/_client_assets'); ?>
-<div class="cl-root cl-tbl">
-    <div class="cl-card">
+<div class="cl-card">
         <div class="cl-sec-head">
             <h1><?= lang('payments') ?></h1>
             <div class="cl-spacer"></div>
@@ -80,4 +78,3 @@
             <span><?= lang('paid_amount') ?>: <strong class="cl-tag cl-tag-mint"><?= display_money($total_amount, client_currency($client_details->client_id)) ?></strong></span>
         </div>
     </div>
-</div>

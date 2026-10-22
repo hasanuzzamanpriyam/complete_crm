@@ -5,6 +5,7 @@ if (!empty($add_contact)) :
     $languages = $this->db->where('active', 1)->order_by('name', 'ASC')->get('tbl_languages')->result();
     $locales = $this->db->order_by('name', 'ASC')->get('tbl_locales')->result();
     ?>
+    <?php $this->load->view('admin/client/_client_assets'); ?>
     <?php include_once 'assets/admin-ajax.php'; ?>
     <?php
     $edited = can_action('4', 'edited');
@@ -97,8 +98,7 @@ if (!empty($add_contact)) :
                             } else {
                                 echo($this->config->item('language') == $lang->name ? ' selected="selected"' : '');
                             }
-                            ?>>
-                                <?= ucfirst($lang->name) ?></option>
+                            ?>><?= ucfirst($lang->name) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -221,95 +221,92 @@ if (!empty($add_contact)) :
         <?php
     } ?>
 <?php else : ?>
-    <?php $this->load->view('admin/client/_client_assets'); ?>
-    <div class="cl-root cl-contacts">
-        <div class="cl-card">
-            <div class="cl-sec-head">
-                <h1><?= lang('contacts') ?></h1>
-                <div class="cl-spacer"></div>
-                <?php
-                $edited = can_action('4', 'edited');
-                if (!empty($edited)) {
-                    ?>
-                    <a href="<?= base_url() ?>admin/client/details/<?= $client_details->client_id ?>/contacts/add_contacts"
-                       class="cl-btn cl-btn-primary"><?= lang('add_contact') ?></a>
-                <?php } ?>
-            </div>
-            
-            <table class="cl-tbl cl-mini" id="datatable_action" cellspacing="0" width="100%">
-                <thead>
-                <tr>
-                    <th><?= lang('full_name') ?></th>
-                    <th><?= lang('email') ?></th>
-                    <th><?= lang('phone') ?></th>
-                    <th><?= lang('mobile') ?></th>
-                    <th><?= lang('skype_id') ?></th>
-                    <th class="cl-num"><?= lang('last_login') ?></th>
-                    <th class="cl-acts"><?= lang('action') ?></th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php
-                $client_contacts = $this->client_model->get_client_contacts($client_details->client_id);
-                if (!empty($client_contacts)) {
-                    foreach ($client_contacts as $key => $contact) {
-                        ?>
-                        <tr>
-                            <td>
-                                <div class="cl-cell-name">
-                                    <div class="cl-avatar cl-av-mint">
-                                        <?php
-                                        $words = preg_split('/\s+/', trim($contact->fullname));
-                                        $initials = '';
-                                        foreach ($words as $w) {
-                                            if ($w !== '') $initials .= mb_substr($w, 0, 1);
-                                        }
-                                        echo strtoupper(mb_substr($initials, 0, 2)) ?: 'CL';
-                                        ?>
-                                    </div>
-                                    <div>
-                                        <div class="cl-nm"><?= html_escape($contact->fullname) ?></div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="cl-em"><?= html_escape($contact->email) ?></td>
-                            <td><a href="tel:<?= html_escape($contact->phone) ?>"><?= html_escape($contact->phone) ?></a></td>
-                            <td><a href="tel:<?= html_escape($contact->mobile) ?>"><?= html_escape($contact->mobile) ?></a></td>
-                            <td>
-                                <a href="skype:<?= html_escape($contact->skype) ?>?call"><?= html_escape($contact->skype) ?></a>
-                            </td>
-                            <?php
-                            if ($contact->last_login == '0000-00-00 00:00:00' || empty($contact->last_login)) {
-                                $login_time = "-";
-                            } else {
-                                $login_time = strftime(config_item('date_format'), strtotime($contact->last_login)) . ' ' . display_time($contact->last_login);
-                            } ?>
-                            <td class="cl-num"><?= $login_time ?></td>
-                            <td class="cl-acts">
-                                <a href="<?= base_url() ?>admin/client/make_primary/<?= $contact->user_id ?>/<?= $client_details->client_id ?>"
-                                   class="cl-btn cl-btn-icon <?php
-                                if ($client_details->primary_contact == $contact->user_id) {
-                                    echo "accent";
-                                }
-                                ?>" title="<?= lang('primary_contact') ?>">
-                                    <i class="fa fa-chain"></i>
-                                </a>
-                                <a href="<?= base_url() ?>admin/client/details/<?= $client_details->client_id . '/contacts/add_contacts/' . $contact->user_id ?>"
-                                   class="cl-btn cl-btn-icon" title="<?= lang('edit') ?>">
-                                    <i class="fa fa-edit"></i>
-                                </a>
-                                <a href="<?= base_url() ?>admin/client/delete_contacts/<?= $client_details->client_id . '/' . $contact->user_id ?>"
-                                   class="cl-btn cl-btn-icon danger" title="<?= lang('delete') ?>">
-                                    <i class="fa fa-trash-o"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <?php
-                    }
-                }
+    <div class="cl-card cl-contacts">
+        <div class="cl-sec-head">
+            <h1><?= lang('contacts') ?></h1>
+            <div class="cl-spacer"></div>
+            <?php
+            $edited = can_action('4', 'edited');
+            if (!empty($edited)) {
                 ?>
-                </tbody>
-            </table>
+                <a href="<?= base_url() ?>admin/client/details/<?= $client_details->client_id ?>/contacts/add_contacts"
+                   class="cl-btn cl-btn-primary"><?= lang('add_contact') ?></a>
+            <?php } ?>
         </div>
+        
+        <table class="cl-tbl cl-mini" id="datatable_action" cellspacing="0" width="100%">
+            <thead>
+            <tr>
+                <th><?= lang('full_name') ?></th>
+                <th><?= lang('email') ?></th>
+                <th><?= lang('phone') ?></th>
+                <th><?= lang('mobile') ?></th>
+                <th><?= lang('skype_id') ?></th>
+                <th class="cl-num"><?= lang('last_login') ?></th>
+                <th class="cl-acts"><?= lang('action') ?></th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php
+            $client_contacts = $this->client_model->get_client_contacts($client_details->client_id);
+            if (!empty($client_contacts)) {
+                foreach ($client_contacts as $key => $contact) {
+                    ?>
+                    <tr>
+                        <td>
+                            <div class="cl-cell-name">
+                                <div class="cl-avatar cl-av-mint">
+                                    <?php
+                                    $words = preg_split('/\s+/', trim($contact->fullname));
+                                    $initials = '';
+                                    foreach ($words as $w) {
+                                        if ($w !== '') $initials .= mb_substr($w, 0, 1);
+                                    }
+                                    echo strtoupper(mb_substr($initials, 0, 2)) ?: 'CL';
+                                    ?>
+                                </div>
+                                <div>
+                                    <div class="cl-nm"><?= html_escape($contact->fullname) ?></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="cl-em"><?= html_escape($contact->email) ?></td>
+                        <td><a href="tel:<?= html_escape($contact->phone) ?>"><?= html_escape($contact->phone) ?></a></td>
+                        <td><a href="tel:<?= html_escape($contact->mobile) ?>"><?= html_escape($contact->mobile) ?></a></td>
+                        <td>
+                            <a href="skype:<?= html_escape($contact->skype) ?>?call"><?= html_escape($contact->skype) ?></a>
+                        </td>
+                        <?php
+                        if ($contact->last_login == '0000-00-00 00:00:00' || empty($contact->last_login)) {
+                            $login_time = "-";
+                        } else {
+                            $login_time = strftime(config_item('date_format'), strtotime($contact->last_login)) . ' ' . display_time($contact->last_login);
+                        } ?>
+                        <td class="cl-num"><?= $login_time ?></td>
+                        <td class="cl-acts">
+                            <a href="<?= base_url() ?>admin/client/make_primary/<?= $contact->user_id ?>/<?= $client_details->client_id ?>"
+                               class="cl-btn cl-btn-icon <?php
+                            if ($client_details->primary_contact == $contact->user_id) {
+                                echo "accent";
+                            }
+                            ?>" title="<?= lang('primary_contact') ?>">
+                                <i class="fa fa-chain"></i>
+                            </a>
+                            <a href="<?= base_url() ?>admin/client/details/<?= $client_details->client_id . '/contacts/add_contacts/' . $contact->user_id ?>"
+                               class="cl-btn cl-btn-icon" title="<?= lang('edit') ?>">
+                                <i class="fa fa-edit"></i>
+                            </a>
+                            <a href="<?= base_url() ?>admin/client/delete_contacts/<?= $client_details->client_id . '/' . $contact->user_id ?>"
+                               class="cl-btn cl-btn-icon danger" title="<?= lang('delete') ?>">
+                                <i class="fa fa-trash-o"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <?php
+                }
+            }
+            ?>
+            </tbody>
+        </table>
     </div>
 <?php endif ?>

@@ -1,6 +1,4 @@
-<?php $this->load->view('admin/client/_client_assets'); ?>
-<div class="cl-root cl-tbl">
-    <div class="cl-card">
+<div class="cl-card">
         <div class="cl-sec-head">
             <h1><?= lang('notes') ?></h1>
             <div class="cl-spacer"></div>
@@ -88,4 +86,3 @@
             </tbody>
         </table>
     </div>
-</div>

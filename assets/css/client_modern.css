@@ -263,6 +263,8 @@
 .cl-subtabs a.active { color: var(--c-accent); border-bottom-color: var(--c-accent); }
 .cl-tabs a:hover,
 .cl-subtabs a:hover { color: var(--c-text); }
+.cl-tabs a.import { color: var(--c-text-3); }
+.cl-tabs a.import:hover { color: var(--c-text); }
 
 .cl-subtabs { display: flex; gap: var(--sp-1); border-bottom: 1px solid var(--c-border); padding: 0 var(--sp-5); }
 .cl-subtabs a { padding: 12px 14px; }

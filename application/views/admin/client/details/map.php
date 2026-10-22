@@ -1,6 +1,4 @@
-<?php $this->load->view('admin/client/_client_assets'); ?>
-<div class="cl-root cl-embed">
-    <div class="cl-card">
+<div class="cl-card">
         <div class="cl-sec-head">
             <h1><?= lang('map') ?></h1>
             <div class="cl-spacer"></div>
@@ -74,7 +72,6 @@
             ?>
         </div>
     </div>
-</div>
 
 <script type="text/javascript">
     function fetch_lat_long_from_google_cprofile() {
