@@ -1,0 +1,719 @@
+/* =============================================================
+   TIC CRM — Client section (Soft UI)
+   Port of demo/client-redesign.html <style> into namespaced .cl-*
+   selectors. Consumes assets/css/tokens.css variables — no raw
+   hex where a token exists; derived tints via color-mix().
+
+   Scope: every selector is rooted in a .cl-* marker class
+   (cl-root, cl-hero, cl-card, cl-kpi, cl-tbl, cl-tag, cl-chip,
+   cl-avatar, cl-toggle, cl-btn*, cl-form, cl-subtabs, cl-modal,
+   cl-panel-foot, cl-side-nav, cl-toolbar, cl-pills, cl-switch,
+   cl-dropzone, cl-info-grid, cl-profile-hero, cl-embed, cl-pager, …).
+   No global rules, no !important.
+
+   Loaded via application/views/admin/client/_client_assets.php
+   (cache-bust ?v=N — bump the partial when this file changes).
+   ============================================================= */
+
+/* ---------- Client-scoped custom properties ----------
+   Namespaced --cl-* so nothing collides with shared globals.
+   Every value derives from tokens.css — no raw hex. */
+:root {
+  --cl-hero-grad:      linear-gradient(135deg, var(--c-accent) 0%, var(--c-accent-active) 55%, var(--c-accent-hover) 100%);
+  --cl-on-hero:        color-mix(in srgb, var(--c-on-accent) 85%, transparent);
+  --cl-sheen:          radial-gradient(600px 200px at 80% -20%, color-mix(in srgb, var(--c-on-accent) 18%, transparent), transparent);
+  --cl-tag-purple-bg:  color-mix(in srgb, var(--ac-purple) 10%, var(--c-surface));
+  --cl-tag-cyan-bg:    color-mix(in srgb, var(--ac-cyan) 10%, var(--c-surface));
+  --cl-tag-cyan-fg:    color-mix(in srgb, var(--ac-cyan) 70%, var(--c-text));
+  --cl-profile-grad:   linear-gradient(135deg, var(--c-accent) 0%, var(--c-accent-active) 100%);
+  --cl-profile-sheen:  radial-gradient(500px 180px at 85% -30%, color-mix(in srgb, var(--c-on-accent) 16%, transparent), transparent);
+  --cl-av-mint:        linear-gradient(135deg, var(--ac-mint), var(--c-accent));
+  --cl-av-cyan:        linear-gradient(135deg, var(--ac-cyan), color-mix(in srgb, var(--ac-cyan) 70%, var(--c-text)));
+  --cl-av-amber:       linear-gradient(135deg, var(--ac-amber), var(--c-warning));
+  --cl-av-purple:      linear-gradient(135deg, var(--ac-purple), color-mix(in srgb, var(--ac-purple) 75%, var(--c-text)));
+  --cl-av-slate:       linear-gradient(135deg, var(--c-slate), color-mix(in srgb, var(--c-slate) 70%, var(--c-text)));
+}
+
+/* =============================================================
+   Root surface (replaces the demo's body chrome)
+   ============================================================= */
+.cl-root,
+.cl-root *,
+.cl-root *::before,
+.cl-root *::after { box-sizing: border-box; }
+
+.cl-root {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: var(--sp-6) var(--sp-4) var(--sp-8);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-size: var(--fs-base);
+  line-height: var(--lh-normal);
+  -webkit-font-smoothing: antialiased;
+}
+
+.cl-root a { color: inherit; text-decoration: none; }
+
+/* ---------- Breadcrumb strip ---------- */
+.cl-crumb {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-sm);
+  color: var(--c-text-3);
+  margin-bottom: var(--sp-4);
+}
+.cl-crumb b { color: var(--c-text); font-weight: 600; }
+.cl-crumb .cl-sep { color: var(--c-border-strong); }
+
+/* =============================================================
+   Hero (optional page banner)
+   ============================================================= */
+.cl-hero {
+  background: var(--cl-hero-grad);
+  border-radius: var(--r-xl);
+  color: var(--c-on-accent);
+  padding: var(--sp-6) var(--sp-5);
+  box-shadow: var(--sh-3);
+  position: relative;
+  margin-bottom: var(--sp-5);
+}
+.cl-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* Matches the hero's rounded corners so the sheen never bleeds square. */
+  background: var(--cl-sheen);
+  border-radius: inherit;
+}
+.cl-hero h1 {
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+  margin-bottom: var(--sp-2);
+  position: relative;
+}
+.cl-hero p {
+  color: var(--cl-on-hero);
+  position: relative;
+}
+
+/* =============================================================
+   Card + section header
+   ============================================================= */
+.cl-card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-1);
+}
+
+.cl-sec-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-5);
+  flex-wrap: wrap;
+}
+.cl-sec-head h1 { font-size: var(--fs-xl); font-weight: 700; }
+.cl-sec-head .cl-spacer { flex: 1; }
+
+/* =============================================================
+   Buttons
+   ============================================================= */
+.cl-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  border-radius: var(--r-md);
+  font-size: var(--fs-base);
+  font-weight: 600;
+  padding: 8px 14px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all var(--dur-fast) var(--ease);
+  line-height: 1;
+}
+.cl-btn-primary { background: var(--c-accent); color: var(--c-on-accent); }
+.cl-btn-primary:hover { background: var(--c-accent-hover); }
+.cl-btn-ghost { background: var(--c-surface); color: var(--c-text-2); border-color: var(--c-border); }
+.cl-btn-ghost:hover { background: var(--c-surface-2); }
+.cl-btn-icon {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  justify-content: center;
+  border-radius: var(--r-md);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  color: var(--c-text-2);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+.cl-btn-icon:hover { background: var(--c-surface-2); }
+.cl-btn-icon.danger:hover { background: var(--c-danger-subtle); color: var(--c-danger); border-color: var(--c-danger-border); }
+.cl-btn-icon.accent { color: var(--c-accent); }
+
+/* =============================================================
+   Tags / chips / avatars / money
+   ============================================================= */
+.cl-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: var(--r-full);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+.cl-tag-mint { background: var(--c-accent-subtle); color: var(--c-accent); }
+.cl-tag-amber { background: var(--c-warning-subtle); color: var(--c-warning); }
+.cl-tag-purple { background: var(--cl-tag-purple-bg); color: var(--ac-purple); }
+.cl-tag-slate { background: var(--c-surface-2); color: var(--c-text-2); }
+.cl-tag-cyan { background: var(--cl-tag-cyan-bg); color: var(--cl-tag-cyan-fg); }
+
+.cl-chip,
+.cl-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: var(--r-full);
+  background: var(--c-surface-2);
+  color: var(--c-text-2);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+}
+
+.cl-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r-full);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--c-on-accent);
+  font-weight: 700;
+  font-size: 13px;
+  flex: none;
+}
+.cl-av-mint { background: var(--cl-av-mint); }
+.cl-av-cyan { background: var(--cl-av-cyan); }
+.cl-av-amber { background: var(--cl-av-amber); }
+.cl-av-purple { background: var(--cl-av-purple); }
+.cl-av-slate { background: var(--cl-av-slate); }
+
+.cl-money-pos { color: var(--c-success); font-weight: 600; }
+.cl-money-neg { color: var(--c-danger); font-weight: 600; }
+.cl-muted { color: var(--c-text-3); }
+
+/* =============================================================
+   Manage clients — goal stats strip (admin only)
+   ============================================================= */
+.cl-goal-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-1);
+  overflow: hidden;
+  margin-bottom: var(--sp-5);
+}
+.cl-goal-cell { padding: var(--sp-4) var(--sp-5); border-right: 1px solid var(--c-border); }
+.cl-goal-cell:last-child { border-right: none; }
+.cl-goal-cell .cl-big { font-size: var(--fs-xl); font-weight: 700; line-height: 1.2; }
+.cl-goal-cell .cl-lbl { font-size: var(--fs-sm); color: var(--c-text-3); }
+.cl-goal-cell .cl-row2 { display: flex; justify-content: space-between; align-items: flex-end; }
+
+.cl-spark { display: flex; align-items: flex-end; gap: 4px; height: 44px; }
+.cl-spark span { width: 8px; border-radius: 2px 2px 0 0; background: var(--c-accent-border); }
+.cl-spark span.hi { background: var(--c-accent); }
+
+.cl-donut {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--c-success);
+  background: conic-gradient(var(--c-success) 0 78%, var(--c-surface-3) 78% 100%);
+}
+.cl-donut i { width: 40px; height: 40px; border-radius: 50%; background: var(--c-surface); display: grid; place-items: center; font-style: normal; }
+
+/* =============================================================
+   Tabs (Client List / New / Import) + form sub-tabs
+   ============================================================= */
+.cl-tabs { display: flex; gap: var(--sp-1); border-bottom: 1px solid var(--c-border); padding: 0 var(--sp-4); }
+.cl-tabs a,
+.cl-subtabs a {
+  padding: 12px 16px;
+  font-weight: 600;
+  color: var(--c-text-3);
+  border-bottom: 2px solid transparent;
+  font-size: var(--fs-base);
+}
+.cl-tabs a.active,
+.cl-subtabs a.active { color: var(--c-accent); border-bottom-color: var(--c-accent); }
+.cl-tabs a:hover,
+.cl-subtabs a:hover { color: var(--c-text); }
+
+.cl-subtabs { display: flex; gap: var(--sp-1); border-bottom: 1px solid var(--c-border); padding: 0 var(--sp-5); }
+.cl-subtabs a { padding: 12px 14px; }
+
+/* =============================================================
+   Toolbar + search
+   ============================================================= */
+.cl-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-4) var(--sp-4) var(--sp-3);
+}
+.cl-search {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  padding: 7px 12px;
+  color: var(--c-text-3);
+  min-width: 240px;
+}
+.cl-search input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: var(--fs-base);
+  color: var(--c-text);
+  width: 100%;
+}
+
+/* =============================================================
+   Tables
+   ============================================================= */
+table.cl-tbl { width: 100%; border-collapse: collapse; }
+table.cl-tbl th {
+  text-align: left;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--c-text-3);
+  padding: 10px var(--sp-4);
+  border-bottom: 1px solid var(--c-border);
+  white-space: nowrap;
+}
+table.cl-tbl td { padding: 12px var(--sp-4); border-bottom: 1px solid var(--c-border); vertical-align: middle; }
+table.cl-tbl tbody tr:hover { background: var(--c-surface-2); }
+table.cl-tbl tr:last-child td { border-bottom: none; }
+
+/* Compact variant for tables inside detail panes. */
+table.cl-tbl.cl-mini th { padding: 10px var(--sp-5); }
+table.cl-tbl.cl-mini td { padding: 12px var(--sp-5); }
+
+.cl-cell-name { display: flex; align-items: center; gap: var(--sp-3); }
+.cl-cell-name .cl-nm { font-weight: 600; color: var(--c-text); }
+.cl-cell-name a.cl-nm:hover { color: var(--c-accent); }
+.cl-cell-name .cl-em { font-size: var(--fs-sm); color: var(--c-text-3); }
+.cl-num { text-align: right; font-variant-numeric: tabular-nums; }
+.cl-acts { display: flex; gap: 6px; justify-content: flex-end; }
+
+/* ---------- toggle (in-row status switch) ---------- */
+.cl-toggle {
+  position: relative;
+  width: 38px;
+  height: 22px;
+  border-radius: var(--r-full);
+  background: var(--c-border-strong);
+  cursor: pointer;
+  transition: background var(--dur-base) var(--ease);
+  flex: none;
+}
+.cl-toggle::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--c-on-accent);
+  transition: left var(--dur-base) var(--ease);
+  box-shadow: var(--sh-1);
+}
+.cl-toggle.on { background: var(--c-accent); }
+.cl-toggle.on::after { left: 18px; }
+
+.cl-tbl-foot {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  color: var(--c-text-3);
+  font-size: var(--fs-sm);
+}
+
+/* ---------- pager ---------- */
+.cl-pager { display: flex; gap: 4px; margin-left: auto; }
+.cl-pager button {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  color: var(--c-text-2);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+}
+.cl-pager button.on { background: var(--c-accent); color: var(--c-on-accent); border-color: var(--c-accent); }
+
+/* =============================================================
+   Client details — KPI row
+   ============================================================= */
+.cl-kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-4); margin-bottom: var(--sp-5); }
+.cl-kpi {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-1);
+  display: flex;
+  overflow: hidden;
+}
+.cl-kpi .cl-ico { width: 60px; display: grid; place-items: center; color: var(--c-on-accent); flex: none; }
+.cl-kpi .cl-ico i { font-style: normal; font-size: 20px; }
+.cl-ico-mint { background: var(--cl-av-mint); }
+.cl-ico-cyan { background: var(--cl-av-cyan); }
+.cl-ico-amber { background: var(--cl-av-amber); }
+.cl-ico-purple { background: var(--cl-av-purple); }
+.cl-kpi .cl-body { padding: var(--sp-4); text-align: center; flex: 1; }
+.cl-kpi .cl-body .cl-v { font-size: var(--fs-lg); font-weight: 700; }
+.cl-kpi .cl-body .cl-l { font-size: var(--fs-sm); color: var(--c-text-3); }
+
+/* =============================================================
+   Client details — layout + side nav rail
+   ============================================================= */
+.cl-details { display: grid; grid-template-columns: 220px 1fr; gap: var(--sp-5); }
+
+.cl-side-nav {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-1);
+  padding: var(--sp-2);
+  height: fit-content;
+}
+.cl-side-nav a {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: 9px 12px;
+  border-radius: var(--r-md);
+  color: var(--c-text-2);
+  font-weight: 500;
+  font-size: var(--fs-base);
+}
+.cl-side-nav a:hover { background: var(--c-surface-2); }
+.cl-side-nav a.active { background: var(--c-accent-subtle); color: var(--c-accent); font-weight: 600; }
+.cl-side-nav a .cl-count-badge { margin-left: auto; }
+.cl-side-nav a.active .cl-count-badge { background: var(--c-accent); color: var(--c-on-accent); }
+.cl-side-nav .cl-ico { width: 18px; text-align: center; opacity: .7; }
+
+/* =============================================================
+   Profile hero (client details header)
+   ============================================================= */
+.cl-profile-hero {
+  background: var(--cl-profile-grad);
+  border-radius: var(--r-lg);
+  color: var(--c-on-accent);
+  padding: var(--sp-5);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-4);
+  position: relative;
+  overflow: hidden;
+}
+.cl-profile-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--cl-profile-sheen);
+  border-radius: inherit;
+}
+.cl-profile-hero .cl-pav {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--r-lg);
+  background: color-mix(in srgb, var(--c-on-accent) 18%, transparent);
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+  font-weight: 700;
+  position: relative;
+}
+.cl-profile-hero h2 { font-size: var(--fs-xl); font-weight: 700; position: relative; }
+.cl-profile-hero .cl-sub { color: var(--cl-on-hero); font-size: var(--fs-sm); position: relative; }
+.cl-profile-hero .cl-spacer { flex: 1; }
+.cl-profile-hero .cl-pbtn {
+  background: color-mix(in srgb, var(--c-on-accent) 16%, transparent);
+  color: var(--c-on-accent);
+  border: none;
+  border-radius: var(--r-md);
+  padding: 8px 14px;
+  font-weight: 600;
+  cursor: pointer;
+  position: relative;
+}
+.cl-profile-hero .cl-pbtn:hover { background: color-mix(in srgb, var(--c-on-accent) 26%, transparent); }
+
+/* =============================================================
+   Detail info panel
+   ============================================================= */
+.cl-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+.cl-info-col { padding: var(--sp-5); }
+.cl-info-col:first-child { border-right: 1px solid var(--c-border); }
+.cl-info-col h4 {
+  font-size: var(--fs-sm);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--c-text-3);
+  margin-bottom: var(--sp-4);
+}
+.cl-info-row { display: grid; grid-template-columns: 130px 1fr; gap: var(--sp-3); padding: 6px 0; font-size: var(--fs-base); }
+.cl-info-row .cl-k { color: var(--c-text-3); }
+.cl-info-row .cl-v { color: var(--c-text); font-weight: 500; }
+.cl-info-row .cl-v a { color: var(--c-accent); }
+
+/* =============================================================
+   Panel footer (invoice / outstanding totals)
+   ============================================================= */
+.cl-panel-foot {
+  display: flex;
+  gap: var(--sp-5);
+  padding: var(--sp-3) var(--sp-5);
+  background: var(--c-surface-2);
+  border-top: 1px solid var(--c-border);
+  border-radius: 0 0 var(--r-lg) var(--r-lg);
+  font-size: var(--fs-sm);
+  color: var(--c-text-2);
+}
+
+/* =============================================================
+   Forms (new / edit client)
+   ============================================================= */
+.cl-form { display: grid; grid-template-columns: 1fr 320px; gap: var(--sp-5); }
+.cl-form-card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-1);
+  overflow: hidden;
+}
+.cl-form-body { padding: var(--sp-5); }
+.cl-frow {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: var(--sp-4);
+  align-items: center;
+  margin-bottom: var(--sp-4);
+}
+.cl-frow > label { font-weight: 600; color: var(--c-text-2); text-align: right; font-size: var(--fs-base); }
+.cl-frow > label .cl-req { color: var(--c-danger); }
+.cl-input {
+  width: 100%;
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  padding: 9px 12px;
+  font-size: var(--fs-base);
+  color: var(--c-text);
+  background: var(--c-surface);
+  outline: none;
+}
+.cl-input:focus { border-color: var(--c-accent); box-shadow: 0 0 0 3px var(--c-accent-subtle); }
+/* Caret colour inside the data-URI equals --c-text-3 (#7a828c) — CSS vars
+   can't be interpolated inside url(), same approach as kb_modern.css. */
+select.cl-input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237a828c' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+.cl-slug-wrap { display: flex; align-items: center; border: 1px solid var(--c-border); border-radius: var(--r-md); overflow: hidden; }
+.cl-slug-wrap .cl-pre {
+  background: var(--c-surface-2);
+  color: var(--c-text-3);
+  padding: 9px 12px;
+  font-size: var(--fs-base);
+  border-right: 1px solid var(--c-border);
+}
+.cl-slug-wrap input { border: none; outline: none; padding: 9px 12px; font-size: var(--fs-base); width: 100%; color: var(--c-text); }
+.cl-plus-inline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--r-md);
+  background: var(--c-accent-subtle);
+  color: var(--c-accent);
+  cursor: pointer;
+  font-weight: 700;
+  border: 1px solid var(--c-accent-border);
+}
+.cl-input-group { display: flex; gap: var(--sp-2); align-items: center; }
+
+/* ---------- radio pills + switch ---------- */
+.cl-pills { display: inline-flex; background: var(--c-surface-2); border-radius: var(--r-full); padding: 3px; }
+.cl-pills label {
+  padding: 6px 16px;
+  border-radius: var(--r-full);
+  font-weight: 600;
+  font-size: var(--fs-sm);
+  color: var(--c-text-3);
+  cursor: pointer;
+}
+.cl-pills label.on { background: var(--c-surface); color: var(--c-accent); box-shadow: var(--sh-1); }
+
+.cl-switch { display: inline-flex; align-items: center; gap: var(--sp-3); cursor: pointer; }
+.cl-switch .cl-track {
+  width: 40px;
+  height: 22px;
+  border-radius: var(--r-full);
+  background: var(--c-border-strong);
+  position: relative;
+  transition: background var(--dur-base) var(--ease);
+}
+.cl-switch .cl-track::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--c-on-accent);
+  transition: left var(--dur-base) var(--ease);
+  box-shadow: var(--sh-1);
+}
+.cl-switch.on .cl-track { background: var(--c-accent); }
+.cl-switch.on .cl-track::after { left: 20px; }
+.cl-switch .cl-txt { font-size: var(--fs-base); color: var(--c-text-2); }
+
+/* ---------- dropzone + file chips ---------- */
+.cl-dropzone {
+  border: 2px dashed var(--c-border-strong);
+  border-radius: var(--r-lg);
+  padding: var(--sp-6);
+  text-align: center;
+  color: var(--c-text-3);
+  background: var(--c-surface-2);
+}
+.cl-dropzone .cl-dz-ico { font-size: 28px; margin-bottom: var(--sp-2); }
+.cl-dropzone b { color: var(--c-accent); cursor: pointer; }
+.cl-file-chips { display: flex; gap: var(--sp-2); flex-wrap: wrap; margin-top: var(--sp-3); }
+.cl-file-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  padding: 6px 10px;
+  font-size: var(--fs-sm);
+  color: var(--c-text-2);
+}
+.cl-file-chip .cl-x { color: var(--c-danger); cursor: pointer; font-weight: 700; }
+
+.cl-side-panel {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-1);
+  padding: var(--sp-5);
+  height: fit-content;
+}
+.cl-side-panel h4 { font-size: var(--fs-base); font-weight: 700; margin-bottom: var(--sp-4); }
+.cl-side-panel .cl-frow { grid-template-columns: 1fr; gap: var(--sp-2); }
+.cl-side-panel .cl-frow > label { text-align: left; }
+
+.cl-form-foot {
+  display: flex;
+  gap: var(--sp-3);
+  padding: var(--sp-4) var(--sp-5);
+  border-top: 1px solid var(--c-border);
+  background: var(--c-surface-2);
+}
+
+/* =============================================================
+   Modal (customer group)
+   ============================================================= */
+.cl-modal-scrim {
+  background: var(--c-overlay);
+  border-radius: var(--r-xl);
+  padding: var(--sp-7) var(--sp-4);
+  display: grid;
+  place-items: center;
+}
+.cl-modal {
+  background: var(--c-surface);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-3);
+  width: 100%;
+  max-width: 440px;
+  overflow: hidden;
+}
+.cl-modal-head { display: flex; align-items: center; padding: var(--sp-4) var(--sp-5); border-bottom: 1px solid var(--c-border); }
+.cl-modal-head h3 { font-size: var(--fs-lg); font-weight: 700; flex: 1; }
+.cl-modal-head .cl-x {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-md);
+  display: grid;
+  place-items: center;
+  color: var(--c-text-3);
+  cursor: pointer;
+}
+.cl-modal-head .cl-x:hover { background: var(--c-surface-2); }
+.cl-modal-body { padding: var(--sp-5); }
+.cl-modal-foot {
+  display: flex;
+  gap: var(--sp-3);
+  justify-content: flex-end;
+  padding: var(--sp-4) var(--sp-5);
+  border-top: 1px solid var(--c-border);
+  background: var(--c-surface-2);
+}
+
+/* =============================================================
+   Embed shell (file manager / map widgets)
+   ============================================================= */
+.cl-embed { padding: var(--sp-3); }
+.cl-embed iframe,
+.cl-embed .cl-embed-frame {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  min-height: 560px;
+  background: var(--c-surface);
+}
+
+.cl-hint { font-size: var(--fs-sm); color: var(--c-text-3); margin-top: 6px; }
+
+/* =============================================================
+   Responsive
+   ============================================================= */
+@media (max-width: 900px) {
+  .cl-goal-strip,
+  .cl-kpi-row { grid-template-columns: 1fr 1fr; }
+  .cl-details,
+  .cl-form,
+  .cl-info-grid { grid-template-columns: 1fr; }
+  .cl-info-col:first-child { border-right: none; border-bottom: 1px solid var(--c-border); }
+}
