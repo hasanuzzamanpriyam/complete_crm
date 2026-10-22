@@ -115,6 +115,14 @@ $ok(strpos(file_get_contents($bugs), 'cl-tbl') !== false, 'bugs tab has cl-tbl')
 $award = ROOTPATH . 'application/views/admin/client/details/award_point.php';
 $ok(strpos(file_get_contents($award), 'cl-tbl') !== false, 'award_point tab has cl-tbl');
 
+/* =====================================================================
+ * Task 9: Embed tabs (filemanager, map) — shell only
+ * ===================================================================== */
+$fm = ROOTPATH . 'application/views/admin/client/details/filemanager.php';
+$ok(strpos(file_get_contents($fm), 'cl-embed') !== false, 'filemanager tab has cl-embed');
+$map = ROOTPATH . 'application/views/admin/client/details/map.php';
+$ok(strpos(file_get_contents($map), 'cl-embed') !== false, 'map tab has cl-embed');
+
 /* ---------- report ---------- */
 $pass = 0; $fail = 0; $skip = 0;
 foreach ($checks as $name => $reason) {
