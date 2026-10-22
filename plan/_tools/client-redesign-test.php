@@ -101,6 +101,20 @@ $ok(strpos(file_get_contents($prop), 'cl-tbl') !== false, 'proposals tab has cl-
 $trans = ROOTPATH . 'application/views/admin/client/details/transactions.php';
 $ok(strpos(file_get_contents($trans), 'cl-tbl') !== false, 'transactions tab has cl-tbl');
 
+/* =====================================================================
+ * Task 8: Work/misc detail tabs (notes, projects, tickets, bugs, award_point)
+ * ===================================================================== */
+$notes = ROOTPATH . 'application/views/admin/client/details/notes.php';
+$ok(strpos(file_get_contents($notes), 'cl-tbl') !== false, 'notes tab has cl-tbl');
+$proj = ROOTPATH . 'application/views/admin/client/details/projects.php';
+$ok(strpos(file_get_contents($proj), 'cl-tbl') !== false, 'projects tab has cl-tbl');
+$tickets = ROOTPATH . 'application/views/admin/client/details/tickets.php';
+$ok(strpos(file_get_contents($tickets), 'cl-tbl') !== false, 'tickets tab has cl-tbl');
+$bugs = ROOTPATH . 'application/views/admin/client/details/bugs.php';
+$ok(strpos(file_get_contents($bugs), 'cl-tbl') !== false, 'bugs tab has cl-tbl');
+$award = ROOTPATH . 'application/views/admin/client/details/award_point.php';
+$ok(strpos(file_get_contents($award), 'cl-tbl') !== false, 'award_point tab has cl-tbl');
+
 /* ---------- report ---------- */
 $pass = 0; $fail = 0; $skip = 0;
 foreach ($checks as $name => $reason) {
