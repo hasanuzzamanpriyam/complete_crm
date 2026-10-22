@@ -75,6 +75,12 @@ $ok(strpos(file_get_contents($details_view), '_client_tabs') !== false, 'client 
 $client_tabs = ROOTPATH . 'application/views/admin/client/_client_tabs.php';
 $ok(file_exists($client_tabs) && strpos(file_get_contents($client_tabs), 'cl-side-nav') !== false, 'client tabs partial uses cl-side-nav');
 
+/* =====================================================================
+ * Task 5: Details profile tab — hero + info grid on the details pane
+ * ===================================================================== */
+$details_tab = ROOTPATH . 'application/views/admin/client/details.php';
+$ok(strpos(file_get_contents($details_tab), 'cl-profile') !== false, 'client details tab has cl-profile');
+
 /* ---------- report ---------- */
 $pass = 0; $fail = 0; $skip = 0;
 foreach ($checks as $name => $reason) {
