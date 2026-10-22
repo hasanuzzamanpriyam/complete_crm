@@ -30,7 +30,7 @@ if ($this->input->is_ajax_request()) {
         <div class="cl-tabs">
             <a href="<?= base_url('admin/client/manage_client') ?>" class="<?= $active == 1 ? 'active' : '' ?>"><?= lang('client_list') ?></a>
             <a href="<?= base_url('admin/client/create_client') ?>" class="<?= $active == 2 ? 'active' : '' ?>"><?= lang('new_client') ?></a>
-            <a class="import" href="<?= base_url() ?>admin/client/import"><?= lang('import') . ' ' . lang('client') ?></a>
+            <a href="<?= base_url() ?>admin/client/import"><?= lang('import') . ' ' . lang('client') ?></a>
         </div>
         <?php } ?>
     <?php } ?>

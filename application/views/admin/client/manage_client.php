@@ -296,8 +296,7 @@ $this->load->view('admin/client/_client_assets');
                    href="<?= base_url('admin/client/manage_client') ?>"><?= lang('client_list') ?></a>
                 <a class="<?= $active == 2 ? 'active' : '' ?>"
                    href="<?= base_url('admin/client/create_client') ?>"><?= lang('new_client') ?></a>
-                <a class="import"
-                   href="<?= base_url() ?>admin/client/import"><?= lang('import') . ' ' . lang('client') ?></a>
+                <a href="<?= base_url() ?>admin/client/import"><?= lang('import') . ' ' . lang('client') ?></a>
             </div>
             <?php } else { ?>
         <div class="cl-card">
