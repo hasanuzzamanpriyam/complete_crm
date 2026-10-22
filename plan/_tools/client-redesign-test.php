@@ -58,6 +58,14 @@ $en = ROOTPATH . 'application/language/english/client_lang.php';
 $ok(strpos(file_get_contents($en), "client_paid_percentage") !== false, 'client lang keys added');
 $ok(strpos(file_get_contents($en), "client_address_and_hosting") !== false, 'client lang keys added (2)');
 
+/* =====================================================================
+ * Task 3: Manage clients table + clientList row markup
+ * ===================================================================== */
+$manage = ROOTPATH . 'application/views/admin/client/manage_client.php';
+$ok(strpos(file_get_contents($manage), 'cl-manage') !== false, 'manage view has cl-manage root');
+$ctrl = ROOTPATH . 'application/controllers/admin/Client.php';
+$ok(strpos(file_get_contents($ctrl), 'cl-chip') !== false, 'clientList emits cl-chip markup');
+
 /* ---------- report ---------- */
 $pass = 0; $fail = 0; $skip = 0;
 foreach ($checks as $name => $reason) {

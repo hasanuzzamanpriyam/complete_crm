@@ -84,65 +84,169 @@ if (!empty($terget_achievement)) {
 
 $curency = $this->client_model->check_by(array('code' => config_item('default_currency')), 'tbl_currencies');
 
-if ($this->session->userdata('user_type') == 1) {
-    $margin = 'margin-bottom:15px';
-    ?>
-    <div class="col-sm-12 bg-white p0 report_menu" style="<?= $margin ?>">
-        <div class="col-md-4">
-            <div class="row row-table pv-lg">
-                <div class="col-xs-6">
-                    <p class="m0 lead"><?= ($all_goal) ?></p>
-                    <p class="m0">
-                        <small><?= lang('without_converted') ?></small>
-                    </p>
-                </div>
-                <div class="col-xs-6">
-                    <p class="m0 lead"><?= ($direct_complete_achivement) ?></p>
-                    <p class="m0">
-                        <small><?= lang('completed') . ' ' . lang('achievements') ?></small>
-                    </p>
-                </div>
+// Shared client asset pipeline (client_modern.css).
+$this->load->view('admin/client/_client_assets');
+?>
+<style type="text/css">
+    /* =======================================================================
+       Scoped to the manage-clients table ONLY (rooted in .cl-manage, which
+       exists on no other page) — never global. Hides the stock DataTables
+       export-button cluster (the bulk-delete button is the sole exception,
+       revealed below) + the default search box (search is relocated into
+       the cl toolbar) and restyles the remaining DataTables controls with
+       design tokens. .dataTables_* / .dt-button DOM only exists inside a
+       DataTables-initialized table, so detail-pane cl-tbl tables and every
+       other module's tables are unaffected.
+       ======================================================================= */
+    .cl-manage .dataTables_wrapper .dataTables_filter {
+        display: none;
+    }
 
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="row row-table pv-lg">
+    .cl-manage .dataTables_wrapper .dt-buttons .dt-button:not(.custom-bulk-button) {
+        display: none;
+    }
 
-                <div class="col-xs-6 ">
-                    <p class="m0 lead"><?= ($wthout_all_goal) ?></p>
-                    <p class="m0">
-                        <small><?= lang('converted_client') ?></small>
-                    </p>
-                </div>
-                <div class="col-xs-6">
-                    <p class="m0 lead">
+    .cl-manage .dataTables_wrapper .row {
+        margin: 0;
+    }
 
-                        <?= $without_complete_achivement ?></p>
-                    <p class="m0">
-                        <small><?= lang('completed') . ' ' . lang('achievements') ?></small>
-                    </p>
-                </div>
+    .cl-manage .dataTables_wrapper .dataTables_length {
+        padding: var(--sp-3) var(--sp-4) 0;
+        font-size: var(--fs-sm);
+        color: var(--c-text-3);
+    }
 
-            </div>
+    .cl-manage .dataTables_wrapper .dataTables_length select {
+        border: 1px solid var(--c-border);
+        border-radius: var(--r-md);
+        padding: 4px var(--sp-2);
+        background: var(--c-surface);
+        color: var(--c-text);
+        margin: 0 var(--sp-1);
+    }
 
-        </div>
-        <div class="col-md-4">
-            <div class="row row-table ">
+    /* Relocated filter (moved into .cl-search — no longer inside the wrapper,
+       so the display:none rule above stops matching it). */
+    .cl-manage .dataTables_filter {
+        flex: 1;
+        display: flex;
+        align-items: center;
+    }
 
-                <div class="col-xs-6 pt">
-                    <div data-sparkline="" data-bar-color="#23b7e5" data-height="60" data-bar-width="8"
-                         data-bar-spacing="6"
-                         data-chart-range-min="0"
-                         values="<?php
-                         if (!empty($invoice_result)) {
-                             foreach ($invoice_result as $v_invoice_result) {
-                                 echo $v_invoice_result . ',';
-                             }
-                         }
-                         ?>">
+    .cl-manage .dataTables_filter label {
+        display: flex;
+        align-items: center;
+        gap: var(--sp-2);
+        width: 100%;
+        margin: 0;
+        font-weight: 400;
+    }
+
+    .cl-manage .dataTables_filter input {
+        border: none;
+        outline: none;
+        background: transparent;
+        flex: 1;
+        width: auto;
+        padding: 0;
+        font-size: var(--fs-base);
+        color: var(--c-text);
+    }
+
+    .cl-manage .dataTables_wrapper .dataTables_info {
+        padding: var(--sp-3) var(--sp-4);
+        font-size: var(--fs-sm);
+        color: var(--c-text-3);
+    }
+
+    .cl-manage .dataTables_wrapper .dataTables_paginate .paginate_button {
+        border: 1px solid var(--c-border);
+        background: var(--c-surface);
+        border-radius: var(--r-md);
+        margin-left: var(--sp-1);
+        color: var(--c-text-2) !important;
+        box-shadow: none !important;
+    }
+
+    .cl-manage .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+        background: var(--c-surface-2);
+        color: var(--c-text) !important;
+    }
+
+    .cl-manage .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+    .cl-manage .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover,
+    .cl-manage .dataTables_wrapper .dataTables_paginate .paginate_button.current:focus,
+    .cl-manage .dataTables_wrapper .dataTables_paginate .paginate_button.active,
+    .cl-manage .dataTables_wrapper .dataTables_paginate .paginate_button.active:hover,
+    .cl-manage .dataTables_wrapper .dataTables_paginate .paginate_button.active:focus,
+    .cl-manage .dataTables_wrapper .dataTables_paginate .paginate_button.active > a,
+    .cl-manage .dataTables_wrapper .dataTables_paginate .paginate_button.active > a:hover {
+        background: var(--c-accent) !important;
+        color: var(--c-on-accent) !important;
+        border-color: var(--c-accent) !important;
+    }
+
+    .cl-manage .dataTables_wrapper .dataTables_paginate .paginate_button.disabled,
+    .cl-manage .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover {
+        color: var(--c-slate) !important;
+        background: transparent;
+    }
+</style>
+<div class="cl-root cl-manage">
+    <?php if ($this->session->userdata('user_type') == 1) {
+        $total_goal = $all_goal + $wthout_all_goal;
+        $complete_achivement = $direct_complete_achivement + $without_complete_achivement;
+        if (!empty($total_goal)) {
+            if ($total_goal <= $complete_achivement) {
+                $total_progress = 100;
+            } else {
+                $progress = ($complete_achivement / $total_goal) * 100;
+                $total_progress = round($progress);
+            }
+        } else {
+            $total_progress = 0;
+        }
+        ?>
+        <div class="cl-card cl-goal-strip" style="grid-template-columns:1fr 1fr 1.15fr;">
+            <div class="cl-goal-cell">
+                <div class="cl-row2">
+                    <div>
+                        <div class="cl-big"><?= ($all_goal) ?></div>
+                        <div class="cl-lbl"><?= lang('without_converted') ?></div>
                     </div>
-                    <p class="m0">
-                        <small>
+                    <div class="text-right">
+                        <div class="cl-big"><?= ($direct_complete_achivement) ?></div>
+                        <div class="cl-lbl"><?= lang('completed') . ' ' . lang('achievements') ?></div>
+                    </div>
+                </div>
+            </div>
+            <div class="cl-goal-cell">
+                <div class="cl-row2">
+                    <div>
+                        <div class="cl-big"><?= ($wthout_all_goal) ?></div>
+                        <div class="cl-lbl"><?= lang('converted_client') ?></div>
+                    </div>
+                    <div class="text-right">
+                        <div class="cl-big"><?= $without_complete_achivement ?></div>
+                        <div class="cl-lbl"><?= lang('completed') . ' ' . lang('achievements') ?></div>
+                    </div>
+                </div>
+            </div>
+            <div class="cl-goal-cell">
+                <div class="cl-row2">
+                    <div>
+                        <div data-sparkline="" data-bar-color="#23b7e5" data-height="60" data-bar-width="8"
+                             data-bar-spacing="6"
+                             data-chart-range-min="0"
+                             values="<?php
+                             if (!empty($invoice_result)) {
+                                 foreach ($invoice_result as $v_invoice_result) {
+                                     echo $v_invoice_result . ',';
+                                 }
+                             }
+                             ?>">
+                        </div>
+                        <div class="cl-lbl">
                             <?php
                             if (!empty($invoice_result)) {
                                 foreach ($invoice_result as $date => $v_invoice_result) {
@@ -150,207 +254,205 @@ if ($this->session->userdata('user_type') == 1) {
                                 }
                             }
                             ?>
-                        </small>
-                    </p>
-
-                </div>
-                <?php
-                $total_goal = $all_goal + $wthout_all_goal;
-                $complete_achivement = $direct_complete_achivement + $without_complete_achivement;
-                if (!empty($tolal_goal)) {
-                    if ($tolal_goal <= $complete_achivement) {
-                        $total_progress = 100;
-                    } else {
-                        $progress = ($complete_achivement / $tolal_goal) * 100;
-                        $total_progress = round($progress);
-                    }
-                } else {
-                    $total_progress = 0;
-                }
-                ?>
-                <div class="col-xs-6 text-center pt">
-                    <div class="inline ">
-                        <div class="easypiechart text-success" data-percent="<?= $total_progress ?>" data-line-width="5"
-                             data-track-Color="#f0f0f0"
-                             data-bar-color="#<?php
-                             if ($total_progress == 100) {
-                                 echo '8ec165';
-                             } elseif ($total_progress >= 40 && $total_progress <= 50) {
-                                 echo '5d9cec';
-                             } elseif ($total_progress >= 51 && $total_progress <= 99) {
-                                 echo '7266ba';
-                             } else {
-                                 echo 'fb6b5b';
-                             }
-                             ?>"
-                             data-rotate="270" data-scale-Color="false" data-size="50" data-animate="2000">
-                        <span class="small "><?= $total_progress ?>
-                            %</span>
-                            <span class="easypie-text"><strong><?= lang('done') ?></strong></span>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <div class="inline ">
+                            <div class="easypiechart text-success" data-percent="<?= $total_progress ?>" data-line-width="5"
+                                 data-track-Color="#f0f0f0"
+                                 data-bar-color="#<?php
+                                 if ($total_progress == 100) {
+                                     echo '8ec165';
+                                 } elseif ($total_progress >= 40 && $total_progress <= 50) {
+                                     echo '5d9cec';
+                                 } elseif ($total_progress >= 51 && $total_progress <= 99) {
+                                     echo '7266ba';
+                                 } else {
+                                     echo 'fb6b5b';
+                                 }
+                                 ?>"
+                                 data-rotate="270" data-scale-Color="false" data-size="50" data-animate="2000">
+                            <span class="small "><?= $total_progress ?>
+                                %</span>
+                                <span class="easypie-text"><strong><?= lang('done') ?></strong></span>
+                            </div>
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
-    </div>
-<?php }
+    <?php }
 
-$id = $this->uri->segment(5);
-$search_by = $this->uri->segment(4);
-$created = can_action('4', 'created');
-$edited = can_action('4', 'edited');
-$deleted = can_action('4', 'deleted');
-?>
-<div class="row">
-    <div class="col-sm-12">
-        <?php
-        $is_department_head = is_department_head();
-        if ($this->session->userdata('user_type') == 1 || !empty($is_department_head)) { ?>
-            <div class="btn-group pull-right btn-with-tooltip-group _filter_data filtered" data-toggle="tooltip"
-                 data-title="<?php echo lang('filter_by'); ?>">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
-                        aria-haspopup="true"
-                        aria-expanded="false">
-                    <i class="fa fa-filter" aria-hidden="true"></i>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-left group" style="width:300px;">
-                    <li class="filter_by"><a href="#"><?php echo lang('all'); ?></a></li>
-                    <li class="divider"></li>
-                    <?php if (count(array($all_customer_group)) > 0) { ?>
-                        <?php foreach ($all_customer_group as $group) {
-                            ?>
-                            <li class="filter_by" id="<?= $group->customer_group_id ?>">
-                                <a href="#"><?php echo $group->customer_group; ?></a>
-                            </li>
-                        <?php }
-                        ?>
-                        <div class="clearfix"></div>
-                    <?php } ?>
-                </ul>
+    $id = $this->uri->segment(5);
+    $search_by = $this->uri->segment(4);
+    $created = can_action('4', 'created');
+    $edited = can_action('4', 'edited');
+    $deleted = can_action('4', 'deleted');
+    $is_department_head = is_department_head();
+    if (!empty($created) || !empty($edited)) { ?>
+        <div class="cl-card">
+            <div class="cl-tabs">
+                <a class="<?= $active == 1 ? 'active' : '' ?>"
+                   href="<?= base_url('admin/client/manage_client') ?>"><?= lang('client_list') ?></a>
+                <a class="<?= $active == 2 ? 'active' : '' ?>"
+                   href="<?= base_url('admin/client/create_client') ?>"><?= lang('new_client') ?></a>
+                <a class="import"
+                   href="<?= base_url() ?>admin/client/import"><?= lang('import') . ' ' . lang('client') ?></a>
             </div>
-            <?php
-        }
-        if (!empty($created) || !empty($edited)) { ?>
-        <div class="nav-tabs-custom">
-            <!-- Tabs within a box -->
-            <ul class="nav nav-tabs">
-                <li class="<?= $active == 1 ? 'active' : '' ?>"><a
-                            href="<?= base_url('admin/client/manage_client') ?>"><?= lang('client_list') ?></a></li>
-                <li class="<?= $active == 2 ? 'active' : '' ?>"><a
-                            href="<?= base_url('admin/client/create_client') ?>"><?= lang('new_client') ?></a></li>
-                <li><a class="import"
-                       href="<?= base_url() ?>admin/client/import"><?= lang('import') . ' ' . lang('client') ?></a>
-                </li>
-            </ul>
+            <?php } else { ?>
+        <div class="cl-card">
+            <div class="cl-tabs">
+                <a class="active"
+                   href="<?= base_url('admin/client/manage_client') ?>"><?= lang('client_list') ?></a>
+            </div>
+            <?php } ?>
+            <div class="cl-toolbar">
+                <div class="cl-search" id="cl-manage-search">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                </div>
+                <?php
+                if ($this->session->userdata('user_type') == 1 || !empty($is_department_head)) { ?>
+                    <div class="btn-group _filter_data filtered" style="position:relative;" data-toggle="tooltip"
+                         data-title="<?php echo lang('filter_by'); ?>">
+                        <button type="button" class="cl-btn cl-btn-ghost dropdown-toggle" data-toggle="dropdown"
+                                aria-haspopup="true"
+                                aria-expanded="false">
+                            <i class="fa fa-filter" aria-hidden="true"></i> <?php echo lang('filter_by'); ?>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-left group" style="width:300px;">
+                            <li class="filter_by"><a href="#"><?php echo lang('all'); ?></a></li>
+                            <li class="divider"></li>
+                            <?php if (count(array($all_customer_group)) > 0) { ?>
+                                <?php foreach ($all_customer_group as $group) {
+                                    ?>
+                                    <li class="filter_by" id="<?= $group->customer_group_id ?>">
+                                        <a href="#"><?php echo $group->customer_group; ?></a>
+                                    </li>
+                                <?php }
+                                ?>
+                                <div class="clearfix"></div>
+                            <?php } ?>
+                        </ul>
+                    </div>
+                <?php } ?>
+                <div style="flex:1"></div>
+                <?php if (!empty($created)) { ?>
+                    <a href="<?= base_url('admin/client/create_client') ?>" class="cl-btn cl-btn-primary">
+                        <i class="fa fa-plus"></i> <?= lang('new_client') ?>
+                    </a>
+                <?php } ?>
+            </div>
             <style type="text/css">
                 .custom-bulk-button {
                     display: initial;
                 }
             </style>
-            <div class="tab-content bg-white">
-                <!-- Stock Category List tab Starts -->
-                <div class="tab-pane <?= $active == 1 ? 'active' : '' ?>" id="client_list" style="position: relative;">
-                    <?php } else { ?>
-                    <div class="panel panel-custom">
-                        <header class="panel-heading ">
-                            <div class="panel-title"><strong><?= lang('client_list') ?></strong></div>
-                        </header>
+            <div id="client_list" style="position: relative;">
+                <table class="cl-tbl DataTables bulk_table " id="DataTables" cellspacing="0"
+                       width="100%">
+                    <thead>
+                    <tr>
+                        <?php if (!empty($deleted)) { ?>
+                            <th data-orderable="false">
+                                <div class="checkbox c-checkbox">
+                                    <label class="needsclick">
+                                        <input id="select_all" type="checkbox">
+                                        <span class="fa fa-check"></span></label>
+                                </div>
+                            </th>
                         <?php } ?>
-                        <div class="box">
-                            <table class="table table-striped DataTables bulk_table " id="DataTables" cellspacing="0"
-                                   width="100%">
-                                <thead>
-                                <tr>
-                                    <?php if (!empty($deleted)) { ?>
-                                        <th data-orderable="false">
-                                            <div class="checkbox c-checkbox">
-                                                <label class="needsclick">
-                                                    <input id="select_all" type="checkbox">
-                                                    <span class="fa fa-check"></span></label>
-                                            </div>
-                                        </th>
-                                    <?php } ?>
-                                    <th><?= lang('name') ?> </th>
-                                    <th><?= lang('contacts') ?></th>
-                                    <th class="hidden-sm"><?= lang('primary_contact') ?></th>
-                                    <th><?= lang('projects') ?> </th>
-                                    <th><?= lang('due_amount') ?> </th>
-                                    <th><?= lang('received_amount') ?> </th>
-                                    <th><?= lang('expense') ?> </th>
-                                    <th><?= lang('group') ?> </th>
-                                    <?php $show_custom_fields = custom_form_table(12, null);
-                                    if (!empty($show_custom_fields)) {
-                                        foreach ($show_custom_fields as $c_label => $v_fields) {
-                                            if (!empty($c_label)) {
-                                                ?>
-                                                <th><?= $c_label ?> </th>
-                                            <?php }
-                                        }
-                                    }
+                        <th><?= lang('name') ?> </th>
+                        <th><?= lang('contacts') ?></th>
+                        <th><?= lang('primary_contact') ?></th>
+                        <th class="cl-num"><?= lang('projects') ?> </th>
+                        <th class="cl-num"><?= lang('due_amount') ?> </th>
+                        <th class="cl-num"><?= lang('received_amount') ?> </th>
+                        <th class="cl-num"><?= lang('expense') ?> </th>
+                        <th><?= lang('group') ?> </th>
+                        <?php $show_custom_fields = custom_form_table(12, null);
+                        if (!empty($show_custom_fields)) {
+                            foreach ($show_custom_fields as $c_label => $v_fields) {
+                                if (!empty($c_label)) {
                                     ?>
-                                    <th class="hidden-print"><?= lang('action') ?></th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <script type="text/javascript">
-                                    $(document).ready(function () {
-                                        list = base_url + "admin/client/clientList";
-                                        bulk_url = base_url + 'admin/client/bulk_delete';
-                                        $('.filtered > .dropdown-toggle').on('click', function () {
-                                            if ($('.group').css('display') == 'block') {
-                                                $('.group').css('display', 'none');
-                                            } else {
-                                                $('.group').css('display', 'block')
-                                            }
-                                        });
-                                        $('.filter_by').on('click', function () {
-                                            $('.filter_by').removeClass('active');
-                                            $('.group').css('display', 'block');
-                                            $(this).addClass('active');
-                                            var filter_by = $(this).attr('id');
-                                            if (filter_by) {
-                                                filter_by = filter_by;
-                                            } else {
-                                                filter_by = '';
-                                            }
-                                            table_url(base_url + "admin/client/clientList/" +
-                                                filter_by);
-                                        });
-                                    });
-                                </script>
+                                    <th><?= $c_label ?> </th>
+                                <?php }
+                            }
+                        }
+                        ?>
+                        <th class="hidden-print"><?= lang('action') ?></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <script type="text/javascript">
+                        $(document).ready(function () {
+                            list = base_url + "admin/client/clientList";
+                            bulk_url = base_url + 'admin/client/bulk_delete';
+                            $('.filtered > .dropdown-toggle').on('click', function () {
+                                if ($('.group').css('display') == 'block') {
+                                    $('.group').css('display', 'none');
+                                } else {
+                                    $('.group').css('display', 'block')
+                                }
+                            });
+                            $('.filter_by').on('click', function () {
+                                $('.filter_by').removeClass('active');
+                                $('.group').css('display', 'block');
+                                $(this).addClass('active');
+                                var filter_by = $(this).attr('id');
+                                if (filter_by) {
+                                    filter_by = filter_by;
+                                } else {
+                                    filter_by = '';
+                                }
+                                table_url(base_url + "admin/client/clientList/" +
+                                    filter_by);
+                            });
+                        });
+                    </script>
 
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                </div>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
-</div>
-<script type="text/javascript">
-    function fetch_lat_long_from_google_cprofile() {
-        var data = {};
-        data.address = $('textarea[name="address"]').val();
-        data.city = $('input[name="city"]').val();
-        data.country = $('select[name="country"] option:selected').text();
-        console.log(data);
-        $('#gmaps-search-icon').removeClass('fa-google').addClass('fa-spinner fa-spin');
-        $.post('<?= base_url() ?>admin/common/fetch_address_info_gmaps', data).done(function (data) {
-            data = JSON.parse(data);
-            $('#gmaps-search-icon').removeClass('fa-spinner fa-spin').addClass('fa-google');
-            if (data.response.status == 'OK') {
-                $('input[name="latitude"]').val(data.lat);
-                $('input[name="longitude"]').val(data.lng);
-            } else {
-                if (data.response.status == 'ZERO_RESULTS') {
-                    toastr.warning("<?php echo lang('g_search_address_not_found'); ?>");
-                } else {
-                    toastr.warning(data.response.status);
+    <script type="text/javascript">
+        $(function () {
+            /* Relocate the DataTables search input into the cl toolbar (the plugin
+               node is moved, so its keyup binding keeps working). Runs after
+               fire_datatable()'s own ready handler via the timeout. */
+            setTimeout(function () {
+                var $filter = $('.cl-manage .dataTables_filter');
+                if ($filter.length) {
+                    $filter.find('label').contents().filter(function () {
+                        return this.nodeType === 3;
+                    }).remove();
+                    $filter.appendTo('#cl-manage-search');
                 }
-            }
+            }, 0);
         });
-    }
-</script>
+    </script>
+    <script type="text/javascript">
+        function fetch_lat_long_from_google_cprofile() {
+            var data = {};
+            data.address = $('textarea[name="address"]').val();
+            data.city = $('input[name="city"]').val();
+            data.country = $('select[name="country"] option:selected').text();
+            console.log(data);
+            $('#gmaps-search-icon').removeClass('fa-google').addClass('fa-spinner fa-spin');
+            $.post('<?= base_url() ?>admin/common/fetch_address_info_gmaps', data).done(function (data) {
+                data = JSON.parse(data);
+                $('#gmaps-search-icon').removeClass('fa-spinner fa-spin').addClass('fa-google');
+                if (data.response.status == 'OK') {
+                    $('input[name="latitude"]').val(data.lat);
+                    $('input[name="longitude"]').val(data.lng);
+                } else {
+                    if (data.response.status == 'ZERO_RESULTS') {
+                        toastr.warning("<?php echo lang('g_search_address_not_found'); ?>");
+                    } else {
+                        toastr.warning(data.response.status);
+                    }
+                }
+            });
+        }
+    </script>
+</div>

@@ -119,30 +119,50 @@ class Client extends Admin_Controller
                 if (!empty($deleted)) {
                     $sub_array[] = '<div class="checkbox c-checkbox" ><label class="needsclick"> <input value="' . $client_details->client_id . '" type="checkbox"><span class="fa fa-check"></span></label></div>';
                 }
-                $name = null;
-                $name .= '<a class="text-info" href="' . base_url() . 'admin/client/details/' . $client_details->client_id . '">' . (!empty($client_details->name) ? $client_details->name : '-') . '</a>';
+
+                // Initials avatar — view-layer sugar derived from the name already
+                // in the row (no extra profile_photo select).
+                $cl_av_accents = array('cl-av-mint', 'cl-av-cyan', 'cl-av-amber', 'cl-av-purple', 'cl-av-slate');
+                $cl_avatar = $cl_av_accents[abs((int)$client_details->client_id) % count($cl_av_accents)];
+                $cl_initials = '-';
+                if (!empty($client_details->name)) {
+                    $cl_name_parts = preg_split('/\s+/', trim($client_details->name));
+                    $cl_initials = strtoupper(substr($cl_name_parts[0], 0, 1));
+                    if (count($cl_name_parts) > 1) {
+                        $cl_initials .= strtoupper(substr($cl_name_parts[count($cl_name_parts) - 1], 0, 1));
+                    }
+                }
+                $name = '<div class="cl-cell-name">';
+                $name .= '<span class="cl-avatar ' . $cl_avatar . '">' . $cl_initials . '</span>';
+                $name .= '<div><a class="cl-nm" href="' . base_url() . 'admin/client/details/' . $client_details->client_id . '">' . (!empty($client_details->name) ? $client_details->name : '-') . '</a>';
+                if (!empty($client_details->email)) {
+                    $name .= '<div class="cl-em">' . $client_details->email . '</div>';
+                }
+                $name .= '</div></div>';
                 $sub_array[] = $name;
 
-                $contacts = null;
-                $contacts .= '<span class="label label-success" data-toggle="tooltip" data-palcement="top" title="' . lang('contacts') . '" >' . $this->client_model->count_rows('tbl_account_details', array('company' => $client_details->client_id)) . '</a>';
+                $contacts = '<span class="cl-chip" data-toggle="tooltip" data-placement="top" title="' . lang('contacts') . '">' . $this->client_model->count_rows('tbl_account_details', array('company' => $client_details->client_id)) . '</span>';
                 $sub_array[] = $contacts;
-                $sub_array[] = $client_details->fullname;
+                $sub_array[] = !empty($client_details->fullname) ? $client_details->fullname : '-';
 
-                $sub_array[] = count(array($this->db->where('client_id', $client_details->client_id)->get('tbl_project')->result()));
+                $sub_array[] = '<div class="cl-num">' . count(array($this->db->where('client_id', $client_details->client_id)->get('tbl_project')->result())) . '</div>';
                 if ($client_outstanding > 0) {
                     $due_amount = display_money($client_outstanding, client_currency($client_details->client_id));
+                    $sub_array[] = '<div class="cl-num cl-money-neg">' . $due_amount . '</div>';
                 } else {
-                    $due_amount = '0.00';
+                    $sub_array[] = '<div class="cl-num cl-muted">0.00</div>';
                 }
-                $sub_array[] = $due_amount;
-                $sub_array[] = display_money($this->client_model->client_paid($client_details->client_id), client_currency($client_details->client_id));
+                $cl_client_paid = $this->client_model->client_paid($client_details->client_id);
+                $sub_array[] = '<div class="cl-num ' . ($cl_client_paid > 0 ? 'cl-money-pos' : 'cl-muted') . '">' . display_money($cl_client_paid, client_currency($client_details->client_id)) . '</div>';
                 if ($client_transactions[0]->amount > 0) {
                     $paid_amount = display_money($client_transactions[0]->amount, client_currency($client_details->client_id));
+                    $sub_array[] = '<div class="cl-num cl-money-neg">' . $paid_amount . '</div>';
                 } else {
-                    $paid_amount = '0.00';
+                    $sub_array[] = '<div class="cl-num cl-muted">0.00</div>';
                 }
-                $sub_array[] = $paid_amount;
-                $sub_array[] = (!empty($customer_group->customer_group) ? '<span class="tags">' . $customer_group->customer_group . '</span>' : '-');
+                $cl_tag_accents = array('cl-tag-mint', 'cl-tag-cyan', 'cl-tag-amber', 'cl-tag-purple');
+                $cl_group_tag = $cl_tag_accents[abs((int)$client_details->client_id) % count($cl_tag_accents)];
+                $sub_array[] = (!empty($customer_group->customer_group) ? '<span class="cl-tag ' . $cl_group_tag . '">' . $customer_group->customer_group . '</span>' : '-');
 
                 $custom_form_table = custom_form_table(12, $client_details->client_id);
                 if (!empty($custom_form_table)) {
@@ -152,14 +172,14 @@ class Client extends Admin_Controller
                 }
 
                 if (!empty($edited)) {
-                    $action .= btn_edit('admin/client/create_client/' . $client_details->client_id) . ' ';
+                    $action .= '<a data-toggle="tooltip" data-placement="top" class="cl-btn cl-btn-icon accent" title="' . lang('edit') . '" href="' . base_url() . 'admin/client/create_client/' . $client_details->client_id . '"><i class="fa fa-pencil-square-o"></i></a>' . ' ';
                 }
                 if (!empty($deleted)) {
-                    $action .= '<a data-toggle="tooltip" data-placement="top" class="btn btn-danger btn-xs" title="Click to ' . lang("delete") . ' " href="' . base_url() . 'admin/client/delete_client/' . $client_details->client_id . '"><span class="fa fa-trash-o"></span></a>' . ' ';
+                    $action .= '<a data-toggle="tooltip" data-placement="top" class="cl-btn cl-btn-icon danger" title="' . lang('delete') . '" href="' . base_url() . 'admin/client/delete_client/' . $client_details->client_id . '"><i class="fa fa-trash-o"></i></a>' . ' ';
                 }
-                $action .= btn_view('admin/client/details/' . $client_details->client_id) . ' ';
+                $action .= '<a data-toggle="tooltip" data-placement="top" class="cl-btn cl-btn-icon" title="' . lang('view') . '" href="' . base_url() . 'admin/client/details/' . $client_details->client_id . '"><i class="fa fa-list-alt"></i></a>';
 
-                $sub_array[] = $action;
+                $sub_array[] = '<div class="cl-acts">' . $action . '</div>';
                 $data[] = $sub_array;
             }
 
