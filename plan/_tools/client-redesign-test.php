@@ -81,6 +81,12 @@ $ok(file_exists($client_tabs) && strpos(file_get_contents($client_tabs), 'cl-sid
 $details_tab = ROOTPATH . 'application/views/admin/client/details.php';
 $ok(strpos(file_get_contents($details_tab), 'cl-profile') !== false, 'client details tab has cl-profile');
 
+/* =====================================================================
+ * Task 6: Details contacts tab — table + inline form
+ * ===================================================================== */
+$contacts_tab = ROOTPATH . 'application/views/admin/client/details/contacts.php';
+$ok(strpos(file_get_contents($contacts_tab), 'cl-contacts') !== false, 'client contacts tab has cl-contacts');
+
 /* ---------- report ---------- */
 $pass = 0; $fail = 0; $skip = 0;
 foreach ($checks as $name => $reason) {
