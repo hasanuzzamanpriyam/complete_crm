@@ -538,6 +538,32 @@ table.cl-tbl.cl-mini td { padding: 12px var(--sp-5); }
   margin-bottom: var(--sp-4);
 }
 .cl-frow > label { font-weight: 600; color: var(--c-text-2); text-align: right; font-size: var(--fs-base); }
+/* Dragging the Short Note resize corner used to widen it past the card —
+ * constrain it so it can only grow vertically, inside the card. */
+textarea.cl-input { resize: vertical; max-width: 100%; }
+
+/* get_permission() emits legacy Bootstrap horizontal-form markup
+ * (.form-group > .col-lg-3.control-label + .col-lg-7) whose left-floating
+ * label sat far outside the field grid. Re-align it to the same
+ * 180px/1fr tracks as .cl-frow so it lands inside the card layout. */
+.tab-pane .form-group {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: var(--sp-4);
+  align-items: center;
+  margin-bottom: var(--sp-4);
+}
+.tab-pane .form-group > .control-label {
+  float: none;
+  width: auto;
+  padding: 0;
+  text-align: right;
+  font-weight: 600;
+  color: var(--c-text-2);
+}
+.tab-pane .form-group > [class*="col-"] { float: none; width: auto; padding: 0; }
+.tab-pane .form-group .c-radio { display: flex; align-items: center; margin-bottom: 6px; }
+.tab-pane .form-group .c-radio:last-child { margin-bottom: 0; }
 .cl-frow > label .cl-req { color: var(--c-danger); }
 .cl-input {
   width: 100%;
@@ -594,7 +620,24 @@ select.cl-input {
 }
 .cl-pills label.on { background: var(--c-surface); color: var(--c-accent); box-shadow: var(--sh-1); }
 
-.cl-switch { display: inline-flex; align-items: center; gap: var(--sp-3); cursor: pointer; }
+.cl-switch { display: inline-flex; align-items: center; gap: var(--sp-3); cursor: pointer; position: relative; }
+/* The checkbox is the state carrier (it must submit with the form) — hide
+ * it and drive the visual track from :checked instead of a JS-set .on class
+ * (no script on the page toggles .on, so the knob never moved before). */
+.cl-switch input { position: absolute; opacity: 0; pointer-events: none; }
+.cl-switch:has(input:checked) .cl-track { background: var(--c-accent); }
+.cl-switch:has(input:checked) .cl-track::after { left: 20px; }
+/* Keep the switch row at the same 40px rhythm as the input rows, without
+ * the stretched full-width pill band and without the stray checkbox. */
+.cl-frow .cl-pills {
+  justify-self: start;
+  background: none;
+  padding: 0;
+  height: 40px;
+  align-items: center;
+}
+.cl-frow .cl-pills label { padding: 0; }
+.cl-frow .cl-pills .cl-switch { min-height: 40px; }
 .cl-switch .cl-track {
   width: 40px;
   height: 22px;
@@ -663,6 +706,9 @@ select.cl-input {
   border-top: 1px solid var(--c-border);
   background: var(--c-surface-2);
 }
+/* Slimmer footer actions — Save / Save and Create Contact were reading as
+ * chunky at 8px/14px/14px. */
+.cl-form-foot .cl-btn { padding: 5px 12px; font-size: 13px; }
 
 /* =============================================================
    Modal (customer group)

@@ -155,6 +155,14 @@ $ok(substr_count(file_get_contents($create), '<form') >= 2, 'create_client opens
  * .cl-root.cl-form without a side panel must stay single column. */
 $cl_css = file_get_contents(ROOTPATH . 'assets/css/client_modern.css');
 $ok(strpos($cl_css, '.cl-form:has(') !== false, 'cl-form 2-col grid scoped to side panel via :has');
+/* Create-client polish: native checkbox hidden + driven switch state,
+ * textarea drag constrained to the card, legacy Permission form-group
+ * aligned to the field grid, slim footer buttons. */
+$ok(strpos($cl_css, '.cl-switch input') !== false, 'cl-switch hides the native checkbox');
+$ok(strpos($cl_css, '.cl-switch:has(') !== false, 'cl-switch on-state driven by :checked');
+$ok(strpos($cl_css, 'textarea.cl-input') !== false, 'short-note textarea resize constrained');
+$ok(strpos($cl_css, '.tab-pane .form-group') !== false, 'permission block aligned to field grid');
+$ok(strpos($cl_css, '.cl-form-foot .cl-btn') !== false, 'form footer buttons slimmed');
 /* Regression: the redesign dropped the $permissionL definition before the
  * get_permission() call — the page rendered an "Undefined variable" PHP
  * error box above the Permission block. */
