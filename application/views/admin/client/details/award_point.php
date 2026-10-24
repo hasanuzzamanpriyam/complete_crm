@@ -27,7 +27,7 @@
                         </a>
                     </td>
                     <td><?= strftime(config_item('date_format'), strtotime($v_point['date'])) ?></td>
-                    <td><?= $v_point['client_award_point'] ?></td>
+                    <td><span class="cl-tag cl-tag-mint"><?= $v_point['client_award_point'] ?></span></td>
                 </tr>
             <?php } ?>
             </tbody>

@@ -58,6 +58,29 @@ $ok(file_exists($import) && strpos(file_get_contents($import), 'cl-tabs') !== fa
 $ok(strpos(file_get_contents($import), '_client_assets') !== false, 'import_client loads assets');
 $ok(strpos(file_get_contents($import), 'cl-form-card') !== false, 'import_client uses cl-form-card');
 $ok(strpos(file_get_contents($import), 'cl-dropzone') !== false, 'import_client has dropzone');
+/* Detail subtabs — each migrated to modern .cl-card + .cl-tbl + .cl-sec-head */
+$subtabs = [
+    'contacts'    => ['cl-contacts', 'cl-sec-head', 'cl-spacer', 'cl-tbl', 'cl-btn-primary', 'cl-avatar'],
+    'invoices'    => ['cl-tbl', 'cl-sec-head', 'cl-spacer', 'cl-btn-primary', 'cl-btn-ghost', 'cl-tag-mint'],
+    'payments'    => ['cl-tbl', 'cl-sec-head', 'cl-spacer', 'cl-btn-ghost', 'cl-tag-success', 'cl-tag-danger'],
+    'notes'       => ['cl-tbl', 'cl-sec-head', 'cl-spacer', 'cl-btn-ghost', 'cl-form-card', 'cl-form-body'],
+    'estimates'   => ['cl-tbl', 'cl-sec-head', 'cl-spacer', 'cl-btn-primary', 'cl-btn-ghost', 'cl-tag-mint'],
+    'proposals'   => ['cl-tbl', 'cl-sec-head', 'cl-spacer', 'cl-btn-primary', 'cl-btn-ghost', 'cl-tag-success', 'cl-tag-danger'],
+    'transactions'=> ['cl-tbl', 'cl-sec-head', 'cl-btn-icon', 'cl-btn-icon danger', 'cl-tag-mint', 'cl-tag-amber'],
+    'projects'    => ['cl-tbl', 'cl-sec-head', 'cl-spacer', 'cl-btn-primary', 'cl-tag-success', 'cl-tag-info', 'cl-tag-danger'],
+    'tickets'     => ['cl-tbl', 'cl-sec-head', 'cl-spacer', 'cl-btn-primary', 'cl-tag-danger', 'cl-tag-success'],
+    'bugs'        => ['cl-tbl', 'cl-sec-head', 'cl-spacer', 'cl-btn-primary', 'cl-tag-danger', 'cl-tag-info', 'cl-tag-purple'],
+    'award_point' => ['cl-tbl', 'cl-sec-head', 'cl-spacer', 'cl-money-neg', 'cl-tag-mint'],
+    'filemanager' => ['cl-embed-frame', 'elfinder'],
+    'map'         => ['cl-form-card', 'cl-embed-frame', 'cl-btn-primary', 'cl-frow'],
+];
+foreach ($subtabs as $tab => $needles) {
+    $path = ROOTPATH . "application/views/admin/client/details/$tab.php";
+    $content = file_get_contents($path);
+    foreach ($needles as $n) {
+        $ok(strpos($content, $n) !== false, "detail subtab $tab has $n");
+    }
+}
 
 /* ---------------------------------------------------------------------
  * Later tasks append their assertions ABOVE this line, e.g.:

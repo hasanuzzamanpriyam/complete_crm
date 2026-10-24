@@ -1,6 +1,7 @@
 <div class="cl-card">
         <div class="cl-sec-head">
             <h1><?= lang('transactions') ?></h1>
+            <div class="cl-spacer"></div>
         </div>
         
         <table class="cl-tbl cl-mini" cellspacing="0" width="100%">
@@ -31,14 +32,14 @@
                         if ($v_transactions->type == 'Income') {
                             $total_income += $v_transactions->amount;
                             ?>
-                            <?= btn_edit('admin/transactions/create_deposit/' . $v_transactions->transactions_id) ?>
-                            <?= btn_delete('admin/transactions/delete_deposit/' . $v_transactions->transactions_id) ?>
+                            <a href="<?= base_url('admin/transactions/create_deposit/' . $v_transactions->transactions_id) ?>" class="cl-btn cl-btn-icon" title="<?= lang('edit') ?>"><i class="fa fa-edit"></i></a>
+                            <a href="<?= base_url('admin/transactions/delete_deposit/' . $v_transactions->transactions_id) ?>" class="cl-btn cl-btn-icon danger" title="<?= lang('delete') ?>"><i class="fa fa-trash"></i></a>
                             <?php
                         } else {
                             $total_expense += $v_transactions->amount;
                             ?>
-                            <?= btn_edit('admin/transactions/create_expense/' . $v_transactions->transactions_id) ?>
-                            <?= btn_delete('admin/transactions/delete_expense/' . $v_transactions->transactions_id) ?>
+                            <a href="<?= base_url('admin/transactions/create_expense/' . $v_transactions->transactions_id) ?>" class="cl-btn cl-btn-icon" title="<?= lang('edit') ?>"><i class="fa fa-edit"></i></a>
+                            <a href="<?= base_url('admin/transactions/delete_expense/' . $v_transactions->transactions_id) ?>" class="cl-btn cl-btn-icon danger" title="<?= lang('delete') ?>"><i class="fa fa-trash"></i></a>
                         <?php } ?>
                     </td>
                 </tr>
