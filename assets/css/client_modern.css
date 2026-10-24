@@ -565,6 +565,9 @@ textarea.cl-input { resize: vertical; max-width: 100%; }
 .cl-form-body .form-group > [class*="col-"] { float: none; width: auto; padding: 0; }
 .cl-form-body .form-group .c-radio { display: flex; align-items: center; margin-bottom: 6px; }
 .cl-form-body .form-group .c-radio:last-child { margin-bottom: 0; }
+/* Tooltip icon gap — legacy markup puts the <i> immediately after text
+ * with no spacing; 6px keeps it readable without drifting too far. */
+.cl-form-body .form-group .c-radio .fa-question-circle { margin-left: 6px; }
 .cl-frow > label .cl-req { color: var(--c-danger); }
 .cl-input {
   width: 100%;

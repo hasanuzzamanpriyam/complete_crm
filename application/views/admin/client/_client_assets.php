@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed'); ?>
 <?php // Bump the ?v= below whenever assets/css/client_modern.css changes. ?>
-<link rel="stylesheet" href="<?= base_url() ?>assets/css/client_modern.css?v=11">
+<link rel="stylesheet" href="<?= base_url() ?>assets/css/client_modern.css?v=12">
 <script>
 /* cl-subtabs highlight bridge.
  * Bootstrap 3's tab plugin moves .active by activating $(this).parent('li')
