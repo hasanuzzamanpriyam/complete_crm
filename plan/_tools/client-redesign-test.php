@@ -57,6 +57,9 @@ $ok(strpos(file_get_contents($partial), 'client_modern.css') !== false, 'asset p
 $en = ROOTPATH . 'application/language/english/client_lang.php';
 $ok(strpos(file_get_contents($en), "client_paid_percentage") !== false, 'client lang keys added');
 $ok(strpos(file_get_contents($en), "client_address_and_hosting") !== false, 'client lang keys added (2)');
+$ok(strpos(file_get_contents($en), "new_clients_last_7_days") !== false, 'client lang keys added (3)');
+$ok(strpos(file_get_contents($en), "goal_progress") !== false, 'client lang keys added (4)');
+$ok(strpos(file_get_contents($en), "this_period") !== false, 'client lang keys added (5)');
 
 /* =====================================================================
  * Task 3: Manage clients table + clientList row markup

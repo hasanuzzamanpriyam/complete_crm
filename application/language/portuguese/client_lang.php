@@ -23,7 +23,7 @@ $lang['client_contact'] = 'Contato';
 $lang['hosting'] = 'Hospedagem';
 $lang['converted_from'] = 'Formulário convertido';
 $lang['without_converted'] = 'Sem conversão';
-$lang['converted_client'] = 'Cliente convertido';
+$lang['converted_client'] = 'Clientes convertidos';
 $lang['business'] = 'Empresa';
 $lang['state'] = 'Província/Estado';
 $lang['first_name'] = 'Primeiro nome';
@@ -70,6 +70,9 @@ $lang['client_profile_info'] = 'Profile Info';
 $lang['client_general_info'] = 'General Info';
 $lang['client_custom_fields'] = 'Custom Fields';
 $lang['client_no_records'] = 'No records found';
+$lang['new_clients_last_7_days'] = 'Novos clientes \u00b7 \u00faltimos 7 dias';
+$lang['goal_progress'] = 'Progresso da meta';
+$lang['this_period'] = 'este per\u00edodo';
 
 
 /* End of file client_lang.php */
