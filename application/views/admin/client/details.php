@@ -242,22 +242,22 @@ $edited = can_action('4', 'edited');
         </div>
     </div>
 
-    <!-- Footer: Paid % + totals -->
+    <!-- Footer: Totals summary (clean, no legacy chart) -->
     <div class="cl-panel-foot">
-        <div class="cl-info-row" style="grid-template-columns: auto 1fr; flex: 1;">
-            <span class="cl-k"><?= lang('received_amount') ?></span>
-            <span class="cl-v">
-                <div style="display: flex; align-items: center; gap: var(--sp-4);">
-                    <strong class="cl-money-pos"><?= display_money($this->client_model->client_paid($client_details->client_id), client_currency($client_details->client_id)) ?></strong>
-                    <div id="easypie3" data-percent="<?= $perc_paid ?>" class="easypie-chart" style="width: 48px; height: 48px; display: grid; place-items: center; font-size: var(--fs-sm); font-weight: 700; color: var(--c-success); border-radius: 50%; background: conic-gradient(var(--c-success) <?= $perc_paid ?>%, var(--c-surface-3) <?= $perc_paid ?>%);">
-                        <span class="h2" style="font-size: var(--fs-sm);"><?= $perc_paid ?>%</span>
-                    </div>
-                </div>
-            </span>
+        <div class="cl-info-row">
+            <span class="cl-k"><?= lang('invoice_amount') ?></span>
+            <span class="cl-v"><strong class="cl-tag cl-tag-mint"><?= display_money($client_payable, client_currency($client_details->client_id)) ?></strong></span>
         </div>
-
-        <div style="display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap; margin-top: var(--sp-2);">
-            <span><?= lang('invoice_amount') ?>: <strong class="cl-tag cl-tag-mint"><?= display_money($client_payable, client_currency($client_details->client_id)) ?></strong></span>
-            <span class="cl-money-neg"><?= lang('outstanding') ?>: <strong><?= display_money($client_outstanding, client_currency($client_details->client_id)) ?></strong></span>
+        <div class="cl-info-row">
+            <span class="cl-k"><?= lang('paid_amount') ?></span>
+            <span class="cl-v"><strong class="cl-money-pos"><?= display_money($client_payments, client_currency($client_details->client_id)) ?></strong></span>
+        </div>
+        <div class="cl-info-row">
+            <span class="cl-k"><?= lang('outstanding') ?></span>
+            <span class="cl-v"><strong class="cl-money-neg"><?= display_money($client_outstanding, client_currency($client_details->client_id)) ?></strong></span>
+        </div>
+        <div class="cl-info-row">
+            <span class="cl-k"><?= lang('paid_percentage') ?></span>
+            <span class="cl-v"><strong><?= $perc_paid ?>%</strong></span>
         </div>
     </div>
