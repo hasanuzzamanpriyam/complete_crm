@@ -51,6 +51,13 @@ $ok(strpos(file_get_contents($partial), 'client_modern.css') !== false, 'asset p
 $assets = file_get_contents($partial);
 $ok(strpos($assets, '.cl-subtabs') !== false && strpos($assets, 'addEventListener') !== false,
     'shared assets move cl-subtabs active state');
+/* Import client page: migrated to demo design — has .cl-tabs bar, .cl-form-card,
+ * dropzone, and loads _client_assets. */
+$import = ROOTPATH . 'application/views/admin/client/import_client.php';
+$ok(file_exists($import) && strpos(file_get_contents($import), 'cl-tabs') !== false, 'import_client has cl-tabs');
+$ok(strpos(file_get_contents($import), '_client_assets') !== false, 'import_client loads assets');
+$ok(strpos(file_get_contents($import), 'cl-form-card') !== false, 'import_client uses cl-form-card');
+$ok(strpos(file_get_contents($import), 'cl-dropzone') !== false, 'import_client has dropzone');
 
 /* ---------------------------------------------------------------------
  * Later tasks append their assertions ABOVE this line, e.g.:
@@ -168,7 +175,7 @@ $ok(strpos($cl_css, '.cl-form:has(') !== false, 'cl-form 2-col grid scoped to si
 $ok(strpos($cl_css, '.cl-switch input') !== false, 'cl-switch hides the native checkbox');
 $ok(strpos($cl_css, '.cl-switch:has(') !== false, 'cl-switch on-state driven by :checked');
 $ok(strpos($cl_css, 'textarea.cl-input') !== false, 'short-note textarea resize constrained');
-$ok(strpos($cl_css, '.tab-pane .form-group') !== false, 'permission block aligned to field grid');
+$ok(strpos($cl_css, '.cl-form-body .form-group') !== false, 'permission block aligned to field grid');
 $ok(strpos($cl_css, '.cl-form-foot .cl-btn') !== false, 'form footer buttons slimmed');
 /* Regression: the redesign dropped the $permissionL definition before the
  * get_permission() call — the page rendered an "Undefined variable" PHP

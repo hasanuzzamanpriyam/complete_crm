@@ -543,17 +543,18 @@ table.cl-tbl.cl-mini td { padding: 12px var(--sp-5); }
 textarea.cl-input { resize: vertical; max-width: 100%; }
 
 /* get_permission() emits legacy Bootstrap horizontal-form markup
- * (.form-group > .col-lg-3.control-label + .col-lg-7) whose left-floating
+ * (.form-group > .col-lg-3.control-label + .col-lg-7/9) whose left-floating
  * label sat far outside the field grid. Re-align it to the same
- * 180px/1fr tracks as .cl-frow so it lands inside the card layout. */
-.tab-pane .form-group {
+ * 180px/1fr tracks as .cl-frow so it lands inside the card layout.
+ * Works for create_client (.tab-pane) and import_client (no tabs). */
+.cl-form-body .form-group {
   display: grid;
   grid-template-columns: 180px 1fr;
   gap: var(--sp-4);
   align-items: center;
   margin-bottom: var(--sp-4);
 }
-.tab-pane .form-group > .control-label {
+.cl-form-body .form-group > .control-label {
   float: none;
   width: auto;
   padding: 0;
@@ -561,9 +562,9 @@ textarea.cl-input { resize: vertical; max-width: 100%; }
   font-weight: 600;
   color: var(--c-text-2);
 }
-.tab-pane .form-group > [class*="col-"] { float: none; width: auto; padding: 0; }
-.tab-pane .form-group .c-radio { display: flex; align-items: center; margin-bottom: 6px; }
-.tab-pane .form-group .c-radio:last-child { margin-bottom: 0; }
+.cl-form-body .form-group > [class*="col-"] { float: none; width: auto; padding: 0; }
+.cl-form-body .form-group .c-radio { display: flex; align-items: center; margin-bottom: 6px; }
+.cl-form-body .form-group .c-radio:last-child { margin-bottom: 0; }
 .cl-frow > label .cl-req { color: var(--c-danger); }
 .cl-input {
   width: 100%;

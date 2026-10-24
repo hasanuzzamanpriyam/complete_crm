@@ -1,141 +1,121 @@
-<?= message_box('success'); ?>
-<?= message_box('error'); ?>
-<div class="panel panel-custom">
-    <header class="panel-heading">
-        <div class="panel-title"><strong><?= lang('import') . ' ' . lang('client') ?></strong>
-            <div class="pull-right hidden-print">
-                <div class="pull-right "><a href="<?php echo base_url() ?>assets/sample/client_sample.xlsx"
-                                            class="btn btn-primary"><i
-                                class="fa fa-download"> <?= lang('download_sample') ?></i></a>
-                </div>
-            </div>
+<?php echo message_box('success'); ?>
+<?php echo message_box('error'); ?>
 
+<?php
+$this->load->view('admin/client/_client_assets');
+$data['assign_user'] = $this->client_model->allowed_user('4');
+?>
+<div class="cl-root cl-manage">
+    <div class="cl-card">
+        <div class="cl-tabs">
+            <a href="<?= base_url('admin/client/manage_client') ?>"><?= lang('client_list') ?></a>
+            <a href="<?= base_url('admin/client/create_client') ?>"><?= lang('new_client') ?></a>
+            <a class="active" href="<?= base_url('admin/client/import') ?>"><?= lang('import') . ' ' . lang('client') ?></a>
         </div>
-    </header>
-    <div class="panel-body">
-        <form role="form" enctype="multipart/form-data" id="form"
-              action="<?php echo base_url(); ?>admin/client/save_imported" method="post"
-              class="form-horizontal  ">
-            <div class="panel-body">
-                <div class="form-group">
-                    <label for="field-1" class="col-sm-3 control-label">
-                        <?= lang('choose_file') ?><span class="required">*</span></label>
-                    <div class="col-sm-5">
-                        <div style="display: inherit;margin-bottom: inherit" class="fileinput fileinput-new"
-                             data-provides="fileinput">
-                    <span class="btn btn-default btn-file"><span
-                                class="fileinput-new"><?= lang('select_file') ?></span>
-                                                            <span class="fileinput-exists"><?= lang('change') ?></span>
-                                                            <input type="file" name="upload_file">
-                                                        </span>
-                            <span class="fileinput-filename"></span>
-                            <a href="#" class="close fileinput-exists" data-dismiss="fileinput"
-                               style="float: none;">&times;</a>
+
+        <div class="cl-form-card">
+            <form role="form" enctype="multipart/form-data" id="form" data-parsley-validate="" novalidate=""
+                  action="<?= base_url('admin/client/save_imported') ?>" method="post">
+                <div class="cl-form-body">
+                    <div class="cl-frow">
+                        <label><?= lang('choose_file') ?> <span class="cl-req">*</span></label>
+                        <div class="cl-dropzone" id="import-dropzone">
+                            <div class="cl-dz-ico">⬆</div>
+                            Drag & drop file here, or <b>browse files</b>
+                            <input type="file" name="upload_file" id="import-file" hidden accept=".xlsx,.xls,.csv">
                         </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label
-                            class="col-sm-3 control-label"><?= lang('customer_group') ?></label>
-                    <div class="col-sm-5">
-                        <select name="customer_group_id" class="form-control select_box"
-                                style="width: 100%">
-                            <?php
-                            $all_customer_group = $this->db->where('type', 'client')->get('tbl_customer_group')->result();
-                            if (!empty($all_customer_group)) {
-                                foreach ($all_customer_group as $customer_group) : ?>
-                                    <option
-                                            value="<?= $customer_group->customer_group_id ?>"<?php
-                                    if (!empty($client_info->customer_group_id) && $client_info->customer_group_id == $customer_group->customer_group_id) {
-                                        echo 'selected';
-                                    } ?>
-                                    ><?= $customer_group->customer_group; ?></option>
-                                <?php endforeach;
-                            } ?>
-                        </select>
+
+                    <div class="cl-frow">
+                        <label><?= lang('customer_group') ?></label>
+                        <div class="cl-input-group">
+                            <select name="customer_group_id" class="cl-input" style="width: 100%">
+                                <?php
+                                $all_customer_group = $this->db->where('type', 'client')->get('tbl_customer_group')->result();
+                                if (!empty($all_customer_group)) {
+                                    foreach ($all_customer_group as $customer_group) : ?>
+                                        <option value="<?= $customer_group->customer_group_id ?>"
+                                                <?php
+                                                if (!empty($client_info->customer_group_id) && $client_info->customer_group_id == $customer_group->customer_group_id) {
+                                                    echo 'selected';
+                                                }
+                                                ?>><?= $customer_group->customer_group; ?></option>
+                                    <?php endforeach;
+                                }
+                                $created = can_action('125', 'created');
+                                ?>
+                            </select>
+                            <?php if (!empty($created)) { ?>
+                                <div class="cl-plus-inline"
+                                     title="<?= lang('new') . ' ' . lang('customer_group') ?>"
+                                     data-toggle="tooltip" data-placement="top">
+                                    <a data-toggle="modal" data-target="#myModal"
+                                       href="<?= base_url() ?>admin/client/customer_group"><i class="fa fa-plus"></i></a>
+                                </div>
+                            <?php } ?>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label
-                            class="col-sm-3 control-label"><?= lang('language') ?></label>
-                    <div class="col-sm-5">
-                        <select name="language" class="form-control person select_box"
-                                style="width: 100%">
-                            <?php foreach ($languages as $lang) : ?>
-                                <option
-                                        value="<?= $lang->name ?>"<?php
+
+                    <div class="cl-frow">
+                        <label><?= lang('language') ?></label>
+                        <select name="language" class="cl-input" style="width: 100%">
+                            <?php
+                            foreach ($languages as $lang) : ?>
+                                <option value="<?= $lang->name ?>" <?php
                                 if (!empty($client_info->language) && $client_info->language == $lang->name) {
                                     echo 'selected';
                                 } elseif (empty($client_info->language) && $this->config->item('language') == $lang->name) {
                                     echo 'selected';
-                                } ?>
-                                ><?= ucfirst($lang->name) ?></option>
+                                } ?>><?= ucfirst($lang->name) ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label
-                            class="col-lg-3 control-label"><?= lang('currency') ?></label>
-                    <div class="col-lg-5">
-                        <select name="currency" class="form-control person select_box"
-                                style="width: 100%">
 
-                            <?php if (!empty($currencies)): foreach ($currencies as $currency): ?>
-                                <option
-                                        value="<?= $currency->code ?>"
-                                    <?php
-                                    if (!empty($client_info->currency) && $client_info->currency == $currency->code) {
-                                        echo 'selected';
-                                    } elseif (empty($client_info->currency) && $this->config->item('default_currency') == $currency->code) {
-                                        echo 'selected';
-                                    } ?>
-                                ><?= $currency->name ?></option>
-                            <?php
-                            endforeach;
-                            endif;
-                            ?>
+                    <div class="cl-frow">
+                        <label><?= lang('currency') ?></label>
+                        <select name="currency" class="cl-input" style="width: 100%">
+                            <?php if (!empty($currencies)) : foreach ($currencies as $currency) : ?>
+                                <option value="<?= $currency->code ?>" <?php
+                                if (!empty($client_info->currency) && $client_info->currency == $currency->code) {
+                                    echo 'selected';
+                                } elseif (empty($client_info->currency) && $this->config->item('default_currency') == $currency->code) {
+                                    echo 'selected';
+                                } ?>><?= $currency->name ?></option>
+                            <?php endforeach; endif; ?>
                         </select>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-lg-3 control-label"><?= lang('country') ?></label>
-                    <div class="col-lg-5">
-                        <select name="country" class="form-control person select_box"
-                                style="width: 100%">
+
+                    <div class="cl-frow">
+                        <label><?= lang('country') ?></label>
+                        <select name="country" class="cl-input" style="width: 100%">
                             <optgroup label="Default Country">
-                                <option
-                                        value="<?= $this->config->item('company_country') ?>"><?= $this->config->item('company_country') ?></option>
+                                <option value="<?= $this->config->item('company_country') ?>">
+                                    <?= $this->config->item('company_country') ?></option>
                             </optgroup>
                             <optgroup label="<?= lang('other_countries') ?>">
-                                <?php if (!empty($countries)): foreach ($countries as $country): ?>
-                                    <option
-                                            value="<?= $country->value ?>" <?= (!empty($client_info->country) && $client_info->country == $country->value ? 'selected' : NULL) ?>><?= $country->value ?>
-                                    </option>
-                                <?php
-                                endforeach;
-                                endif;
-                                ?>
+                                <?php if (!empty($countries)) : foreach ($countries as $country) : ?>
+                                    <option value="<?= $country->value ?>"
+                                            <?= (!empty($client_info->country) && $client_info->country == $country->value ? 'selected' : NULL) ?>>
+                                        <?= $country->value ?></option>
+                                <?php endforeach; endif; ?>
                             </optgroup>
                         </select>
                     </div>
-                </div>
-                <?php
-                if (!empty($client_info->permission)) {
-                    $permissionL = $client_info->permission;
-                } else {
-                    $permissionL = null;
-                }
-                ?>
-                <?= get_permission(3, 9, $assign_user, $permissionL, ''); ?>
 
+                    <?php
+                    if (!empty($client_info->permission)) {
+                        $permissionL = $client_info->permission;
+                    } else {
+                        $permissionL = null;
+                    }
+                    ?>
+                    <?= get_permission(3, 9, $assign_user, $permissionL, ''); ?>
 
-                <div class="form-group">
-                    <label class="col-lg-3 control-label"></label>
-                    <div class="col-lg-6">
-                        <button type="submit" class="btn btn-sm btn-primary"></i> <?= lang('upload') ?></button>
-                    </div>
                 </div>
-            </div>
+                <div class="cl-form-foot">
+                    <button type="submit" class="cl-btn cl-btn-primary"><?= lang('upload') ?></button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>

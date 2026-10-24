@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed'); ?>
 <?php // Bump the ?v= below whenever assets/css/client_modern.css changes. ?>
-<link rel="stylesheet" href="<?= base_url() ?>assets/css/client_modern.css?v=10">
+<link rel="stylesheet" href="<?= base_url() ?>assets/css/client_modern.css?v=11">
 <script>
 /* cl-subtabs highlight bridge.
  * Bootstrap 3's tab plugin moves .active by activating $(this).parent('li')
@@ -19,5 +19,12 @@ document.addEventListener('click', function (e) {
         if (links[i] === a) { links[i].classList.add('active'); }
         else { links[i].classList.remove('active'); }
     }
+});
+/* Import client dropzone — clicking anywhere opens the file picker. */
+document.addEventListener('click', function (e) {
+    var dz = e.target.closest('.cl-dropzone');
+    if (!dz) return;
+    var input = dz.querySelector('input[type="file"]');
+    if (input && !e.target.closest('input')) { input.click(); }
 });
 </script>
