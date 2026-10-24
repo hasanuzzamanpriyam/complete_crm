@@ -72,6 +72,6 @@ $lang['client_profile_info'] = 'Profile Info';
 $lang['client_general_info'] = 'General Info';
 $lang['client_custom_fields'] = 'Custom Fields';
 $lang['client_no_records'] = 'No records found';
-$lang['new_clients_last_7_days'] = 'New clients \u00b7 last 7 days';
+$lang['new_clients_last_7_days'] = 'New clients · last 7 days';
 $lang['goal_progress'] = 'Goal progress';
 $lang['this_period'] = 'this period';

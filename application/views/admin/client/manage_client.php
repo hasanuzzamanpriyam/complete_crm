@@ -212,7 +212,7 @@ $this->load->view('admin/client/_client_assets');
                 <div class="cl-big"><?= (int)$all_goal ?></div>
                 <div class="cl-lbl"><?= lang('without_converted') ?></div>
                 <div class="cl-meta">
-                    <span class="cl-meta-num"><?= (int)$direct_complete_achivement ?></div>
+                    <span class="cl-meta-num"><?= (int)$direct_complete_achivement ?></span>
                     <span><?= lang('completed') . ' ' . lang('achievements') ?></span>
                 </div>
             </div>

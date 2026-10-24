@@ -69,6 +69,22 @@ $ok(strpos(file_get_contents($manage), 'cl-manage') !== false, 'manage view has 
 $ctrl = ROOTPATH . 'application/controllers/admin/Client.php';
 $ok(strpos(file_get_contents($ctrl), 'cl-chip') !== false, 'clientList emits cl-chip markup');
 
+/* Goal strip markup integrity: div/span tags must balance inside the block.
+ * A single mismatched close tag (e.g. </div> closing a <span>) makes the
+ * HTML parser shut div.cl-goal-strip early, dropping cells 2-4 out of the
+ * grid so they stack vertically full-width. */
+$manage_src = file_get_contents($manage);
+$gs_pos = strpos($manage_src, '<div class="cl-card cl-goal-strip">');
+/* Block ends at the PHP branch close right after the strip (</div> <?php }). */
+$gs_end = $gs_pos !== false ? strpos($manage_src, '<?php }', $gs_pos) : false;
+$gs_block = ($gs_pos !== false && $gs_end !== false) ? substr($manage_src, $gs_pos, $gs_end - $gs_pos) : '';
+$gs_open_div = substr_count($gs_block, '<div');
+$gs_close_div = substr_count($gs_block, '</div>');
+$gs_open_span = substr_count($gs_block, '<span');
+$gs_close_span = substr_count($gs_block, '</span>');
+$ok($gs_pos !== false && $gs_open_div === $gs_close_div && $gs_open_span === $gs_close_span,
+    'goal strip block has balanced div/span tags');
+
 /* =====================================================================
  * Task 4: Client details shell — KPI cards + client-specific tab rail
  * ===================================================================== */

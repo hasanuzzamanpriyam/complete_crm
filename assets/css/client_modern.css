@@ -234,6 +234,14 @@
 .cl-spark span { width: 8px; border-radius: 2px 2px 0 0; background: var(--c-accent-border); }
 .cl-spark span.hi { background: var(--c-accent); }
 
+.cl-spark-labels { display: flex; gap: 4px; margin-top: 5px; line-height: 1; }
+.cl-spark-labels span {
+  width: 8px;
+  text-align: center;
+  font-size: 9px;
+  color: var(--c-text-3);
+}
+
 .cl-donut {
   width: 52px;
   height: 52px;

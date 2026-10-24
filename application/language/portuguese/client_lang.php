@@ -70,7 +70,7 @@ $lang['client_profile_info'] = 'Profile Info';
 $lang['client_general_info'] = 'General Info';
 $lang['client_custom_fields'] = 'Custom Fields';
 $lang['client_no_records'] = 'No records found';
-$lang['new_clients_last_7_days'] = 'Novos clientes \u00b7 \u00faltimos 7 dias';
+$lang['new_clients_last_7_days'] = 'Novos clientes · últimos 7 dias';
 $lang['goal_progress'] = 'Progresso da meta';
 $lang['this_period'] = 'este per\u00edodo';
 
