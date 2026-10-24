@@ -207,76 +207,55 @@ $this->load->view('admin/client/_client_assets');
             $total_progress = 0;
         }
         ?>
-        <div class="cl-card cl-goal-strip" style="grid-template-columns:1fr 1fr 1.15fr;">
+        <div class="cl-card cl-goal-strip">
             <div class="cl-goal-cell">
-                <div class="cl-row2">
-                    <div>
-                        <div class="cl-big"><?= ($all_goal) ?></div>
-                        <div class="cl-lbl"><?= lang('without_converted') ?></div>
-                    </div>
-                    <div class="text-right">
-                        <div class="cl-big"><?= ($direct_complete_achivement) ?></div>
-                        <div class="cl-lbl"><?= lang('completed') . ' ' . lang('achievements') ?></div>
-                    </div>
+                <div class="cl-big"><?= (int)$all_goal ?></div>
+                <div class="cl-lbl"><?= lang('without_converted') ?></div>
+                <div class="cl-meta">
+                    <span class="cl-meta-num"><?= (int)$direct_complete_achivement ?></div>
+                    <span><?= lang('completed') . ' ' . lang('achievements') ?></span>
+                </div>
+            </div>
+            <div class="cl-goal-cell">
+                <div class="cl-big"><?= (int)$wthout_all_goal ?></div>
+                <div class="cl-lbl"><?= lang('converted_client') ?></div>
+                <div class="cl-meta">
+                    <span class="cl-meta-num"><?= (int)$without_complete_achivement ?></span>
+                    <span><?= lang('completed') . ' ' . lang('achievements') ?></span>
+                </div>
+            </div>
+            <div class="cl-goal-cell">
+                <div class="cl-lbl cl-spark-label"><?= lang('new_clients_last_7_days') ?></div>
+                <div class="cl-spark">
+                    <?php
+                    if (!empty($invoice_result)) {
+                        $max_val = max($invoice_result);
+                        foreach ($invoice_result as $v) {
+                            $h = $max_val > 0 ? round(($v / $max_val) * 100) : 0;
+                            $hi_class = ($v == $max_val && $v > 0) ? 'hi' : '';
+                            echo '<span style="height:' . $h . '%;" class="' . $hi_class . '"></span>';
+                        }
+                    }
+                    ?>
+                </div>
+                <div class="cl-spark-labels">
+                    <?php
+                    if (!empty($invoice_result)) {
+                        foreach ($invoice_result as $date => $v) {
+                            echo '<span>' . date('d', strtotime($date)) . '</span>';
+                        }
+                    }
+                    ?>
                 </div>
             </div>
             <div class="cl-goal-cell">
                 <div class="cl-row2">
                     <div>
-                        <div class="cl-big"><?= ($wthout_all_goal) ?></div>
-                        <div class="cl-lbl"><?= lang('converted_client') ?></div>
+                        <div class="cl-lbl"><?= lang('goal_progress') ?></div>
+                        <div class="cl-meta" style="font-size:12px"><?= lang('this_period') ?></div>
                     </div>
-                    <div class="text-right">
-                        <div class="cl-big"><?= $without_complete_achivement ?></div>
-                        <div class="cl-lbl"><?= lang('completed') . ' ' . lang('achievements') ?></div>
-                    </div>
-                </div>
-            </div>
-            <div class="cl-goal-cell">
-                <div class="cl-row2">
-                    <div>
-                        <div data-sparkline="" data-bar-color="#23b7e5" data-height="60" data-bar-width="8"
-                             data-bar-spacing="6"
-                             data-chart-range-min="0"
-                             values="<?php
-                             if (!empty($invoice_result)) {
-                                 foreach ($invoice_result as $v_invoice_result) {
-                                     echo $v_invoice_result . ',';
-                                 }
-                             }
-                             ?>">
-                        </div>
-                        <div class="cl-lbl">
-                            <?php
-                            if (!empty($invoice_result)) {
-                                foreach ($invoice_result as $date => $v_invoice_result) {
-                                    echo date('d', strtotime($date)) . ' ';
-                                }
-                            }
-                            ?>
-                        </div>
-                    </div>
-                    <div class="text-center">
-                        <div class="inline ">
-                            <div class="easypiechart text-success" data-percent="<?= $total_progress ?>" data-line-width="5"
-                                 data-track-Color="#f0f0f0"
-                                 data-bar-color="#<?php
-                                 if ($total_progress == 100) {
-                                     echo '8ec165';
-                                 } elseif ($total_progress >= 40 && $total_progress <= 50) {
-                                     echo '5d9cec';
-                                 } elseif ($total_progress >= 51 && $total_progress <= 99) {
-                                     echo '7266ba';
-                                 } else {
-                                     echo 'fb6b5b';
-                                 }
-                                 ?>"
-                                 data-rotate="270" data-scale-Color="false" data-size="50" data-animate="2000">
-                            <span class="small "><?= $total_progress ?>
-                                %</span>
-                                <span class="easypie-text"><strong><?= lang('done') ?></strong></span>
-                            </div>
-                        </div>
+                    <div class="cl-donut" style="--pct: <?= $total_progress ?>%;">
+                        <i><?= $total_progress ?>%</i>
                     </div>
                 </div>
             </div>

@@ -1,3 +1,3 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed'); ?>
-<?php // CL_CSS_VERSION = 3 — bump this (and the ?v= below) whenever assets/css/client_modern.css changes. ?>
-<link rel="stylesheet" href="<?= base_url() ?>assets/css/client_modern.css?v=3">
+<?php // CL_CSS_VERSION = 4 — bump this (and the ?v= below) whenever assets/css/client_modern.css changes. ?>
+<link rel="stylesheet" href="<?= base_url() ?>assets/css/client_modern.css?v=4">
