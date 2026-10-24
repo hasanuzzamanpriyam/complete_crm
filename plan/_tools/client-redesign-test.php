@@ -44,6 +44,13 @@ $ok(file_exists($css), 'client_modern.css exists');
 $ok(strpos(file_get_contents($css), '--c-accent') !== false, 'client css consumes tokens');
 $partial = ROOTPATH . 'application/views/admin/client/_client_assets.php';
 $ok(strpos(file_get_contents($partial), 'client_modern.css') !== false, 'asset partial links css');
+/* Sub-tab highlight: Bootstrap 3's tab plugin activates parent('li') inside
+ * closest('ul'), but cl-subtabs markup is div > a — panes switched while the
+ * active class stayed on General. The shared asset partial must carry the
+ * delegated handler that moves it. */
+$assets = file_get_contents($partial);
+$ok(strpos($assets, '.cl-subtabs') !== false && strpos($assets, 'addEventListener') !== false,
+    'shared assets move cl-subtabs active state');
 
 /* ---------------------------------------------------------------------
  * Later tasks append their assertions ABOVE this line, e.g.:
