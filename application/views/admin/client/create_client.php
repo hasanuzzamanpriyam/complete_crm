@@ -33,6 +33,9 @@ if ($this->input->is_ajax_request()) {
             <a href="<?= base_url() ?>admin/client/import"><?= lang('import') . ' ' . lang('client') ?></a>
         </div>
         <?php } ?>
+        <form role="form" enctype="multipart/form-data" id="form" data-parsley-validate="" novalidate=""
+              action="<?php echo base_url(); ?>admin/client/save_client/<?php if (!empty($client_info)) { echo $client_info->client_id; } ?>"
+              method="post">
     <?php } ?>
     
     <div class="cl-form-card">
@@ -176,6 +179,13 @@ if ($this->input->is_ajax_request()) {
                     }
                     ?>
                     
+                    <?php
+                    if (!empty($client_info->permission)) {
+                        $permissionL = $client_info->permission;
+                    } else {
+                        $permissionL = null;
+                    }
+                    ?>
                     <?php
                     if ($this->input->is_ajax_request()) {
                         echo get_permission_modal(3, 7, $assign_user, $permissionL, '');

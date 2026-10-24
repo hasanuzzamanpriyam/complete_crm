@@ -147,6 +147,20 @@ $ok(strpos(file_get_contents($map), 'cl-embed') !== false, 'map tab has cl-embed
  * ===================================================================== */
 $create = ROOTPATH . 'application/views/admin/client/create_client.php';
 $ok(strpos(file_get_contents($create), 'cl-form') !== false, 'create_client has cl-form');
+/* Regression: the redesign dropped the <form> open tag in the non-AJAX
+ * branch (only </form> remained) — inputs were outside any form, so the
+ * Save buttons were dead. Both branches must open a form. */
+$ok(substr_count(file_get_contents($create), '<form') >= 2, 'create_client opens form in both ajax and page branches');
+/* The demo's 1fr/320px grid belongs to .form-wrap (card + side panel);
+ * .cl-root.cl-form without a side panel must stay single column. */
+$cl_css = file_get_contents(ROOTPATH . 'assets/css/client_modern.css');
+$ok(strpos($cl_css, '.cl-form:has(') !== false, 'cl-form 2-col grid scoped to side panel via :has');
+/* Regression: the redesign dropped the $permissionL definition before the
+ * get_permission() call — the page rendered an "Undefined variable" PHP
+ * error box above the Permission block. */
+$create_src = file_get_contents($create);
+$ok(strpos($create_src, '$permissionL = ') !== false && strpos($create_src, 'get_permission(') !== false,
+    'create_client defines $permissionL before get_permission');
 $new = ROOTPATH . 'application/views/admin/client/new_client.php';
 $ok(strpos(file_get_contents($new), 'cl-form') !== false, 'new_client has cl-form');
 $quick = ROOTPATH . 'application/views/admin/client/_modal_quick_add.php';

@@ -516,7 +516,12 @@ table.cl-tbl.cl-mini td { padding: 12px var(--sp-5); }
 /* =============================================================
    Forms (new / edit client)
    ============================================================= */
-.cl-form { display: grid; grid-template-columns: 1fr 320px; gap: var(--sp-5); }
+/* Demo puts the 1fr/320px split on .form-wrap (card + side panel). On
+ * .cl-root.cl-form (the page root in create_client/new_client) that grid
+ * stranded the form card in the 320px column, so keep it single column
+ * unless a side panel child is actually present. */
+.cl-form { display: block; }
+.cl-form:has(> .cl-side-panel) { display: grid; grid-template-columns: 1fr 320px; gap: var(--sp-5); }
 .cl-form-card {
   background: var(--c-surface);
   border: 1px solid var(--c-border);
@@ -722,7 +727,7 @@ select.cl-input {
   .cl-goal-strip,
   .cl-kpi-row { grid-template-columns: 1fr 1fr; }
   .cl-details,
-  .cl-form,
+  .cl-form:has(> .cl-side-panel),
   .cl-info-grid { grid-template-columns: 1fr; }
   .cl-info-col:first-child { border-right: none; border-bottom: 1px solid var(--c-border); }
 }
