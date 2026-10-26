@@ -4,6 +4,12 @@
             <div class="cl-spacer"></div>
             <button id="new_notes" class="cl-btn cl-btn-ghost cl-btn-sm"><?= lang('new') . ' ' . lang('notes') ?></button>
         </div>
+
+        <div class="tbl-toolbar">
+            <div class="search-in"><span>🔍</span><input type="text"></div>
+            <div style="flex:1"></div>
+            <button class="cl-btn cl-btn-ghost">⌗ <?= lang('filter') ?></button>
+        </div>
         
         <?php
         $client_notes = get_result('tbl_notes', array('user_id' => $client_details->client_id, 'is_client' => 'Yes'));

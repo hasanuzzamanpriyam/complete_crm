@@ -137,6 +137,8 @@
 }
 .cl-btn-primary { background: var(--c-accent); color: var(--c-on-accent); }
 .cl-btn-primary:hover { background: var(--c-accent-hover); }
+.cl-btn-sm,
+.btn-sm { padding: 6px 12px; font-size: var(--fs-sm); }
 .cl-btn-ghost { background: var(--c-surface); color: var(--c-text-2); border-color: var(--c-border); }
 .cl-btn-ghost:hover { background: var(--c-surface-2); }
 .cl-btn-icon {
@@ -325,6 +327,95 @@ table.cl-tbl tr:last-child td { border-bottom: none; }
 /* Compact variant for tables inside detail panes. */
 table.cl-tbl.cl-mini th { padding: 10px var(--sp-5); }
 table.cl-tbl.cl-mini td { padding: 12px var(--sp-5); }
+
+/* ---------- Detail view card ---------- */
+.cl-card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-1);
+  overflow: hidden;
+  padding: 0 0 var(--sp-5);
+  margin-bottom: var(--sp-4);
+}
+.cl-card .cl-sec-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-4) var(--sp-5);
+  border-bottom: 1px solid var(--c-border);
+  margin-bottom: var(--sp-4);
+}
+.cl-card .cl-sec-head h1,
+.cl-card .cl-sec-head h3,
+.cl-card .card-head h3 {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  color: var(--c-text);
+  margin: 0;
+}
+.cl-card .cl-sec-head .cl-spacer,
+.cl-card .card-head .spacer {
+  flex: 1;
+}
+.cl-card > .cl-form-card,
+.cl-card > .form-card {
+  margin: 0 var(--sp-5);
+}
+.cl-card > .cl-embed-frame,
+.cl-card > .embed-frame {
+  margin: var(--sp-5) var(--sp-5) 0;
+}
+.cl-card .tbl-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-4) var(--sp-5);
+  margin-top: var(--sp-4);
+}
+.cl-card .tbl-toolbar .search-in,
+.search-in {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-border);
+  padding: 4px 8px;
+  border-radius: var(--r-sm);
+  flex: 1;
+  transition: border-color var(--dur-fast);
+}
+.cl-card .tbl-toolbar .search-in span,
+.search-in span {
+  color: var(--c-text-3);
+  font-size: var(--fs-sm);
+}
+.cl-card .tbl-toolbar .search-in input,
+.search-in input {
+  border: none !important;
+  background: transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+  font-size: var(--fs-base);
+  color: var(--c-text);
+  width: 100%;
+  flex: 1;
+  padding: 4px 0;
+  margin: 0;
+}
+.cl-card .tbl-toolbar .search-in input:focus,
+.search-in input:focus {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+.cl-card .tbl-toolbar .search-in:focus-within,
+.search-in:focus-within {
+  border-color: var(--c-accent);
+}
+.cl-card .tbl-toolbar button {
+  padding: 4px 12px;
+}
 
 .cl-cell-name { display: flex; align-items: center; gap: var(--sp-3); }
 .cl-cell-name .cl-nm { font-weight: 600; color: var(--c-text); }
@@ -538,6 +629,19 @@ table.cl-tbl.cl-mini td { padding: 12px var(--sp-5); }
   margin-bottom: var(--sp-4);
 }
 .cl-frow > label { font-weight: 600; color: var(--c-text-2); text-align: right; font-size: var(--fs-base); }
+.cl-frow > label a.cl-accent,
+.cl-frow > label a.accent {
+  display: block;
+  color: var(--c-accent);
+  font-size: var(--fs-sm);
+  margin-bottom: 2px;
+  text-decoration: none;
+}
+.cl-frow > label a.cl-accent:hover,
+.cl-frow > label a.accent:hover {
+  color: var(--c-accent-hover);
+  text-decoration: underline;
+}
 /* Dragging the Short Note resize corner used to widen it past the card —
  * constrain it so it can only grow vertically, inside the card. */
 textarea.cl-input { resize: vertical; max-width: 100%; }

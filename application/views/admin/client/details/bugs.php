@@ -11,7 +11,13 @@
                    class="cl-btn cl-btn-primary cl-btn-sm"><?= lang('new_bugs') ?></a>
             <?php } ?>
         </div>
-        
+
+        <div class="tbl-toolbar">
+            <div class="search-in"><span>🔍</span><input type="text"></div>
+            <div style="flex:1"></div>
+            <button class="cl-btn cl-btn-ghost">⌗ <?= lang('filter') ?></button>
+        </div>
+
         <table class="cl-tbl cl-mini" cellspacing="0" width="100%">
             <thead>
             <tr>

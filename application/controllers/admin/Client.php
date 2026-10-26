@@ -1027,7 +1027,7 @@ class Client extends Admin_Controller
 
     public function update_latitude($id)
     {
-        $data = $this->client_model->array_from_post(array('latitude', 'longitude'));
+        $data = $this->client_model->array_from_post(array('latitude', 'longitude', 'address'));
         $this->client_model->_table_name = 'tbl_client';
         $this->client_model->_primary_key = "client_id";
         $this->client_model->save($data, $id);

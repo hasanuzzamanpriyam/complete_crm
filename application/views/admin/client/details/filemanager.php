@@ -1,9 +1,10 @@
 <div class="cl-card">
         <div class="cl-sec-head">
             <h1><?= lang('filemanager') ?></h1>
+            <div class="cl-spacer"></div>
         </div>
-        
-        <div class="cl-embed-frame" id="elfinder-wrapper">
+
+        <div class="cl-embed-frame" id="elfinder-wrapper" style="min-height: 600px;">
             <!-- elFinder CSS/JS (duplicate jQuery loads kept — remove only after browser-test confirms elFinder still initializes) -->
             <link rel="stylesheet" type="text/css"
                   href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css"/>

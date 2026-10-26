@@ -4,13 +4,20 @@
             <div class="cl-spacer"></div>
             <?php
             $edited = can_action('58', 'edited');
+            $primary_contact = $client_details->primary_contact ?? 0;
             if (!empty($edited)) {
                 ?>
                 <a href="<?= base_url() ?>admin/tickets/create/edit_tickets/<?= $primary_contact ?>"
                    class="cl-btn cl-btn-primary cl-btn-sm"><?= lang('new_ticket') ?></a>
             <?php } ?>
         </div>
-        
+
+        <div class="tbl-toolbar">
+            <div class="search-in"><span>🔍</span><input type="text"></div>
+            <div style="flex:1"></div>
+            <button class="cl-btn cl-btn-ghost">⌗ <?= lang('filter') ?></button>
+        </div>
+
         <table class="cl-tbl cl-mini" cellspacing="0" width="100%">
             <thead>
             <tr>

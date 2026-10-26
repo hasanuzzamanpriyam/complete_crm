@@ -233,7 +233,13 @@ if (!empty($add_contact)) :
                    class="cl-btn cl-btn-primary"><?= lang('add_contact') ?></a>
             <?php } ?>
         </div>
-        
+
+        <div class="tbl-toolbar">
+            <div class="search-in"><span>🔍</span><input type="text" placeholder="<?= lang('search') ? lang('search') . '...' : 'Search...' ?>"></div>
+            <div style="flex:1"></div>
+            <button class="cl-btn cl-btn-ghost">⌗ <?= lang('filter') ?></button>
+        </div>
+
         <table class="cl-tbl cl-mini" id="datatable_action" cellspacing="0" width="100%">
             <thead>
             <tr>

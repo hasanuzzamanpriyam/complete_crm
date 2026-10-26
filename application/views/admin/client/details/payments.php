@@ -6,7 +6,13 @@
                href="<?= base_url() ?>admin/invoice/zipped/payment/<?= $client_details->client_id ?>"
                class="cl-btn cl-btn-ghost"><?= lang('zip_payment') ?></a>
         </div>
-        
+
+        <div class="tbl-toolbar">
+            <div class="search-in"><span>🔍</span><input type="text"></div>
+            <div style="flex:1"></div>
+            <button class="cl-btn cl-btn-ghost">⌗ <?= lang('filter') ?></button>
+        </div>
+
         <table class="cl-tbl cl-mini" id="datatable_action" cellspacing="0" width="100%">
             <thead>
             <tr>

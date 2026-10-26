@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed'); ?>
 <?php // Bump the ?v= below whenever assets/css/client_modern.css changes. ?>
-<link rel="stylesheet" href="<?= base_url() ?>assets/css/client_modern.css?v=12">
+<link rel="stylesheet" href="<?= base_url() ?>assets/css/client_modern.css?v=14">
 <script>
 /* cl-subtabs highlight bridge.
  * Bootstrap 3's tab plugin moves .active by activating $(this).parent('li')
@@ -26,5 +26,24 @@ document.addEventListener('click', function (e) {
     if (!dz) return;
     var input = dz.querySelector('input[type="file"]');
     if (input && !e.target.closest('input')) { input.click(); }
+});
+/* Client details tables: live search input filter */
+document.addEventListener('input', function (e) {
+    var input = e.target;
+    if (!input || !input.closest('.search-in')) return;
+    var card = input.closest('.cl-card');
+    if (!card) return;
+    var table = card.querySelector('table');
+    if (!table) return;
+    if (window.jQuery && jQuery.fn.DataTable && jQuery.fn.DataTable.isDataTable(table)) {
+        jQuery(table).DataTable().search(input.value).draw();
+        return;
+    }
+    var q = input.value.toLowerCase().trim();
+    var rows = table.querySelectorAll('tbody tr');
+    for (var i = 0; i < rows.length; i++) {
+        var text = rows[i].textContent.toLowerCase();
+        rows[i].style.display = text.indexOf(q) !== -1 ? '' : 'none';
+    }
 });
 </script>
