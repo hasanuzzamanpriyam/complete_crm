@@ -170,7 +170,7 @@ $(function () {
                         }
                         echo '/' . my_id() . '/1';
                         ?>" class="btn btn-danger <?= $clock_button_loc ?>"><i
-                                    class="fa fa-arrow-left"></i> <?= lang('clock_out') ?></a>
+                                    class="glyph-ico">⏻</i> <?= lang('clock_out') ?></a>
                     <?php else : ?>
                         <a href="<?php echo base_url() ?>admin/dashboard/set_clocking/<?php
                         if (!empty($clocking)) {
@@ -180,8 +180,7 @@ $(function () {
                         }
                         echo '/' . my_id() . '/1';
                         ?>" class="btn btn-success <?= $clock_button_loc ?>"><i
-                                    class="fa fa-sign-out"></i> <?= lang('clock_in') ?></a>
-                        </button>
+                                    class="glyph-ico">⏻</i> <?= lang('clock_in') ?></a>
                     <?php endif; ?>
                 
                 </div>

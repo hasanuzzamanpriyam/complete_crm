@@ -1,0 +1,335 @@
+/**
+ * Chat / Conversations — modern redesign
+ * Scoped under .cc-page so nothing leaks to other pages.
+ * Demo reference: demo/chat-redesign.html
+ */
+
+.cc-page .cc-panel {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .06), 0 1px 2px rgba(0, 0, 0, .04);
+    overflow: hidden;
+    border-left: 3px solid #0d9488;
+    margin-bottom: 20px;
+}
+
+/* ---------- Users panel ---------- */
+.cc-page .cc-panel-head {
+    padding: 14px 18px;
+    border-bottom: 2px solid #0d9488;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.cc-page .cc-panel-head h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0;
+    color: #1a1d21;
+}
+
+.cc-page .cc-count {
+    font-size: 12px;
+    background: rgba(13, 148, 136, .12);
+    color: #0d9488;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 600;
+}
+
+.cc-page .cc-users {
+    max-height: 560px;
+    overflow-y: auto;
+    padding: 8px 0;
+}
+
+.cc-page .cc-users::-webkit-scrollbar,
+.cc-page .cc-msgs::-webkit-scrollbar {
+    width: 6px;
+}
+
+.cc-page .cc-users::-webkit-scrollbar-thumb,
+.cc-page .cc-msgs::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 6px;
+}
+
+.cc-page .cc-user-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 18px;
+    cursor: pointer;
+    transition: .15s;
+    border-left: 3px solid transparent;
+    margin-left: -3px;
+    color: #1a1d21;
+    text-decoration: none;
+    background: transparent;
+}
+
+.cc-page .cc-user-item:hover {
+    background: #f8fafc;
+    text-decoration: none;
+    color: #1a1d21;
+}
+
+.cc-page .cc-user-item.active {
+    background: rgba(13, 148, 136, .12);
+    border-left-color: #0d9488;
+}
+
+.cc-page .cc-ava {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, #0d9488, #14b8a6);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    border: 0;
+}
+
+img.cc-ava {
+    display: block;
+}
+
+.cc-page .cc-meta {
+    min-width: 0;
+    display: block;
+}
+
+.cc-page .cc-name {
+    font-size: 14.5px;
+    font-weight: 600;
+    color: #1a1d21;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex-wrap: wrap;
+}
+
+.cc-page .cc-tag {
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 5px;
+    text-transform: capitalize;
+    line-height: 1.5;
+}
+
+.cc-page .cc-tag-staff {
+    background: rgba(22, 163, 74, .12);
+    color: #16a34a;
+}
+
+.cc-page .cc-tag-client {
+    background: rgba(245, 158, 11, .14);
+    color: #d97706;
+}
+
+.cc-page .cc-tag-admin {
+    background: rgba(239, 68, 68, .12);
+    color: #ef4444;
+}
+
+/* ---------- Conversation panel ---------- */
+.cc-page .cc-conv {
+    display: flex;
+    flex-direction: column;
+    min-height: 560px;
+}
+
+.cc-page .cc-conv-head {
+    padding: 14px 18px;
+    border-bottom: 2px solid #0d9488;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.cc-page .cc-conv-head .cc-who h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0;
+    color: #1a1d21;
+}
+
+.cc-page .cc-conv-head .cc-who p {
+    font-size: 12.5px;
+    color: #16a34a;
+    font-weight: 600;
+    margin: 0;
+}
+
+.cc-page .cc-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 8px;
+}
+
+.cc-page .cc-chip {
+    font-size: 12.5px;
+    padding: 7px 13px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    color: #6b7280;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.cc-page .cc-chip:hover {
+    filter: brightness(.97);
+}
+
+.cc-page .cc-chip-primary {
+    background: #0d9488;
+    border-color: #0d9488;
+    color: #fff;
+}
+
+/* ---------- Messages ---------- */
+.cc-page .cc-msgs {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: linear-gradient(180deg, #fbfcfd, #f6f8fa);
+    overflow-y: auto;
+    max-height: 430px;
+    height: 430px;
+}
+
+.cc-page .cc-day {
+    align-self: center;
+    background: #eef1f4;
+    color: #6b7280;
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 999px;
+}
+
+.cc-page .cc-m {
+    display: flex;
+    gap: 10px;
+    max-width: 72%;
+}
+
+.cc-page .cc-m .cc-mbody {
+    min-width: 0;
+}
+
+.cc-page .cc-m .cc-bubble {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    padding: 10px 14px;
+    border-radius: 4px 14px 14px 14px;
+    font-size: 14px;
+    line-height: 1.5;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .06), 0 1px 2px rgba(0, 0, 0, .04);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.cc-page .cc-m .cc-who {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #0d9488;
+    margin-bottom: 3px;
+}
+
+.cc-page .cc-m .cc-time {
+    font-size: 11px;
+    color: #9ca3af;
+    margin-top: 5px;
+    text-align: right;
+}
+
+.cc-page .cc-m.me {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+}
+
+.cc-page .cc-m.me .cc-bubble {
+    background: #0d9488;
+    color: #fff;
+    border-color: #0d9488;
+    border-radius: 14px 4px 14px 14px;
+}
+
+.cc-page .cc-m.me .cc-time {
+    color: rgba(255, 255, 255, .75);
+}
+
+.cc-page .cc-empty {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+    font-size: 14px;
+    text-align: center;
+    padding: 30px;
+}
+
+/* ---------- Composer ---------- */
+.cc-page .cc-composer {
+    border-top: 1px solid #e5e7eb;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #fff;
+}
+
+.cc-page .cc-composer input {
+    flex: 1;
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+    border-radius: 999px;
+    padding: 11px 18px;
+    font-size: 14px;
+    outline: none;
+    font-family: inherit;
+    color: #1a1d21;
+}
+
+.cc-page .cc-composer input:focus {
+    border-color: #0d9488;
+    background: #fff;
+}
+
+.cc-page .cc-send {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #0d9488;
+    color: #fff;
+    border: 0;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.cc-page .cc-send:hover {
+    filter: brightness(1.08);
+}
+
+.cc-page .cc-err {
+    color: #ef4444;
+    font-size: 12px;
+    padding: 0 18px 10px;
+    min-height: 0;
+}

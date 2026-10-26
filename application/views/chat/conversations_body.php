@@ -1,52 +1,60 @@
 <?php
 // get all message by private chat id
+// NOTE: the controller passes messages already reversed (chronological) here.
+// Markup must stay identical to the .cc-msgs block in full_conversations.php.
 $messages = array();
 if (!empty($all_messages)) {
     foreach ($all_messages as $message) {
         array_push($messages, $message);
     }
-//    $messages = array_reverse($messages);
-    foreach ($all_messages as $message) : ?>
-        <?php
-        if ($message->user_id == $this->session->userdata('user_id')) {
+    $cc_last_day = '';
+    $cc_my_id = $this->session->userdata('user_id');
+    foreach ($all_messages as $message) :
+        $cc_day = date('Y-m-d', strtotime($message->message_time));
+        if ($cc_day != $cc_last_day) {
+            $cc_last_day = $cc_day;
+            if ($cc_day == date('Y-m-d')) {
+                $cc_day_label = 'Today';
+            } elseif ($cc_day == date('Y-m-d', strtotime('-1 day'))) {
+                $cc_day_label = 'Yesterday';
+            } else {
+                $cc_day_label = date('d M Y', strtotime($message->message_time));
+            }
             ?>
-            <div class="direct-chat-msg right">
-                <div class="direct-chat-info clearfix">
-                            <span data-toggle="tooltip" data-placement="top"
-                                  title="<?php echo strftime(config_item('date_format'), strtotime($message->message_time)) . ' ' . lang('at') . ' ' . display_time($message->message_time); ?>"
-                                  class="direct-chat-timestamp pull-left"><?= time_ago($message->message_time); ?></span>
-                </div>
-
+            <div class="cc-day"><?= $cc_day_label ?></div>
+        <?php } ?>
+        <?php if ($message->user_id == $cc_my_id) { ?>
+            <div class="cc-m me">
                 <img data-toggle="tooltip" data-placement="top"
-                     title="<?= fullname($message->user_id) ?>" class="direct-chat-img"
+                     title="<?= fullname($message->user_id) ?>" class="cc-ava"
                      src="<?= base_url(staffImage($message->user_id)) ?>"
-                     alt="message user image"/><!-- /.direct-chat-img -->
-                <div class="direct-chat-text">
-                    <?php echo $message->message ?>
+                     alt="message user image"/>
+                <div class="cc-mbody">
+                    <div class="cc-bubble">
+                        <?php echo $message->message ?>
+                    </div>
+                    <div data-toggle="tooltip" data-placement="top"
+                         title="<?php echo strftime(config_item('date_format'), strtotime($message->message_time)) . ' ' . lang('at') . ' ' . display_time($message->message_time); ?>"
+                         class="cc-time"><?= time_ago($message->message_time); ?></div>
                 </div>
-                <!-- /.direct-chat-text -->
-            </div><!-- /.direct-chat-msg -->
+            </div>
         <?php } else { ?>
-            <div class="direct-chat-msg">
-                <div class="direct-chat-info clearfix">
-                            <span data-toggle="tooltip" data-placement="top"
-                                  title="<?php echo strftime(config_item('date_format'), strtotime($message->message_time)) . ' ' . lang('at') . ' ' . display_time($message->message_time); ?>"
-                                  class="direct-chat-timestamp pull-right">
-                                    <?= time_ago($message->message_time); ?>
-                                </span>
-                </div>
-                <!-- /.direct-chat-info -->
+            <div class="cc-m">
                 <img data-toggle="tooltip" data-placement="top"
-                     title="<?= fullname($message->user_id) ?>" class="direct-chat-img"
+                     title="<?= fullname($message->user_id) ?>" class="cc-ava"
                      src="<?= base_url(staffImage($message->user_id)) ?>"
-                     alt="message user image"/><!-- /.direct-chat-img -->
-                <div class="direct-chat-text">
-                    <?php echo $message->message ?>
+                     alt="message user image"/>
+                <div class="cc-mbody">
+                    <div class="cc-who"><?= fullname($message->user_id) ?></div>
+                    <div class="cc-bubble">
+                        <?php echo $message->message ?>
+                    </div>
+                    <div data-toggle="tooltip" data-placement="top"
+                         title="<?php echo strftime(config_item('date_format'), strtotime($message->message_time)) . ' ' . lang('at') . ' ' . display_time($message->message_time); ?>"
+                         class="cc-time"><?= time_ago($message->message_time); ?></div>
                 </div>
-                <!-- /.direct-chat-text -->
-            </div><!-- /.direct-chat-msg -->
-        <?php }
-        ?>
+            </div>
+        <?php } ?>
     <?php endforeach;
 }
 ?>
