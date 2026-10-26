@@ -5,9 +5,20 @@
  * Every rule is scoped (aside/topnavbar/content-heading) so nothing leaks.
  */
 
-/* Shared glyph font stack: emoji first, symbol fallbacks after. */
-.glyph-emoji,
-.aside .sidebar em:before,
+/* Shared glyph font stack: emoji first, symbol fallbacks after.
+   Scoped ONLY to the elements whose ::before content is overridden below —
+   applying it to all sidebar ems would blank out untouched Font-Awesome icons. */
+.aside .sidebar a[href$="/admin/dashboard"] em:before,
+.aside .sidebar a[href$="/admin/calendar"] em:before,
+.aside .sidebar a[href="#woocommerce"] em:before,
+.aside .sidebar a[href$="/admin/mailbox"] em:before,
+.aside .sidebar a[href$="/admin/spreadsheet"] em:before,
+.aside .sidebar a[href="#knowledgebase"] em:before,
+.aside .sidebar a[href$="/admin/client/manage_client"] em:before,
+.aside .sidebar a[href$="/chat/conversations"] em:before,
+.aside .sidebar a[href$="/admin/contracts"] em:before,
+.aside .sidebar a[href$="/admin/complaints"] em:before,
+.aside .sidebar a[href$="/admin/consultation"] em:before,
 .aside .inner-addon .fa-search:before,
 .topnavbar .fa-flag:before,
 .topnavbar .icon-bell:before,
@@ -19,11 +30,11 @@
 }
 
 /* ===== Sidebar (href-scoped so shared fa- classes don't collide) ===== */
-.aside .sidebar a[href$="/admin/dashboard"] em:before { content: "▦"; }
+.aside .sidebar a[href$="/admin/dashboard"] em:before { content: "📊"; }
 .aside .sidebar a[href$="/admin/calendar"] em:before { content: "📅"; }
 .aside .sidebar a[href="#woocommerce"] em:before { content: "🛍"; }
-.aside .sidebar a[href$="/admin/mailbox"] em:before { content: "✉"; }
-.aside .sidebar a[href$="/admin/spreadsheet"] em:before { content: "▤"; }
+.aside .sidebar a[href$="/admin/mailbox"] em:before { content: "📬"; }
+.aside .sidebar a[href$="/admin/spreadsheet"] em:before { content: "📒"; }
 .aside .sidebar a[href="#knowledgebase"] em:before { content: "❓"; }
 .aside .sidebar a[href$="/admin/client/manage_client"] em:before { content: "👥"; }
 .aside .sidebar a[href$="/chat/conversations"] em:before { content: "💬"; }
@@ -36,9 +47,9 @@
 
 /* ===== Header ===== */
 .topnavbar .fa-navicon:before { content: "☰"; }
-.topnavbar .fa-flag:before { content: "⚑"; }
+.topnavbar .fa-flag:before { content: "🚩"; }
 .topnavbar .icon-bell:before { content: "🔔"; }
-.topnavbar .icon-notebook:before { content: "▢"; }
+.topnavbar .icon-notebook:before { content: "📝"; }
 .topnavbar .topnav-new .fa-plus:before { content: "＋"; }
 
 /* ===== Clock In / Clock Out buttons (page heading) ===== */

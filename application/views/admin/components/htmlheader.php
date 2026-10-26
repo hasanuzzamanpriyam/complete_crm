@@ -47,7 +47,7 @@
         <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/app.css?v=23" id="maincss">
     <?php } ?>
     <!-- =============== GLYPH ICON OVERRIDES (sidebar / header / clock) ===============-->
-    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/glyph_icons.css?v=1">
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/glyph_icons.css?v=4">
     <?php if (strpos(uri_string(), 'mailbox') !== false) { ?>
         <link rel="stylesheet" type="text/css" href="<?= base_url() ?>assets/css/mailbox_modern.css?v=3">
     <?php } ?>
