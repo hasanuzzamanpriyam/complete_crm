@@ -1,4 +1,4 @@
-# TIC CRM - Comprehensive Business Management Platform
+# CRM - Comprehensive Business Management Platform
 
 A full-featured CRM and business management system built with **PHP (CodeIgniter 3.x)** and **MySQL/MariaDB**. This platform combines customer relationship management, sales automation, billing, payment processing, employee management, attendance tracking, and administrative tools in a single integrated solution.
 
