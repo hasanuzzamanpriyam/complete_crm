@@ -375,14 +375,6 @@ This project is proprietary software. All rights reserved.
 
 ---
 
-## 📞 Support
-
-- **PipraPay Server**: [piprapay.com/support](https://piprapay.com/support)
-- **General CRM Issues**: Create an issue in this repository
-- **Email**: [support@tic-crm.com](mailto:support@tic-crm.com)
-
----
-
 ## 🙏 Acknowledgments
 
 - [CodeIgniter](https://codeigniter.com/) - PHP Framework
